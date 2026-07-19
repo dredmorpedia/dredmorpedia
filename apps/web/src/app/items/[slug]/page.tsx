@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return loadArtifact().entities.items.map((item) => ({ slug: item.slug }));
+  return loadArtifact().entities.items.flatMap((item) =>
+    entityRouteSlugs(item).map((slug) => ({ slug })),
+  );
 }
 
 export async function generateMetadata({
@@ -16,11 +20,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const item = loadArtifact().entities.items.find(
-    (entry) => entry.slug === slug,
+  const item = loadArtifact().entities.items.find((entry) =>
+    matchesEntityRoute(entry, slug),
   );
   return item
-    ? { title: item.name, description: item.description }
+    ? {
+        title: item.name,
+        description: item.description,
+        ...(slug === item.slug
+          ? {}
+          : { robots: { index: false, follow: true } }),
+      }
     : { title: "Item not found" };
 }
 
@@ -31,7 +41,9 @@ export default async function ItemPage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
-  const item = artifact.entities.items.find((entry) => entry.slug === slug);
+  const item = artifact.entities.items.find((entry) =>
+    matchesEntityRoute(entry, slug),
+  );
   if (!item) {
     notFound();
   }
@@ -50,6 +62,7 @@ export default async function ItemPage({
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
+  const isAlias = slug !== item.slug;
 
   return (
     <article className="detail-page">
@@ -58,6 +71,20 @@ export default async function ItemPage({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{item.name}</span>
       </nav>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This source-ID URL resolves to {item.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/items/${item.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <header className="detail-header">
         <div>

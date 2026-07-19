@@ -17,6 +17,7 @@ function monster(name: string, inheritsKey?: string): Monster {
     kind: "monster",
     canonicalKey,
     slug: canonicalKey.replaceAll(" ", "-"),
+    slugAliases: [],
     name,
     description: "",
     taxonomy: inheritsKey ? "" : "Animal",

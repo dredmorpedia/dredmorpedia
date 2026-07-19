@@ -30,6 +30,7 @@ function candidate(
       kind: "item",
       canonicalKey: canonicalKey(name),
       slug: slugify(name),
+      slugAliases: [],
       name,
       description: `${sourceId} variant`,
       category: "weapon",

@@ -6,9 +6,10 @@ The fixture set deliberately includes:
 
 - representative items, stats, a recipe, a skill and ability, a spell chain, an inherited monster, and a targeting template;
 - a higher-precedence item override;
+- two items whose names normalize to the same route slug, with distinct source-ID aliases;
 - one malformed XML file;
 - one dangling item reference;
-- one missing asset; and
+- one missing asset;
 - one unsupported element; and
 - one valid but not-yet-normalized encrustment database.
 

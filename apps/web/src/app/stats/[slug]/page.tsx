@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+
 import { loadArtifact } from "@/lib/artifact";
 
 export const dynamicParams = false;
@@ -10,7 +12,7 @@ const unavailableSlug = "unavailable";
 export function generateStaticParams() {
   const stats = loadArtifact().entities.stats;
   return stats.length > 0
-    ? stats.map((stat) => ({ slug: stat.slug }))
+    ? stats.flatMap((stat) => entityRouteSlugs(stat).map((slug) => ({ slug })))
     : [{ slug: unavailableSlug }];
 }
 
@@ -20,8 +22,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const stat = loadArtifact().entities.stats.find(
-    (entry) => entry.slug === slug,
+  const stat = loadArtifact().entities.stats.find((entry) =>
+    matchesEntityRoute(entry, slug),
   );
   if (!stat && slug === unavailableSlug) {
     return {
@@ -30,7 +32,13 @@ export async function generateMetadata({
     };
   }
   return stat
-    ? { title: stat.name, description: stat.description }
+    ? {
+        title: stat.name,
+        description: stat.description,
+        ...(slug === stat.slug
+          ? {}
+          : { robots: { index: false, follow: true } }),
+      }
     : { title: "Stat not found" };
 }
 
@@ -41,7 +49,9 @@ export default async function StatPage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
-  const stat = artifact.entities.stats.find((entry) => entry.slug === slug);
+  const stat = artifact.entities.stats.find((entry) =>
+    matchesEntityRoute(entry, slug),
+  );
   if (
     !stat &&
     slug === unavailableSlug &&
@@ -82,6 +92,7 @@ export default async function StatPage({
     spell.effects.some((effect) => effect.statId === stat.id),
   );
   const referenceCount = items.length + spells.length;
+  const isAlias = slug !== stat.slug;
 
   return (
     <article className="detail-page">
@@ -90,6 +101,20 @@ export default async function StatPage({
         <span aria-hidden="true">/</span>
         <span aria-current="page">{stat.name}</span>
       </nav>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This source-ID URL resolves to {stat.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/stats/${stat.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <header className="detail-header">
         <div>

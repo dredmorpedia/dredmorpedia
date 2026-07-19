@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
+  allocateEntityRoutes,
   applyMonsterInheritance,
   canonicalKey,
   createSearchDocuments,
@@ -375,30 +376,70 @@ function resolveCollections(
     }
   }
 
-  const linkedStats = resolutions.stats.active;
+  const routed = {
+    items: allocateEntityRoutes(resolutions.items.active),
+    recipes: allocateEntityRoutes(resolutions.recipes.active),
+    skills: allocateEntityRoutes(resolutions.skills.active),
+    abilities: allocateEntityRoutes(resolutions.abilities.active),
+    spells: allocateEntityRoutes(resolutions.spells.active),
+    monsters: allocateEntityRoutes(resolutions.monsters.active),
+    stats: allocateEntityRoutes(resolutions.stats.active),
+    templates: allocateEntityRoutes(resolutions.templates.active),
+  };
+
+  for (const allocation of Object.values(routed)) {
+    for (const collision of allocation.slugCollisions) {
+      diagnostics.push({
+        severity: "warning",
+        code: "slug_collision",
+        message: `${collision.entityName} shares route slug ${collision.baseSlug}; assigned ${collision.assignedSlug}.`,
+        source: sourceLocation(collision.provenance),
+        entityId: collision.entityId,
+        details: {
+          baseSlug: collision.baseSlug,
+          assignedSlug: collision.assignedSlug,
+        },
+      });
+    }
+    for (const conflict of allocation.aliasConflicts) {
+      diagnostics.push({
+        severity: "warning",
+        code: "slug_alias_conflict",
+        message: `Omitted ambiguous route alias ${conflict.alias} for ${conflict.entityName}.`,
+        source: sourceLocation(conflict.provenance),
+        entityId: conflict.entityId,
+        details: {
+          alias: conflict.alias,
+          conflictingEntityIds: conflict.conflictingEntityIds,
+        },
+      });
+    }
+  }
+
+  const linkedStats = routed.stats.entities;
   const linkedItems = linkItems(
-    resolutions.items.active,
+    routed.items.entities,
     linkedStats,
     diagnostics,
   );
   const linkedRecipes = linkRecipes(
-    resolutions.recipes.active,
+    routed.recipes.entities,
     linkedItems,
     diagnostics,
   );
   const linkedSpells = linkSpells(
-    resolutions.spells.active,
+    routed.spells.entities,
     linkedStats,
     diagnostics,
   );
   const linkedAbilities = linkAbilities(
-    resolutions.abilities.active,
-    resolutions.skills.active,
+    routed.abilities.entities,
+    routed.skills.entities,
     linkedSpells,
     diagnostics,
   );
   const linkedSkills = linkSkills(
-    resolutions.skills.active,
+    routed.skills.entities,
     linkedAbilities,
     linkedItems,
     diagnostics,
@@ -410,9 +451,9 @@ function resolveCollections(
     skills: linkedSkills,
     abilities: linkedAbilities,
     spells: linkedSpells,
-    monsters: linkMonsters(resolutions.monsters.active, diagnostics),
+    monsters: linkMonsters(routed.monsters.entities, diagnostics),
     stats: linkedStats,
-    templates: resolutions.templates.active,
+    templates: routed.templates.entities,
   };
 }
 

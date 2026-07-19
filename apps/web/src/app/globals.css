@@ -335,6 +335,22 @@ input {
   padding: 1.25rem;
 }
 
+.alias-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--info);
+  border-radius: 0.5rem;
+  background: color-mix(in oklch, var(--surface) 90%, var(--info));
+  padding: 1rem 1.25rem;
+}
+
+.alias-note .eyebrow {
+  margin-block-end: 0.25rem;
+}
+
 .section-title {
   margin-block-start: 0.4rem;
   font-family: var(--font-serif);
@@ -700,6 +716,11 @@ input {
 
   .status-badge {
     display: none;
+  }
+
+  .alias-note {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

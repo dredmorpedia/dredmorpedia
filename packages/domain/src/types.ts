@@ -36,6 +36,7 @@ export interface NormalizedEntityBase {
   kind: EntityKind;
   canonicalKey: string;
   slug: string;
+  slugAliases: string[];
   name: string;
   description: string;
   provenance: EntityProvenance;

@@ -58,6 +58,7 @@ The web layer must not parse raw XML. The parser must not import UI code. Domain
 5. Implement the smallest coherent vertical slice, including tests and user-visible error states.
 6. Run the narrow checks first, then the repository-wide checks documented by the package once the new workspace exists.
 7. Update documentation when behavior, commands, constraints, or decisions change.
+8. When handing off a user-visible change, give the owner concise manual test steps with exact commands or routes and the expected result. Include both the primary behavior and the most relevant failure, accessibility, responsive, or regression check that can be verified locally.
 
 Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this file synchronized.
 
@@ -79,7 +80,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 
 ## Definition of done
 
-A change is done when its behavior is implemented, relevant automated checks pass, failure states are handled, documentation is current, and no restricted data or unrelated edits were introduced. Data-pipeline changes also require deterministic-output and broken-reference checks. UI changes also require desktop/mobile and keyboard verification proportional to the change.
+A change is done when its behavior is implemented, relevant automated checks pass, failure states are handled, documentation is current, manual verification steps are provided to the owner, and no restricted data or unrelated edits were introduced. Data-pipeline changes also require deterministic-output and broken-reference checks. UI changes also require desktop/mobile and keyboard verification proportional to the change.
 
 ## Legacy editing rules
 

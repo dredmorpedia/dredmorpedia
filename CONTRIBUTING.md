@@ -25,6 +25,8 @@ pnpm --filter @dredmorpedia/web exec playwright install chromium
 pnpm test:e2e
 ```
 
+`pnpm test:e2e` first builds the production static export, then serves it on an isolated test port. It can run while `pnpm dev` is already using port 3000.
+
 Start local development with `pnpm dev`. It generates the legal synthetic spike artifact before starting the Next.js application. Generated output under `data/generated/` is ignored and must remain outside source roots.
 
 Audit the committed legacy baseline with:

@@ -134,6 +134,7 @@ function baseEntity<K extends EntityKind>(
     kind,
     canonicalKey: canonicalKey(name),
     slug: slugify(name),
+    slugAliases: [],
     name,
     description,
     provenance,

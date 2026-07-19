@@ -69,6 +69,26 @@ test("searches items and stats with shareable structured filters", async ({
   await expect(page).toHaveURL(/\/search\/?$/);
 });
 
+test("resolves a source-ID alias to its canonical item route", async ({
+  page,
+}) => {
+  await page.goto("/items/clockwork-blade-plus/");
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "This source-ID URL resolves to Clockwork Blade",
+    }),
+  ).toBeVisible();
+  const canonical = page.getByRole("link", { name: "Open canonical URL" });
+  await expect(canonical).toHaveAttribute("href", "/items/clockwork-blade/");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex, follow",
+  );
+  await canonical.click();
+  await expect(page).toHaveURL(/\/items\/clockwork-blade\/$/);
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -76,6 +96,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/",
     "/search/",
     "/items/clockwork-blade/",
+    "/items/clockwork-blade-plus/",
     "/stats/melee-power/",
   ]) {
     await page.goto(route);

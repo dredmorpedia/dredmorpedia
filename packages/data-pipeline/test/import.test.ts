@@ -109,7 +109,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(3);
+    expect(result.artifact.entities.items).toHaveLength(5);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(1);
@@ -118,7 +118,7 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.stats).toHaveLength(2);
     expect(result.artifact.entities.templates).toHaveLength(1);
     expect(result.artifact.schemaVersion).toBe(2);
-    expect(result.search.documents).toHaveLength(13);
+    expect(result.search.documents).toHaveLength(15);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 2,
@@ -132,6 +132,7 @@ describe("synthetic dataset import", () => {
     expect(blade).toMatchObject({
       price: 155,
       provenance: { sourceId: "synthetic-expansion" },
+      slugAliases: ["clockwork-blade-plus"],
     });
     expect(blade?.variants.map((variant) => variant.sourceId)).toEqual([
       "synthetic-base",
@@ -146,6 +147,14 @@ describe("synthetic dataset import", () => {
       iconPath: "assets/synthetic.svg",
       inheritsId: "monster:training diggle",
     });
+    const trainingWands = result.artifact.entities.items.filter((item) =>
+      item.name.startsWith("Training Wand"),
+    );
+    expect(trainingWands).toHaveLength(2);
+    expect(new Set(trainingWands.map((item) => item.slug)).size).toBe(2);
+    expect(trainingWands.some((item) => item.slug === "training-wand-1")).toBe(
+      true,
+    );
     expect(diagnosticCodes).toEqual(
       expect.arrayContaining([
         "duplicate_entity",
@@ -154,6 +163,7 @@ describe("synthetic dataset import", () => {
         "missing_asset",
         "unknown_element",
         "unsupported_database_kind",
+        "slug_collision",
       ]),
     );
     expect(
