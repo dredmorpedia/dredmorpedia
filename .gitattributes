@@ -1,0 +1,6 @@
+/.editorconfig text eol=lf
+/.gitattributes text eol=lf
+/.gitignore text eol=lf
+/*.md text eol=lf
+/docs/** text eol=lf
+/scripts/** text eol=lf

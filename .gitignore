@@ -1,0 +1,48 @@
+# Operating-system and editor files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+.idea/
+.vscode/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Future Node/TypeScript workspace output
+node_modules/
+.pnpm-store/
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Local imports and generated artifacts; publication requires an explicit policy decision
+/data/raw/
+/data/generated/
+
+# Proprietary files copied locally for the preserved application. Keep source descriptors only.
+/legacy/data/*
+!/legacy/data/game/
+/legacy/data/game/*
+!/legacy/data/game/mod.xml
+
+/legacy/expansion/*
+!/legacy/expansion/game/
+/legacy/expansion/game/*
+!/legacy/expansion/game/mod.xml
+
+/legacy/expansion2/*
+!/legacy/expansion2/game/
+/legacy/expansion2/game/*
+!/legacy/expansion2/game/mod.xml
+
+/legacy/expansion3/*
+!/legacy/expansion3/game/
+/legacy/expansion3/game/*
+!/legacy/expansion3/game/mod.xml
