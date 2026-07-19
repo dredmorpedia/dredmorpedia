@@ -71,6 +71,59 @@ describe("stable identity", () => {
     expect(forward.slugCollisions).toHaveLength(1);
   });
 
+  it("pins registered canonical routes and historical aliases", () => {
+    const symbolic = routeItem("Training Wand +1", "training-wand-plus");
+    const numeric = routeItem("Training Wand 1", "training-wand-one");
+    const reservation = {
+      entityId: numeric.id,
+      canonicalSlug: "training-wand-1",
+      aliases: ["old-training-wand"],
+    };
+
+    const forward = allocateEntityRoutes([symbolic, numeric], [reservation]);
+    const reverse = allocateEntityRoutes([numeric, symbolic], [reservation]);
+
+    expect(forward).toEqual(reverse);
+    expect(
+      forward.entities.find((entity) => entity.id === numeric.id),
+    ).toMatchObject({
+      slug: "training-wand-1",
+      slugAliases: ["old-training-wand", "training-wand-one"],
+    });
+    expect(
+      forward.entities.find((entity) => entity.id === symbolic.id)?.slug,
+    ).toMatch(/^training-wand-1-[a-z0-9]{7}$/);
+  });
+
+  it("keeps a registered alias when an automatic source alias conflicts", () => {
+    const first = routeItem("First Wand", "reserved-alias");
+    const second = routeItem("Second Wand", "second-wand-id");
+    const result = allocateEntityRoutes(
+      [first, second],
+      [
+        {
+          entityId: second.id,
+          canonicalSlug: "second-wand",
+          aliases: ["reserved-alias"],
+        },
+      ],
+    );
+
+    expect(
+      result.entities.find((entity) => entity.id === second.id)?.slugAliases,
+    ).toEqual(["reserved-alias", "second-wand-id"]);
+    expect(
+      result.entities.find((entity) => entity.id === first.id)?.slugAliases,
+    ).toEqual([]);
+    expect(result.aliasConflicts).toMatchObject([
+      {
+        entityId: first.id,
+        alias: "reserved-alias",
+        conflictingEntityIds: [first.id, second.id],
+      },
+    ]);
+  });
+
   it("omits aliases claimed by another entity or canonical route", () => {
     const first = routeItem("First Wand", "second-wand");
     const second = routeItem("Second Wand", "second-wand");

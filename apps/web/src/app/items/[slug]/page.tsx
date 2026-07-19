@@ -75,7 +75,7 @@ export default async function ItemPage({
           <div>
             <p className="eyebrow">Alias route</p>
             <h2 id="alias-heading" className="font-semibold">
-              This source-ID URL resolves to {item.name}
+              This alternate URL resolves to {item.name}
             </h2>
           </div>
           <Link className="entity-link" href={`/items/${item.slug}`}>

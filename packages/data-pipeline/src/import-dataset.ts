@@ -35,6 +35,11 @@ import {
   type CandidateCollections,
 } from "./normalizers";
 import { loadPatchDefinition } from "./patches";
+import {
+  loadRouteRegistry,
+  resolveRouteRegistry,
+  type RouteRegistryDefinition,
+} from "./route-registry";
 import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 import { sha256, stableSerialize } from "./serialization";
 import { parseXml, type DiagnosticDraft } from "./xml-adapter";
@@ -350,6 +355,7 @@ function countDiagnostics(
 function resolveCollections(
   candidates: CandidateCollections,
   patches: readonly EntityPatchDefinition[],
+  routeRegistry: RouteRegistryDefinition | undefined,
   datasetId: string,
   datasetVersion: string,
   sourceVersions: ReadonlyMap<string, string>,
@@ -464,15 +470,81 @@ function resolveCollections(
     }
   }
 
+  const routeReservations = routeRegistry
+    ? resolveRouteRegistry(
+        patchedEntities,
+        routeRegistry,
+        datasetId,
+        datasetVersion,
+      )
+    : undefined;
+  if (routeRegistry && routeReservations) {
+    const registrySource: SourceLocation = {
+      sourceId: "route-registry",
+      file: routeRegistry.file,
+      line: 1,
+      column: 1,
+    };
+    for (const issue of routeReservations.issues) {
+      diagnostics.push({
+        severity: "error",
+        code: issue.code,
+        message: issue.message,
+        source: registrySource,
+        ...(issue.entityId ? { entityId: issue.entityId } : {}),
+        ...(issue.entryIndex === undefined
+          ? {}
+          : { details: { entryIndex: issue.entryIndex } }),
+      });
+    }
+    for (const application of routeReservations.applications) {
+      diagnostics.push({
+        severity: "info",
+        code: "route_registry_applied",
+        message: `Pinned route ${application.canonicalSlug} for ${application.entityName}.`,
+        source: registrySource,
+        entityId: application.entityId,
+        details: {
+          canonicalSlug: application.canonicalSlug,
+          aliases: application.aliases,
+        },
+      });
+    }
+  }
+
   const routed = {
-    items: allocateEntityRoutes(patchedEntities.items),
-    recipes: allocateEntityRoutes(patchedEntities.recipes),
-    skills: allocateEntityRoutes(patchedEntities.skills),
-    abilities: allocateEntityRoutes(patchedEntities.abilities),
-    spells: allocateEntityRoutes(patchedEntities.spells),
-    monsters: allocateEntityRoutes(patchedEntities.monsters),
-    stats: allocateEntityRoutes(patchedEntities.stats),
-    templates: allocateEntityRoutes(patchedEntities.templates),
+    items: allocateEntityRoutes(
+      patchedEntities.items,
+      routeReservations?.reservations,
+    ),
+    recipes: allocateEntityRoutes(
+      patchedEntities.recipes,
+      routeReservations?.reservations,
+    ),
+    skills: allocateEntityRoutes(
+      patchedEntities.skills,
+      routeReservations?.reservations,
+    ),
+    abilities: allocateEntityRoutes(
+      patchedEntities.abilities,
+      routeReservations?.reservations,
+    ),
+    spells: allocateEntityRoutes(
+      patchedEntities.spells,
+      routeReservations?.reservations,
+    ),
+    monsters: allocateEntityRoutes(
+      patchedEntities.monsters,
+      routeReservations?.reservations,
+    ),
+    stats: allocateEntityRoutes(
+      patchedEntities.stats,
+      routeReservations?.reservations,
+    ),
+    templates: allocateEntityRoutes(
+      patchedEntities.templates,
+      routeReservations?.reservations,
+    ),
   };
 
   for (const allocation of Object.values(routed)) {
@@ -599,6 +671,17 @@ export function importDataset(
     }
     patchIds.add(patch.id);
   }
+  const routeRegistry = loaded.manifest.routeRegistry
+    ? (() => {
+        const absolutePath = resolveExistingWithin(
+          repositoryRoot,
+          loaded.manifest.routeRegistry,
+        );
+        const displayPath = toPosixPath(loaded.manifest.routeRegistry);
+        registerInput(absolutePath, displayPath);
+        return loadRouteRegistry(absolutePath, displayPath);
+      })()
+    : undefined;
 
   for (const [sourceIndex, resolvedSource] of resolvedSources.entries()) {
     const {
@@ -662,6 +745,7 @@ export function importDataset(
   const linkedEntities = resolveCollections(
     candidates,
     patches,
+    routeRegistry,
     loaded.manifest.datasetId,
     loaded.manifest.datasetVersion,
     new Map(

@@ -193,6 +193,87 @@ describe("synthetic dataset import", () => {
     ).toThrow(/Duplicate patch id/);
   });
 
+  it("rejects a stale route registry atomically", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-stale-routes-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      '<?xml version="1.0"?><items><item id="route-guard" name="Route Guard Item" type="material" /></items>',
+    );
+    writeFileSync(
+      path.join(temporaryRoot, "routes.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "route-guard-test",
+        datasetVersion: "1.0.0",
+        entries: [
+          {
+            entityKind: "item",
+            target: {
+              type: "source-id",
+              sourceId: "route-guard-source",
+              originalId: "route-guard",
+            },
+            canonicalSlug: "pinned-route",
+            aliases: [],
+          },
+          {
+            entityKind: "item",
+            target: {
+              type: "source-id",
+              sourceId: "route-guard-source",
+              originalId: "missing-item",
+            },
+            canonicalSlug: "missing-route",
+            aliases: [],
+          },
+        ],
+      }),
+    );
+    const guardedManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      guardedManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "route-guard-test",
+        datasetVersion: "1.0.0",
+        routeRegistry: "routes.json",
+        sources: [
+          {
+            id: "route-guard-source",
+            label: "Route Guard Source",
+            kind: "fixture",
+            version: "1.0.0",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+        patches: [],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: guardedManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.entities.items[0]).toMatchObject({
+      slug: "route-guard-item",
+      slugAliases: ["route-guard"],
+    });
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        code: "route_registry_target_missing",
+      }),
+    ]);
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -252,7 +333,7 @@ describe("synthetic dataset import", () => {
     expect(blade).toMatchObject({
       price: 160,
       provenance: { sourceId: "synthetic-expansion" },
-      slugAliases: ["clockwork-blade-plus"],
+      slugAliases: ["clockwork-blade-plus", "clockwork-sword"],
       appliedPatches: [
         {
           id: "synthetic-clockwork-blade-value",
@@ -294,10 +375,14 @@ describe("synthetic dataset import", () => {
         "unsupported_database_kind",
         "slug_collision",
         "patch_applied",
+        "route_registry_applied",
       ]),
     );
     expect(result.inputs.map((input) => input.file)).toContain(
       "fixtures/synthetic/patches/clockwork-blade-value.json",
+    );
+    expect(result.inputs.map((input) => input.file)).toContain(
+      "fixtures/synthetic/routes.json",
     );
     expect(
       result.diagnostics.find((diagnostic) => diagnostic.code === "invalid_xml")

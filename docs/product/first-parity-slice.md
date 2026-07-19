@@ -11,7 +11,7 @@ A player can find an item or stat, understand its normalized game values and sou
 ## Functional acceptance
 
 - Every normalized item has a stable static detail route with category, description, price, stats, source/file provenance, attached diagnostics, and known recipe relationships.
-- Name collisions receive deterministic unique canonical routes. Unambiguous source-ID aliases resolve to the same record and visibly link to its canonical URL.
+- Name collisions receive deterministic unique canonical routes. A version-scoped route registry preserves reviewed canonical slugs and historical aliases; unambiguous source-ID aliases are also generated. Every alternate path resolves to the same record and visibly links to its canonical URL.
 - Every available standalone stat definition has a stable static detail route with item and spell-effect backlinks plus source/file provenance.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
 - Search covers item and stat records and supports shareable text, entity-type, source, item-category, and item-stat filters.
@@ -35,6 +35,6 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter API, shareable global search route, collision-safe canonical routes and source-ID aliases, static stat routes, item/stat backlinks, explicit empty-stat-definition state, and synthetic desktop/mobile browser coverage. Alias pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter API, shareable global search route, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat routes, item/stat backlinks, explicit empty-stat-definition state, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
 Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete item/relationship fields, and compare representative outputs with legacy behavior.

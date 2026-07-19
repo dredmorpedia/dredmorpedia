@@ -105,7 +105,7 @@ export default async function StatPage({
           <div>
             <p className="eyebrow">Alias route</p>
             <h2 id="alias-heading" className="font-semibold">
-              This source-ID URL resolves to {stat.name}
+              This alternate URL resolves to {stat.name}
             </h2>
           </div>
           <Link className="entity-link" href={`/stats/${stat.slug}`}>

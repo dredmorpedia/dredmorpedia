@@ -12,7 +12,7 @@ Dataset schema version: `3`
 
 Contains the dataset ID/version, language, ordered versioned source summaries, normalized entity collections, and diagnostic counts. Search documents were removed from version 2 so normal page generation does not load the search payload. Version 3 requires source-version provenance and field-level `appliedPatches` history.
 
-Every normalized entity has one canonical `slug` and a deterministically ordered `slugAliases` array. Name collisions retain the unsuffixed route for the first entity in canonical identity order and assign stable identity-derived suffixes to the others. Unambiguous source original IDs become aliases. An alias claimed by multiple entities, or by another entity's canonical slug, is omitted and reported as `slug_alias_conflict`; a reassigned colliding route is reported as `slug_collision`.
+Every normalized entity has one canonical `slug` and a deterministically ordered `slugAliases` array. A valid version-scoped route registry may pin a canonical slug and historical aliases to an active entity; those routes are reserved before automatic allocation. Unregistered name collisions retain the unsuffixed route for the first entity in canonical identity order and assign stable identity-derived suffixes to the others. Unambiguous source original IDs become aliases. An automatic alias claimed by multiple entities, by another entity's canonical slug, or by a registered owner is omitted and reported as `slug_alias_conflict`; a reassigned colliding route is reported as `slug_collision`. Registry aliases remain authoritative.
 
 ### `search.json`
 
@@ -35,12 +35,12 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 - Dataset IDs must match across normalized, search, and manifest artifacts.
 - `search.json.datasetSchemaVersion` must equal `artifact.json.schemaVersion`.
 - Inputs, entities, diagnostics, search documents, and manifest entries use deterministic ordering.
-- Canonical route slugs are unique within the dataset, and an alias never resolves to more than one canonical entity.
+- Canonical route slugs are unique within an entity kind, and an alias never resolves to more than one canonical entity of that kind.
 - Identical inputs and generator code must produce byte-identical files.
 - Writes use per-file atomic replacement and are refused inside an input source root.
 - The web layer fails its build on an unsupported artifact version rather than guessing at compatibility.
 
-The source input and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).
+The source input, published-route registry, and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).
 
 ## Evolution rules
 

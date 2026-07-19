@@ -84,6 +84,7 @@ const manifestV2Schema = z
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
     sources: z.array(sourceV2Schema).min(1),
+    routeRegistry: z.string().min(1).optional(),
     patches: z.array(patchReferenceSchema),
   })
   .superRefine(validateUniqueEntries);
@@ -147,6 +148,9 @@ export function loadManifest(
   }
   for (const patch of manifest.patches) {
     resolveExistingWithin(resolvedRepositoryRoot, patch.path);
+  }
+  if (manifest.routeRegistry) {
+    resolveExistingWithin(resolvedRepositoryRoot, manifest.routeRegistry);
   }
 
   const manifestDisplayPath = isPathWithin(

@@ -64,6 +64,12 @@ export interface EntityRouteAllocation<T extends NormalizedEntity> {
   aliasConflicts: SlugAliasConflict[];
 }
 
+export interface EntityRouteReservation {
+  entityId: string;
+  canonicalSlug: string;
+  aliases: string[];
+}
+
 function stableSlugSuffix(value: string): string {
   let hash = 2_166_136_261;
   for (const character of value.normalize("NFC")) {
@@ -87,6 +93,7 @@ function collisionSlug(
   baseSlug: string,
   entityId: string,
   occupied: Set<string>,
+  protectedSlugs: ReadonlySet<string>,
 ): string {
   let attempt = 0;
   let candidate = "";
@@ -94,15 +101,20 @@ function collisionSlug(
     const hashInput = attempt === 0 ? entityId : `${entityId}:${attempt}`;
     candidate = `${baseSlug}-${stableSlugSuffix(hashInput)}`;
     attempt += 1;
-  } while (occupied.has(candidate));
+  } while (occupied.has(candidate) || protectedSlugs.has(candidate));
   occupied.add(candidate);
   return candidate;
 }
 
 export function allocateEntityRoutes<T extends NormalizedEntity>(
   entities: readonly T[],
+  reservations: readonly EntityRouteReservation[] = [],
 ): EntityRouteAllocation<T> {
   const sorted = [...entities].sort(compareEntities);
+  const entityIds = new Set(sorted.map((entity) => entity.id));
+  const activeReservations = reservations
+    .filter((reservation) => entityIds.has(reservation.entityId))
+    .sort((left, right) => left.entityId.localeCompare(right.entityId, "en"));
   const groups = new Map<string, T[]>();
   for (const entity of sorted) {
     const baseSlug = slugify(entity.name);
@@ -111,19 +123,36 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
     groups.set(baseSlug, group);
   }
 
-  const occupied = new Set(groups.keys());
+  const protectedBaseSlugs = new Set(groups.keys());
+  const occupied = new Set<string>();
   const assignedSlugs = new Map<string, string>();
   const slugCollisions: SlugCollisionResolution[] = [];
+  for (const reservation of activeReservations) {
+    assignedSlugs.set(reservation.entityId, reservation.canonicalSlug);
+    occupied.add(reservation.canonicalSlug);
+    for (const alias of reservation.aliases) {
+      occupied.add(alias);
+    }
+  }
   for (const [baseSlug, members] of [...groups].sort(([left], [right]) =>
     left.localeCompare(right, "en"),
   )) {
     members.sort(compareEntities);
-    const owner = members[0];
-    if (owner) {
+    const unreserved = members.filter(
+      (entity) => !assignedSlugs.has(entity.id),
+    );
+    const owner = occupied.has(baseSlug) ? undefined : unreserved.shift();
+    if (owner !== undefined) {
       assignedSlugs.set(owner.id, baseSlug);
+      occupied.add(baseSlug);
     }
-    for (const entity of members.slice(1)) {
-      const assignedSlug = collisionSlug(baseSlug, entity.id, occupied);
+    for (const entity of unreserved) {
+      const assignedSlug = collisionSlug(
+        baseSlug,
+        entity.id,
+        occupied,
+        protectedBaseSlugs,
+      );
       assignedSlugs.set(entity.id, assignedSlug);
       slugCollisions.push({
         entityId: entity.id,
@@ -146,6 +175,14 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
   const canonicalOwners = new Map(
     routed.map((entity) => [entity.slug, entity.id]),
   );
+  const registryAliasOwners = new Map<string, string>();
+  const aliasesByEntity = new Map<string, string[]>();
+  for (const reservation of activeReservations) {
+    aliasesByEntity.set(reservation.entityId, [...reservation.aliases]);
+    for (const alias of reservation.aliases) {
+      registryAliasOwners.set(alias, reservation.entityId);
+    }
+  }
   const aliasClaims = new Map<string, Set<string>>();
   for (const entity of routed) {
     const candidates = [
@@ -164,7 +201,6 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
     }
   }
 
-  const aliasesByEntity = new Map<string, string[]>();
   const aliasConflicts: SlugAliasConflict[] = [];
   for (const [alias, claimSet] of [...aliasClaims].sort(([left], [right]) =>
     left.localeCompare(right, "en"),
@@ -172,6 +208,27 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
     const claimants = [...claimSet].sort((left, right) =>
       left.localeCompare(right, "en"),
     );
+    const registryOwner = registryAliasOwners.get(alias);
+    if (registryOwner) {
+      for (const entityId of claimants.filter(
+        (claimant) => claimant !== registryOwner,
+      )) {
+        const entity = routed.find((candidate) => candidate.id === entityId);
+        if (!entity) {
+          continue;
+        }
+        aliasConflicts.push({
+          entityId,
+          entityName: entity.name,
+          alias,
+          conflictingEntityIds: [entityId, registryOwner].sort((left, right) =>
+            left.localeCompare(right, "en"),
+          ),
+          provenance: entity.provenance,
+        });
+      }
+      continue;
+    }
     const canonicalOwner = canonicalOwners.get(alias);
     const conflicts = [
       ...new Set([...claimants, ...(canonicalOwner ? [canonicalOwner] : [])]),

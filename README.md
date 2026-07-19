@@ -2,7 +2,7 @@
 
 Dredmorpedia is being rebuilt as a modern encyclopedia and planning toolkit for [Dungeons of Dredmor](https://www.dungeonsofdredmor.com/). This fork preserves the historical application as a behavioral reference while a typed, deterministic, accessible replacement is developed from scratch.
 
-The repository has completed its architecture spike and is building the first parity foundation. The legacy application remains isolated and runnable, while a strict TypeScript workspace provides deterministic synthetic XML import, versioned source/patch provenance and normalized/search artifacts, collision-safe static item/stat routes with source-ID aliases, shareable structured search, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
+The repository has completed its architecture spike and is building the first parity foundation. The legacy application remains isolated and runnable, while a strict TypeScript workspace provides deterministic synthetic XML import, versioned source/patch provenance and normalized/search artifacts, collision-safe static item/stat routes, a version-scoped canonical-route/alias registry, shareable structured search, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
 
 ## Repository map
 
@@ -17,7 +17,7 @@ The repository has completed its architecture spike and is building the first pa
 - [`docs/architecture/`](docs/architecture/) - recommended rebuild architecture and technical stack.
 - [`docs/decisions/`](docs/decisions/) - architecture decision records (ADRs).
 - [`docs/contracts/generated-artifacts.md`](docs/contracts/generated-artifacts.md) - versioned normalized/search artifact contract.
-- [`docs/contracts/source-manifest-and-patches.md`](docs/contracts/source-manifest-and-patches.md) - source versions, precedence, and guarded patch-overlay contract.
+- [`docs/contracts/source-manifest-and-patches.md`](docs/contracts/source-manifest-and-patches.md) - source versions, precedence, published-route registry, and guarded patch-overlay contract.
 - [`docs/product/first-parity-slice.md`](docs/product/first-parity-slice.md) - draft acceptance statement for items, stats, provenance, and search.
 - [`docs/roadmap.md`](docs/roadmap.md) - delivery phases and exit criteria.
 - [`docs/data-and-assets-policy.md`](docs/data-and-assets-policy.md) - current rules for local game files, generated data, and publication.

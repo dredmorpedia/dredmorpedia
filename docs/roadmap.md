@@ -73,7 +73,7 @@ Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; 
 
 Every package boundary has tests and documented commands; the web shell meets the agreed mobile/keyboard baseline; pipeline output has a versioned contract.
 
-Progress on 2026-07-19: dataset schema 3, search schema 1, output-manifest schema 2, source-manifest schema 2, guarded patch overlays, versioned provenance UI, deterministic query logic, collision-safe canonical routes and source-ID aliases, search/stat routes, and desktop/mobile browser coverage are implemented. A published-route migration registry, broader relation APIs, dependency policy, and final foundation documentation remain.
+Progress on 2026-07-19: dataset schema 3, search schema 1, output-manifest schema 2, source-manifest schema 2, guarded patch overlays, a version-scoped published-route registry, versioned provenance UI, deterministic query logic, collision-safe canonical routes and alternate aliases, search/stat routes, and desktop/mobile browser coverage are implemented. Broader relation APIs, dependency policy, and final foundation documentation remain.
 
 ## Phase 3 — First vertical product slice
 

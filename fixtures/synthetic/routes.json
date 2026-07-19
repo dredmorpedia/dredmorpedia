@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "synthetic-architecture-spike",
+  "datasetVersion": "1.0.0",
+  "entries": [
+    {
+      "entityKind": "item",
+      "target": {
+        "type": "source-id",
+        "sourceId": "synthetic-expansion",
+        "originalId": "clockwork-blade-plus"
+      },
+      "canonicalSlug": "clockwork-blade",
+      "aliases": ["clockwork-sword"]
+    },
+    {
+      "entityKind": "item",
+      "target": {
+        "type": "source-id",
+        "sourceId": "synthetic-base",
+        "originalId": "training-wand-plus"
+      },
+      "canonicalSlug": "training-wand-1",
+      "aliases": []
+    }
+  ]
+}

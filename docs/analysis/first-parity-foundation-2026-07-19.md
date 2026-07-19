@@ -1,7 +1,7 @@
 # First parity foundation result
 
 Date: 2026-07-19
-Scope: split generated artifacts, project-owned search/query logic, collision-safe item/stat routes, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
+Scope: split generated artifacts, project-owned search/query logic, collision-safe and registry-pinned item/stat routes, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
 
 ## Implemented result
 
@@ -9,25 +9,26 @@ Scope: split generated artifacts, project-owned search/query logic, collision-sa
 - Search artifact schema version 1 records the matching dataset schema, dataset identity, normalized text, routes, and entity/source/category/stat facets.
 - Manifest schema version 2 checksums the normalized, search, and diagnostic outputs.
 - Source manifest schema version 2 declares dataset/source versions and ordered repository-contained patch files. Guarded patches apply atomically after precedence and before linking; stale scope or expected values fail with diagnostics.
+- An optional route-registry schema version 1 pins canonical slugs and historical aliases to exact active source identities for one dataset version. Stale, ambiguous, duplicate, or conflicting entries reject the registry atomically.
 - Deterministic domain queries combine all-token text matching with entity, source, category, and stat filters. Exact and prefix name matches rank first with stable tie-breaking.
 - `/search` loads the separate search payload, preserves filters in the URL, exposes total results, and renders at most 50 records.
 - Static stat routes provide item and spell-effect backlinks plus provenance. Datasets with no standalone stat definitions emit an explicit unavailable state.
 - The item detail route links normalized stats to available stat definitions.
 - Item/stat provenance displays dataset/source versions, override history, and reviewed patch reasons with field-level before/after values.
-- Canonical item/stat routes use deterministic collision resolution. Unambiguous source original IDs are generated as alias paths; alias pages identify themselves, link to the canonical path, and use `noindex, follow` metadata.
+- Canonical item/stat routes use deterministic collision resolution. Registry routes are reserved before automatic allocation; registered historical aliases and unambiguous source original IDs generate alternate paths. Alias pages identify themselves, link to the canonical path, and use `noindex, follow` metadata.
 - Browser tests build and serve the static export on their own local port, so they can run while the development server is open.
 
 The formal file contract is in [`../contracts/generated-artifacts.md`](../contracts/generated-artifacts.md). The product acceptance draft is in [`../product/first-parity-slice.md`](../product/first-parity-slice.md).
 
 ## Synthetic verification
 
-- Normalized artifact: 19,783 bytes.
+- Normalized artifact: 19,918 bytes.
 - Search artifact: 6,021 bytes for 15 documents.
-- Diagnostics remain the intentional 1 error and 5 warnings, with 2 info records for precedence and the guarded synthetic patch.
-- Domain/pipeline tests: 20 passed.
+- Diagnostics remain the intentional 1 error and 5 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
+- Domain/pipeline tests: 25 passed.
 - Browser tests: 8 passed across desktop and mobile Chromium.
-- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat, and item-alias routes.
-- Desktop and 412-pixel mobile layouts were visually inspected. The filter grid, result cards, navigation, alias notice, stat relationships, and provenance reflow without horizontal overflow.
+- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat, source-ID alias, and registered historical-alias routes.
+- Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, navigation, stat relationships, and provenance reflow without horizontal overflow.
 
 ## Read-only official verification
 
@@ -47,4 +48,4 @@ All official-derived outputs remain ignored and are not approved for commit or p
 
 The existing local official manifest remains readable through the schema version 1 migration path. It activates no patches and reports dataset/source versions as `unversioned`; a reviewed local schema version 2 manifest is required before those labels are used for release provenance.
 
-The deterministic collision owner is derived from canonical identity order. Before already-published datasets evolve, a release process should add a persistent route registry or explicit migration aliases so a newly introduced collision cannot silently move an established public URL.
+The route-registry mechanism is implemented and verified with synthetic identities. A public release process must populate and review the registry only after the official-data publication policy permits the derived identity/slug inventory.
