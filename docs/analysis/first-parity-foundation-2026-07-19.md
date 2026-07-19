@@ -1,7 +1,7 @@
 # First parity foundation result
 
 Date: 2026-07-19
-Scope: split generated artifacts, project-owned search/query logic, collision-safe and registry-pinned item/stat routes, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
+Scope: split generated artifacts, project-owned search/query logic, collision-safe and registry-pinned item/stat/recipe routes, crafting backlinks, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
 
 ## Implemented result
 
@@ -14,6 +14,8 @@ Scope: split generated artifacts, project-owned search/query logic, collision-sa
 - `/search` loads the separate search payload, preserves filters in the URL, exposes total results, and renders at most 50 records.
 - Static stat routes provide item and spell-effect backlinks plus provenance. Datasets with no standalone stat definitions emit an explicit unavailable state.
 - The item detail route links normalized stats to available stat definitions.
+- A deterministic domain query separates an item's crafted-by and used-to-craft relationships, including summed quantities and stable ordering.
+- Static recipe routes expose tool, skill requirement, visibility, linked inputs/outputs, provenance, and source-located diagnostics. Item pages link both directions and unresolved ingredients remain visibly unlinked.
 - Item/stat provenance displays dataset/source versions, override history, and reviewed patch reasons with field-level before/after values.
 - Canonical item/stat routes use deterministic collision resolution. Registry routes are reserved before automatic allocation; registered historical aliases and unambiguous source original IDs generate alternate paths. Alias pages identify themselves, link to the canonical path, and use `noindex, follow` metadata.
 - Browser tests build and serve the static export on their own local port, so they can run while the development server is open.
@@ -25,10 +27,10 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 - Normalized artifact: 19,918 bytes.
 - Search artifact: 6,021 bytes for 15 documents.
 - Diagnostics remain the intentional 1 error and 5 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
-- Domain/pipeline tests: 25 passed.
-- Browser tests: 8 passed across desktop and mobile Chromium.
-- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat, source-ID alias, and registered historical-alias routes.
-- Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, navigation, stat relationships, and provenance reflow without horizontal overflow.
+- Domain/pipeline tests: 27 passed.
+- Browser tests: 10 passed across desktop and mobile Chromium.
+- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe, source-ID alias, and registered historical-alias routes.
+- Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 
 ## Read-only official verification
 
@@ -39,7 +41,7 @@ The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset still produ
 - Diagnostics: 1,935,824 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - A 1,000-query local CPU benchmark over 2,710 documents measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency.
-- The GitHub Pages-subpath static build completed in approximately 16.2 seconds and emitted 769 HTML files, 6,917 total files, and 35,579,769 bytes.
+- The GitHub Pages-subpath static build, including all 374 recipe pages, completed in approximately 21.7 seconds and emitted 1,143 HTML files, 10,283 total files, and 53,973,362 bytes.
 - The generated JSON and static export contain no local installation or user-profile path.
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.

@@ -6,11 +6,12 @@ The first product slice is **items + stats + source provenance + search**. This 
 
 ## User outcome
 
-A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat relationships, and share a URL that preserves a structured search query. Missing definitions and broken relationships are visible rather than silently invented.
+A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat/recipe relationships, inspect crafting requirements, and share a URL that preserves a structured search query. Missing definitions and broken relationships are visible rather than silently invented.
 
 ## Functional acceptance
 
 - Every normalized item has a stable static detail route with category, description, price, stats, source/file provenance, attached diagnostics, and known recipe relationships.
+- Every linked recipe has a stable static detail route with tool, skill requirement, visibility, input/output quantities, source/file provenance, and attached diagnostics. Resolved items link both ways; unresolved ingredients remain visible without a fabricated item route.
 - Name collisions receive deterministic unique canonical routes. A version-scoped route registry preserves reviewed canonical slugs and historical aliases; unambiguous source-ID aliases are also generated. Every alternate path resolves to the same record and visibly links to its canonical URL.
 - Every available standalone stat definition has a stable static detail route with item and spell-effect backlinks plus source/file provenance.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
@@ -18,6 +19,7 @@ A player can find an item or stat, understand its normalized game values and sou
 - Text matching requires every normalized query token. Exact and prefix name matches rank above description-only matches; ties are deterministic.
 - Search renders at most 50 results at once and exposes the total match count and useful empty/reset states.
 - Item-to-stat and stat-to-item links do not produce broken routes for available definitions.
+- Item-to-recipe and recipe-to-item links do not produce broken routes for resolved references.
 
 ## Data and safety acceptance
 
@@ -28,13 +30,13 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Quality acceptance
 
-- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, and stat details.
-- Representative home, search, item, and stat pages have no automatically detected axe violations.
+- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, and recipe backlinks.
+- Representative home, search, item, stat, and recipe pages have no automatically detected axe violations.
 - Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
 - Representative relevance examples still require owner approval before ADR 0003 can be accepted.
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter API, shareable global search route, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat routes, item/stat backlinks, explicit empty-stat-definition state, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe routes, item/stat/crafting backlinks, explicit missing-definition states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete item/relationship fields, and compare representative outputs with legacy behavior.
+Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete item quality/trigger fields and encrustment relationships, and compare representative outputs with legacy behavior.

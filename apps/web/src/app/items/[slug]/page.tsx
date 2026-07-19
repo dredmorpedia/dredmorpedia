@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+import {
+  entityRouteSlugs,
+  itemRecipeRelationships,
+  matchesEntityRoute,
+} from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
@@ -52,10 +56,15 @@ export default async function ItemPage({
   const diagnostics = loadDiagnostics().filter((entry) =>
     item.diagnosticIds.includes(entry.id),
   );
-  const recipes = artifact.entities.recipes.filter((recipe) =>
-    [...recipe.inputs, ...recipe.outputs].some(
-      (reference) => reference.itemId === item.id,
-    ),
+  const recipeRelationships = itemRecipeRelationships(
+    artifact.entities.recipes,
+    item.id,
+  );
+  const craftedBy = recipeRelationships.filter(
+    (relationship) => relationship.outputAmount > 0,
+  );
+  const usedToCraft = recipeRelationships.filter(
+    (relationship) => relationship.inputAmount > 0,
   );
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
@@ -140,23 +149,51 @@ export default async function ItemPage({
 
         <section className="detail-card" aria-labelledby="relations-heading">
           <h2 id="relations-heading" className="section-title-sm">
-            Recipe relationships
+            Crafting relationships
           </h2>
-          {recipes.length > 0 ? (
-            <ul className="relation-list">
-              {recipes.map((recipe) => (
-                <li key={recipe.id}>
-                  <strong>{recipe.name}</strong>
-                  <span>
-                    {recipe.outputs.some(
-                      (reference) => reference.itemId === item.id,
-                    )
-                      ? "Produces this item"
-                      : "Uses this item"}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          {recipeRelationships.length > 0 ? (
+            <div className="relationship-groups">
+              {craftedBy.length > 0 ? (
+                <section aria-labelledby="crafted-by-heading">
+                  <h3 id="crafted-by-heading" className="relationship-title">
+                    Crafted by
+                  </h3>
+                  <ul className="relation-list">
+                    {craftedBy.map(({ recipe, outputAmount }) => (
+                      <li key={recipe.id}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/recipes/${recipe.slug}`}
+                        >
+                          {recipe.name}
+                        </Link>
+                        <span>Produces {outputAmount}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {usedToCraft.length > 0 ? (
+                <section aria-labelledby="used-to-craft-heading">
+                  <h3 id="used-to-craft-heading" className="relationship-title">
+                    Used to craft
+                  </h3>
+                  <ul className="relation-list">
+                    {usedToCraft.map(({ recipe, inputAmount }) => (
+                      <li key={recipe.id}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/recipes/${recipe.slug}`}
+                        >
+                          {recipe.name}
+                        </Link>
+                        <span>Uses {inputAmount}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">No linked recipes.</p>
           )}

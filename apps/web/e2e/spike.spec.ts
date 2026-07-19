@@ -99,6 +99,34 @@ test("resolves alternate aliases to their canonical item route", async ({
   }
 });
 
+test("follows explicit item and recipe backlinks", async ({ page }) => {
+  await page.goto("/items/brass-ingot/");
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Used to craft" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Clockwork Blade Recipe" }).click();
+  await expect(page).toHaveURL(/\/recipes\/clockwork-blade-recipe\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Clockwork Blade Recipe" }),
+  ).toBeVisible();
+  await expect(page.getByText("Required skill")).toBeVisible();
+  await expect(page.getByText("Visible recipe")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Ingredients" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Brass Ingot" })).toBeVisible();
+  await expect(page.getByText("Missing Cog", { exact: true })).toBeVisible();
+  await expect(page.getByText("Unresolved item")).toBeVisible();
+  await page.getByRole("link", { name: "Clockwork Blade" }).click();
+  await expect(page).toHaveURL(/\/items\/clockwork-blade\/$/);
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Crafted by" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade Recipe" }),
+  ).toBeVisible();
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -108,6 +136,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/clockwork-blade/",
     "/items/clockwork-blade-plus/",
     "/items/clockwork-sword/",
+    "/recipes/clockwork-blade-recipe/",
     "/stats/melee-power/",
   ]) {
     await page.goto(route);

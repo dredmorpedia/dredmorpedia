@@ -73,7 +73,7 @@ Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; 
 
 Every package boundary has tests and documented commands; the web shell meets the agreed mobile/keyboard baseline; pipeline output has a versioned contract.
 
-Progress on 2026-07-19: dataset schema 3, search schema 1, output-manifest schema 2, source-manifest schema 2, guarded patch overlays, a version-scoped published-route registry, versioned provenance UI, deterministic query logic, collision-safe canonical routes and alternate aliases, search/stat routes, and desktop/mobile browser coverage are implemented. Broader relation APIs, dependency policy, and final foundation documentation remain.
+Progress on 2026-07-19: dataset schema 3, search schema 1, output-manifest schema 2, source-manifest schema 2, guarded patch overlays, a version-scoped published-route registry, versioned provenance UI, deterministic search and item/recipe relationship queries, collision-safe canonical routes and alternate aliases, search/stat/recipe routes, and desktop/mobile browser coverage are implemented. Broader relation APIs, dependency policy, and final foundation documentation remain.
 
 ## Phase 3 — First vertical product slice
 
@@ -94,7 +94,7 @@ Recommended slice: **items + stats + source provenance + global search**, follow
 
 The slice is visibly better than legacy on correctness feedback, load behavior, responsive use, navigation, and search; representative outputs are checked against the legacy application and source XML.
 
-Progress on 2026-07-19: a synthetic-backed search route, item/stat detail links, stat backlinks/provenance, and an explicit no-stat-definition state are implemented. The acceptance statement remains a draft, official stat definitions need an approved source, and full item/relationship parity plus legacy comparisons remain.
+Progress on 2026-07-19: a synthetic-backed search route, item/stat detail links, stat backlinks/provenance, explicit no-stat-definition behavior, static recipe details, and bidirectional crafted-by/used-to-craft links are implemented. The acceptance statement remains a draft, official stat definitions need an approved source, and item quality/triggers, encrustment relationships, and legacy comparisons remain.
 
 ## Phase 4 — Legacy parity
 

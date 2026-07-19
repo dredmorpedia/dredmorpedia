@@ -2,7 +2,7 @@
 
 Dredmorpedia is being rebuilt as a modern encyclopedia and planning toolkit for [Dungeons of Dredmor](https://www.dungeonsofdredmor.com/). This fork preserves the historical application as a behavioral reference while a typed, deterministic, accessible replacement is developed from scratch.
 
-The repository has completed its architecture spike and is building the first parity foundation. The legacy application remains isolated and runnable, while a strict TypeScript workspace provides deterministic synthetic XML import, versioned source/patch provenance and normalized/search artifacts, collision-safe static item/stat routes, a version-scoped canonical-route/alias registry, shareable structured search, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
+The repository has completed its architecture spike and is building the first parity foundation. The legacy application remains isolated and runnable, while a strict TypeScript workspace provides deterministic synthetic XML import, versioned source/patch provenance and normalized/search artifacts, collision-safe static item/stat/recipe routes, explicit crafting backlinks, a version-scoped canonical-route/alias registry, shareable structured search, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
 
 ## Repository map
 

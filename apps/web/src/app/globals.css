@@ -560,6 +560,33 @@ input {
   font-weight: 700;
 }
 
+.recipe-facts {
+  display: grid;
+  align-self: end;
+  gap: 0.75rem;
+  margin: 0;
+  border-inline-start: 3px solid var(--primary);
+  padding-inline-start: 1rem;
+}
+
+.recipe-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.recipe-facts dt {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.recipe-facts dd {
+  margin: 0;
+  text-align: end;
+  font-weight: 700;
+}
+
 .detail-grid {
   display: grid;
   gap: 1rem;
@@ -646,6 +673,36 @@ input {
 
 .relation-list li {
   align-items: baseline;
+}
+
+.relationship-groups {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.relationship-title {
+  margin-block-end: 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recipe-reference-name {
+  display: grid;
+  gap: 0.15rem;
+  color: inherit;
+  font-size: inherit;
+}
+
+.recipe-reference-name small {
+  color: var(--danger);
+  font-size: 0.7rem;
+}
+
+.recipe-reference-list strong {
+  white-space: nowrap;
 }
 
 .diagnostic-list {
