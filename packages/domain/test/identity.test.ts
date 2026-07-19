@@ -28,6 +28,7 @@ function routeItem(name: string, originalId: string): Item {
     provenance,
     variants: [provenance],
     appliedOverrides: [],
+    appliedPatches: [],
     diagnosticIds: [],
     category: "wand",
     price: null,

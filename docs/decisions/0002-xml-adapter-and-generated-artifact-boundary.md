@@ -14,6 +14,7 @@ The legacy browser application loads many XML files directly into mutable UI-fac
 - Reject DOCTYPE declarations and invalid XML before normalization. Treat source content as untrusted and never expose parser-library shapes outside the pipeline.
 - Discover inputs from an explicit, ordered manifest. Resolve collisions by declared source precedence plus stable tie-breakers, never filesystem enumeration or request completion order.
 - Normalize into framework-independent types from `packages/domain`, retain losing variants, and preserve source ID, repository-relative source file, original name/ID, and source location.
+- Apply only manifest-declared, repository-contained patch files after source precedence and before relationship linking. Guard every patch by exact dataset/source versions and expected old values; apply it atomically and retain field-level patch history in provenance.
 - Link relationships in a deterministic second pass. Emit missing assets, dangling references, duplicate choices, unsupported elements, and parse failures as stable, source-located diagnostics.
 - Emit schema-versioned JSON, diagnostics, and a checksum manifest into a separate output directory using atomic file replacement. The web layer reads only these generated artifacts and never raw XML.
 - Keep generated official-data derivatives ignored and non-public until the publication policy explicitly permits them. Tracked tests use independently authored synthetic fixtures.
@@ -22,11 +23,11 @@ The legacy browser application loads many XML files directly into mutable UI-fac
 
 The parser can be replaced without changing domain or UI contracts, deterministic output can be byte-compared, and a running development server cannot observe partially written JSON. The costs are a maintained normalization layer, an explicit artifact-version migration policy, and a required regeneration step before web builds.
 
-Artifact schema version 2 separates normalized entities from the versioned search payload so ordinary entity routes do not load search documents. The checksum manifest covers both artifacts and diagnostics. A search worker or third-party index remains measurement-driven.
+Artifact schema version 3 separates normalized entities from the versioned search payload and requires dataset/source versions plus applied-patch history. The checksum manifest covers both artifacts and diagnostics. A search worker or third-party index remains measurement-driven.
 
 ## Validation evidence
 
-The synthetic spike covers items, recipes, skills/abilities, a spell chain, inherited monsters, stats, templates, an override, invalid XML, an unknown element, a dangling reference, and a missing asset. Two imports produce byte-identical normalized, search, diagnostic, and manifest files; tests verify traversal and DOCTYPE rejection; and the web application statically generates entity routes from the normalized artifact.
+The synthetic spike covers items, recipes, skills/abilities, a spell chain, inherited monsters, stats, templates, an override, a guarded patch, invalid XML, an unknown element, a dangling reference, and a missing asset. Two imports produce byte-identical normalized, search, diagnostic, and manifest files; tests verify traversal, patch guards, and DOCTYPE rejection; and the web application statically generates entity routes from the normalized artifact.
 
 See [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md).
 The implemented versioned contract is documented in [`../contracts/generated-artifacts.md`](../contracts/generated-artifacts.md).
@@ -39,4 +40,5 @@ The implemented versioned contract is documented in [`../contracts/generated-art
 - [x] Output writes are atomic and refused inside source roots.
 - [x] The complete approved base-game-plus-three-DLC dataset imports read-only with measured results.
 - [x] Unsupported constructs and performance found in the full dataset are assessed.
+- [x] Versioned source manifests and guarded patch overlays preserve deterministic field-level provenance.
 - [ ] The generated-artifact publication boundary is approved.

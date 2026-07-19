@@ -1,11 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "datasetId": "synthetic-architecture-spike",
+  "datasetVersion": "1.0.0",
   "sources": [
     {
       "id": "synthetic-base",
       "label": "Synthetic Base",
       "kind": "base",
+      "version": "1.0.0",
       "precedence": 0,
       "root": "base",
       "files": [
@@ -23,6 +25,7 @@
       "id": "synthetic-expansion",
       "label": "Synthetic Expansion",
       "kind": "expansion",
+      "version": "1.0.0",
       "precedence": 10,
       "root": "expansion",
       "files": [{ "kind": "items", "path": "itemDB.xml" }]
@@ -31,9 +34,16 @@
       "id": "synthetic-broken-mod",
       "label": "Synthetic Broken Mod",
       "kind": "mod",
+      "version": "1.0.0",
       "precedence": 20,
       "root": "broken",
       "files": [{ "kind": "spells", "path": "spellDB.xml" }]
+    }
+  ],
+  "patches": [
+    {
+      "order": 0,
+      "path": "fixtures/synthetic/patches/clockwork-blade-value.json"
     }
   ]
 }

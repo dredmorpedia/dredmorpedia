@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 
+import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact } from "@/lib/artifact";
 
 export const dynamicParams = false;
@@ -82,9 +83,6 @@ export default async function StatPage({
     notFound();
   }
 
-  const source = artifact.sources.find(
-    (entry) => entry.id === stat.provenance.sourceId,
-  );
   const items = artifact.entities.items.filter((item) =>
     item.stats.some((value) => value.statId === stat.id),
   );
@@ -181,27 +179,11 @@ export default async function StatPage({
           )}
         </section>
 
-        <section className="detail-card" aria-labelledby="stat-source-heading">
-          <h2 id="stat-source-heading" className="section-title-sm">
-            Provenance
-          </h2>
-          <dl className="provenance-list">
-            <div>
-              <dt>Active source</dt>
-              <dd>{source?.label ?? stat.provenance.sourceId}</dd>
-            </div>
-            <div>
-              <dt>Source file</dt>
-              <dd>
-                {stat.provenance.file}:{stat.provenance.line}
-              </dd>
-            </div>
-            <div>
-              <dt>Original ID</dt>
-              <dd>{stat.provenance.originalId ?? "Not supplied"}</dd>
-            </div>
-          </dl>
-        </section>
+        <ProvenanceCard
+          artifact={artifact}
+          entity={stat}
+          headingId="stat-source-heading"
+        />
       </div>
     </article>
   );

@@ -40,6 +40,7 @@ function candidate(
       provenance,
       variants: [provenance],
       appliedOverrides: [],
+      appliedPatches: [],
       diagnosticIds: [],
     },
   };

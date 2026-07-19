@@ -1,8 +1,15 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { parseXml, resolveWithin } from "../src/index";
+import {
+  loadManifest,
+  parsePatchDefinition,
+  parseXml,
+  resolveWithin,
+} from "../src/index";
 
 describe("input safety", () => {
   it("rejects path traversal before filesystem access", () => {
@@ -22,5 +29,71 @@ describe("input safety", () => {
       ok: false,
       diagnostic: { code: "disallowed_doctype", severity: "error" },
     });
+  });
+
+  it("rejects patch targets that are not canonical keys", () => {
+    expect(() =>
+      parsePatchDefinition(
+        JSON.stringify({
+          schemaVersion: 1,
+          id: "invalid-target",
+          reason: "Synthetic invalid patch target.",
+          appliesTo: {
+            datasetId: "synthetic",
+            datasetVersion: "1.0.0",
+            sourceId: "synthetic-base",
+            sourceVersion: "1.0.0",
+          },
+          operations: [
+            {
+              entityKind: "item",
+              canonicalKey: "Clockwork Blade",
+              field: "price",
+              expectedValue: 155,
+              value: 160,
+            },
+          ],
+        }),
+        "fixtures/synthetic/patches/invalid.json",
+      ),
+    ).toThrow(/already-normalized canonical key/);
+  });
+
+  it("rejects manifest patch paths outside the repository root", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-patch-path-"),
+    );
+    try {
+      const sourceRoot = path.join(repositoryRoot, "source");
+      mkdirSync(sourceRoot);
+      writeFileSync(path.join(sourceRoot, "itemDB.xml"), "<items />");
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          schemaVersion: 2,
+          datasetId: "patch-path-test",
+          datasetVersion: "1.0.0",
+          sources: [
+            {
+              id: "fixture",
+              label: "Fixture",
+              kind: "fixture",
+              version: "1.0.0",
+              precedence: 0,
+              root: "source",
+              files: [{ kind: "items", path: "itemDB.xml" }],
+            },
+          ],
+          patches: [{ order: 0, path: "../outside.json" }],
+        }),
+      );
+
+      expect(() => loadManifest(manifestPath, repositoryRoot)).toThrow(
+        /Unsafe relative path/,
+      );
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
   });
 });

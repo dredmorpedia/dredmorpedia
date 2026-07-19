@@ -26,6 +26,7 @@ const metadataFields = new Set([
   "provenance",
   "variants",
   "appliedOverrides",
+  "appliedPatches",
   "diagnosticIds",
 ]);
 

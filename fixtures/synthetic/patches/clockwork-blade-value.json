@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-clockwork-blade-value",
+  "reason": "Exercise guarded patch provenance without changing the raw XML fixture.",
+  "appliesTo": {
+    "datasetId": "synthetic-architecture-spike",
+    "datasetVersion": "1.0.0",
+    "sourceId": "synthetic-expansion",
+    "sourceVersion": "1.0.0"
+  },
+  "operations": [
+    {
+      "entityKind": "item",
+      "canonicalKey": "clockwork blade",
+      "field": "price",
+      "expectedValue": 155,
+      "value": 160
+    }
+  ]
+}

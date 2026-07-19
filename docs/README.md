@@ -14,6 +14,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`roadmap.md`](roadmap.md) — phased delivery plan and exit criteria.
 - [`decisions/`](decisions/) — architecture decision records (ADRs), including owner-approved directions that still need technical or policy validation.
 - [`contracts/generated-artifacts.md`](contracts/generated-artifacts.md) — versioned normalized/search/diagnostic artifact contract and evolution rules.
+- [`contracts/source-manifest-and-patches.md`](contracts/source-manifest-and-patches.md) — versioned source selection, precedence, and guarded patch-overlay contract.
 - [`product/first-parity-slice.md`](product/first-parity-slice.md) — reviewable acceptance draft for items, stats, provenance, and search.
 
 ## Documentation rules

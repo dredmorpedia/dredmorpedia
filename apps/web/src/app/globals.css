@@ -612,6 +612,31 @@ input {
   font-size: 0.8rem;
 }
 
+.patch-note {
+  display: grid;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+  border: 1px solid color-mix(in oklch, var(--info) 45%, var(--border));
+  border-radius: 0.4rem;
+  background: color-mix(in oklch, var(--surface) 90%, var(--info));
+  padding: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.patch-note p,
+.patch-note ul {
+  margin: 0;
+}
+
+.patch-note ul {
+  padding-inline-start: 1.25rem;
+}
+
+.patch-note small {
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
 .relation-list,
 .diagnostic-list {
   margin: 0;

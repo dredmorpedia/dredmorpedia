@@ -40,10 +40,12 @@ export function loadArtifact(): DatasetArtifact {
     parsed === null ||
     typeof parsed !== "object" ||
     !("schemaVersion" in parsed) ||
-    parsed.schemaVersion !== 2 ||
+    parsed.schemaVersion !== 3 ||
+    !("datasetVersion" in parsed) ||
+    typeof parsed.datasetVersion !== "string" ||
     !("entities" in parsed)
   ) {
-    throw new Error("Generated artifact does not satisfy schema version 2.");
+    throw new Error("Generated artifact does not satisfy schema version 3.");
   }
   artifactCache = parsed as DatasetArtifact;
   return artifactCache;
@@ -60,7 +62,7 @@ export function loadSearchArtifact(): SearchArtifact {
     !("schemaVersion" in parsed) ||
     parsed.schemaVersion !== 1 ||
     !("datasetSchemaVersion" in parsed) ||
-    parsed.datasetSchemaVersion !== 2 ||
+    parsed.datasetSchemaVersion !== 3 ||
     !("documents" in parsed) ||
     !Array.isArray(parsed.documents)
   ) {

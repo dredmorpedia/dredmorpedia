@@ -140,6 +140,7 @@ function baseEntity<K extends EntityKind>(
     provenance,
     variants: [provenance],
     appliedOverrides: [],
+    appliedPatches: [],
     diagnosticIds: [],
   };
 }

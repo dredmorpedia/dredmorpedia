@@ -36,6 +36,12 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   await expect(
     page.getByText("Synthetic Expansion", { exact: true }),
   ).toBeVisible();
+  await expect(page.getByText("Dataset version")).toBeVisible();
+  await expect(page.getByText("Source version")).toBeVisible();
+  await expect(
+    page.getByText("Reviewed patch: synthetic-clockwork-blade-value"),
+  ).toBeVisible();
+  await expect(page.getByText("price: 155 to 160")).toBeVisible();
   await page.getByRole("link", { name: "Melee Power" }).click();
   await expect(
     page.getByRole("heading", { level: 1, name: "Melee Power" }),
@@ -43,6 +49,8 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Items with this stat" }),
   ).toBeVisible();
+  await expect(page.getByText("Dataset version")).toBeVisible();
+  await expect(page.getByText("Source version")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();

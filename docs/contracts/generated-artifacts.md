@@ -8,9 +8,9 @@ The data pipeline writes a coordinated set of deterministic JSON files. Consumer
 
 ### `artifact.json`
 
-Dataset schema version: `2`
+Dataset schema version: `3`
 
-Contains the dataset ID, language, ordered source summaries, normalized entity collections, and diagnostic counts. Search documents were removed from version 2 so normal page generation does not load the search payload.
+Contains the dataset ID/version, language, ordered versioned source summaries, normalized entity collections, and diagnostic counts. Search documents were removed from version 2 so normal page generation does not load the search payload. Version 3 requires source-version provenance and field-level `appliedPatches` history.
 
 Every normalized entity has one canonical `slug` and a deterministically ordered `slugAliases` array. Name collisions retain the unsuffixed route for the first entity in canonical identity order and assign stable identity-derived suffixes to the others. Unambiguous source original IDs become aliases. An alias claimed by multiple entities, or by another entity's canonical slug, is omitted and reported as `slug_alias_conflict`; a reassigned colliding route is reported as `slug_collision`.
 
@@ -18,7 +18,7 @@ Every normalized entity has one canonical `slug` and a deterministically ordered
 
 Search schema version: `1`
 
-Contains `datasetSchemaVersion: 2`, the matching dataset ID/language, and deterministic search documents. Each document has an entity ID, route, normalized text, entity/source/category facets, and item-stat facets. The web application loads this file only on search routes.
+Contains `datasetSchemaVersion: 3`, the matching dataset ID/language, and deterministic search documents. Each document has an entity ID, route, normalized text, entity/source/category facets, and item-stat facets. The web application loads this file only on search routes.
 
 ### `diagnostics.json`
 
@@ -40,10 +40,13 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 - Writes use per-file atomic replacement and are refused inside an input source root.
 - The web layer fails its build on an unsupported artifact version rather than guessing at compatibility.
 
+The source input and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).
+
 ## Evolution rules
 
 - Increment the affected schema version for removed or reinterpreted fields, changed identity/ordering behavior, or any change that makes an older consumer unsafe.
 - Additive fields may retain the current version only when older consumers can ignore them without changing meaning.
-- `slugAliases` was added to schema version 2 under that additive rule. Consumers that support it should resolve aliases to the canonical entity and avoid indexing the alias as a separate record.
+- `slugAliases` was added to schema version 2 under the additive rule. Consumers that support it should resolve aliases to the canonical entity and avoid indexing the alias as a separate record.
+- Version 3 requires `datasetVersion`, source `version`, and entity `appliedPatches`. Regenerate version 2 local artifacts from their declared inputs; no compatibility reader is retained in the web application because no version 2 artifact was publicly released.
 - Update domain types, pipeline serialization, runtime consumer checks, deterministic tests, this document, and a migration note in the same change.
 - Do not retain a second compatibility implementation before a real published artifact requires it; generated local artifacts can be regenerated from approved inputs.

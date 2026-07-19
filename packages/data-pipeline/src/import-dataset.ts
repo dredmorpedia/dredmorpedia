@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   allocateEntityRoutes,
+  applyEntityPatch,
   applyMonsterInheritance,
   canonicalKey,
   createSearchDocuments,
@@ -12,6 +13,7 @@ import {
   type Diagnostic,
   type DiagnosticCounts,
   type EntityCollections,
+  type EntityPatchDefinition,
   type EntityProvenance,
   type InputChecksum,
   type Item,
@@ -32,6 +34,7 @@ import {
   parseDatabase,
   type CandidateCollections,
 } from "./normalizers";
+import { loadPatchDefinition } from "./patches";
 import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 import { sha256, stableSerialize } from "./serialization";
 import { parseXml, type DiagnosticDraft } from "./xml-adapter";
@@ -346,6 +349,10 @@ function countDiagnostics(
 
 function resolveCollections(
   candidates: CandidateCollections,
+  patches: readonly EntityPatchDefinition[],
+  datasetId: string,
+  datasetVersion: string,
+  sourceVersions: ReadonlyMap<string, string>,
   diagnostics: DiagnosticDraft[],
 ): EntityCollections {
   const resolutions = {
@@ -376,15 +383,96 @@ function resolveCollections(
     }
   }
 
+  let patchedEntities: EntityCollections = {
+    items: resolutions.items.active,
+    recipes: resolutions.recipes.active,
+    skills: resolutions.skills.active,
+    abilities: resolutions.abilities.active,
+    spells: resolutions.spells.active,
+    monsters: resolutions.monsters.active,
+    stats: resolutions.stats.active,
+    templates: resolutions.templates.active,
+  };
+  for (const patch of patches) {
+    const patchSource: SourceLocation = {
+      sourceId: `patch:${patch.id}`,
+      file: patch.file,
+      line: 1,
+      column: 1,
+    };
+    const actualSourceVersion = sourceVersions.get(patch.appliesTo.sourceId);
+    if (
+      patch.appliesTo.datasetId !== datasetId ||
+      patch.appliesTo.datasetVersion !== datasetVersion ||
+      actualSourceVersion !== patch.appliesTo.sourceVersion
+    ) {
+      diagnostics.push({
+        severity: "error",
+        code: "patch_scope_mismatch",
+        message: `Patch ${patch.id} does not match the active dataset/source versions and was not applied.`,
+        source: patchSource,
+        details: {
+          patchId: patch.id,
+          expectedDatasetId: patch.appliesTo.datasetId,
+          expectedDatasetVersion: patch.appliesTo.datasetVersion,
+          expectedSourceId: patch.appliesTo.sourceId,
+          expectedSourceVersion: patch.appliesTo.sourceVersion,
+        },
+      });
+      continue;
+    }
+
+    const result = applyEntityPatch(patchedEntities, patch);
+    if (result.issues.length > 0) {
+      for (const issue of result.issues) {
+        diagnostics.push({
+          severity: "error",
+          code: issue.code,
+          message: issue.message,
+          source: patchSource,
+          ...(issue.entityId ? { entityId: issue.entityId } : {}),
+          details: {
+            patchId: patch.id,
+            operationIndex: issue.operationIndex,
+            ...(issue.expectedValue !== undefined
+              ? { expectedValue: issue.expectedValue }
+              : {}),
+            ...(issue.actualValue !== undefined
+              ? { actualValue: issue.actualValue }
+              : {}),
+          },
+        });
+      }
+      continue;
+    }
+
+    patchedEntities = result.entities;
+    for (const application of result.applications) {
+      diagnostics.push({
+        severity: "info",
+        code: "patch_applied",
+        message: `Applied patch ${patch.id} to ${application.entityName}.`,
+        source: patchSource,
+        entityId: application.entityId,
+        details: {
+          patchId: patch.id,
+          changedFields: application.patch.changes.map(
+            (change) => change.field,
+          ),
+        },
+      });
+    }
+  }
+
   const routed = {
-    items: allocateEntityRoutes(resolutions.items.active),
-    recipes: allocateEntityRoutes(resolutions.recipes.active),
-    skills: allocateEntityRoutes(resolutions.skills.active),
-    abilities: allocateEntityRoutes(resolutions.abilities.active),
-    spells: allocateEntityRoutes(resolutions.spells.active),
-    monsters: allocateEntityRoutes(resolutions.monsters.active),
-    stats: allocateEntityRoutes(resolutions.stats.active),
-    templates: allocateEntityRoutes(resolutions.templates.active),
+    items: allocateEntityRoutes(patchedEntities.items),
+    recipes: allocateEntityRoutes(patchedEntities.recipes),
+    skills: allocateEntityRoutes(patchedEntities.skills),
+    abilities: allocateEntityRoutes(patchedEntities.abilities),
+    spells: allocateEntityRoutes(patchedEntities.spells),
+    monsters: allocateEntityRoutes(patchedEntities.monsters),
+    stats: allocateEntityRoutes(patchedEntities.stats),
+    templates: allocateEntityRoutes(patchedEntities.templates),
   };
 
   for (const allocation of Object.values(routed)) {
@@ -490,6 +578,28 @@ export function importDataset(
     return { source, absolutePath, displayPath };
   });
 
+  const patches = [...loaded.manifest.patches]
+    .sort(
+      (left, right) =>
+        left.order - right.order || left.path.localeCompare(right.path, "en"),
+    )
+    .map((patchReference) => {
+      const absolutePath = resolveExistingWithin(
+        repositoryRoot,
+        patchReference.path,
+      );
+      const displayPath = toPosixPath(patchReference.path);
+      registerInput(absolutePath, displayPath);
+      return loadPatchDefinition(absolutePath, displayPath);
+    });
+  const patchIds = new Set<string>();
+  for (const patch of patches) {
+    if (patchIds.has(patch.id)) {
+      throw new Error(`Duplicate patch id: ${patch.id}`);
+    }
+    patchIds.add(patch.id);
+  }
+
   for (const [sourceIndex, resolvedSource] of resolvedSources.entries()) {
     const {
       source,
@@ -549,17 +659,28 @@ export function importDataset(
     }
   }
 
-  const linkedEntities = resolveCollections(candidates, diagnostics);
+  const linkedEntities = resolveCollections(
+    candidates,
+    patches,
+    loaded.manifest.datasetId,
+    loaded.manifest.datasetVersion,
+    new Map(
+      loaded.manifest.sources.map((source) => [source.id, source.version]),
+    ),
+    diagnostics,
+  );
   const finalizedDiagnostics = finalizeDiagnostics(diagnostics);
   const entities = attachDiagnosticIds(linkedEntities, finalizedDiagnostics);
   const artifact: DatasetArtifact = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     datasetId: loaded.manifest.datasetId,
+    datasetVersion: loaded.manifest.datasetVersion,
     language: "en",
     sources: sortedSources.map((source) => ({
       id: source.id,
       label: source.label,
       kind: source.kind,
+      version: source.version,
       precedence: source.precedence,
     })),
     entities,

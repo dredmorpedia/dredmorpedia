@@ -27,6 +27,7 @@ function monster(name: string, inheritsKey?: string): Monster {
     provenance,
     variants: [provenance],
     appliedOverrides: [],
+    appliedPatches: [],
     diagnosticIds: [],
   };
 }

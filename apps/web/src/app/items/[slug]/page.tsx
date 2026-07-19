@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 
+import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 
 export const dynamicParams = false;
@@ -48,9 +49,6 @@ export default async function ItemPage({
     notFound();
   }
 
-  const source = artifact.sources.find(
-    (entry) => entry.id === item.provenance.sourceId,
-  );
   const diagnostics = loadDiagnostics().filter((entry) =>
     item.diagnosticIds.includes(entry.id),
   );
@@ -134,38 +132,11 @@ export default async function ItemPage({
           )}
         </section>
 
-        <section className="detail-card" aria-labelledby="provenance-heading">
-          <h2 id="provenance-heading" className="section-title-sm">
-            Provenance
-          </h2>
-          <dl className="provenance-list">
-            <div>
-              <dt>Active source</dt>
-              <dd>{source?.label ?? item.provenance.sourceId}</dd>
-            </div>
-            <div>
-              <dt>Source file</dt>
-              <dd>
-                {item.provenance.file}:{item.provenance.line}
-              </dd>
-            </div>
-            <div>
-              <dt>Original ID</dt>
-              <dd>{item.provenance.originalId ?? "Not supplied"}</dd>
-            </div>
-            <div>
-              <dt>Known variants</dt>
-              <dd>{item.variants.length}</dd>
-            </div>
-          </dl>
-          {item.appliedOverrides.length > 0 ? (
-            <div className="override-note">
-              <strong>Override applied:</strong>{" "}
-              {item.appliedOverrides[0]?.previous.sourceId} →{" "}
-              {item.provenance.sourceId}
-            </div>
-          ) : null}
-        </section>
+        <ProvenanceCard
+          artifact={artifact}
+          entity={item}
+          headingId="provenance-heading"
+        />
 
         <section className="detail-card" aria-labelledby="relations-heading">
           <h2 id="relations-heading" className="section-title-sm">

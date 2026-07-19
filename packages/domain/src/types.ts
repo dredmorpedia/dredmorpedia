@@ -12,6 +12,7 @@ export const entityKinds = [
 export type EntityKind = (typeof entityKinds)[number];
 export type SourceKind = "base" | "expansion" | "mod" | "fixture";
 export type DiagnosticSeverity = "info" | "warning" | "error";
+export type PatchValue = string | number | boolean | null | string[];
 
 export interface SourceLocation {
   sourceId: string;
@@ -31,6 +32,21 @@ export interface AppliedOverride {
   changedFields: string[];
 }
 
+export interface AppliedPatchChange {
+  field: string;
+  previousValue: PatchValue;
+  value: PatchValue;
+}
+
+export interface AppliedPatch {
+  id: string;
+  file: string;
+  reason: string;
+  sourceId: string;
+  sourceVersion: string;
+  changes: AppliedPatchChange[];
+}
+
 export interface NormalizedEntityBase {
   id: string;
   kind: EntityKind;
@@ -42,6 +58,7 @@ export interface NormalizedEntityBase {
   provenance: EntityProvenance;
   variants: EntityProvenance[];
   appliedOverrides: AppliedOverride[];
+  appliedPatches: AppliedPatch[];
   diagnosticIds: string[];
 }
 
@@ -139,6 +156,7 @@ export interface SourceSummary {
   id: string;
   label: string;
   kind: SourceKind;
+  version: string;
   precedence: number;
 }
 
@@ -172,8 +190,9 @@ export interface DiagnosticCounts {
 }
 
 export interface DatasetArtifact {
-  schemaVersion: 2;
+  schemaVersion: 3;
   datasetId: string;
+  datasetVersion: string;
   language: "en";
   sources: SourceSummary[];
   entities: EntityCollections;
@@ -188,7 +207,7 @@ export interface SearchArtifact {
   documents: SearchDocument[];
 }
 
-export type DiagnosticDetailValue = string | number | boolean | string[];
+export type DiagnosticDetailValue = PatchValue;
 
 export interface Diagnostic {
   id: string;

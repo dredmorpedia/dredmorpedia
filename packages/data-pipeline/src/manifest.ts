@@ -20,7 +20,7 @@ const databaseFileSchema = z.object({
   path: z.string().min(1),
 });
 
-const sourceSchema = z.object({
+const sourceV1Schema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
   kind: z.enum(["base", "expansion", "mod", "fixture"]),
@@ -29,29 +29,71 @@ const sourceSchema = z.object({
   files: z.array(databaseFileSchema).min(1),
 });
 
-const manifestSchema = z
+const sourceV2Schema = sourceV1Schema.extend({
+  version: z.string().min(1),
+});
+
+const patchReferenceSchema = z.object({
+  order: z.number().int(),
+  path: z.string().min(1),
+});
+
+function validateUniqueEntries(
+  manifest: {
+    sources: { id: string }[];
+    patches?: { path: string }[];
+  },
+  context: z.RefinementCtx,
+): void {
+  const sourceIds = new Set<string>();
+  for (const [index, source] of manifest.sources.entries()) {
+    if (sourceIds.has(source.id)) {
+      context.addIssue({
+        code: "custom",
+        message: `Duplicate source id: ${source.id}`,
+        path: ["sources", index, "id"],
+      });
+    }
+    sourceIds.add(source.id);
+  }
+
+  const patchPaths = new Set<string>();
+  for (const [index, patch] of (manifest.patches ?? []).entries()) {
+    if (patchPaths.has(patch.path)) {
+      context.addIssue({
+        code: "custom",
+        message: `Duplicate patch path: ${patch.path}`,
+        path: ["patches", index, "path"],
+      });
+    }
+    patchPaths.add(patch.path);
+  }
+}
+
+const manifestV1Schema = z
   .object({
     schemaVersion: z.literal(1),
     datasetId: z.string().min(1),
-    sources: z.array(sourceSchema).min(1),
+    sources: z.array(sourceV1Schema).min(1),
   })
-  .superRefine((manifest, context) => {
-    const sourceIds = new Set<string>();
-    for (const source of manifest.sources) {
-      if (sourceIds.has(source.id)) {
-        context.addIssue({
-          code: "custom",
-          message: `Duplicate source id: ${source.id}`,
-          path: ["sources"],
-        });
-      }
-      sourceIds.add(source.id);
-    }
-  });
+  .superRefine(validateUniqueEntries);
+
+const manifestV2Schema = z
+  .object({
+    schemaVersion: z.literal(2),
+    datasetId: z.string().min(1),
+    datasetVersion: z.string().min(1),
+    sources: z.array(sourceV2Schema).min(1),
+    patches: z.array(patchReferenceSchema),
+  })
+  .superRefine(validateUniqueEntries);
+
+const manifestInputSchema = z.union([manifestV1Schema, manifestV2Schema]);
 
 export type DatabaseKind = (typeof databaseKinds)[number];
-export type SourceDefinition = z.infer<typeof sourceSchema>;
-export type SourceManifest = z.infer<typeof manifestSchema>;
+export type PatchReference = z.infer<typeof patchReferenceSchema>;
+export type SourceDefinition = z.infer<typeof sourceV2Schema>;
+export type SourceManifest = z.infer<typeof manifestV2Schema>;
 
 export interface LoadedManifest {
   manifest: SourceManifest;
@@ -77,7 +119,22 @@ export function loadManifest(
   const parsed = JSON.parse(
     readFileSync(absoluteManifestPath, "utf8"),
   ) as unknown;
-  const manifest = manifestSchema.parse(parsed);
+  const inputManifest = manifestInputSchema.parse(parsed);
+  const manifest: SourceManifest =
+    inputManifest.schemaVersion === 2
+      ? inputManifest
+      : {
+          schemaVersion: 2,
+          datasetId: inputManifest.datasetId,
+          datasetVersion: "unversioned",
+          sources: inputManifest.sources.map((source) => ({
+            ...source,
+            version: "unversioned",
+          })),
+          patches: [],
+        };
+
+  const resolvedRepositoryRoot = path.resolve(repositoryRoot);
 
   for (const source of manifest.sources) {
     const sourceRoot = resolveSourceRoot(
@@ -88,8 +145,10 @@ export function loadManifest(
       resolveExistingWithin(sourceRoot, file.path);
     }
   }
+  for (const patch of manifest.patches) {
+    resolveExistingWithin(resolvedRepositoryRoot, patch.path);
+  }
 
-  const resolvedRepositoryRoot = path.resolve(repositoryRoot);
   const manifestDisplayPath = isPathWithin(
     resolvedRepositoryRoot,
     absoluteManifestPath,

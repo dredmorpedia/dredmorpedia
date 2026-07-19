@@ -75,11 +75,122 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.items[0]?.provenance.file).toBe(
       "sources/external-base/itemDB.xml",
     );
+    expect(result.artifact.datasetVersion).toBe("unversioned");
+    expect(result.artifact.sources[0]?.version).toBe("unversioned");
     expect(result.sourceManifest).toBe("manifests/manifest.json");
     expect(serialized.artifact).not.toContain(temporaryRoot);
     expect(serialized.search).not.toContain(temporaryRoot);
     expect(serialized.diagnostics).not.toContain(temporaryRoot);
     expect(serialized.manifest).not.toContain(temporaryRoot);
+  });
+
+  it("rejects a patch with stale dataset scope without partially changing data", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-stale-patch-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    const patchRoot = path.join(temporaryRoot, "patches");
+    mkdirSync(sourceRoot);
+    mkdirSync(patchRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      '<?xml version="1.0"?><items><item name="Patch Guard Item" type="material"><price amount="42" /></item></items>',
+    );
+    writeFileSync(
+      path.join(patchRoot, "stale.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        id: "stale-dataset-scope",
+        reason: "Exercise the dataset-version guard.",
+        appliesTo: {
+          datasetId: "patch-guard-test",
+          datasetVersion: "0.9.0",
+          sourceId: "patch-guard-source",
+          sourceVersion: "1.0.0",
+        },
+        operations: [
+          {
+            entityKind: "item",
+            canonicalKey: "patch guard item",
+            field: "price",
+            expectedValue: 42,
+            value: 99,
+          },
+        ],
+      }),
+    );
+    const guardedManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      guardedManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "patch-guard-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "patch-guard-source",
+            label: "Patch Guard Source",
+            kind: "fixture",
+            version: "1.0.0",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+        patches: [{ order: 0, path: "patches/stale.json" }],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: guardedManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.entities.items[0]).toMatchObject({
+      price: 42,
+      appliedPatches: [],
+    });
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        code: "patch_scope_mismatch",
+      }),
+    ]);
+
+    writeFileSync(
+      path.join(patchRoot, "duplicate.json"),
+      readFileSync(path.join(patchRoot, "stale.json")),
+    );
+    writeFileSync(
+      guardedManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "patch-guard-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "patch-guard-source",
+            label: "Patch Guard Source",
+            kind: "fixture",
+            version: "1.0.0",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+        patches: [
+          { order: 0, path: "patches/stale.json" },
+          { order: 1, path: "patches/duplicate.json" },
+        ],
+      }),
+    );
+    expect(() =>
+      importDataset({
+        manifestPath: guardedManifestPath,
+        repositoryRoot: temporaryRoot,
+      }),
+    ).toThrow(/Duplicate patch id/);
   });
 
   it("produces byte-identical normalized artifacts and diagnostics", () => {
@@ -117,11 +228,20 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.monsters).toHaveLength(2);
     expect(result.artifact.entities.stats).toHaveLength(2);
     expect(result.artifact.entities.templates).toHaveLength(1);
-    expect(result.artifact.schemaVersion).toBe(2);
+    expect(result.artifact.schemaVersion).toBe(3);
+    expect(result.artifact.datasetVersion).toBe("1.0.0");
+    expect(result.artifact.sources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "synthetic-expansion",
+          version: "1.0.0",
+        }),
+      ]),
+    );
     expect(result.search.documents).toHaveLength(15);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
-      datasetSchemaVersion: 2,
+      datasetSchemaVersion: 3,
       datasetId: "synthetic-architecture-spike",
     });
     expect(
@@ -130,9 +250,18 @@ describe("synthetic dataset import", () => {
       )?.statKeys,
     ).toEqual(["melee power"]);
     expect(blade).toMatchObject({
-      price: 155,
+      price: 160,
       provenance: { sourceId: "synthetic-expansion" },
       slugAliases: ["clockwork-blade-plus"],
+      appliedPatches: [
+        {
+          id: "synthetic-clockwork-blade-value",
+          file: "fixtures/synthetic/patches/clockwork-blade-value.json",
+          sourceId: "synthetic-expansion",
+          sourceVersion: "1.0.0",
+          changes: [{ field: "price", previousValue: 155, value: 160 }],
+        },
+      ],
     });
     expect(blade?.variants.map((variant) => variant.sourceId)).toEqual([
       "synthetic-base",
@@ -164,7 +293,11 @@ describe("synthetic dataset import", () => {
         "unknown_element",
         "unsupported_database_kind",
         "slug_collision",
+        "patch_applied",
       ]),
+    );
+    expect(result.inputs.map((input) => input.file)).toContain(
+      "fixtures/synthetic/patches/clockwork-blade-value.json",
     );
     expect(
       result.diagnostics.find((diagnostic) => diagnostic.code === "invalid_xml")

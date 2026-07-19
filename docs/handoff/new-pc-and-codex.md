@@ -21,12 +21,12 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- The latest pushed commit before the current uncommitted route-identity work is `31ee6b9` (`feat: add first parity foundation`). Use `git log` to confirm the live branch state.
+- The latest pushed commit before the current uncommitted source/patch-provenance work is `949b711` (`feat: add collision-safe routes`). Use `git log` to confirm the live branch state.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
-- Dataset schema 2 separates normalized records from search schema 1; manifest schema 2 checksums normalized, search, and diagnostic outputs. The web application has deterministic collision-safe item/stat routes, source-ID aliases, shareable project-owned search filters, provenance, item/stat backlinks, and explicit missing-definition states.
+- Dataset schema 3 separates normalized records from search schema 1; output-manifest schema 2 checksums normalized, search, and diagnostic outputs. Source-manifest schema 2 declares dataset/source versions and guarded patch overlays. The web application has deterministic collision-safe item/stat routes, source-ID aliases, versioned patch provenance, shareable project-owned search filters, item/stat backlinks, and explicit missing-definition states.
 - Synthetic desktop/mobile keyboard and axe checks pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
 - Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
@@ -79,7 +79,7 @@ Continue the first parity slice without assuming permission to publish official 
 2. Accept or revise ADRs 0001 and 0002 after that decision.
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Complete source/patch contracts, a durable published-route migration registry, dataset-version provenance UI, and remaining item/relationship fields using synthetic fixtures first. Deterministic slug-collision handling and unambiguous source-ID aliases are implemented locally.
+5. Complete a durable published-route migration registry and remaining item/relationship fields using synthetic fixtures first. Deterministic slug handling, source/patch contracts, and dataset/source/patch provenance UI are implemented locally.
 6. Treat the current 4,274 unsupported-element diagnostics, 16 dangling item references, and deferred encrustment normalizer as the measured compatibility backlog, not as silently completed parity.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
