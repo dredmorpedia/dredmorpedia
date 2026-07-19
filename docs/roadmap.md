@@ -4,7 +4,7 @@ Updated: 2026-07-19
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data foundation. Dates and estimates should be added only after the owner resolves the Phase 0 decisions and a complete local dataset is measured.
 
-## Phase 0 — Inception and constraints (current)
+## Phase 0 — Inception and constraints (policy gates in progress)
 
 ### Deliverables
 
@@ -30,7 +30,7 @@ This roadmap optimizes for a trustworthy vertical slice and a reusable data foun
 
 ADR 0001 is accepted, the exact official source version is recorded, the public data/asset boundary is decided, and the first parity slice has an agreed acceptance statement.
 
-## Phase 1 — Architecture spike
+## Phase 1 — Architecture spike (current)
 
 ### Goal
 
@@ -38,15 +38,19 @@ Prove the risky boundaries with representative data before building a design sys
 
 ### Deliverables
 
-- Scaffold the pinned Node/pnpm/TypeScript workspace and CI.
-- Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
-- Create synthetic fixtures for an item, recipe, skill/ability, spell/effect chain, inherited monster, stat, template, duplicate override, invalid XML, missing asset, and dangling reference.
-- Parse representative official/mod XML through a project-owned adapter.
-- Exercise the full installed official dataset read-only; write all measurements and artifacts outside the installation.
-- Emit deterministic normalized JSON plus diagnostics and checksums.
-- Generate one static item route and one small client search interaction.
-- Measure full-dataset entity counts, import/build time, artifact size, and search-index size locally without committing restricted data.
-- Record parser, search, and artifact-format decisions as ADRs.
+- [x] Scaffold the pinned Node/pnpm/TypeScript workspace and CI workflow.
+- [x] Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
+- [x] Create synthetic fixtures for an item, recipe, skill/ability, spell/effect chain, inherited monster, stat, template, duplicate override, invalid XML, missing asset, and dangling reference.
+- [x] Parse the representative synthetic source shapes through a project-owned adapter.
+- [ ] Parse representative approved official/mod XML through the adapter.
+- [ ] Exercise the full installed official dataset read-only; write all measurements and artifacts outside the installation.
+- [x] Emit deterministic normalized JSON plus diagnostics and checksums with atomic replacement.
+- [x] Generate static item routes and one small client search/filter interaction.
+- [x] Validate the static export at a GitHub Pages-style repository subpath.
+- [x] Pass local unit, build, desktop/mobile keyboard-flow, and axe checks without proprietary data.
+- [ ] Measure full-dataset entity counts, import/build time, artifact size, and search-index size locally without committing restricted data.
+- [x] Record the parser and artifact-format decision as ADR 0002.
+- [ ] Record the search decision after measuring the full dataset.
 
 ### Exit criteria
 

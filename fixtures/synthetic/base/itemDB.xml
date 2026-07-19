@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items>
+  <item id="clockwork-blade" name="Clockwork Blade" type="weapon" iconFile="assets/synthetic.svg">
+    <description text="A precisely balanced blade built for a synthetic test dungeon." />
+    <price amount="120" />
+    <stat name="Melee Power" amount="4" />
+  </item>
+  <item id="brass-ingot" name="Brass Ingot" type="material" iconFile="assets/missing-ingot.svg">
+    <description text="A legal test reagent with an intentionally missing icon." />
+    <price amount="18" />
+  </item>
+  <item id="clarity-tonic" name="Clarity Tonic" type="consumable" iconFile="assets/synthetic.svg">
+    <description text="A harmless tonic used to exercise category filtering." />
+    <price amount="42" />
+    <mystery value="unsupported-on-purpose" />
+  </item>
+</items>

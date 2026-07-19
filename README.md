@@ -2,11 +2,16 @@
 
 Dredmorpedia is being rebuilt as a modern encyclopedia and planning toolkit for [Dungeons of Dredmor](https://www.dungeonsofdredmor.com/). This fork preserves the historical application as a behavioral reference while a typed, deterministic, accessible replacement is developed from scratch.
 
-The repository is currently at the foundation stage: the legacy application has been isolated, the existing system has been audited, and the proposed modern architecture is documented. No modern web workspace has been scaffolded yet.
+The repository is in its architecture-spike stage. The legacy application remains isolated and runnable, while a strict TypeScript workspace now proves deterministic synthetic XML import, domain/package boundaries, static item routes, a responsive search/filter interaction, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
 
 ## Repository map
 
 - [`legacy/`](legacy/) - intact historical jQuery application and its historical setup documentation.
+- [`apps/web/`](apps/web/) - statically exported Next.js App Router spike using Tailwind tokens and selective Base UI-backed shadcn-style components.
+- [`packages/domain/`](packages/domain/) - framework-independent identities, precedence, inheritance, relationships, and search-document logic.
+- [`packages/data-pipeline/`](packages/data-pipeline/) - safe manifest/XML import, normalization, diagnostics, linking, and deterministic artifact emission.
+- [`fixtures/synthetic/`](fixtures/synthetic/) - independently authored legal XML/assets used by tests and the spike UI.
+- [`data/`](data/) - import/output policy, tracked patch area, and ignored generated workspace.
 - [`PROJECT.md`](PROJECT.md) - product scope, principles, confirmed direction, and open decisions.
 - [`docs/analysis/`](docs/analysis/) - evidence gathered from the inherited repository and runtime.
 - [`docs/architecture/`](docs/architecture/) - recommended rebuild architecture and technical stack.
@@ -34,6 +39,20 @@ Then open `http://localhost:8000/`. A clean checkout intentionally lacks proprie
 
 The instructions in [`legacy/README.md`](legacy/README.md) are preserved historical documentation, not the canonical rebuild workflow. In particular, do not run its mutation commands against a game installation.
 
+## Run the modern spike
+
+Use Node.js 24 LTS and the pinned pnpm version, then run:
+
+```powershell
+corepack enable
+corepack prepare pnpm@11.15.0 --activate
+pnpm install --frozen-lockfile
+pnpm generate:check
+pnpm dev
+```
+
+Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
+
 ## Data and legal boundary
 
 A local Dungeons of Dredmor installation is read-only input. Repository tooling must never alter it. Official data, assets, local paths, and generated derivatives with unresolved redistribution rights must not be committed or published. Tests should use small synthetic or explicitly redistributable fixtures.
@@ -42,7 +61,7 @@ The inherited repository has no project-wide license, and bundled mods/assets do
 
 ## Direction
 
-The proposed platform is a strict TypeScript/pnpm workspace with a deterministic XML pipeline, framework-independent domain packages, and a statically exported Next.js application. The owner has approved this direction, Tailwind-based game-inspired styling, light/dark/system themes, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. ADR 0001 remains proposed until its spike and policy checks are complete.
+The implemented spike follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. ADRs 0001 and 0002 remain proposed until full-dataset and publication-policy checks are complete.
 
 Start with the [project brief](PROJECT.md), [repository audit](docs/analysis/repository-audit-2026-07-19.md), [modernization proposal](docs/architecture/modernization-proposal.md), and [roadmap](docs/roadmap.md).
 

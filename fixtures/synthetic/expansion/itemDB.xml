@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items>
+  <item id="clockwork-blade-plus" name="Clockwork Blade" type="weapon" iconFile="assets/clockwork-blade.svg">
+    <description text="The higher-precedence synthetic expansion variant." />
+    <price amount="155" />
+    <stat name="Melee Power" amount="6" />
+  </item>
+</items>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stats>
+  <stat id="melee-power" name="Melee Power" group="secondary" description="Synthetic close-combat output." />
+  <stat id="savvy" name="Savvy" group="secondary" description="Synthetic magical efficiency." />
+</stats>

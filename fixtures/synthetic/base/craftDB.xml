@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<crafts>
+  <craft id="clockwork-blade-recipe" name="Clockwork Blade Recipe" hidden="0">
+    <tool tag="smithing" />
+    <input name="Brass Ingot" amount="2" />
+    <input name="Missing Cog" amount="1" />
+    <output name="Clockwork Blade" amount="1" skill="2" />
+  </craft>
+</crafts>

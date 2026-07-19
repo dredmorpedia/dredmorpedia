@@ -7,10 +7,11 @@ This is the durable handoff for moving Dredmorpedia to another computer or openi
 ## Resume checklist for Codex
 
 1. Read `AGENTS.md` completely and follow it.
-2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADR 0001.
+2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0002.
 3. Run `git status -sb`, `git log --oneline --decorate -5`, and `git remote -v` before changing anything.
 4. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` to confirm the preserved baseline.
-5. Ask the owner for the local game-installation path only if the next task needs read-only integration measurements. Do not assume the path from the previous computer still applies, and never commit it.
+5. Install the pinned workspace and run `pnpm generate:check` plus `pnpm check`. Run `pnpm test:e2e` when Chromium is installed.
+6. Ask the owner for the local game-installation path only if the next task needs read-only integration measurements. Do not assume the path from the previous computer still applies, and never commit it.
 
 A useful first prompt on the new machine is:
 
@@ -20,13 +21,15 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- The last GitHub-tracked commit at handoff preparation was `68ee565`.
+- The latest pushed commit before the architecture-spike work was `4324270` (`docs: record UI and language decisions`). Use `git log` for the current hash after the spike is committed.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
-- No modern application or package workspace has been scaffolded yet.
+- The modern architecture-spike workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. It uses only independently authored fixtures.
+- The spike proves deterministic normalized output, diagnostics/checksums, three static item routes, a small search/category interaction, a GitHub Pages-style base path, and local desktop/mobile keyboard and axe checks.
+- Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
-- At handoff preparation, the working tree contained no ignored or untracked local payloads. Recheck this rather than assuming it remains true.
+- Recheck the working tree rather than assuming it is clean. `MANIFEST.txt` and `RESTORE.md` can remain as untracked transfer-package artifacts; do not accidentally include them in product commits.
 
 The local commits do not need to be pushed before transfer. A Git bundle includes them. Pushing to GitHub is a separate owner-approved action.
 
@@ -37,7 +40,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
 | Official sources | Support the base game and all three official expansions first. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. |
-| Platform | Proceed toward a pnpm/strict TypeScript workspace, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADR 0001 remains Proposed until its spike and policy gates pass. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 remain Proposed until the full-dataset and policy gates pass. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Themes | Support light, dark, and system modes from the first real UI foundation. |
@@ -69,20 +72,17 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 ## Immediate next milestone
 
-Continue with the ADR 0001 architecture/data-pipeline spike. Keep it deliberately narrow:
+Complete the remaining ADR 0001/0002 validation gates before broad parity implementation:
 
-1. Verify current supported Node, pnpm, Next.js, React, Tailwind, and test-tool versions from primary documentation before pinning them.
-2. Scaffold only the workspace needed to prove package boundaries and canonical commands.
-3. Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
-4. Add independently authored synthetic fixtures covering representative entities, an override collision, invalid XML, a dangling reference, and a missing asset.
-5. Put XML access behind a project-owned adapter; preserve provenance and emit source-located diagnostics.
-6. Prove deterministic output by producing byte-identical artifacts and checksums from two identical imports.
-7. Generate one static item page and one bounded client-side search/filter interaction.
-8. Validate a GitHub Pages-compatible static export, including repository subpath/base-path behavior.
-9. If the owner supplies an installed game path, measure the full official base-plus-DLC dataset read-only and write all artifacts outside the installation. Do not commit restricted output.
-10. Record parser, artifact-format, and any revised platform decision as ADR updates before broad scaffolding.
+1. Confirm the current workspace with `pnpm generate:check`, `pnpm check`, `pnpm test:e2e`, and `pnpm audit:legacy`.
+2. Ask the owner for this computer's game-installation path and exact game build/version. Treat the installation as read-only.
+3. Create any machine-specific import manifest under the ignored local data workspace; never commit the path.
+4. Exercise the base game plus all three expansions through the adapter. Add only small synthetic compatibility fixtures and focused normalizers for newly observed shapes.
+5. Write artifacts and measurements only outside the installation and keep them ignored. Record entity/diagnostic counts, unsupported constructs, import/build time, artifact size, and search-document size without exposing official content.
+6. Decide the generated-data/art publication boundary and inherited code/mod/asset license policy with the owner.
+7. Accept or revise ADRs 0001 and 0002 from that evidence, then finalize the first parity-slice acceptance statement and search approach.
 
-ADR 0001 should remain Proposed until its acceptance checklist is satisfied. Do not start broad parity implementation or expand the design system beyond the spike’s needs merely because the spike renders one page.
+Synthetic spike results are in `docs/analysis/architecture-spike-2026-07-19.md`. Do not expand the design system or begin broad parity work while the full-data and publication gates remain open.
 
 ## Open decisions and blockers
 

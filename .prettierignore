@@ -1,0 +1,16 @@
+legacy/
+data/generated/
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+docs/analysis/repository-audit-2026-07-19.md
+docs/architecture/modernization-proposal.md
+docs/handoff/new-pc-and-codex.md
+dredmorpedia.bundle
+MANIFEST.txt
+RESTORE.md
+*.xml
+*.ps1

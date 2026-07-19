@@ -71,11 +71,11 @@ Relocate the legacy application intact under `legacy/` in an isolated, verified 
 - [x] Initial source scope is base game plus all three official expansions; mods are lower priority.
 - [ ] Exact canonical installed game version/build is recorded.
 - [ ] Redistribution policy for generated data and assets is written.
-- [ ] A short spike proves representative XML parsing, deterministic collisions, artifact generation, and static generation of at least one entity route.
+- [x] A short synthetic-data spike proves representative XML parsing, deterministic collisions, artifact generation, and static generation of at least one entity route.
 - [ ] The spike records build time and artifact size using the available full local dataset.
 
 The interim read-only and non-publication rules are documented in [`../data-and-assets-policy.md`](../data-and-assets-policy.md). They do not by themselves resolve redistribution rights.
 
 Component approach references: [shadcn/ui introduction](https://ui.shadcn.com/docs), [Base UI overview](https://base-ui.com/react/overview/about), and [Base UI accessibility responsibilities](https://base-ui.com/react/overview/accessibility).
 
-After acceptance, update this ADR’s status and scaffold the workspace in a dedicated change.
+Synthetic-spike evidence is recorded in [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md). Keep this ADR Proposed until the remaining policy and full-dataset gates pass; the workspace may continue only through work that does not assume those unresolved publication decisions.

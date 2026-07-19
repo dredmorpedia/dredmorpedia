@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skills>
+  <skill id="clockwork-combat" name="Clockwork Combat" type="warrior" description="Training for precisely timed attacks.">
+    <art icon="assets/synthetic.svg" />
+    <loadout subtype="Brass Ingot" amount="1" always="1" />
+  </skill>
+  <ability id="measured-strike" name="Measured Strike" skill="clockwork-combat" icon="assets/synthetic.svg">
+    <description text="Perform a measured strike and trigger a synthetic spell." />
+    <spell name="Clockwork Spark" />
+  </ability>
+</skills>

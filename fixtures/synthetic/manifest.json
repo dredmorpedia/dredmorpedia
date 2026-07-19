@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "synthetic-architecture-spike",
+  "sources": [
+    {
+      "id": "synthetic-base",
+      "label": "Synthetic Base",
+      "kind": "base",
+      "precedence": 0,
+      "root": "base",
+      "files": [
+        { "kind": "items", "path": "itemDB.xml" },
+        { "kind": "recipes", "path": "craftDB.xml" },
+        { "kind": "skills", "path": "skillDB.xml" },
+        { "kind": "spells", "path": "spellDB.xml" },
+        { "kind": "monsters", "path": "monDB.xml" },
+        { "kind": "templates", "path": "manTemplateDB.xml" },
+        { "kind": "stats", "path": "statDB.xml" }
+      ]
+    },
+    {
+      "id": "synthetic-expansion",
+      "label": "Synthetic Expansion",
+      "kind": "expansion",
+      "precedence": 10,
+      "root": "expansion",
+      "files": [{ "kind": "items", "path": "itemDB.xml" }]
+    },
+    {
+      "id": "synthetic-broken-mod",
+      "label": "Synthetic Broken Mod",
+      "kind": "mod",
+      "precedence": 20,
+      "root": "broken",
+      "files": [{ "kind": "spells", "path": "spellDB.xml" }]
+    }
+  ]
+}

@@ -6,22 +6,41 @@ The repository is currently in the foundation phase of a clean rebuild. The inta
 
 Read `PROJECT.md`, `AGENTS.md`, `docs/README.md`, and any decision record relevant to your change. Check `docs/roadmap.md` before creating a new workstream. Read `docs/data-and-assets-policy.md` before accessing game files or adding data/assets.
 
-## Current baseline command
+## Workspace setup and checks
 
-No package manager or build command exists yet. Audit the committed legacy baseline with:
+Use Node.js 24 LTS; the exact development version is pinned in `.node-version`. The repository pins pnpm through `packageManager` and commits its lockfile.
+
+```powershell
+corepack enable
+corepack prepare pnpm@11.15.0 --activate
+pnpm install --frozen-lockfile
+pnpm generate:check
+pnpm check
+```
+
+`pnpm check` runs formatting, linting, strict type checks, unit/integration tests, deterministic artifact generation, and the production static build. Browser checks are separate because they require a downloaded test browser:
+
+```powershell
+pnpm --filter @dredmorpedia/web exec playwright install chromium
+pnpm test:e2e
+```
+
+Start local development with `pnpm dev`. It generates the legal synthetic spike artifact before starting the Next.js application. Generated output under `data/generated/` is ignored and must remain outside source roots.
+
+Audit the committed legacy baseline with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1
 ```
 
-Use `-Json` for machine-readable output. `-FailOnInvalidXml` and `-FailOnMissingGameData` are opt-in because the committed baseline intentionally lacks proprietary game data and contains one known invalid historical mod XML file.
+The equivalent canonical command is `pnpm audit:legacy`. Use the script's `-Json` switch for machine-readable output. `-FailOnInvalidXml` and `-FailOnMissingGameData` are opt-in because the committed baseline intentionally lacks proprietary game data and contains one known invalid historical mod XML file.
 
 Serve `legacy/` as the document root for manual behavioral checks. Never point mutation, formatting, patching, or cleanup commands at a local game installation.
 
 ## Change expectations
 
 - Keep changes focused and preserve unrelated work.
-- Add tests with new domain or pipeline behavior once the modern workspace exists.
+- Add tests with new domain or pipeline behavior.
 - Use synthetic fixtures unless redistribution rights are explicit.
 - Add an architecture decision record for durable choices with meaningful alternatives or migration cost.
 - Update the project docs and canonical commands in the same change that makes them stale.

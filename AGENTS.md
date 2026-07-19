@@ -20,8 +20,10 @@ Read these files before making a substantial change:
 - The intact historical application lives under `legacy/`; serve that directory as the document root when checking legacy behavior.
 - The base game and three expansion data directories inside `legacy/` intentionally contain only `mod.xml`; proprietary XML and assets are not committed.
 - Ten historical mods and many of their assets are committed.
-- No modern application has been scaffolded yet. The owner approved the direction described by decision 0001, but the ADR remains proposed until the architecture spike and publication-policy gates are complete.
-- Run `powershell -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` for a repeatable baseline audit.
+- The architecture-spike workspace now contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and independently authored fixtures under `fixtures/synthetic`.
+- Generated spike artifacts live under gitignored `data/generated/`; the web application consumes them and must never parse raw XML.
+- ADR 0001 and ADR 0002 remain proposed until the full approved dataset and publication-policy gates are complete. Synthetic-spike evidence is recorded in `docs/analysis/architecture-spike-2026-07-19.md`.
+- Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints
 
@@ -56,7 +58,16 @@ The web layer must not parse raw XML. The parser must not import UI code. Domain
 6. Run the narrow checks first, then the repository-wide checks documented by the package once the new workspace exists.
 7. Update documentation when behavior, commands, constraints, or decisions change.
 
-Do not invent package commands while the modern workspace is absent. After scaffolding, keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this file synchronized.
+Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this file synchronized.
+
+## Canonical workspace commands
+
+- `pnpm install --frozen-lockfile` — install the pinned workspace.
+- `pnpm generate:check` — regenerate the synthetic artifact twice and prove byte-identical output.
+- `pnpm dev` — generate data and start the web application.
+- `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
+- `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.
+- `pnpm audit:legacy` — repeatable preserved-application audit.
 
 ## Session and machine handoff
 

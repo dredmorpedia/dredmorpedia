@@ -1,0 +1,34 @@
+{
+  "name": "dredmorpedia",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Modern Dungeons of Dredmor encyclopedia and deterministic data toolchain.",
+  "packageManager": "pnpm@11.15.0",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  },
+  "scripts": {
+    "audit:legacy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1",
+    "build": "pnpm run generate:check && pnpm --filter @dredmorpedia/web build",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
+    "dev": "pnpm run generate && pnpm --filter @dredmorpedia/web dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate": "pnpm --filter @dredmorpedia/data-pipeline generate",
+    "generate:check": "pnpm --filter @dredmorpedia/data-pipeline generate:check",
+    "lint": "eslint apps packages --max-warnings=0",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "pnpm run generate && pnpm --filter @dredmorpedia/web test:e2e",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.10",
+    "prettier": "3.9.5",
+    "shadcn": "4.13.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.64.0",
+    "vitest": "4.1.10"
+  }
+}

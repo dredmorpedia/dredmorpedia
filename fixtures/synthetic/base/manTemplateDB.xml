@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+  <template id="small-cross" name="Small Cross" affectsPlayer="1">
+    <row text=".@." />
+    <row text="@#@" />
+    <row text=".@." />
+  </template>
+</templates>

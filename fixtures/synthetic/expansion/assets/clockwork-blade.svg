@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="title">
+  <title id="title">Synthetic clockwork blade marker</title>
+  <rect width="32" height="32" rx="6" fill="#263f45" />
+  <path d="m9 24 14-16M8 9l15 14" stroke="#d6c59a" stroke-width="3" />
+</svg>

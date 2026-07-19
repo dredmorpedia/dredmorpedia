@@ -13,5 +13,6 @@ ADRs record decisions that are expensive to rediscover or reverse. They compleme
 ## Index
 
 - [`0001-platform-and-repository-direction.md`](0001-platform-and-repository-direction.md) — Proposed (owner-approved direction, pending validation): TypeScript workspace, deterministic pipeline, and statically exported Next.js application.
+- [`0002-xml-adapter-and-generated-artifact-boundary.md`](0002-xml-adapter-and-generated-artifact-boundary.md) — Proposed (synthetic spike validated, full dataset pending): isolated XML parsing, deterministic normalization, diagnostics, and atomic generated artifacts.
 
 Copy [`template.md`](template.md) for a new decision. Keep records short enough to review, link evidence, and describe migration consequences.

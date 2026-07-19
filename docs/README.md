@@ -6,11 +6,12 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 - [`../PROJECT.md`](../PROJECT.md) — product mission, audiences, principles, constraints, and open decisions.
 - [`analysis/repository-audit-2026-07-19.md`](analysis/repository-audit-2026-07-19.md) — dated evidence about the legacy repository and runtime.
+- [`analysis/architecture-spike-2026-07-19.md`](analysis/architecture-spike-2026-07-19.md) — implemented synthetic-spike evidence, measurements, checks, and remaining validation gates.
 - [`architecture/modernization-proposal.md`](architecture/modernization-proposal.md) — recommended target architecture, stack, alternatives, and feature opportunities.
 - [`data-and-assets-policy.md`](data-and-assets-policy.md) — mandatory safety and publication boundary for local game files, generated data, mods, and assets.
 - [`handoff/new-pc-and-codex.md`](handoff/new-pc-and-codex.md) — machine-transfer procedure, current repository state, agreed decisions, and the next task for a context-free Codex session.
 - [`roadmap.md`](roadmap.md) — phased delivery plan and exit criteria.
-- [`decisions/`](decisions/) — architecture decision records (ADRs), including proposals that still need owner approval.
+- [`decisions/`](decisions/) — architecture decision records (ADRs), including owner-approved directions that still need technical or policy validation.
 
 ## Documentation rules
 

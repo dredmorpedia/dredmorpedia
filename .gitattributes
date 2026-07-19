@@ -4,3 +4,16 @@
 /*.md text eol=lf
 /docs/** text eol=lf
 /scripts/** text eol=lf
+/.github/** text=auto eol=lf
+/apps/** text=auto eol=lf
+/packages/** text=auto eol=lf
+/fixtures/synthetic/** text=auto eol=lf
+/data/**/*.md text eol=lf
+/*.json text eol=lf
+/*.yaml text eol=lf
+/*.yml text eol=lf
+/*.mjs text eol=lf
+/*.ts text eol=lf
+/.node-version text eol=lf
+/.npmrc text eol=lf
+/.prettierignore text eol=lf
