@@ -80,6 +80,7 @@ const patchableFields: Record<
     description: isString,
     category: isString,
     price: isNullableNumber,
+    quality: isNumber,
   },
   recipe: {
     description: isString,

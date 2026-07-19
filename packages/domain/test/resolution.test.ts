@@ -35,6 +35,7 @@ function candidate(
       description: `${sourceId} variant`,
       category: "weapon",
       price,
+      quality: 2,
       iconPath: null,
       stats: [],
       provenance,

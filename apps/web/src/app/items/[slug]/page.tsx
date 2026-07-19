@@ -100,12 +100,18 @@ export default async function ItemPage({
           <p className="detail-copy">{item.description}</p>
         </div>
         <dl className="price-block">
-          <dt>Value</dt>
-          <dd>
-            {item.price === null
-              ? "Unknown"
-              : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
-          </dd>
+          <div>
+            <dt>Value</dt>
+            <dd>
+              {item.price === null
+                ? "Unknown"
+                : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
+            </dd>
+          </div>
+          <div>
+            <dt>Quality</dt>
+            <dd>{item.quality}</dd>
+          </div>
         </dl>
       </header>
 

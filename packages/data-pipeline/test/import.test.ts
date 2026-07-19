@@ -332,6 +332,7 @@ describe("synthetic dataset import", () => {
     ).toEqual(["melee power"]);
     expect(blade).toMatchObject({
       price: 160,
+      quality: 3,
       provenance: { sourceId: "synthetic-expansion" },
       slugAliases: ["clockwork-blade-plus", "clockwork-sword"],
       appliedPatches: [
@@ -348,6 +349,7 @@ describe("synthetic dataset import", () => {
       "synthetic-base",
       "synthetic-expansion",
     ]);
+    expect(blade?.appliedOverrides[0]?.changedFields).toContain("quality");
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,

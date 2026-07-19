@@ -287,6 +287,15 @@ function parseItems(
       ),
       category: xmlAttribute(record, "type") ?? "unknown",
       price,
+      quality: integerValue(
+        xmlAttribute(record, "level") ??
+          childAttribute(record, "armour", "level"),
+        0,
+        context,
+        provenance,
+        "item quality",
+        currentEntityId,
+      ),
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "iconFile"),
         context,

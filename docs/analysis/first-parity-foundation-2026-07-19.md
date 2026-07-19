@@ -24,13 +24,14 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 19,918 bytes.
+- Normalized artifact: 20,053 bytes.
 - Search artifact: 6,021 bytes for 15 documents.
 - Diagnostics remain the intentional 1 error and 5 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
 - Domain/pipeline tests: 27 passed.
 - Browser tests: 10 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
+- Item quality normalization/display passes synthetic checks but is intentionally pending the separate code review recorded in the handoff.
 
 ## Read-only official verification
 

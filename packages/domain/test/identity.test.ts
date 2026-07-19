@@ -32,6 +32,7 @@ function routeItem(name: string, originalId: string): Item {
     diagnosticIds: [],
     category: "wand",
     price: null,
+    quality: 0,
     iconPath: null,
     stats: [],
   };

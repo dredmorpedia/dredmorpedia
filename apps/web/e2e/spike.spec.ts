@@ -38,6 +38,8 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("Dataset version")).toBeVisible();
   await expect(page.getByText("Source version")).toBeVisible();
+  await expect(page.getByText("Quality")).toBeVisible();
+  await expect(page.getByText("3", { exact: true })).toBeVisible();
   await expect(
     page.getByText("Reviewed patch: synthetic-clockwork-blade-value"),
   ).toBeVisible();

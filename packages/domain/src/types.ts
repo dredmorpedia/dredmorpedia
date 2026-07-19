@@ -73,6 +73,7 @@ export interface Item extends NormalizedEntityBase {
   kind: "item";
   category: string;
   price: number | null;
+  quality: number;
   iconPath: string | null;
   stats: ItemStatValue[];
 }

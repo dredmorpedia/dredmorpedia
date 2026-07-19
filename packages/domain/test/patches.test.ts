@@ -35,6 +35,7 @@ function item(): Item {
     diagnosticIds: [],
     category: "weapon",
     price: 155,
+    quality: 3,
     iconPath: null,
     stats: [],
   };
