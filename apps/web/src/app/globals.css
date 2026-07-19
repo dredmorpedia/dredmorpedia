@@ -163,9 +163,38 @@ input {
 
 .brand:focus-visible,
 .entity-link:focus-visible,
-.breadcrumb a:focus-visible {
+.breadcrumb a:focus-visible,
+.primary-nav a:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 4px;
+}
+
+.header-actions,
+.primary-nav {
+  display: flex;
+  align-items: center;
+}
+
+.header-actions {
+  gap: 1rem;
+}
+
+.primary-nav {
+  gap: 0.25rem;
+}
+
+.primary-nav a {
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primary-nav a:hover {
+  background: var(--muted);
+  color: var(--foreground);
 }
 
 .brand-mark {
@@ -330,6 +359,15 @@ input {
   padding: 1rem;
 }
 
+.search-filter-panel {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  padding: 1rem;
+}
+
 .field-group {
   display: grid;
   gap: 0.4rem;
@@ -374,6 +412,50 @@ input {
   gap: 1rem;
   padding: 0;
   list-style: none;
+}
+
+.search-result-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-result-card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  padding: 1.25rem;
+}
+
+.search-result-meta {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.search-result-meta div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.search-result-meta dt {
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.search-result-meta dd {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .item-card,
@@ -569,6 +651,19 @@ input {
   .diagnostic-panel {
     grid-template-columns: 1fr auto;
   }
+
+  .search-filter-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .search-query-field,
+  .search-filter-panel > button {
+    grid-column: 1 / -1;
+  }
+
+  .search-result-card {
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.3fr);
+  }
 }
 
 @media (min-width: 64rem) {
@@ -579,6 +674,32 @@ input {
 
   .item-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .search-filter-panel {
+    grid-template-columns: minmax(16rem, 1.5fr) repeat(2, minmax(9rem, 0.7fr));
+  }
+
+  .search-query-field,
+  .search-filter-panel > button {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 41.99rem) {
+  .site-header {
+    align-items: flex-start;
+    padding-block: 1rem;
+  }
+
+  .header-actions {
+    align-items: flex-end;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+  }
+
+  .status-badge {
+    display: none;
   }
 }
 

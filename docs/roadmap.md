@@ -73,6 +73,8 @@ Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; 
 
 Every package boundary has tests and documented commands; the web shell meets the agreed mobile/keyboard baseline; pipeline output has a versioned contract.
 
+Progress on 2026-07-19: dataset schema 2, search schema 1, manifest schema 2, deterministic query logic, search/stat routes, and desktop/mobile browser coverage are implemented. Stable slug-collision/alias rules, patch-overlay contracts, broader relation APIs, dependency policy, and final foundation documentation remain.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.
@@ -91,6 +93,8 @@ Recommended slice: **items + stats + source provenance + global search**, follow
 ### Exit criteria
 
 The slice is visibly better than legacy on correctness feedback, load behavior, responsive use, navigation, and search; representative outputs are checked against the legacy application and source XML.
+
+Progress on 2026-07-19: a synthetic-backed search route, item/stat detail links, stat backlinks/provenance, and an explicit no-stat-definition state are implemented. The acceptance statement remains a draft, official stat definitions need an approved source, and full item/relationship parity plus legacy comparisons remain.
 
 ## Phase 4 — Legacy parity
 

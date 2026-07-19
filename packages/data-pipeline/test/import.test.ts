@@ -77,6 +77,7 @@ describe("synthetic dataset import", () => {
     );
     expect(result.sourceManifest).toBe("manifests/manifest.json");
     expect(serialized.artifact).not.toContain(temporaryRoot);
+    expect(serialized.search).not.toContain(temporaryRoot);
     expect(serialized.diagnostics).not.toContain(temporaryRoot);
     expect(serialized.manifest).not.toContain(temporaryRoot);
   });
@@ -116,7 +117,18 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.monsters).toHaveLength(2);
     expect(result.artifact.entities.stats).toHaveLength(2);
     expect(result.artifact.entities.templates).toHaveLength(1);
-    expect(result.artifact.searchDocuments).toHaveLength(13);
+    expect(result.artifact.schemaVersion).toBe(2);
+    expect(result.search.documents).toHaveLength(13);
+    expect(result.search).toMatchObject({
+      schemaVersion: 1,
+      datasetSchemaVersion: 2,
+      datasetId: "synthetic-architecture-spike",
+    });
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "item:clockwork blade",
+      )?.statKeys,
+    ).toEqual(["melee power"]);
     expect(blade).toMatchObject({
       price: 155,
       provenance: { sourceId: "synthetic-expansion" },
@@ -169,13 +181,27 @@ describe("synthetic dataset import", () => {
     );
     const manifest = JSON.parse(
       readFileSync(path.join(outputDirectory, "manifest.json"), "utf8"),
-    ) as { outputs: { artifact: { sha256: string; bytes: number } } };
+    ) as {
+      schemaVersion: number;
+      outputs: {
+        artifact: { sha256: string; bytes: number };
+        search: { sha256: string; bytes: number };
+      };
+    };
+    const searchFile = readFileSync(
+      path.join(outputDirectory, "search.json"),
+      "utf8",
+    );
 
+    expect(manifest.schemaVersion).toBe(2);
     expect(artifactFile).toBe(outputs.artifact);
     expect(manifest.outputs.artifact.sha256).toBe(sha256(artifactFile));
     expect(manifest.outputs.artifact.bytes).toBe(
       Buffer.byteLength(artifactFile),
     );
+    expect(searchFile).toBe(outputs.search);
+    expect(manifest.outputs.search.sha256).toBe(sha256(searchFile));
+    expect(manifest.outputs.search.bytes).toBe(Buffer.byteLength(searchFile));
     expect(
       readdirSync(outputDirectory).some((file) => file.endsWith(".tmp")),
     ).toBe(false);

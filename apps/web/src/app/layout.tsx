@@ -2,20 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { loadArtifact } from "@/lib/artifact";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Dredmorpedia Architecture Spike",
+    default: "Dredmorpedia",
     template: "%s | Dredmorpedia",
   },
   description:
-    "A synthetic-data architecture spike for the modern Dredmorpedia encyclopedia.",
+    "A fast, accessible encyclopedia and toolset for Dungeons of Dredmor.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
+  const artifact = loadArtifact();
+  const syntheticDataset = artifact.datasetId.startsWith("synthetic-");
+
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
@@ -33,18 +38,27 @@ export default function RootLayout({
                   Dredmorpedia
                 </span>
                 <span className="block text-xs text-muted-foreground">
-                  Architecture spike
+                  Foundation preview
                 </span>
               </span>
             </Link>
-            <span className="status-badge">Synthetic data only</span>
+            <div className="header-actions">
+              <nav aria-label="Primary navigation" className="primary-nav">
+                <Link href="/">Items</Link>
+                <Link href="/search">Search</Link>
+              </nav>
+              <span className="status-badge">
+                {syntheticDataset ? "Synthetic dataset" : "Local dataset"}
+              </span>
+            </div>
           </header>
           <main id="main-content" className="site-main">
             {children}
           </main>
           <footer className="site-footer">
-            This preview contains independently authored fixtures and no
-            official game data.
+            {syntheticDataset
+              ? "This preview contains independently authored fixtures and no official game data."
+              : "This local preview uses generated data that is not approved for publication."}
           </footer>
         </div>
       </body>

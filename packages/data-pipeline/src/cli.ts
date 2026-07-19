@@ -31,6 +31,7 @@ if (verifyDeterminism) {
   const secondOutputs = serializeOutputs(second);
   if (
     firstOutputs.artifact !== secondOutputs.artifact ||
+    firstOutputs.search !== secondOutputs.search ||
     firstOutputs.diagnostics !== secondOutputs.diagnostics ||
     firstOutputs.manifest !== secondOutputs.manifest
   ) {
@@ -44,9 +45,10 @@ const outputs = writeOutputs(first, outputDirectory);
 const counts = first.artifact.diagnostics;
 process.stdout.write(
   [
-    `Generated ${first.artifact.entities.items.length} items and ${first.artifact.searchDocuments.length} search documents.`,
+    `Generated ${first.artifact.entities.items.length} items and ${first.search.documents.length} search documents.`,
     `Diagnostics: ${counts.error} errors, ${counts.warning} warnings, ${counts.info} info.`,
     `Artifact bytes: ${Buffer.byteLength(outputs.artifact)}.`,
+    `Search bytes: ${Buffer.byteLength(outputs.search)}.`,
     verifyDeterminism ? "Determinism check: byte-identical." : "",
   ]
     .filter(Boolean)

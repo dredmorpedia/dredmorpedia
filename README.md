@@ -2,13 +2,13 @@
 
 Dredmorpedia is being rebuilt as a modern encyclopedia and planning toolkit for [Dungeons of Dredmor](https://www.dungeonsofdredmor.com/). This fork preserves the historical application as a behavioral reference while a typed, deterministic, accessible replacement is developed from scratch.
 
-The repository is in its architecture-spike stage. The legacy application remains isolated and runnable, while a strict TypeScript workspace now proves deterministic synthetic XML import, domain/package boundaries, static item routes, a responsive search/filter interaction, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
+The repository has completed its architecture spike and is building the first parity foundation. The legacy application remains isolated and runnable, while a strict TypeScript workspace provides deterministic synthetic XML import, versioned normalized/search artifacts, static item/stat routes, shareable structured search, provenance, and desktop/mobile accessibility checks. No proprietary official game data is required or committed.
 
 ## Repository map
 
 - [`legacy/`](legacy/) - intact historical jQuery application and its historical setup documentation.
-- [`apps/web/`](apps/web/) - statically exported Next.js App Router spike using Tailwind tokens and selective Base UI-backed shadcn-style components.
-- [`packages/domain/`](packages/domain/) - framework-independent identities, precedence, inheritance, relationships, and search-document logic.
+- [`apps/web/`](apps/web/) - statically exported Next.js App Router application using Tailwind tokens and selective Base UI-backed shadcn-style components.
+- [`packages/domain/`](packages/domain/) - framework-independent identities, precedence, inheritance, relationships, search documents, and deterministic query logic.
 - [`packages/data-pipeline/`](packages/data-pipeline/) - safe manifest/XML import, normalization, diagnostics, linking, and deterministic artifact emission.
 - [`fixtures/synthetic/`](fixtures/synthetic/) - independently authored legal XML/assets used by tests and the spike UI.
 - [`data/`](data/) - import/output policy, tracked patch area, and ignored generated workspace.
@@ -16,6 +16,8 @@ The repository is in its architecture-spike stage. The legacy application remain
 - [`docs/analysis/`](docs/analysis/) - evidence gathered from the inherited repository and runtime.
 - [`docs/architecture/`](docs/architecture/) - recommended rebuild architecture and technical stack.
 - [`docs/decisions/`](docs/decisions/) - architecture decision records (ADRs).
+- [`docs/contracts/generated-artifacts.md`](docs/contracts/generated-artifacts.md) - versioned normalized/search artifact contract.
+- [`docs/product/first-parity-slice.md`](docs/product/first-parity-slice.md) - draft acceptance statement for items, stats, provenance, and search.
 - [`docs/roadmap.md`](docs/roadmap.md) - delivery phases and exit criteria.
 - [`docs/data-and-assets-policy.md`](docs/data-and-assets-policy.md) - current rules for local game files, generated data, and publication.
 - [`docs/handoff/new-pc-and-codex.md`](docs/handoff/new-pc-and-codex.md) - current state, decisions, next milestone, and new-machine restoration guide.
@@ -39,7 +41,7 @@ Then open `http://localhost:8000/`. A clean checkout intentionally lacks proprie
 
 The instructions in [`legacy/README.md`](legacy/README.md) are preserved historical documentation, not the canonical rebuild workflow. In particular, do not run its mutation commands against a game installation.
 
-## Run the modern spike
+## Run the modern application
 
 Use Node.js 24 LTS and the pinned pnpm version, then run:
 
@@ -61,7 +63,7 @@ The inherited repository has no project-wide license, and bundled mods/assets do
 
 ## Direction
 
-The implemented spike follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. Read-only full-dataset validation is complete; ADRs 0001 and 0002 remain proposed until the publication-policy check is complete.
+The implemented foundation follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. Read-only full-dataset validation is complete; ADRs 0001 and 0002 remain proposed until the publication-policy check is complete. The first parity-slice acceptance statement and final search budgets remain drafts.
 
 Start with the [project brief](PROJECT.md), [repository audit](docs/analysis/repository-audit-2026-07-19.md), [modernization proposal](docs/architecture/modernization-proposal.md), and [roadmap](docs/roadmap.md).
 

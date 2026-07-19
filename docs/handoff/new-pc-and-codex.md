@@ -7,7 +7,7 @@ This is the durable handoff for moving Dredmorpedia to another computer or openi
 ## Resume checklist for Codex
 
 1. Read `AGENTS.md` completely and follow it.
-2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0002.
+2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0003.
 3. Run `git status -sb`, `git log --oneline --decorate -5`, and `git remote -v` before changing anything.
 4. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` to confirm the preserved baseline.
 5. Install the pinned workspace and run `pnpm generate:check` plus `pnpm check`. Run `pnpm test:e2e` when Chromium is installed.
@@ -21,12 +21,13 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- The latest pushed architecture-spike commit is `d4a23c7` (`feat: add modern architecture spike`). Use `git log` for later work.
+- The latest pushed commit before the first parity-foundation work is `84a2130` (`feat: validate official game dataset`). Use `git log` for later work.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
-- The modern architecture-spike workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. It uses only independently authored fixtures.
-- The spike proves deterministic normalized output, diagnostics/checksums, static item routes, a small search/category interaction, a GitHub Pages-style base path, and local desktop/mobile keyboard and axe checks. Read-only full-dataset measurements are recorded without the local installation path or official content.
+- The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
+- Dataset schema 2 separates normalized records from search schema 1; manifest schema 2 checksums normalized, search, and diagnostic outputs. The web application has static item/stat routes, shareable project-owned search filters, provenance, item/stat backlinks, and explicit missing-definition states.
+- Synthetic desktop/mobile keyboard and axe checks pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
 - Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
 - Recheck the working tree rather than assuming it is clean. `MANIFEST.txt` and `RESTORE.md` can remain as untracked transfer-package artifacts; do not accidentally include them in product commits.
@@ -72,22 +73,24 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 ## Immediate next milestone
 
-Resolve the remaining policy/product gates, then begin the first parity slice:
+Continue the first parity slice without assuming permission to publish official content:
 
 1. Decide the generated-data/art publication boundary and inherited code/mod/asset license policy with the owner.
 2. Accept or revise ADRs 0001 and 0002 after that decision.
-3. Agree the first parity-slice acceptance statement and ADR 0003 search response/relevance budgets.
-4. Start with items, stats, source provenance, and search. Add synthetic fixtures before implementing each official XML construct; do not copy official content into tests.
-5. Treat the current 4,274 unsupported-element diagnostics, 16 dangling item references, and deferred encrustment normalizer as the measured compatibility backlog, not as silently completed parity.
+3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
+4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
+5. Complete stable slug-collision/alias rules, source/patch contracts, dataset-version provenance UI, and remaining item/relationship fields using synthetic fixtures first.
+6. Treat the current 4,274 unsupported-element diagnostics, 16 dangling item references, and deferred encrustment normalizer as the measured compatibility backlog, not as silently completed parity.
 
-Full results are in `docs/analysis/architecture-spike-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
+Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
 ## Open decisions and blockers
 
 - Rights and policy for publishing normalized official data and art.
 - License/provenance treatment for inherited code, historical mods, and assets.
-- Acceptance statement for the first parity slice.
+- Approval or revision of the drafted first parity-slice acceptance statement.
 - Search response-time and relevance acceptance criteria for ADR 0003.
+- Approved source/model for stat definitions absent from the canonical installed build.
 - Priority among the recorded post-parity quality-of-life candidates.
 - Technical feasibility of live progress tracking, deliberately deferred.
 

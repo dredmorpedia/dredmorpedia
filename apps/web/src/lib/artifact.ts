@@ -1,7 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import type { DatasetArtifact, Diagnostic } from "@dredmorpedia/domain";
+import type {
+  DatasetArtifact,
+  Diagnostic,
+  SearchArtifact,
+} from "@dredmorpedia/domain";
 
 function generatedFile(name: string): string {
   const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
@@ -25,6 +29,7 @@ function readJson(name: string): unknown {
 
 let artifactCache: DatasetArtifact | undefined;
 let diagnosticsCache: Diagnostic[] | undefined;
+let searchCache: SearchArtifact | undefined;
 
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
@@ -35,13 +40,36 @@ export function loadArtifact(): DatasetArtifact {
     parsed === null ||
     typeof parsed !== "object" ||
     !("schemaVersion" in parsed) ||
-    parsed.schemaVersion !== 1 ||
+    parsed.schemaVersion !== 2 ||
     !("entities" in parsed)
   ) {
-    throw new Error("Generated artifact does not satisfy schema version 1.");
+    throw new Error("Generated artifact does not satisfy schema version 2.");
   }
   artifactCache = parsed as DatasetArtifact;
   return artifactCache;
+}
+
+export function loadSearchArtifact(): SearchArtifact {
+  if (searchCache) {
+    return searchCache;
+  }
+  const parsed = readJson("search.json");
+  if (
+    parsed === null ||
+    typeof parsed !== "object" ||
+    !("schemaVersion" in parsed) ||
+    parsed.schemaVersion !== 1 ||
+    !("datasetSchemaVersion" in parsed) ||
+    parsed.datasetSchemaVersion !== 2 ||
+    !("documents" in parsed) ||
+    !Array.isArray(parsed.documents)
+  ) {
+    throw new Error(
+      "Generated search artifact does not satisfy schema version 1.",
+    );
+  }
+  searchCache = parsed as SearchArtifact;
+  return searchCache;
 }
 
 export function loadDiagnostics(): Diagnostic[] {

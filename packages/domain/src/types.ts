@@ -159,6 +159,7 @@ export interface SearchDocument {
   summary: string;
   sourceId: string;
   category: string | null;
+  statKeys: string[];
   url: string;
   text: string;
 }
@@ -170,13 +171,20 @@ export interface DiagnosticCounts {
 }
 
 export interface DatasetArtifact {
-  schemaVersion: 1;
+  schemaVersion: 2;
   datasetId: string;
   language: "en";
   sources: SourceSummary[];
   entities: EntityCollections;
-  searchDocuments: SearchDocument[];
   diagnostics: DiagnosticCounts;
+}
+
+export interface SearchArtifact {
+  schemaVersion: 1;
+  datasetSchemaVersion: DatasetArtifact["schemaVersion"];
+  datasetId: string;
+  language: "en";
+  documents: SearchDocument[];
 }
 
 export type DiagnosticDetailValue = string | number | boolean | string[];
@@ -197,13 +205,14 @@ export interface InputChecksum {
 }
 
 export interface ArtifactManifest {
-  schemaVersion: 1;
+  schemaVersion: 2;
   datasetId: string;
   generator: string;
   sourceManifest: string;
   inputs: InputChecksum[];
   outputs: {
     artifact: { file: string; sha256: string; bytes: number };
+    search: { file: string; sha256: string; bytes: number };
     diagnostics: { file: string; sha256: string; bytes: number };
   };
 }

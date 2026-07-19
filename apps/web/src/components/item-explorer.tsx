@@ -57,9 +57,9 @@ export function ItemExplorer({ items }: { items: ExplorerItem[] }) {
   return (
     <section aria-labelledby="explorer-heading" className="space-y-5">
       <div>
-        <p className="eyebrow">Bounded client interaction</p>
+        <p className="eyebrow">Item catalogue</p>
         <h2 id="explorer-heading" className="section-title">
-          Explore synthetic items
+          Explore items
         </h2>
       </div>
 
@@ -142,7 +142,7 @@ export function ItemExplorer({ items }: { items: ExplorerItem[] }) {
         </ul>
       ) : (
         <div className="empty-state" role="status">
-          <h3 className="font-semibold">No synthetic items match</h3>
+          <h3 className="font-semibold">No items match</h3>
           <p>Change the text or category filter, or reset both controls.</p>
         </div>
       )}

@@ -36,12 +36,48 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   await expect(
     page.getByText("Synthetic Expansion", { exact: true }),
   ).toBeVisible();
+  await page.getByRole("link", { name: "Melee Power" }).click();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Melee Power" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Items with this stat" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+});
+
+test("searches items and stats with shareable structured filters", async ({
+  page,
+}) => {
+  await page.goto("/search/");
+  const search = page.getByRole("searchbox", { name: "Search terms" });
+  await search.fill("melee power");
+  await expect(page).toHaveURL(/q=melee(?:\+|%20)power/);
+  await expect(page.getByText("2 matching records")).toBeVisible();
+
+  const type = page.getByRole("combobox", { name: "Entity type" });
+  await type.focus();
+  await type.press("Enter");
+  await page.getByRole("option", { name: "Stats", exact: true }).press("Enter");
+  await expect(page).toHaveURL(/kind=stat/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Melee Power" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Reset filters" }).click();
+  await expect(page).toHaveURL(/\/search\/?$/);
 });
 
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  for (const route of ["/", "/items/clockwork-blade/"]) {
+  for (const route of [
+    "/",
+    "/search/",
+    "/items/clockwork-blade/",
+    "/stats/melee-power/",
+  ]) {
     await page.goto(route);
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);

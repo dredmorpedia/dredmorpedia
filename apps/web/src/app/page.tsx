@@ -17,6 +17,10 @@ export default function HomePage() {
     price: item.price,
   }));
   const counts = artifact.diagnostics;
+  const entityCount = Object.values(artifact.entities).reduce(
+    (total, entities) => total + entities.length,
+    0,
+  );
 
   return (
     <div className="page-stack">
@@ -29,9 +33,9 @@ export default function HomePage() {
             A trustworthy foundation for dense dungeon knowledge.
           </h1>
           <p className="hero-copy">
-            This bounded preview proves source precedence, provenance,
-            diagnostics, static entity routes, and an accessible client-side
-            filter without publishing proprietary content.
+            Browse normalized items with explainable source precedence,
+            provenance, diagnostics, and stat relationships. The public build
+            remains powered by legal synthetic fixtures.
           </p>
         </div>
         <dl
@@ -40,7 +44,7 @@ export default function HomePage() {
         >
           <div>
             <dt>Entities</dt>
-            <dd>{artifact.searchDocuments.length}</dd>
+            <dd>{entityCount}</dd>
           </div>
           <div>
             <dt>Sources</dt>
@@ -63,9 +67,9 @@ export default function HomePage() {
             Fixture diagnostics are intentionally present
           </h2>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            The malformed XML, dangling reference, missing asset, unknown
-            element, and precedence collision are test evidence—not silent
-            failures.
+            The malformed XML, dangling reference, missing asset, deferred
+            encrustment, unknown element, and precedence collision are test
+            evidence—not silent failures.
           </p>
         </div>
         <dl className="diagnostic-counts">

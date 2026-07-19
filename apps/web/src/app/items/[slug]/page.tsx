@@ -47,6 +47,9 @@ export default async function ItemPage({
       (reference) => reference.itemId === item.id,
     ),
   );
+  const statsById = new Map(
+    artifact.entities.stats.map((stat) => [stat.id, stat]),
+  );
 
   return (
     <article className="detail-page">
@@ -81,7 +84,18 @@ export default async function ItemPage({
             <dl className="stat-list">
               {item.stats.map((stat) => (
                 <div key={stat.statKey}>
-                  <dt>{stat.statName}</dt>
+                  <dt>
+                    {stat.statId && statsById.get(stat.statId) ? (
+                      <Link
+                        className="entity-link"
+                        href={`/stats/${statsById.get(stat.statId)?.slug}`}
+                      >
+                        {stat.statName}
+                      </Link>
+                    ) : (
+                      stat.statName
+                    )}
+                  </dt>
                   <dd>{stat.amount > 0 ? `+${stat.amount}` : stat.amount}</dd>
                 </div>
               ))}

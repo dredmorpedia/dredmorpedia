@@ -9,6 +9,7 @@ import type { ImportDatasetResult } from "./import-dataset";
 
 export interface SerializedOutputs {
   artifact: string;
+  search: string;
   diagnostics: string;
   manifest: string;
 }
@@ -23,9 +24,10 @@ export function serializeOutputs(
   result: ImportDatasetResult,
 ): SerializedOutputs {
   const artifact = stableSerialize(result.artifact);
+  const search = stableSerialize(result.search);
   const diagnostics = stableSerialize(result.diagnostics);
   const manifestValue: ArtifactManifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     datasetId: result.artifact.datasetId,
     generator: "@dredmorpedia/data-pipeline@0.0.0",
     sourceManifest: result.sourceManifest,
@@ -35,6 +37,11 @@ export function serializeOutputs(
         file: "artifact.json",
         sha256: sha256(artifact),
         bytes: Buffer.byteLength(artifact),
+      },
+      search: {
+        file: "search.json",
+        sha256: sha256(search),
+        bytes: Buffer.byteLength(search),
       },
       diagnostics: {
         file: "diagnostics.json",
@@ -46,6 +53,7 @@ export function serializeOutputs(
 
   return {
     artifact,
+    search,
     diagnostics,
     manifest: stableSerialize(manifestValue),
   };
@@ -67,6 +75,7 @@ export function writeOutputs(
   const outputs = serializeOutputs(result);
   mkdirSync(resolvedOutput, { recursive: true });
   writeAtomically(path.join(resolvedOutput, "artifact.json"), outputs.artifact);
+  writeAtomically(path.join(resolvedOutput, "search.json"), outputs.search);
   writeAtomically(
     path.join(resolvedOutput, "diagnostics.json"),
     outputs.diagnostics,

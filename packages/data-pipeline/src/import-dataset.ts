@@ -17,6 +17,7 @@ import {
   type Monster,
   type NormalizedEntity,
   type Recipe,
+  type SearchArtifact,
   type Skill,
   type SourceLocation,
   type Spell,
@@ -41,6 +42,7 @@ export interface ImportDatasetOptions {
 
 export interface ImportDatasetResult {
   artifact: DatasetArtifact;
+  search: SearchArtifact;
   diagnostics: Diagnostic[];
   inputs: InputChecksum[];
   sourceManifest: string;
@@ -510,7 +512,7 @@ export function importDataset(
   const finalizedDiagnostics = finalizeDiagnostics(diagnostics);
   const entities = attachDiagnosticIds(linkedEntities, finalizedDiagnostics);
   const artifact: DatasetArtifact = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     datasetId: loaded.manifest.datasetId,
     language: "en",
     sources: sortedSources.map((source) => ({
@@ -520,8 +522,14 @@ export function importDataset(
       precedence: source.precedence,
     })),
     entities,
-    searchDocuments: createSearchDocuments(entities),
     diagnostics: countDiagnostics(finalizedDiagnostics),
+  };
+  const search: SearchArtifact = {
+    schemaVersion: 1,
+    datasetSchemaVersion: artifact.schemaVersion,
+    datasetId: artifact.datasetId,
+    language: artifact.language,
+    documents: createSearchDocuments(entities),
   };
   const inputs = [...inputFiles.entries()]
     .map(([file, absolutePath]) => ({
@@ -532,6 +540,7 @@ export function importDataset(
 
   return {
     artifact,
+    search,
     diagnostics: finalizedDiagnostics,
     inputs,
     sourceManifest: loaded.manifestDisplayPath,

@@ -20,10 +20,10 @@ Read these files before making a substantial change:
 - The intact historical application lives under `legacy/`; serve that directory as the document root when checking legacy behavior.
 - The base game and three expansion data directories inside `legacy/` intentionally contain only `mod.xml`; proprietary XML and assets are not committed.
 - Ten historical mods and many of their assets are committed.
-- The architecture-spike workspace now contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and independently authored fixtures under `fixtures/synthetic`.
-- Generated spike artifacts live under gitignored `data/generated/`; the web application consumes them and must never parse raw XML.
+- The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and independently authored fixtures under `fixtures/synthetic`.
+- Generated artifacts live under gitignored `data/generated/`; dataset schema 2 separates normalized entities from search schema 1. The web application consumes these artifacts and must never parse raw XML.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 beta_preview`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
-- ADR 0001 and ADR 0002 are technically validated but remain proposed until the publication-policy gate is complete. Synthetic and full-dataset evidence is recorded in `docs/analysis/architecture-spike-2026-07-19.md`.
+- ADR 0001 and ADR 0002 are technically validated but remain proposed until the publication-policy gate is complete. ADR 0003's split artifact/query path is implemented but its user-facing budgets remain open. Evidence is recorded under `docs/analysis/`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints
