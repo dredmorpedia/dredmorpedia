@@ -17,6 +17,8 @@ This roadmap optimizes for a trustworthy vertical slice and a reusable data foun
 - [x] Confirm initial source scope: base game plus all three official expansions; mods are a later capability.
 - [x] Choose the owner-approved platform direction: Next.js/React, Tailwind plus project tokens, and static-first hosting.
 - [x] Choose a modern game-inspired visual direction with light, dark, and system themes.
+- [x] Choose selective shadcn/ui components backed by Base UI as the accessible component foundation.
+- [x] Set English-only initial scope while preserving a clean boundary between canonical game text and interface copy.
 - [x] Write an interim read-only data and asset policy.
 - [ ] Record the exact canonical installed game build/version.
 - [ ] Decide what official/generated data and art may be committed or publicly hosted.
@@ -37,6 +39,7 @@ Prove the risky boundaries with representative data before building a design sys
 ### Deliverables
 
 - Scaffold the pinned Node/pnpm/TypeScript workspace and CI.
+- Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
 - Create synthetic fixtures for an item, recipe, skill/ability, spell/effect chain, inherited monster, stat, template, duplicate override, invalid XML, missing asset, and dangling reference.
 - Parse representative official/mod XML through a project-owned adapter.
 - Exercise the full installed official dataset read-only; write all measurements and artifacts outside the installation.

@@ -32,7 +32,8 @@ Current Next.js documentation explicitly supports starting with static export an
 - Deliver useful vertical slices in dependency order, but retain complete functional/content parity with the legacy application as the first release target.
 - Support the base game and all three official expansions first; keep mod support possible without prioritizing broad mod coverage.
 - Use a modern visual language inspired by Dungeons of Dredmor rather than reproducing the legacy page.
-- Use Tailwind CSS with project-owned tokens and support light, dark, and system themes.
+- Use Tailwind CSS with project-owned tokens, selectively adopted shadcn/ui components backed by Base UI, and light/dark/system themes.
+- Ship in English initially; defer localization infrastructure and translated game content until a maintained translation source exists, while keeping canonical source text separate from interface copy.
 - Keep the initial deployment static and compatible with free hosting, with GitHub Pages as the leading candidate.
 - Design the data model for rich filters and crafting/encrusting backlinks. Defer favorites/lists persistence details and live game tracking until their own decisions or research.
 
@@ -71,8 +72,8 @@ flowchart TD
 | Workspace | pnpm with a pinned `packageManager` and workspace lockfile | Fast deterministic installs, straightforward package boundaries, good monorepo ergonomics | Foundation |
 | Language | TypeScript in strict mode | Replaces undocumented object shapes with checked contracts and makes agent/human refactors safer | Foundation |
 | Web | Current stable Next.js App Router + React | Static generation, route metadata, Server/Client boundaries, React ecosystem, optional server path | Foundation |
-| Styling | Tailwind CSS plus CSS custom-property design tokens; light/dark/system themes; selective CSS modules for complex themed components | Fast responsive work without surrendering the custom Dredmor visual language; avoids a large generic UI kit | First vertical slice |
-| Accessible primitives | Native HTML first; selectively use maintained headless primitives where behavior is complex | Keeps semantics visible and bundle cost controlled | As needed |
+| Styling and components | Tailwind CSS plus CSS custom-property design tokens; selectively copied shadcn/ui components; light/dark/system themes; selective CSS modules for complex themed components | Provides consistent, editable component starting points without surrendering the custom Dredmor visual language | Architecture spike / first vertical slice |
+| Accessible primitives | Native HTML where sufficient; Base UI-backed shadcn/ui components for complex behavior | Reuses maintained keyboard, focus, and ARIA behavior while keeping semantics and styling under project control | Architecture spike / as needed |
 | XML | `fast-xml-parser` behind a project-owned adapter, confirmed by a parser spike | Node-compatible, but the adapter prevents library-specific shapes from leaking into the domain | Pipeline spike |
 | Validation | Zod at import/artifact boundaries plus TypeScript domain types | Runtime input is untrusted and irregular; compile-time types alone are insufficient | Pipeline spike |
 | Search | Generated compact text index plus project-owned structured filters; evaluate MiniSearch against real dataset size | Search must understand entity type, source, stats, relationships, and numeric filters, not only page text | Items/search slice |
@@ -85,9 +86,15 @@ flowchart TD
 
 Use current compatible package versions when scaffolding and commit the lockfile. Do not copy version numbers from this dated proposal except the chosen Node LTS line. The Node project’s [release policy and status table](https://nodejs.org/en/about/previous-releases) are the source of truth.
 
-### Why Tailwind rather than a full component system
+### Why Tailwind plus selective shadcn/ui components
 
-The legacy identity is unusually specific: parchment, metal, stat colors, pixel icons, dense game data, and comparison tables. A themed off-the-shelf component suite would be fought as often as it helps. Tailwind and tokens provide consistent spacing/responsiveness for agent-assisted work, while semantic project components own the actual visual language. Headless primitives should be added only for complex dialogs, comboboxes, tabs, and tooltips that are difficult to implement accessibly.
+The legacy identity is unusually specific: parchment, metal, stat colors, pixel icons, dense game data, and comparison tables. A closed, themed component suite would be fought as often as it helps. Tailwind and tokens provide consistent spacing and responsive behavior, while shadcn/ui provides editable component source rather than an opaque theme dependency. Use its Base UI-backed variants for controls such as dialogs, comboboxes, menus, tabs, popovers, and tooltips whose keyboard and focus behavior is difficult to implement correctly. Add components only when a product slice needs them, keep them in the web boundary, and treat the copied source as maintained project code.
+
+Accessible primitives reduce risk; they do not make the completed interface automatically accessible. The application must still supply semantic page structure, labels and descriptions, visible focus, sufficient contrast, usable responsive layouts, and keyboard and assistive-technology verification.
+
+### Initial language scope
+
+The first release is English-only because the canonical game content is English and there is no maintained translation source. Do not add localized routes, translation catalogs, or a language selector during the architecture spike. Keep application interface copy separate from imported source text, use UTF-8 and a correct document language, format user-facing numbers through `Intl`, and keep stable IDs and canonical routes independent of localized display strings. If translations become viable later, translate the interface separately and represent translated game content as a provenance-bearing overlay rather than overwriting canonical English records.
 
 ### Search approach
 
@@ -230,7 +237,7 @@ Static export limitations are acceptable for the initial scope: server actions, 
 
 ### Later, only with evidence
 
-- Synced favorites/builds, accounts, community annotations, public APIs, localization, and collaborative mod catalogs.
+- Synced favorites/builds, accounts, community annotations, public APIs, interface localization, translated-content overlays, and collaborative mod catalogs.
 - These introduce privacy, moderation, persistence, abuse prevention, and operating costs; they should not be bundled into the initial rebuild.
 
 ## Alternatives considered

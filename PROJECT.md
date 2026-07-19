@@ -43,8 +43,9 @@ The initial canonical source scope is the base game plus all three official expa
 
 - Use a modern visual interpretation rather than copying the legacy layout.
 - Keep enough Dungeons of Dredmor-inspired character that official icons and imagery feel at home, subject to asset rights.
-- Use Tailwind CSS with project-owned design tokens rather than a generic themed component suite.
+- Use Tailwind CSS with project-owned design tokens and selectively adopt shadcn/ui components backed by Base UI. Keep the component source in the project and adapt it to the Dredmorpedia visual language rather than accepting a generic theme unchanged.
 - Support light, dark, and system color modes from the first real UI foundation.
+- Ship the initial application in English only. Keep imported game text distinct from application interface copy so later interface localization or translated-content overlays remain possible without changing canonical records.
 - Keep the first deployment compatible with free static hosting; GitHub Pages is the leading initial candidate.
 - Complete legacy coverage before treating quality-of-life additions as the main delivery phase.
 - Prioritize richer filters, crafting/encrusting backlinks, and eventually tagging, favorites, and lists among the first improvements after parity.
@@ -55,6 +56,7 @@ The initial canonical source scope is the base game plus all three official expa
 - Editing or redistributing a user's installed game files.
 - Public accounts, social features, or paid infrastructure.
 - Community features and synchronized user data.
+- A language selector, translated routes, or manually translated game content without an approved translation source and maintenance plan.
 - A general-purpose mod IDE.
 - Reproducing every historical visual or obsolete Flash-era tool.
 - Publishing bundled game/mod assets before a license and provenance audit.

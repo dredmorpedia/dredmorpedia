@@ -39,8 +39,9 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Official sources | Support the base game and all three official expansions first. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. |
 | Platform | Proceed toward a pnpm/strict TypeScript workspace, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADR 0001 remains Proposed until its spike and policy gates pass. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
-| Styling | Use Tailwind CSS plus project-owned design tokens. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. |
+| Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Themes | Support light, dark, and system modes from the first real UI foundation. |
+| Language | Ship in English initially. Do not add localized routes, translation catalogs, a language selector, or manually translated game content without a maintained source and plan. Keep canonical game text separate from interface copy so localization can be added later without changing record identity. |
 | First improvements | After parity, prioritize richer filters (including crafting-skill level where relevant), explicit “used to craft” and “used to encrust” relationships, then consider tagging, favorites, and custom lists. |
 | Persistence | Do not choose local storage, accounts, or a database prematurely. Favorites/lists need a later persistence and portability decision. |
 | Community | No community or social features are planned for the initial project. |
@@ -72,15 +73,16 @@ Continue with the ADR 0001 architecture/data-pipeline spike. Keep it deliberatel
 
 1. Verify current supported Node, pnpm, Next.js, React, Tailwind, and test-tool versions from primary documentation before pinning them.
 2. Scaffold only the workspace needed to prove package boundaries and canonical commands.
-3. Add independently authored synthetic fixtures covering representative entities, an override collision, invalid XML, a dangling reference, and a missing asset.
-4. Put XML access behind a project-owned adapter; preserve provenance and emit source-located diagnostics.
-5. Prove deterministic output by producing byte-identical artifacts and checksums from two identical imports.
-6. Generate one static item page and one bounded client-side search/filter interaction.
-7. Validate a GitHub Pages-compatible static export, including repository subpath/base-path behavior.
-8. If the owner supplies an installed game path, measure the full official base-plus-DLC dataset read-only and write all artifacts outside the installation. Do not commit restricted output.
-9. Record parser, artifact-format, and any revised platform decision as ADR updates before broad scaffolding.
+3. Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
+4. Add independently authored synthetic fixtures covering representative entities, an override collision, invalid XML, a dangling reference, and a missing asset.
+5. Put XML access behind a project-owned adapter; preserve provenance and emit source-located diagnostics.
+6. Prove deterministic output by producing byte-identical artifacts and checksums from two identical imports.
+7. Generate one static item page and one bounded client-side search/filter interaction.
+8. Validate a GitHub Pages-compatible static export, including repository subpath/base-path behavior.
+9. If the owner supplies an installed game path, measure the full official base-plus-DLC dataset read-only and write all artifacts outside the installation. Do not commit restricted output.
+10. Record parser, artifact-format, and any revised platform decision as ADR updates before broad scaffolding.
 
-ADR 0001 should remain Proposed until its acceptance checklist is satisfied. Do not start broad parity implementation or visual-system work merely because the spike renders one page.
+ADR 0001 should remain Proposed until its acceptance checklist is satisfied. Do not start broad parity implementation or expand the design system beyond the spike’s needs merely because the spike renders one page.
 
 ## Open decisions and blockers
 
