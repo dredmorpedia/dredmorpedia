@@ -61,7 +61,7 @@ The inherited repository has no project-wide license, and bundled mods/assets do
 
 ## Direction
 
-The implemented spike follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. ADRs 0001 and 0002 remain proposed until full-dataset and publication-policy checks are complete.
+The implemented spike follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. Read-only full-dataset validation is complete; ADRs 0001 and 0002 remain proposed until the publication-policy check is complete.
 
 Start with the [project brief](PROJECT.md), [repository audit](docs/analysis/repository-audit-2026-07-19.md), [modernization proposal](docs/architecture/modernization-proposal.md), and [roadmap](docs/roadmap.md).
 

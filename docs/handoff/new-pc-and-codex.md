@@ -21,12 +21,12 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- The latest pushed commit before the architecture-spike work was `4324270` (`docs: record UI and language decisions`). Use `git log` for the current hash after the spike is committed.
+- The latest pushed architecture-spike commit is `d4a23c7` (`feat: add modern architecture spike`). Use `git log` for later work.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern architecture-spike workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. It uses only independently authored fixtures.
-- The spike proves deterministic normalized output, diagnostics/checksums, three static item routes, a small search/category interaction, a GitHub Pages-style base path, and local desktop/mobile keyboard and axe checks.
+- The spike proves deterministic normalized output, diagnostics/checksums, static item routes, a small search/category interaction, a GitHub Pages-style base path, and local desktop/mobile keyboard and axe checks. Read-only full-dataset measurements are recorded without the local installation path or official content.
 - Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
 - Recheck the working tree rather than assuming it is clean. `MANIFEST.txt` and `RESTORE.md` can remain as untracked transfer-package artifacts; do not accidentally include them in product commits.
@@ -40,7 +40,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
 | Official sources | Support the base game and all three official expansions first. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. |
-| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 remain Proposed until the full-dataset and policy gates pass. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 are technically validated but remain Proposed until the publication-policy gate passes. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Themes | Support light, dark, and system modes from the first real UI foundation. |
@@ -55,7 +55,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 
 The game installation is read-only. Inspection and hashing are allowed; editing, patching, formatting, renaming, moving, deleting, or writing inside it are not. Approved inputs may be copied into a separate gitignored workspace when a task requires it.
 
-Do not commit or publish official databases/assets, local paths, generated derivatives with unresolved rights, credentials, or additional bundled-mod derivatives. The exact supported installed build and the legal/publication boundary remain unresolved. The inherited code also lacks a root license, and bundled mods/assets do not have one obvious shared license.
+Do not commit or publish official databases/assets, local paths, generated derivatives with unresolved rights, credentials, or additional bundled-mod derivatives. The canonical measurement baseline is `1.1.5 beta_preview`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with all three official expansions. The legal/publication boundary remains unresolved. The inherited code also lacks a root license, and bundled mods/assets do not have one obvious shared license.
 
 The full policy is in `docs/data-and-assets-policy.md` and overrides any historical mutation instructions preserved under `legacy/`.
 
@@ -72,24 +72,22 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 ## Immediate next milestone
 
-Complete the remaining ADR 0001/0002 validation gates before broad parity implementation:
+Resolve the remaining policy/product gates, then begin the first parity slice:
 
-1. Confirm the current workspace with `pnpm generate:check`, `pnpm check`, `pnpm test:e2e`, and `pnpm audit:legacy`.
-2. Ask the owner for this computer's game-installation path and exact game build/version. Treat the installation as read-only.
-3. Create any machine-specific import manifest under the ignored local data workspace; never commit the path.
-4. Exercise the base game plus all three expansions through the adapter. Add only small synthetic compatibility fixtures and focused normalizers for newly observed shapes.
-5. Write artifacts and measurements only outside the installation and keep them ignored. Record entity/diagnostic counts, unsupported constructs, import/build time, artifact size, and search-document size without exposing official content.
-6. Decide the generated-data/art publication boundary and inherited code/mod/asset license policy with the owner.
-7. Accept or revise ADRs 0001 and 0002 from that evidence, then finalize the first parity-slice acceptance statement and search approach.
+1. Decide the generated-data/art publication boundary and inherited code/mod/asset license policy with the owner.
+2. Accept or revise ADRs 0001 and 0002 after that decision.
+3. Agree the first parity-slice acceptance statement and ADR 0003 search response/relevance budgets.
+4. Start with items, stats, source provenance, and search. Add synthetic fixtures before implementing each official XML construct; do not copy official content into tests.
+5. Treat the current 4,274 unsupported-element diagnostics, 16 dangling item references, and deferred encrustment normalizer as the measured compatibility backlog, not as silently completed parity.
 
-Synthetic spike results are in `docs/analysis/architecture-spike-2026-07-19.md`. Do not expand the design system or begin broad parity work while the full-data and publication gates remain open.
+Full results are in `docs/analysis/architecture-spike-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
 ## Open decisions and blockers
 
-- Exact canonical game build/version.
 - Rights and policy for publishing normalized official data and art.
 - License/provenance treatment for inherited code, historical mods, and assets.
 - Acceptance statement for the first parity slice.
+- Search response-time and relevance acceptance criteria for ADR 0003.
 - Priority among the recorded post-parity quality-of-life candidates.
 - Technical feasibility of live progress tracking, deliberately deferred.
 

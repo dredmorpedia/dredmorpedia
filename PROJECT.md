@@ -61,9 +61,12 @@ The initial canonical source scope is the base game plus all three official expa
 - Reproducing every historical visual or obsolete Flash-era tool.
 - Publishing bundled game/mod assets before a license and provenance audit.
 
+## Canonical source baseline
+
+The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 beta_preview`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed.
+
 ## Open product decisions
 
-- Which exact installed game build/version defines the canonical base-and-DLC dataset?
 - May the public deployment host derived game data and art, or must users import data locally?
 - What licenses and attribution obligations apply to the inherited code, bundled mods, and historical assets?
 - Which quality-of-life feature should be implemented first after parity?

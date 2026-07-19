@@ -22,7 +22,8 @@ Read these files before making a substantial change:
 - Ten historical mods and many of their assets are committed.
 - The architecture-spike workspace now contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and independently authored fixtures under `fixtures/synthetic`.
 - Generated spike artifacts live under gitignored `data/generated/`; the web application consumes them and must never parse raw XML.
-- ADR 0001 and ADR 0002 remain proposed until the full approved dataset and publication-policy gates are complete. Synthetic-spike evidence is recorded in `docs/analysis/architecture-spike-2026-07-19.md`.
+- The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 beta_preview`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
+- ADR 0001 and ADR 0002 are technically validated but remain proposed until the publication-policy gate is complete. Synthetic and full-dataset evidence is recorded in `docs/analysis/architecture-spike-2026-07-19.md`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

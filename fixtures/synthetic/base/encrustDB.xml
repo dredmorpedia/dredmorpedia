@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<encrusts>
+  <encrust name="Synthetic Gear Polish" tool="armor">
+    <input name="Brass Ingot" amount="1" />
+  </encrust>
+</encrusts>

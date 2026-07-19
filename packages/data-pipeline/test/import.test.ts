@@ -1,5 +1,6 @@
 import {
   mkdtempSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   rmSync,
@@ -35,6 +36,51 @@ afterEach(() => {
 });
 
 describe("synthetic dataset import", () => {
+  it("supports an absolute read-only source root without exposing local paths", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-external-source-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "installed-game");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      '<?xml version="1.0"?><items><item name="External Fixture Item" type="material" /></items>',
+    );
+    const externalManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      externalManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "external-source-test",
+        sources: [
+          {
+            id: "external-base",
+            label: "External Base",
+            kind: "base",
+            precedence: 0,
+            root: sourceRoot,
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: externalManifestPath,
+      repositoryRoot,
+    });
+    const serialized = serializeOutputs(result);
+
+    expect(result.artifact.entities.items[0]?.provenance.file).toBe(
+      "sources/external-base/itemDB.xml",
+    );
+    expect(result.sourceManifest).toBe("manifests/manifest.json");
+    expect(serialized.artifact).not.toContain(temporaryRoot);
+    expect(serialized.diagnostics).not.toContain(temporaryRoot);
+    expect(serialized.manifest).not.toContain(temporaryRoot);
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -95,12 +141,18 @@ describe("synthetic dataset import", () => {
         "dangling_reference",
         "missing_asset",
         "unknown_element",
+        "unsupported_database_kind",
       ]),
     );
     expect(
       result.diagnostics.find((diagnostic) => diagnostic.code === "invalid_xml")
         ?.source?.line,
     ).toBeGreaterThan(1);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "missing_asset",
+      ),
+    ).toHaveLength(1);
   });
 
   it("writes checksummed artifacts outside source roots", () => {

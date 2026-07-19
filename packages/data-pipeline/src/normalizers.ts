@@ -45,8 +45,10 @@ export interface CandidateCollections {
 
 export interface NormalizationContext {
   source: SourceDefinition;
-  sourceRoot: string;
-  sourceDisplayRoot: string;
+  assetRoots: readonly {
+    absolutePath: string;
+    displayPath: string;
+  }[];
   file: string;
   parsed: ParsedXml;
   diagnostics: DiagnosticDraft[];
@@ -153,23 +155,28 @@ function normalizeAssetPath(
 
   const normalized = value.replaceAll("\\", "/").replace(/^\.\//, "");
   try {
-    const absolutePath = resolveExistingWithin(context.sourceRoot, normalized);
-    if (!existsSync(absolutePath)) {
-      context.diagnostics.push({
-        severity: "warning",
-        code: "missing_asset",
-        message: `Referenced asset does not exist: ${normalized}`,
-        source: provenance,
-        entityId: currentEntityId,
-        details: { assetPath: normalized },
-      });
-      return normalized;
+    for (const assetRoot of context.assetRoots) {
+      const absolutePath = resolveExistingWithin(
+        assetRoot.absolutePath,
+        normalized,
+      );
+      if (existsSync(absolutePath)) {
+        context.registerInput(
+          absolutePath,
+          toPosixPath(`${assetRoot.displayPath}/${normalized}`),
+        );
+        return normalized;
+      }
     }
 
-    context.registerInput(
-      absolutePath,
-      toPosixPath(`${context.sourceDisplayRoot}/${normalized}`),
-    );
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_asset",
+      message: `Referenced asset does not exist: ${normalized}`,
+      source: provenance,
+      entityId: currentEntityId,
+      details: { assetPath: normalized },
+    });
     return normalized;
   } catch (error) {
     if (!(error instanceof PathBoundaryError)) {
@@ -619,6 +626,21 @@ export function parseDatabase(
       break;
     case "recipes":
       parseRecipes(context, result);
+      break;
+    case "encrustments":
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unsupported_database_kind",
+        message:
+          "Encrustment databases are inventoried but not normalized by the architecture spike.",
+        source: {
+          sourceId: context.source.id,
+          file: context.file,
+          line: 1,
+          column: 1,
+        },
+        details: { kind },
+      });
       break;
     case "skills":
       parseSkills(context, result);

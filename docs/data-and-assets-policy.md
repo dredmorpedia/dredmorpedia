@@ -8,7 +8,7 @@ This document defines the working safety and publication boundary for the rebuil
 ## Agreed source scope
 
 - Initial parity targets the base game and all three official expansions.
-- The exact canonical installed build/version still needs to be recorded from the available source data.
+- The canonical measurement baseline is Dungeons of Dredmor `1.1.5 beta_preview`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed.
 - General mod support should remain possible, but broad mod compatibility is lower priority than official-content parity.
 - The inherited bundled mods remain historical evidence. Their presence in the fork does not prove permission to reuse or republish them in new outputs.
 

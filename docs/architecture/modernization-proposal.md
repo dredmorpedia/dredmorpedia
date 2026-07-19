@@ -1,13 +1,13 @@
 # Modernization proposal
 
 Date: 2026-07-19
-Status: owner-approved direction; ADR validation still in progress
+Status: owner-approved direction; technical spike validated, publication policy pending
 
 ## Recommendation in one sentence
 
 Build a pnpm TypeScript workspace with a deterministic Node-based XML/data pipeline, a framework-independent domain package, and a Next.js App Router web application that is statically exported first and can adopt server-backed features later without replacing the UI platform.
 
-This is proposed in [`../decisions/0001-platform-and-repository-direction.md`](../decisions/0001-platform-and-repository-direction.md). The owner approved the platform direction. A deliberately small spike may be committed to validate it, but the ADR remains proposed until its validation checklist is complete. Restricted data and asset publication remain independently gated by [`../data-and-assets-policy.md`](../data-and-assets-policy.md).
+This is proposed in [`../decisions/0001-platform-and-repository-direction.md`](../decisions/0001-platform-and-repository-direction.md). The owner approved the platform direction, and the synthetic plus read-only full-dataset spike validated its technical checklist. The ADR remains proposed because restricted data and asset publication are independently gated by [`../data-and-assets-policy.md`](../data-and-assets-policy.md). Measurements are recorded in [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md).
 
 ## Why this shape fits Dredmorpedia
 
@@ -262,8 +262,7 @@ Rejected for the initial release. Core data changes at build/import time and can
 
 ## Decisions required from the owner
 
-1. Record the exact canonical installed game version/build within the approved base-game-plus-three-DLC scope.
-2. Define the public generated-data and asset redistribution policy.
-3. Complete the ADR 0001 spike using synthetic fixtures and read-only measurements from the full local dataset.
-4. Define acceptance criteria for the first parity slice: recommended `items + stats + source provenance + search`, with crafting/encrusting backlinks immediately after.
-5. Prioritize the first post-parity quality-of-life feature; keep live tracking in a separate later research decision.
+1. Define the public generated-data and asset redistribution policy.
+2. Define acceptance criteria for the first parity slice: recommended `items + stats + source provenance + search`, with crafting/encrusting backlinks immediately after.
+3. Define search response-time and relevance acceptance criteria for ADR 0003.
+4. Prioritize the first post-parity quality-of-life feature; keep live tracking in a separate later research decision.

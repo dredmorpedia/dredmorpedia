@@ -2,11 +2,12 @@ import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 
-import { resolveExistingWithin, toPosixPath } from "./safe-path";
+import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 
 export const databaseKinds = [
   "items",
   "recipes",
+  "encrustments",
   "skills",
   "spells",
   "monsters",
@@ -59,6 +60,15 @@ export interface LoadedManifest {
   manifestDisplayPath: string;
 }
 
+export function resolveSourceRoot(
+  manifestDirectory: string,
+  sourceRoot: string,
+): string {
+  return path.isAbsolute(sourceRoot)
+    ? realpathSync(sourceRoot)
+    : resolveExistingWithin(manifestDirectory, sourceRoot);
+}
+
 export function loadManifest(
   manifestPath: string,
   repositoryRoot: string,
@@ -70,21 +80,27 @@ export function loadManifest(
   const manifest = manifestSchema.parse(parsed);
 
   for (const source of manifest.sources) {
-    resolveExistingWithin(path.dirname(absoluteManifestPath), source.root);
+    const sourceRoot = resolveSourceRoot(
+      path.dirname(absoluteManifestPath),
+      source.root,
+    );
     for (const file of source.files) {
-      resolveExistingWithin(
-        resolveExistingWithin(path.dirname(absoluteManifestPath), source.root),
-        file.path,
-      );
+      resolveExistingWithin(sourceRoot, file.path);
     }
   }
+
+  const resolvedRepositoryRoot = path.resolve(repositoryRoot);
+  const manifestDisplayPath = isPathWithin(
+    resolvedRepositoryRoot,
+    absoluteManifestPath,
+  )
+    ? toPosixPath(path.relative(resolvedRepositoryRoot, absoluteManifestPath))
+    : `manifests/${path.basename(absoluteManifestPath)}`;
 
   return {
     manifest,
     manifestPath: absoluteManifestPath,
     manifestDirectory: path.dirname(absoluteManifestPath),
-    manifestDisplayPath: toPosixPath(
-      path.relative(repositoryRoot, absoluteManifestPath),
-    ),
+    manifestDisplayPath,
   };
 }

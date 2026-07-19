@@ -1,7 +1,7 @@
 # ADR 0002: XML adapter and generated artifact boundary
 
 Date: 2026-07-19
-Status: Proposed (synthetic spike validated; full installed dataset pending)
+Status: Proposed (technical validation complete; publication boundary pending)
 Owners: repository owner + maintainer
 
 ## Context
@@ -36,6 +36,6 @@ See [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-sp
 - [x] Pipeline/domain unit and integration tests pass without a game installation.
 - [x] The web layer imports generated JSON and no raw XML parser.
 - [x] Output writes are atomic and refused inside source roots.
-- [ ] The complete approved base-game-plus-three-DLC dataset imports read-only with measured results.
-- [ ] Unsupported constructs and performance found in the full dataset are assessed.
+- [x] The complete approved base-game-plus-three-DLC dataset imports read-only with measured results.
+- [x] Unsupported constructs and performance found in the full dataset are assessed.
 - [ ] The generated-artifact publication boundary is approved.

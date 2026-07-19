@@ -20,17 +20,17 @@ This roadmap optimizes for a trustworthy vertical slice and a reusable data foun
 - [x] Choose selective shadcn/ui components backed by Base UI as the accessible component foundation.
 - [x] Set English-only initial scope while preserving a clean boundary between canonical game text and interface copy.
 - [x] Write an interim read-only data and asset policy.
-- [ ] Record the exact canonical installed game build/version.
+- [x] Record the exact canonical installed game build/version.
 - [ ] Decide what official/generated data and art may be committed or publicly hosted.
 - [ ] Establish code and bundled-mod license/provenance policy.
-- [ ] Validate and accept ADR 0001 through the architecture spike.
+- [ ] Accept technically validated ADR 0001 after the publication boundary is decided.
 - [ ] Choose the first quality-of-life feature after parity from the recorded candidates.
 
 ### Exit criteria
 
 ADR 0001 is accepted, the exact official source version is recorded, the public data/asset boundary is decided, and the first parity slice has an agreed acceptance statement.
 
-## Phase 1 — Architecture spike (current)
+## Phase 1 — Architecture spike (complete)
 
 ### Goal
 
@@ -42,19 +42,21 @@ Prove the risky boundaries with representative data before building a design sys
 - [x] Establish project-owned Tailwind tokens and add only the shadcn/ui + Base UI components required by the spike interaction.
 - [x] Create synthetic fixtures for an item, recipe, skill/ability, spell/effect chain, inherited monster, stat, template, duplicate override, invalid XML, missing asset, and dangling reference.
 - [x] Parse the representative synthetic source shapes through a project-owned adapter.
-- [ ] Parse representative approved official/mod XML through the adapter.
-- [ ] Exercise the full installed official dataset read-only; write all measurements and artifacts outside the installation.
+- [x] Parse the approved official XML through the adapter; keep broad mod compatibility as later work.
+- [x] Exercise the full installed official dataset read-only; write all measurements and artifacts outside the installation.
 - [x] Emit deterministic normalized JSON plus diagnostics and checksums with atomic replacement.
 - [x] Generate static item routes and one small client search/filter interaction.
 - [x] Validate the static export at a GitHub Pages-style repository subpath.
 - [x] Pass local unit, build, desktop/mobile keyboard-flow, and axe checks without proprietary data.
-- [ ] Measure full-dataset entity counts, import/build time, artifact size, and search-index size locally without committing restricted data.
+- [x] Measure full-dataset entity counts, import/build time, artifact size, and search-index size locally without committing restricted data.
 - [x] Record the parser and artifact-format decision as ADR 0002.
-- [ ] Record the search decision after measuring the full dataset.
+- [x] Record the initial search decision as ADR 0003 after measuring the full dataset.
 
 ### Exit criteria
 
 Two identical imports produce byte-identical artifacts; invalid/unknown input has source-located diagnostics; one entity route builds statically; CI passes without proprietary data.
+
+Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; they block public official-data deployment, not continued code work on synthetic fixtures and package boundaries.
 
 ## Phase 2 — Foundation
 

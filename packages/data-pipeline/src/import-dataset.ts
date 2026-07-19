@@ -23,14 +23,14 @@ import {
   type Stat,
 } from "@dredmorpedia/domain";
 
-import { loadManifest } from "./manifest";
+import { loadManifest, resolveSourceRoot } from "./manifest";
 import {
   emptyCandidateCollections,
   mergeCandidateCollections,
   parseDatabase,
   type CandidateCollections,
 } from "./normalizers";
-import { resolveExistingWithin, toPosixPath } from "./safe-path";
+import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 import { sha256, stableSerialize } from "./serialization";
 import { parseXml, type DiagnosticDraft } from "./xml-adapter";
 
@@ -435,15 +435,31 @@ export function importDataset(
       left.id.localeCompare(right.id, "en"),
   );
 
-  for (const source of sortedSources) {
-    const sourceRoot = resolveExistingWithin(
+  const resolvedSources = sortedSources.map((source) => {
+    const absolutePath = resolveSourceRoot(
       loaded.manifestDirectory,
       source.root,
     );
-    sourceRoots.push(sourceRoot);
-    const sourceDisplayRoot = toPosixPath(
-      path.relative(repositoryRoot, sourceRoot),
-    );
+    const displayPath = isPathWithin(repositoryRoot, absolutePath)
+      ? toPosixPath(path.relative(repositoryRoot, absolutePath))
+      : `sources/${source.id}`;
+    sourceRoots.push(absolutePath);
+    return { source, absolutePath, displayPath };
+  });
+
+  for (const [sourceIndex, resolvedSource] of resolvedSources.entries()) {
+    const {
+      source,
+      absolutePath: sourceRoot,
+      displayPath: sourceDisplayRoot,
+    } = resolvedSource;
+    const assetRoots = resolvedSources
+      .slice(0, sourceIndex + 1)
+      .reverse()
+      .map(({ absolutePath, displayPath }) => ({
+        absolutePath,
+        displayPath,
+      }));
     const files = [...source.files].sort(
       (left, right) =>
         left.path.localeCompare(right.path, "en") ||
@@ -452,9 +468,7 @@ export function importDataset(
 
     for (const file of files) {
       const absolutePath = resolveExistingWithin(sourceRoot, file.path);
-      const displayPath = toPosixPath(
-        path.relative(repositoryRoot, absolutePath),
-      );
+      const displayPath = toPosixPath(`${sourceDisplayRoot}/${file.path}`);
       if (!existsSync(absolutePath)) {
         diagnostics.push({
           severity: "error",
@@ -482,8 +496,7 @@ export function importDataset(
         candidates,
         parseDatabase(file.kind, {
           source,
-          sourceRoot,
-          sourceDisplayRoot,
+          assetRoots,
           file: displayPath,
           parsed: parsed.value,
           diagnostics,
@@ -522,7 +535,7 @@ export function importDataset(
     diagnostics: finalizedDiagnostics,
     inputs,
     sourceManifest: loaded.manifestDisplayPath,
-    sourceRoots: sourceRoots.sort((left, right) =>
+    sourceRoots: [...new Set(sourceRoots)].sort((left, right) =>
       left.localeCompare(right, "en"),
     ),
   };

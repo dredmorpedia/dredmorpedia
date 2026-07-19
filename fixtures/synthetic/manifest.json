@@ -11,6 +11,7 @@
       "files": [
         { "kind": "items", "path": "itemDB.xml" },
         { "kind": "recipes", "path": "craftDB.xml" },
+        { "kind": "encrustments", "path": "encrustDB.xml" },
         { "kind": "skills", "path": "skillDB.xml" },
         { "kind": "spells", "path": "spellDB.xml" },
         { "kind": "monsters", "path": "monDB.xml" },
