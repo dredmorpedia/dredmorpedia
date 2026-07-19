@@ -22,6 +22,10 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 
+# Portable handoff artifacts belong outside the repository
+/*.bundle
+/dredmorpedia-transfer-*.zip
+
 # Local imports and generated artifacts; publication requires an explicit policy decision
 /data/raw/
 /data/generated/

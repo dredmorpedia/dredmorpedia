@@ -13,6 +13,7 @@ The repository is currently at the foundation stage: the legacy application has 
 - [`docs/decisions/`](docs/decisions/) - architecture decision records (ADRs).
 - [`docs/roadmap.md`](docs/roadmap.md) - delivery phases and exit criteria.
 - [`docs/data-and-assets-policy.md`](docs/data-and-assets-policy.md) - current rules for local game files, generated data, and publication.
+- [`docs/handoff/new-pc-and-codex.md`](docs/handoff/new-pc-and-codex.md) - current state, decisions, next milestone, and new-machine restoration guide.
 - [`AGENTS.md`](AGENTS.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md) - working conventions for coding agents and human contributors.
 
 ## Check the preserved application
@@ -44,3 +45,13 @@ The inherited repository has no project-wide license, and bundled mods/assets do
 The proposed platform is a strict TypeScript/pnpm workspace with a deterministic XML pipeline, framework-independent domain packages, and a statically exported Next.js application. The owner has approved this direction, Tailwind-based game-inspired styling, light/dark/system themes, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. ADR 0001 remains proposed until its spike and policy checks are complete.
 
 Start with the [project brief](PROJECT.md), [repository audit](docs/analysis/repository-audit-2026-07-19.md), [modernization proposal](docs/architecture/modernization-proposal.md), and [roadmap](docs/roadmap.md).
+
+## Moving to another computer
+
+Prefer the repository's transfer-package script over zipping the working folder directly:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-transfer-package.ps1
+```
+
+It requires a clean working tree and creates a ZIP beside the repository containing the complete committed Git history, a checksum manifest, and restore instructions. Ignored local game data, generated artifacts, credentials, and machine-specific configuration are not included. See the [new-PC handoff](docs/handoff/new-pc-and-codex.md) for the restore procedure and limitations.

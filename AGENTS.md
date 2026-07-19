@@ -13,6 +13,7 @@ Read these files before making a substantial change:
 3. `docs/architecture/modernization-proposal.md`
 4. `docs/roadmap.md`
 5. Relevant records in `docs/decisions/`
+6. `docs/handoff/new-pc-and-codex.md` when resuming on a new machine or in a context-free Codex task
 
 ## Current repository state
 
@@ -56,6 +57,13 @@ The web layer must not parse raw XML. The parser must not import UI code. Domain
 7. Update documentation when behavior, commands, constraints, or decisions change.
 
 Do not invent package commands while the modern workspace is absent. After scaffolding, keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this file synchronized.
+
+## Session and machine handoff
+
+- Treat repository documentation and committed tests as durable memory; do not rely on a previous chat being available.
+- Keep `docs/handoff/new-pc-and-codex.md` current when repository state, agreed direction, blockers, or the immediate next milestone changes materially.
+- Use `scripts/create-transfer-package.ps1` for an unpushed machine transfer. It packages committed Git history and restore instructions without collecting ignored local data.
+- On a new machine, ask the owner for the current game-installation path if read-only integration work needs it. Never reuse or commit a path remembered from another machine.
 
 ## Definition of done
 
