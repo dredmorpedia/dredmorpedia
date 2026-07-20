@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "lint": "eslint src playwright.config.ts e2e --max-warnings=0",
     "start": "next start",
     "test:e2e": "pnpm build && playwright test",

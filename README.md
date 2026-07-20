@@ -54,6 +54,8 @@ pnpm generate:check
 pnpm dev
 ```
 
+The modern application is then available at `http://localhost:3001/`.
+
 Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
 
 ## Data and legal boundary
