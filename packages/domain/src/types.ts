@@ -69,6 +69,44 @@ export interface ItemStatValue {
   statId?: string;
 }
 
+export const itemTriggerKinds = [
+  "stepped-on",
+  "zapped",
+  "quaffed",
+  "munched",
+  "item-hit",
+  "melee-target",
+  "crossbow-target",
+  "thrown-target",
+  "kill-target",
+  "melee-self",
+  "dodge",
+  "critical",
+  "counter",
+  "block",
+  "cast",
+  "activated",
+  "eaten",
+  "drunk",
+  "trigger-once",
+  "trigger-repeat",
+  "trigger-list",
+] as const;
+
+export type ItemTriggerKind = (typeof itemTriggerKinds)[number];
+
+export interface ItemTrigger {
+  kind: ItemTriggerKind;
+  spellKey: string;
+  spellName: string;
+  spellId?: string;
+  chance: number | null;
+  delay: number;
+  duration: number;
+  unresistable: boolean;
+  monsterTaxonomy: string | null;
+}
+
 export interface Item extends NormalizedEntityBase {
   kind: "item";
   category: string;
@@ -76,6 +114,7 @@ export interface Item extends NormalizedEntityBase {
   quality: number;
   iconPath: string | null;
   stats: ItemStatValue[];
+  triggers: ItemTrigger[];
 }
 
 export interface ItemReference {

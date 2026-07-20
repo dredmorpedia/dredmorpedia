@@ -4,5 +4,5 @@ export * from "./patches";
 export * from "./recipe-relationships";
 export * from "./resolution";
 export * from "./search";
-export { entityKinds } from "./types";
+export { entityKinds, itemTriggerKinds } from "./types";
 export type * from "./types";

@@ -15,6 +15,7 @@ Scope: split generated artifacts, project-owned search/query logic, collision-sa
 - Static stat routes provide item and spell-effect backlinks plus provenance. Datasets with no standalone stat definitions emit an explicit unavailable state.
 - The item detail route links normalized stats to available stat definitions.
 - A deterministic domain query separates an item's crafted-by and used-to-craft relationships, including summed quantities and stable ordering.
+- Item spell triggers normalize legacy type-specific and direct event shapes, resolve against active spell identities, retain unresolved names with diagnostics, and expose chance/delay/duration/resistance/taxonomy metadata on item details.
 - Static recipe routes expose tool, skill requirement, visibility, linked inputs/outputs, provenance, and source-located diagnostics. Item pages link both directions and unresolved ingredients remain visibly unlinked.
 - Item/stat provenance displays dataset/source versions, override history, and reviewed patch reasons with field-level before/after values.
 - Canonical item/stat routes use deterministic collision resolution. Registry routes are reserved before automatic allocation; registered historical aliases and unambiguous source original IDs generate alternate paths. Alias pages identify themselves, link to the canonical path, and use `noindex, follow` metadata.
@@ -24,20 +25,21 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 22,444 bytes.
+- Normalized artifact: 24,951 bytes.
 - Search artifact: 6,845 bytes for 17 documents.
-- Diagnostics remain the intentional 1 error and 10 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
+- Diagnostics remain the intentional 1 error and 14 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements are distinguished from wholly unknown elements.
 - Domain/pipeline tests: 30 passed.
-- Browser tests: 10 passed across desktop and mobile Chromium.
+- Browser tests: 12 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 - Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
+- Synthetic item-trigger coverage includes resolved weapon, potion, wand, combat-event, and repeated triggers plus an intentionally unresolved trap spell. The UI exposes the unresolved state without creating a route, and axe checks include representative resolved and unresolved pages.
 
 ## Read-only official verification
 
 The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset still produces 763 items and 2,710 search documents with 0 errors, 4,291 warnings, and 70 info records.
 
-- Normalized artifact: 3,603,219 bytes.
+- Normalized artifact: 3,710,584 bytes.
 - Search artifact: 1,202,823 bytes uncompressed.
 - Diagnostics: 1,935,824 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
@@ -45,6 +47,7 @@ The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset still produ
 - The GitHub Pages-subpath static build, including all 374 recipe pages, completed in approximately 21.7 seconds and emitted 1,143 HTML files, 10,283 total files, and 53,973,362 bytes.
 - The generated JSON and static export contain no local installation or user-profile path.
 - The reviewed quality rule matched all 763 official items with zero discrepancies: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 traps use nested `<trap level>`, and 184 other records use zero. This includes 68 food/potion records whose unrelated root `level` is deliberately ignored. All normalized values were present, non-negative integers; the observed maximum was 16.
+- The item-trigger adapter produced 227 triggers across 214 official items. All 227 spell references resolved: 153 came from weapon/food/booze/trap/wand/potion/mushroom shapes and 74 from direct combat-event elements. The direct elements supplied 74 integer chance values and two taxonomy restrictions; the canonical dataset has no item-trigger delay, duration, or unresistable values, while those legacy-compatible fields remain covered synthetically.
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.
 

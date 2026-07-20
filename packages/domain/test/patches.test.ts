@@ -38,6 +38,7 @@ function item(): Item {
     quality: 3,
     iconPath: null,
     stats: [],
+    triggers: [],
   };
 }
 

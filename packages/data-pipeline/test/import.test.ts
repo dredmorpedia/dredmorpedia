@@ -416,9 +416,53 @@ describe("synthetic dataset import", () => {
       "synthetic-expansion",
     ]);
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("quality");
+    expect(blade?.appliedOverrides[0]?.changedFields).toContain("triggers");
+    expect(blade?.triggers).toEqual([
+      {
+        kind: "item-hit",
+        spellKey: "clockwork spark",
+        spellName: "Clockwork Spark",
+        spellId: "spell:clockwork spark",
+        chance: null,
+        delay: 0,
+        duration: 0,
+        unresistable: false,
+        monsterTaxonomy: null,
+      },
+    ]);
     expect(itemByName.get("Training Cuirass")?.quality).toBe(4);
     expect(itemByName.get("Training Trap")?.quality).toBe(5);
     expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
+    expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "quaffed",
+        spellId: "spell:clockwork spark",
+      }),
+    ]);
+    expect(itemByName.get("Training Cuirass")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "melee-target",
+        spellId: "spell:clockwork echo",
+        chance: 25,
+        monsterTaxonomy: "Animal",
+      }),
+      expect.objectContaining({
+        kind: "trigger-repeat",
+        spellId: "spell:clockwork spark",
+        chance: 50,
+        duration: 3,
+        unresistable: true,
+      }),
+    ]);
+    expect(itemByName.get("Training Trap")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "stepped-on",
+        spellName: "Synthetic Spark",
+      }),
+    ]);
+    expect(itemByName.get("Training Trap")?.triggers[0]?.spellId).toBe(
+      undefined,
+    );
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,
@@ -443,6 +487,7 @@ describe("synthetic dataset import", () => {
         "dangling_reference",
         "missing_asset",
         "unknown_element",
+        "partially_supported_element",
         "unsupported_database_kind",
         "slug_collision",
         "patch_applied",
@@ -464,6 +509,23 @@ describe("synthetic dataset import", () => {
         (diagnostic) => diagnostic.code === "missing_asset",
       ),
     ).toHaveLength(1);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "item:training trap",
+        details: expect.objectContaining({
+          targetKind: "spell",
+          reference: "Synthetic Spark",
+        }),
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "partially_supported_element",
+        entityId: "item:training trap",
+        details: { element: "trap" },
+      }),
+    );
   });
 
   it("writes checksummed artifacts outside source roots", () => {

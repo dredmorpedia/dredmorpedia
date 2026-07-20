@@ -130,6 +130,39 @@ test("follows explicit item and recipe backlinks", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("shows resolved and unresolved item spell triggers", async ({ page }) => {
+  await page.goto("/items/clockwork-blade/");
+  const weaponTriggers = page.getByRole("region", { name: "Triggers" });
+  await expect(weaponTriggers.getByText("When the item hits")).toBeVisible();
+  await expect(
+    weaponTriggers.getByText("Clockwork Spark", { exact: true }),
+  ).toBeVisible();
+  await expect(weaponTriggers.getByText("Resolved target spell")).toBeVisible();
+
+  await page.goto("/items/training-cuirass/");
+  const armourTriggers = page.getByRole("region", { name: "Triggers" });
+  await expect(armourTriggers.getByText("25%", { exact: true })).toBeVisible();
+  await expect(armourTriggers.getByText("50%", { exact: true })).toBeVisible();
+  await expect(armourTriggers.getByText("3 turns")).toBeVisible();
+  await expect(armourTriggers.getByText("Animal")).toBeVisible();
+  await expect(armourTriggers.getByText("Unresistable")).toBeVisible();
+
+  await page.goto("/items/training-trap/");
+  const trapTriggers = page.getByRole("region", { name: "Triggers" });
+  await expect(trapTriggers.getByText("When stepped on")).toBeVisible();
+  await expect(
+    trapTriggers.getByText("Synthetic Spark", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    trapTriggers.getByText("Unresolved spell reference"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Supported fields from <trap> were normalized, but other content remains unmodeled.",
+    ),
+  ).toBeVisible();
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -139,10 +172,13 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/clockwork-blade/",
     "/items/clockwork-blade-plus/",
     "/items/clockwork-sword/",
+    "/items/training-cuirass/",
+    "/items/training-trap/",
     "/recipes/clockwork-blade-recipe/",
     "/stats/melee-power/",
   ]) {
     await page.goto(route);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   }

@@ -137,9 +137,11 @@ function danglingDiagnostic(
 function linkItems(
   items: Item[],
   stats: readonly Stat[],
+  spells: readonly Spell[],
   diagnostics: DiagnosticDraft[],
 ): Item[] {
   const statAliases = aliasesFor(stats);
+  const spellAliases = aliasesFor(spells);
   return items.map((item) => ({
     ...item,
     stats: item.stats.map((value) => {
@@ -149,6 +151,14 @@ function linkItems(
         return value;
       }
       return { ...value, statId: stat.id };
+    }),
+    triggers: item.triggers.map((trigger) => {
+      const spell = spellAliases.get(trigger.spellKey);
+      if (!spell) {
+        diagnostics.push(danglingDiagnostic(item, "spell", trigger.spellName));
+        return trigger;
+      }
+      return { ...trigger, spellId: spell.id };
     }),
   }));
 }
@@ -580,6 +590,7 @@ function resolveCollections(
   const linkedItems = linkItems(
     routed.items.entities,
     linkedStats,
+    routed.spells.entities,
     diagnostics,
   );
   const linkedRecipes = linkRecipes(

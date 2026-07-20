@@ -10,7 +10,7 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Functional acceptance
 
-- Every normalized item has a stable static detail route with category, description, price, stats, source/file provenance, attached diagnostics, and known recipe relationships.
+- Every normalized item has a stable static detail route with category, description, price, quality, stats, resolved or explicitly unresolved spell triggers, source/file provenance, attached diagnostics, and known recipe relationships.
 - Every linked recipe has a stable static detail route with tool, skill requirement, visibility, input/output quantities, source/file provenance, and attached diagnostics. Resolved items link both ways; unresolved ingredients remain visible without a fabricated item route.
 - Name collisions receive deterministic unique canonical routes. A version-scoped route registry preserves reviewed canonical slugs and historical aliases; unambiguous source-ID aliases are also generated. Every alternate path resolves to the same record and visibly links to its canonical URL.
 - Every available standalone stat definition has a stable static detail route with item and spell-effect backlinks plus source/file provenance.
@@ -37,6 +37,6 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe routes, item/stat/crafting backlinks, explicit missing-definition states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe routes, item/stat/crafting backlinks, item spell-trigger normalization/linking/presentation, explicit missing-definition/reference states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete item triggers and encrustment relationships, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
+Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete encrustment relationships, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.

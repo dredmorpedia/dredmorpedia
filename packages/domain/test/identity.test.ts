@@ -35,6 +35,7 @@ function routeItem(name: string, originalId: string): Item {
     quality: 0,
     iconPath: null,
     stats: [],
+    triggers: [],
   };
 }
 

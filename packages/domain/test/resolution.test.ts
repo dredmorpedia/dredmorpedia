@@ -38,6 +38,7 @@ function candidate(
       quality: 2,
       iconPath: null,
       stats: [],
+      triggers: [],
       provenance,
       variants: [provenance],
       appliedOverrides: [],

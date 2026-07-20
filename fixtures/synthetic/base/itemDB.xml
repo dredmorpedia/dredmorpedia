@@ -4,7 +4,7 @@
     <description text="A precisely balanced blade built for a synthetic test dungeon." />
     <price amount="120" />
     <stat name="Melee Power" amount="4" />
-    <weapon />
+    <weapon hit="Clockwork Echo" />
   </item>
   <item id="brass-ingot" name="Brass Ingot" type="material" iconFile="assets/missing-ingot.svg">
     <description text="A legal test reagent with an intentionally missing icon." />
@@ -13,13 +13,15 @@
   <item id="clarity-tonic" name="Clarity Tonic" type="consumable" level="7" iconFile="assets/synthetic.svg">
     <description text="A harmless tonic used to exercise category filtering." />
     <price amount="42" />
-    <potion spell="Synthetic Spark" />
+    <potion spell="Clockwork Spark" />
     <mystery value="unsupported-on-purpose" />
   </item>
   <item id="training-cuirass" name="Training Cuirass" type="armour" iconFile="assets/synthetic.svg">
     <description text="Synthetic armour used to verify nested quality levels." />
     <price amount="64" />
     <armour type="chest" level="4" />
+    <targetHitEffectBuff name="Clockwork Echo" percentage="25" taxa="Animal" />
+    <effect type="dot" spell="Clockwork Spark" amount="3" percent="50" resistable="0" />
   </item>
   <item id="training-trap" name="Training Trap" type="trap" iconFile="assets/synthetic.svg">
     <description text="A synthetic trap used to verify trap quality levels." />
@@ -29,6 +31,7 @@
   <item id="training-wand-plus" name="Training Wand +1" type="wand" iconFile="assets/synthetic.svg">
     <description text="A route-collision fixture using a symbolic suffix." />
     <price amount="21" />
+    <wand mincharge="2" maxcharge="4" spell="Clockwork Echo" />
   </item>
   <item id="training-wand-one" name="Training Wand 1" type="wand" iconFile="assets/synthetic.svg">
     <description text="A route-collision fixture using a numeric suffix." />

@@ -6,12 +6,37 @@ import {
   entityRouteSlugs,
   itemRecipeRelationships,
   matchesEntityRoute,
+  type ItemTriggerKind,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 
 export const dynamicParams = false;
+
+const triggerLabels: Readonly<Record<ItemTriggerKind, string>> = {
+  "stepped-on": "When stepped on",
+  zapped: "When zapped",
+  quaffed: "When quaffed",
+  munched: "When munched",
+  "item-hit": "When the item hits",
+  "melee-target": "When you hit in melee",
+  "crossbow-target": "When your bolt hits",
+  "thrown-target": "When your thrown weapon hits",
+  "kill-target": "When you kill an enemy",
+  "melee-self": "When you are hit in melee",
+  dodge: "When you dodge",
+  critical: "When you critically hit",
+  counter: "When you counter",
+  block: "When you block",
+  cast: "When you cast a spell",
+  activated: "When activated",
+  eaten: "When eaten",
+  drunk: "When drunk",
+  "trigger-once": "Triggered once",
+  "trigger-repeat": "Repeated trigger",
+  "trigger-list": "Triggered from a list",
+};
 
 export function generateStaticParams() {
   return loadArtifact().entities.items.flatMap((item) =>
@@ -68,6 +93,9 @@ export default async function ItemPage({
   );
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
+  );
+  const spellsById = new Map(
+    artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const isAlias = slug !== item.slug;
 
@@ -143,6 +171,80 @@ export default async function ItemPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized stat values.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="triggers-heading">
+          <h2 id="triggers-heading" className="section-title-sm">
+            Triggers
+          </h2>
+          {item.triggers.length > 0 ? (
+            <ul className="trigger-list">
+              {item.triggers.map((trigger, index) => {
+                const spell = trigger.spellId
+                  ? spellsById.get(trigger.spellId)
+                  : undefined;
+                return (
+                  <li key={`${trigger.kind}:${trigger.spellKey}:${index}`}>
+                    <div className="trigger-summary">
+                      <span className="relationship-title">
+                        {triggerLabels[trigger.kind]}
+                      </span>
+                      <strong>{spell?.name ?? trigger.spellName}</strong>
+                      <small
+                        className={
+                          spell
+                            ? "trigger-resolution"
+                            : "trigger-resolution trigger-resolution-unresolved"
+                        }
+                      >
+                        {spell
+                          ? `Resolved ${spell.spellType} spell`
+                          : "Unresolved spell reference"}
+                      </small>
+                    </div>
+                    <dl className="trigger-facts">
+                      <div>
+                        <dt>Chance</dt>
+                        <dd>
+                          {trigger.chance === null
+                            ? "Always"
+                            : `${trigger.chance}%`}
+                        </dd>
+                      </div>
+                      {trigger.delay > 0 ? (
+                        <div>
+                          <dt>Delay</dt>
+                          <dd>{trigger.delay} turns</dd>
+                        </div>
+                      ) : null}
+                      {trigger.duration > 0 ? (
+                        <div>
+                          <dt>Duration</dt>
+                          <dd>{trigger.duration} turns</dd>
+                        </div>
+                      ) : null}
+                      {trigger.monsterTaxonomy ? (
+                        <div>
+                          <dt>Taxonomy</dt>
+                          <dd>{trigger.monsterTaxonomy}</dd>
+                        </div>
+                      ) : null}
+                      {trigger.unresistable ? (
+                        <div>
+                          <dt>Resistance</dt>
+                          <dd>Unresistable</dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized item triggers.
             </p>
           )}
         </section>

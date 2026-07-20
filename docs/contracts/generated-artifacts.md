@@ -16,6 +16,8 @@ Every normalized entity has one canonical `slug` and a deterministically ordered
 
 Items include a non-negative integer `quality` field. The adapter reads a weapon-shaped record's root `level`, an armour record's nested `<armour level>`, or a trap record's nested `<trap level>`; all other item shapes use zero. Root `level` values on non-weapon records such as food and potions are not item quality.
 
+Items also include a deterministic `triggers` array. Each trigger records its normalized event kind, canonical spell key and source name, optional resolved `spellId`, optional integer chance from 0 to 100 (`null` means unconditional), non-negative delay/duration, resistance flag, and optional monster taxonomy. The adapter covers the legacy type-specific weapon, food/booze, trap, wand, potion, and mushroom shapes plus direct combat/cast/effect trigger elements. Missing spell targets remain visible by name and emit a source-located dangling-reference diagnostic rather than a fabricated link.
+
 ### `search.json`
 
 Search schema version: `1`
@@ -51,5 +53,6 @@ The source input, published-route registry, and patch-overlay contract is docume
 - `slugAliases` was added to schema version 2 under the additive rule. Consumers that support it should resolve aliases to the canonical entity and avoid indexing the alias as a separate record.
 - Version 3 requires `datasetVersion`, source `version`, and entity `appliedPatches`. Regenerate version 2 local artifacts from their declared inputs; no compatibility reader is retained in the web application because no version 2 artifact was publicly released.
 - Item `quality` was added to version 3 under the additive rule; consumers that do not display it can safely ignore it. Current web consumers reject schema 3 artifacts that predate the field and instruct maintainers to regenerate them.
+- Item `triggers` was added to version 3 under the same additive rule. Current web consumers validate the trigger shape and require older local schema 3 artifacts to be regenerated.
 - Update domain types, pipeline serialization, runtime consumer checks, deterministic tests, this document, and a migration note in the same change.
 - Do not retain a second compatibility implementation before a real published artifact requires it; generated local artifacts can be regenerated from approved inputs.

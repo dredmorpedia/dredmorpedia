@@ -697,6 +697,73 @@ input {
   text-transform: uppercase;
 }
 
+.trigger-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trigger-list li {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  padding-block: 1rem;
+}
+
+.trigger-list li:first-child {
+  border-top: 0;
+  padding-block-start: 0;
+}
+
+.trigger-summary {
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+}
+
+.trigger-summary .relationship-title {
+  margin: 0;
+}
+
+.trigger-summary strong {
+  overflow-wrap: anywhere;
+}
+
+.trigger-resolution {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.trigger-resolution-unresolved {
+  color: var(--danger);
+}
+
+.trigger-facts {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.trigger-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.trigger-facts dt {
+  color: var(--muted-foreground);
+}
+
+.trigger-facts dd {
+  margin: 0;
+  text-align: end;
+  font-weight: 700;
+}
+
 .recipe-reference-name {
   display: grid;
   gap: 0.15rem;
@@ -769,6 +836,10 @@ input {
 
   .search-result-card {
     grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.3fr);
+  }
+
+  .trigger-list li {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.65fr);
   }
 }
 

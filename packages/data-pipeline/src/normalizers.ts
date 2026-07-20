@@ -3,12 +3,15 @@ import { existsSync } from "node:fs";
 import {
   canonicalKey,
   entityId,
+  itemTriggerKinds,
   slugify,
   type Ability,
   type EntityCandidate,
   type EntityKind,
   type EntityProvenance,
   type Item,
+  type ItemTrigger,
+  type ItemTriggerKind,
   type Monster,
   type NormalizedEntityBase,
   type Recipe,
@@ -90,6 +93,229 @@ function itemQualityAttribute(record: XmlRecord): string | undefined {
   return undefined;
 }
 
+const directItemTriggerSpecs: readonly {
+  childName: string;
+  kind: ItemTriggerKind;
+}[] = [
+  { childName: "targetHitEffectBuff", kind: "melee-target" },
+  { childName: "crossbowShotBuff", kind: "crossbow-target" },
+  { childName: "thrownBuff", kind: "thrown-target" },
+  { childName: "targetKillBuff", kind: "kill-target" },
+  { childName: "playerHitEffectBuff", kind: "melee-self" },
+  { childName: "dodgeBuff", kind: "dodge" },
+  { childName: "criticalBuff", kind: "critical" },
+  { childName: "counterBuff", kind: "counter" },
+  { childName: "blockBuff", kind: "block" },
+  { childName: "triggeroncast", kind: "cast" },
+  { childName: "spell", kind: "activated" },
+];
+
+const effectTriggerKinds: Readonly<Record<string, ItemTriggerKind>> = {
+  trigger: "trigger-once",
+  dot: "trigger-repeat",
+  triggerfromlist: "trigger-list",
+};
+
+const itemTriggerKindRanks = new Map(
+  itemTriggerKinds.map((kind, index) => [kind, index]),
+);
+
+const partiallySupportedItemChildren = new Set([
+  "armour",
+  "blockBuff",
+  "casts",
+  "counterBuff",
+  "criticalBuff",
+  "crossbowShotBuff",
+  "dodgeBuff",
+  "effect",
+  "food",
+  "mushroom",
+  "playerHitEffectBuff",
+  "potion",
+  "spell",
+  "targetHitEffectBuff",
+  "targetKillBuff",
+  "thrownBuff",
+  "trap",
+  "triggeroncast",
+  "wand",
+  "weapon",
+]);
+
+function parseItemTrigger(
+  record: XmlRecord,
+  kind: ItemTriggerKind,
+  referenceAttributes: readonly string[],
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemTrigger | null {
+  const spellName = referenceAttributes
+    .map((attribute) => xmlAttribute(record, attribute))
+    .find((value): value is string => Boolean(value));
+  if (!spellName) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_trigger_spell",
+      message: `An item ${kind} trigger is missing its spell reference.`,
+      source: provenance,
+      entityId: currentEntityId,
+      details: { triggerKind: kind },
+    });
+    return null;
+  }
+
+  const chanceText =
+    xmlAttribute(record, "percent") ?? xmlAttribute(record, "percentage");
+  const effectType = xmlAttribute(record, "type");
+  const amountText = xmlAttribute(record, "amount");
+  const numericMetadata = (
+    value: string | undefined,
+    field: string,
+    maximum?: number,
+  ) =>
+    value === undefined
+      ? 0
+      : integerValue(
+          value,
+          0,
+          context,
+          provenance,
+          field,
+          currentEntityId,
+          0,
+          maximum,
+        );
+
+  return {
+    kind,
+    spellKey: canonicalKey(spellName),
+    spellName,
+    chance:
+      chanceText === undefined
+        ? null
+        : numericMetadata(chanceText, "item trigger chance", 100),
+    delay:
+      effectType === "trigger"
+        ? numericMetadata(amountText, "item trigger delay")
+        : 0,
+    duration:
+      effectType === "dot"
+        ? numericMetadata(amountText, "item trigger duration")
+        : 0,
+    unresistable: xmlAttribute(record, "resistable") === "0",
+    monsterTaxonomy: xmlAttribute(record, "taxa") ?? null,
+  };
+}
+
+function parseItemTriggers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemTrigger[] {
+  const triggers: ItemTrigger[] = [];
+  const addTriggers = (
+    children: readonly XmlRecord[],
+    kind: ItemTriggerKind,
+    referenceAttributes: readonly string[],
+  ) => {
+    for (const child of children) {
+      const trigger = parseItemTrigger(
+        child,
+        kind,
+        referenceAttributes,
+        context,
+        provenance,
+        currentEntityId,
+      );
+      if (trigger) {
+        triggers.push(trigger);
+      }
+    }
+  };
+
+  for (const spec of directItemTriggerSpecs) {
+    addTriggers(xmlChildren(record, spec.childName), spec.kind, [
+      "name",
+      "spell",
+    ]);
+  }
+  for (const effect of xmlChildren(record, "effect")) {
+    const kind = effectTriggerKinds[xmlAttribute(effect, "type") ?? ""];
+    if (kind) {
+      addTriggers([effect], kind, ["name", "spell"]);
+    }
+  }
+
+  const food = xmlChildren(record, "food");
+  const foodKind = food.some((child) => xmlAttribute(child, "hp") !== undefined)
+    ? "eaten"
+    : food.some((child) => xmlAttribute(child, "mp") !== undefined)
+      ? "drunk"
+      : undefined;
+  if (foodKind) {
+    addTriggers(
+      food.filter((child) => xmlAttribute(child, "effect") !== undefined),
+      foodKind,
+      ["effect"],
+    );
+  }
+  addTriggers(
+    xmlChildren(record, "trap").filter(
+      (child) => xmlAttribute(child, "casts") !== undefined,
+    ),
+    "stepped-on",
+    ["casts"],
+  );
+  addTriggers(
+    xmlChildren(record, "wand").filter(
+      (child) => xmlAttribute(child, "spell") !== undefined,
+    ),
+    "zapped",
+    ["spell"],
+  );
+  addTriggers(
+    xmlChildren(record, "potion").filter(
+      (child) => xmlAttribute(child, "spell") !== undefined,
+    ),
+    "quaffed",
+    ["spell"],
+  );
+  if (Object.hasOwn(record, "mushroom")) {
+    addTriggers(
+      xmlChildren(record, "casts").filter(
+        (child) => xmlAttribute(child, "spell") !== undefined,
+      ),
+      "munched",
+      ["spell"],
+    );
+  }
+  addTriggers(
+    xmlChildren(record, "weapon").filter(
+      (child) => xmlAttribute(child, "hit") !== undefined,
+    ),
+    "item-hit",
+    ["hit"],
+  );
+
+  return triggers.sort(
+    (left, right) =>
+      (itemTriggerKindRanks.get(left.kind) ?? 0) -
+        (itemTriggerKindRanks.get(right.kind) ?? 0) ||
+      left.spellKey.localeCompare(right.spellKey, "en") ||
+      (left.chance ?? -1) - (right.chance ?? -1) ||
+      left.delay - right.delay ||
+      left.duration - right.duration ||
+      Number(left.unresistable) - Number(right.unresistable) ||
+      (left.monsterTaxonomy ?? "").localeCompare(
+        right.monsterTaxonomy ?? "",
+        "en",
+      ),
+  );
+}
+
 function booleanAttribute(record: XmlRecord, name: string): boolean {
   const value = xmlAttribute(record, name);
   return value === "1" || value === "true";
@@ -103,6 +329,7 @@ function integerValue(
   field: string,
   currentEntityId: string,
   minimum?: number,
+  maximum?: number,
 ): number {
   if (value === undefined || value === "") {
     return fallback;
@@ -115,7 +342,11 @@ function integerValue(
     }
   } else {
     const parsed = Number(value);
-    if (Number.isInteger(parsed) && parsed >= minimum) {
+    if (
+      Number.isInteger(parsed) &&
+      parsed >= minimum &&
+      (maximum === undefined || parsed <= maximum)
+    ) {
       return parsed;
     }
   }
@@ -123,7 +354,7 @@ function integerValue(
   context.diagnostics.push({
     severity: "warning",
     code: "invalid_number",
-    message: `Expected ${minimum === undefined ? "an integer" : `an integer greater than or equal to ${minimum}`} for ${field}; used ${fallback} instead.`,
+    message: `Expected ${minimum === undefined ? "an integer" : maximum === undefined ? `an integer greater than or equal to ${minimum}` : `an integer from ${minimum} to ${maximum}`} for ${field}; used ${fallback} instead.`,
     source: location,
     entityId: currentEntityId,
     details: { field, value },
@@ -222,6 +453,7 @@ function reportUnknownChildren(
   record: XmlRecord,
   allowedChildren: ReadonlySet<string>,
   currentEntityId: string,
+  partiallySupportedChildren: ReadonlySet<string> = new Set(),
 ): void {
   for (const key of Object.keys(record).sort((left, right) =>
     left.localeCompare(right, "en"),
@@ -230,10 +462,15 @@ function reportUnknownChildren(
       continue;
     }
 
+    const partiallySupported = partiallySupportedChildren.has(key);
     context.diagnostics.push({
       severity: "warning",
-      code: "unknown_element",
-      message: `Unsupported <${key}> element was preserved only as a diagnostic.`,
+      code: partiallySupported
+        ? "partially_supported_element"
+        : "unknown_element",
+      message: partiallySupported
+        ? `Supported fields from <${key}> were normalized, but other content remains unmodeled.`
+        : `Unsupported <${key}> element was preserved only as a diagnostic.`,
       source: context.parsed.locateElement(key),
       entityId: currentEntityId,
       details: { element: key },
@@ -324,12 +561,14 @@ function parseItems(
         currentEntityId,
       ),
       stats,
+      triggers: parseItemTriggers(record, context, provenance, currentEntityId),
     };
     reportUnknownChildren(
       context,
       record,
       new Set(["description", "price", "stat"]),
       currentEntityId,
+      partiallySupportedItemChildren,
     );
     addCandidate(result.items, item, context.source.precedence);
   }
