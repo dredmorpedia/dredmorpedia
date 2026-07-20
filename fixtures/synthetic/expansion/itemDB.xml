@@ -4,5 +4,6 @@
     <description text="The higher-precedence synthetic expansion variant." />
     <price amount="155" />
     <stat name="Melee Power" amount="6" />
+    <weapon />
   </item>
 </items>

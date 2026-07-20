@@ -4,15 +4,27 @@
     <description text="A precisely balanced blade built for a synthetic test dungeon." />
     <price amount="120" />
     <stat name="Melee Power" amount="4" />
+    <weapon />
   </item>
   <item id="brass-ingot" name="Brass Ingot" type="material" iconFile="assets/missing-ingot.svg">
     <description text="A legal test reagent with an intentionally missing icon." />
     <price amount="18" />
   </item>
-  <item id="clarity-tonic" name="Clarity Tonic" type="consumable" iconFile="assets/synthetic.svg">
+  <item id="clarity-tonic" name="Clarity Tonic" type="consumable" level="7" iconFile="assets/synthetic.svg">
     <description text="A harmless tonic used to exercise category filtering." />
     <price amount="42" />
+    <potion spell="Synthetic Spark" />
     <mystery value="unsupported-on-purpose" />
+  </item>
+  <item id="training-cuirass" name="Training Cuirass" type="armour" iconFile="assets/synthetic.svg">
+    <description text="Synthetic armour used to verify nested quality levels." />
+    <price amount="64" />
+    <armour type="chest" level="4" />
+  </item>
+  <item id="training-trap" name="Training Trap" type="trap" iconFile="assets/synthetic.svg">
+    <description text="A synthetic trap used to verify trap quality levels." />
+    <price amount="30" />
+    <trap level="5" casts="Synthetic Spark" />
   </item>
   <item id="training-wand-plus" name="Training Wand +1" type="wand" iconFile="assets/synthetic.svg">
     <description text="A route-collision fixture using a symbolic suffix." />

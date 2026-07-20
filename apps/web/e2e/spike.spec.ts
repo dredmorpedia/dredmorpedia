@@ -16,6 +16,7 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
+  await expect(page.getByText("Quality 3", { exact: true })).toBeVisible();
 
   await search.fill("");
   const category = page.getByRole("combobox", { name: "Category" });

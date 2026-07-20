@@ -1,6 +1,6 @@
 # New PC and Codex handoff
 
-Updated: 2026-07-20
+Updated: 2026-07-21
 
 This is the durable handoff for moving Dredmorpedia to another computer or opening it in a new Codex task with no chat history. Canonical product and architecture documents remain authoritative; this guide summarizes the state needed to resume safely.
 
@@ -79,14 +79,14 @@ Continue the first parity slice without assuming permission to publish official 
 2. Accept or revise ADRs 0001 and 0002 after that decision.
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Separately code-review the item-quality slice described below, then complete item trigger fields and encrustment relationships using synthetic fixtures first. Deterministic slugs, source/patch contracts, the route registry, item/recipe relationship queries, static recipe pages, and bidirectional crafting backlinks are implemented locally.
+5. Complete item trigger fields and encrustment relationships using synthetic fixtures first. The item-quality slice has passed the separate review described below; deterministic slugs, source/patch contracts, the route registry, item/recipe relationship queries, static recipe pages, and bidirectional crafting backlinks are also implemented locally.
 6. Treat the current 4,274 unsupported-element diagnostics, 16 dangling item references, and deferred encrustment normalizer as the measured compatibility backlog, not as silently completed parity.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
-## Pending separate code review
+## Item-quality review completed
 
-The item-quality slice is implemented and tested locally but is intentionally **not considered reviewed or complete**. A later code-review task must verify root `level` handling for weapons, nested `<armour level>` handling, the zero fallback for other item kinds, patch allowlisting, artifact compatibility, and desktop/mobile presentation against representative read-only official records. Do not remove this marker merely because automated checks pass.
+The item-quality slice passed its separate code review on 2026-07-21. Read-only comparison against all 763 official item records found zero mismatches: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 trap records use nested `<trap level>`, and 184 other records use zero. The last group includes 68 food/potion records with unrelated root levels that must not be displayed as quality. Patch validation now permits only non-negative integers, current web consumers reject stale schema 3 artifacts without valid quality, and the reviewed card/detail layouts have no horizontal overflow at desktop or 390-pixel mobile widths. Synthetic generation, full workspace checks, desktop/mobile Playwright flows, and axe checks remain the repeatable regression evidence.
 
 ## Open decisions and blockers
 

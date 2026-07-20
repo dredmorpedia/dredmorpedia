@@ -94,7 +94,7 @@ Recommended slice: **items + stats + source provenance + global search**, follow
 
 The slice is visibly better than legacy on correctness feedback, load behavior, responsive use, navigation, and search; representative outputs are checked against the legacy application and source XML.
 
-Progress on 2026-07-20: a synthetic-backed search route, item/stat detail links, stat backlinks/provenance, explicit no-stat-definition behavior, static recipe details, and bidirectional crafted-by/used-to-craft links are implemented. Item quality normalization/display is implemented but explicitly requires a separate code review before it is considered complete. The acceptance statement remains a draft, official stat definitions need an approved source, and item triggers, encrustment relationships, and legacy comparisons remain.
+Progress through 2026-07-21: a synthetic-backed search route, item/stat detail links, stat backlinks/provenance, explicit no-stat-definition behavior, static recipe details, and bidirectional crafted-by/used-to-craft links are implemented. Item quality normalization/display passed a separate synthetic, official-data, artifact, patch, and responsive UI review. The acceptance statement remains a draft, official stat definitions need an approved source, and item triggers, encrustment relationships, and broader legacy comparisons remain.
 
 ## Phase 4 — Legacy parity
 

@@ -65,6 +65,8 @@ const isString: ValueValidator = (value): value is string =>
   typeof value === "string";
 const isNumber: ValueValidator = (value): value is number =>
   typeof value === "number" && Number.isFinite(value);
+const isNonNegativeInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0;
 const isNullableNumber: ValueValidator = (value): value is number | null =>
   value === null || isNumber(value);
 const isBoolean: ValueValidator = (value): value is boolean =>
@@ -80,7 +82,7 @@ const patchableFields: Record<
     description: isString,
     category: isString,
     price: isNullableNumber,
-    quality: isNumber,
+    quality: isNonNegativeInteger,
   },
   recipe: {
     description: isString,

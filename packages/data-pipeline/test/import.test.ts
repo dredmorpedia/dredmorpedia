@@ -274,6 +274,69 @@ describe("synthetic dataset import", () => {
     ]);
   });
 
+  it("normalizes item quality by source shape and rejects invalid values", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-quality-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Quality Weapon" level="3"><weapon /></item>
+  <item name="Quality Armour"><armour level="4" /></item>
+  <item name="Quality Trap"><trap level="5" /></item>
+  <item name="Progression Potion" level="7"><potion spell="Test" /></item>
+  <item name="Negative Quality"><armour level="-1" /></item>
+  <item name="Fractional Quality"><trap level="2.5" /></item>
+</items>`,
+    );
+    const qualityManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      qualityManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-quality-test",
+        sources: [
+          {
+            id: "quality-source",
+            label: "Quality Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: qualityManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const qualityByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item.quality]),
+    );
+
+    expect(qualityByName).toEqual(
+      new Map([
+        ["Fractional Quality", 0],
+        ["Negative Quality", 0],
+        ["Progression Potion", 0],
+        ["Quality Armour", 4],
+        ["Quality Trap", 5],
+        ["Quality Weapon", 3],
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(2);
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -293,6 +356,9 @@ describe("synthetic dataset import", () => {
     const blade = result.artifact.entities.items.find(
       (item) => item.name === "Clockwork Blade",
     );
+    const itemByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
     const recipe = result.artifact.entities.recipes[0];
     const inheritedMonster = result.artifact.entities.monsters.find(
       (monster) => monster.name === "Armored Training Diggle",
@@ -301,7 +367,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(5);
+    expect(result.artifact.entities.items).toHaveLength(7);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(1);
@@ -319,7 +385,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(15);
+    expect(result.search.documents).toHaveLength(17);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -350,6 +416,9 @@ describe("synthetic dataset import", () => {
       "synthetic-expansion",
     ]);
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("quality");
+    expect(itemByName.get("Training Cuirass")?.quality).toBe(4);
+    expect(itemByName.get("Training Trap")?.quality).toBe(5);
+    expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,

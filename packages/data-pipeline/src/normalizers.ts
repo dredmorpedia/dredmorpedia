@@ -77,6 +77,19 @@ function childAttribute(
   return child ? xmlAttribute(child, attributeName) : undefined;
 }
 
+function itemQualityAttribute(record: XmlRecord): string | undefined {
+  if (Object.hasOwn(record, "weapon")) {
+    return xmlAttribute(record, "level");
+  }
+  if (Object.hasOwn(record, "armour")) {
+    return childAttribute(record, "armour", "level");
+  }
+  if (Object.hasOwn(record, "trap")) {
+    return childAttribute(record, "trap", "level");
+  }
+  return undefined;
+}
+
 function booleanAttribute(record: XmlRecord, name: string): boolean {
   const value = xmlAttribute(record, name);
   return value === "1" || value === "true";
@@ -89,20 +102,28 @@ function integerValue(
   location: EntityProvenance,
   field: string,
   currentEntityId: string,
+  minimum?: number,
 ): number {
   if (value === undefined || value === "") {
     return fallback;
   }
 
-  const parsed = Number.parseInt(value, 10);
-  if (Number.isFinite(parsed)) {
-    return parsed;
+  if (minimum === undefined) {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  } else {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed >= minimum) {
+      return parsed;
+    }
   }
 
   context.diagnostics.push({
     severity: "warning",
     code: "invalid_number",
-    message: `Expected an integer for ${field}; used ${fallback} instead.`,
+    message: `Expected ${minimum === undefined ? "an integer" : `an integer greater than or equal to ${minimum}`} for ${field}; used ${fallback} instead.`,
     source: location,
     entityId: currentEntityId,
     details: { field, value },
@@ -288,13 +309,13 @@ function parseItems(
       category: xmlAttribute(record, "type") ?? "unknown",
       price,
       quality: integerValue(
-        xmlAttribute(record, "level") ??
-          childAttribute(record, "armour", "level"),
+        itemQualityAttribute(record),
         0,
         context,
         provenance,
         "item quality",
         currentEntityId,
+        0,
       ),
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "iconFile"),

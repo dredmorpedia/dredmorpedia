@@ -24,26 +24,27 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 20,053 bytes.
-- Search artifact: 6,021 bytes for 15 documents.
-- Diagnostics remain the intentional 1 error and 5 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
-- Domain/pipeline tests: 27 passed.
+- Normalized artifact: 22,444 bytes.
+- Search artifact: 6,845 bytes for 17 documents.
+- Diagnostics remain the intentional 1 error and 10 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries.
+- Domain/pipeline tests: 30 passed.
 - Browser tests: 10 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
-- Item quality normalization/display passes synthetic checks but is intentionally pending the separate code review recorded in the handoff.
+- Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
 
 ## Read-only official verification
 
 The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset still produces 763 items and 2,710 search documents with 0 errors, 4,291 warnings, and 70 info records.
 
-- Normalized artifact: 3,586,324 bytes.
+- Normalized artifact: 3,603,219 bytes.
 - Search artifact: 1,202,823 bytes uncompressed.
 - Diagnostics: 1,935,824 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - A 1,000-query local CPU benchmark over 2,710 documents measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency.
 - The GitHub Pages-subpath static build, including all 374 recipe pages, completed in approximately 21.7 seconds and emitted 1,143 HTML files, 10,283 total files, and 53,973,362 bytes.
 - The generated JSON and static export contain no local installation or user-profile path.
+- The reviewed quality rule matched all 763 official items with zero discrepancies: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 traps use nested `<trap level>`, and 184 other records use zero. This includes 68 food/potion records whose unrelated root `level` is deliberately ignored. All normalized values were present, non-negative integers; the observed maximum was 16.
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.
 

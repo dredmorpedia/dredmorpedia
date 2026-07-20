@@ -15,6 +15,7 @@ export default function HomePage() {
     sourceLabel:
       sourceLabels.get(item.provenance.sourceId) ?? item.provenance.sourceId,
     price: item.price,
+    quality: item.quality,
   }));
   const counts = artifact.diagnostics;
   const entityCount = Object.values(artifact.entities).reduce(

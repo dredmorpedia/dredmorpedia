@@ -89,6 +89,13 @@ describe("entity patches", () => {
         expectedValue: "Expansion variant.",
         value: "Reviewed expansion variant.",
       },
+      {
+        entityKind: "item",
+        canonicalKey: "clockwork blade",
+        field: "quality",
+        expectedValue: 3,
+        value: 4,
+      },
     ];
 
     const forward = applyEntityPatch(collections(item()), patch(operations));
@@ -101,6 +108,7 @@ describe("entity patches", () => {
     expect(forward.issues).toEqual([]);
     expect(forward.entities.items[0]).toMatchObject({
       price: 160,
+      quality: 4,
       description: "Reviewed expansion variant.",
       appliedPatches: [
         {
@@ -112,10 +120,33 @@ describe("entity patches", () => {
               value: "Reviewed expansion variant.",
             },
             { field: "price", previousValue: 155, value: 160 },
+            { field: "quality", previousValue: 3, value: 4 },
           ],
         },
       ],
     });
+  });
+
+  it.each([2.5, -1])("rejects an invalid quality patch value (%s)", (value) => {
+    const original = collections(item());
+    const result = applyEntityPatch(
+      original,
+      patch([
+        {
+          entityKind: "item",
+          canonicalKey: "clockwork blade",
+          field: "quality",
+          expectedValue: 3,
+          value,
+        },
+      ]),
+    );
+
+    expect(result.entities).toBe(original);
+    expect(result.applications).toEqual([]);
+    expect(result.issues).toMatchObject([
+      { code: "patch_value_invalid", entityId: "item:clockwork blade" },
+    ]);
   });
 
   it("rejects a stale precondition atomically", () => {

@@ -14,7 +14,7 @@ Contains the dataset ID/version, language, ordered versioned source summaries, n
 
 Every normalized entity has one canonical `slug` and a deterministically ordered `slugAliases` array. A valid version-scoped route registry may pin a canonical slug and historical aliases to an active entity; those routes are reserved before automatic allocation. Unregistered name collisions retain the unsuffixed route for the first entity in canonical identity order and assign stable identity-derived suffixes to the others. Unambiguous source original IDs become aliases. An automatic alias claimed by multiple entities, by another entity's canonical slug, or by a registered owner is omitted and reported as `slug_alias_conflict`; a reassigned colliding route is reported as `slug_collision`. Registry aliases remain authoritative.
 
-Items include an integer `quality` field. The current adapter reads a weapon's root `level`, then nested armour `level`, and otherwise uses zero. This additive field is implemented but remains explicitly pending the separate code review recorded in the handoff.
+Items include a non-negative integer `quality` field. The adapter reads a weapon-shaped record's root `level`, an armour record's nested `<armour level>`, or a trap record's nested `<trap level>`; all other item shapes use zero. Root `level` values on non-weapon records such as food and potions are not item quality.
 
 ### `search.json`
 
@@ -50,6 +50,6 @@ The source input, published-route registry, and patch-overlay contract is docume
 - Additive fields may retain the current version only when older consumers can ignore them without changing meaning.
 - `slugAliases` was added to schema version 2 under the additive rule. Consumers that support it should resolve aliases to the canonical entity and avoid indexing the alias as a separate record.
 - Version 3 requires `datasetVersion`, source `version`, and entity `appliedPatches`. Regenerate version 2 local artifacts from their declared inputs; no compatibility reader is retained in the web application because no version 2 artifact was publicly released.
-- Item `quality` was added to version 3 under the additive rule; consumers that do not display it can safely ignore it.
+- Item `quality` was added to version 3 under the additive rule; consumers that do not display it can safely ignore it. Current web consumers reject schema 3 artifacts that predate the field and instruct maintainers to regenerate them.
 - Update domain types, pipeline serialization, runtime consumer checks, deterministic tests, this document, and a migration note in the same change.
 - Do not retain a second compatibility implementation before a real published artifact requires it; generated local artifacts can be regenerated from approved inputs.

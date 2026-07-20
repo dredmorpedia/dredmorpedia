@@ -31,6 +31,24 @@ let artifactCache: DatasetArtifact | undefined;
 let diagnosticsCache: Diagnostic[] | undefined;
 let searchCache: SearchArtifact | undefined;
 
+function hasValidItemQualities(value: unknown): boolean {
+  if (value === null || typeof value !== "object" || !("items" in value)) {
+    return false;
+  }
+  if (!Array.isArray(value.items)) {
+    return false;
+  }
+  return value.items.every(
+    (item) =>
+      item !== null &&
+      typeof item === "object" &&
+      "quality" in item &&
+      typeof item.quality === "number" &&
+      Number.isInteger(item.quality) &&
+      item.quality >= 0,
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -43,9 +61,12 @@ export function loadArtifact(): DatasetArtifact {
     parsed.schemaVersion !== 3 ||
     !("datasetVersion" in parsed) ||
     typeof parsed.datasetVersion !== "string" ||
-    !("entities" in parsed)
+    !("entities" in parsed) ||
+    !hasValidItemQualities(parsed.entities)
   ) {
-    throw new Error("Generated artifact does not satisfy schema version 3.");
+    throw new Error(
+      "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",
+    );
   }
   artifactCache = parsed as DatasetArtifact;
   return artifactCache;

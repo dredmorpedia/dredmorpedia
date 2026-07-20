@@ -21,6 +21,7 @@ export interface ExplorerItem {
   category: string;
   sourceLabel: string;
   price: number | null;
+  quality: number;
 }
 
 export function ItemExplorer({ items }: { items: ExplorerItem[] }) {
@@ -120,10 +121,13 @@ export function ItemExplorer({ items }: { items: ExplorerItem[] }) {
             <li key={item.id} className="item-card">
               <div className="flex items-center justify-between gap-3">
                 <span className="category-chip">{item.category}</span>
-                <span className="text-xs text-muted-foreground">
-                  {item.price === null
-                    ? "No price"
-                    : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
+                <span className="grid justify-items-end gap-1 text-xs text-muted-foreground">
+                  <span>
+                    {item.price === null
+                      ? "No price"
+                      : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
+                  </span>
+                  <span>Quality {item.quality}</span>
                 </span>
               </div>
               <h3 className="mt-4 text-xl font-semibold">
