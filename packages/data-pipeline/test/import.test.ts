@@ -420,6 +420,15 @@ describe("synthetic dataset import", () => {
     );
     const recipe = result.artifact.entities.recipes[0];
     const encrustment = result.artifact.entities.encrustments[0];
+    const skill = result.artifact.entities.skills.find(
+      (entry) => entry.name === "Clockwork Combat",
+    );
+    const measuredStrike = result.artifact.entities.abilities.find(
+      (entry) => entry.name === "Measured Strike",
+    );
+    const followthrough = result.artifact.entities.abilities.find(
+      (entry) => entry.name === "Clockwork Followthrough",
+    );
     const inheritedMonster = result.artifact.entities.monsters.find(
       (monster) => monster.name === "Armored Training Diggle",
     );
@@ -431,7 +440,7 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
-    expect(result.artifact.entities.abilities).toHaveLength(1);
+    expect(result.artifact.entities.abilities).toHaveLength(2);
     expect(result.artifact.entities.spells).toHaveLength(2);
     expect(result.artifact.entities.monsters).toHaveLength(2);
     expect(result.artifact.entities.stats).toHaveLength(2);
@@ -446,7 +455,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(18);
+    expect(result.search.documents).toHaveLength(19);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -567,6 +576,61 @@ describe("synthetic dataset import", () => {
         spellId: "spell:clockwork spark",
       }),
     ]);
+    expect(skill).toMatchObject({
+      archetype: "warrior",
+      loadouts: [
+        {
+          itemKey: "brass ingot",
+          itemName: "Brass Ingot",
+          itemId: "item:brass ingot",
+          amount: 1,
+          always: true,
+        },
+        {
+          itemKey: "missing kit",
+          itemName: "Missing Kit",
+          itemType: "weapon",
+          amount: 2,
+          always: false,
+        },
+        { itemType: "food", amount: 3, always: false },
+      ],
+      abilityIds: [
+        "ability:measured strike",
+        "ability:clockwork followthrough",
+      ],
+    });
+    expect(measuredStrike).toMatchObject({
+      skillId: "skill:clockwork combat",
+      level: 0,
+      startSkill: true,
+      triggers: [
+        {
+          kind: "activated",
+          spellName: "Clockwork Spark",
+          spellId: "spell:clockwork spark",
+        },
+        {
+          kind: "activated",
+          spellName: "Missing Ability Spell",
+        },
+      ],
+      spellIds: ["spell:clockwork spark"],
+    });
+    expect(followthrough).toMatchObject({
+      skillId: "skill:clockwork combat",
+      level: 1,
+      startSkill: false,
+      triggers: [
+        {
+          kind: "melee-target",
+          spellName: "Clockwork Echo",
+          spellId: "spell:clockwork echo",
+          chance: 25,
+        },
+      ],
+      spellIds: ["spell:clockwork echo"],
+    });
     expect(encrustment?.inputs[1]?.itemId).toBeUndefined();
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
@@ -621,6 +685,23 @@ describe("synthetic dataset import", () => {
           targetKind: "spell",
           reference: "Synthetic Spark",
         }),
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "skill:clockwork combat",
+        details: { targetKind: "item", reference: "Missing Kit" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "ability:measured strike",
+        details: {
+          targetKind: "spell",
+          reference: "Missing Ability Spell",
+        },
       }),
     );
     expect(result.diagnostics).toContainEqual(

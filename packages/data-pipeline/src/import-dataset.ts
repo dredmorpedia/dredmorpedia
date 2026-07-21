@@ -8,6 +8,7 @@ import {
   canonicalKey,
   createSearchDocuments,
   resolveEntityCandidates,
+  skillAbilityRelationships,
   type Ability,
   type DatasetArtifact,
   type Diagnostic,
@@ -262,18 +263,23 @@ function linkAbilities(
     if (!skill) {
       diagnostics.push(danglingDiagnostic(ability, "skill", ability.skillKey));
     }
-    const spellIds = ability.spellKeys.flatMap((spellKey) => {
-      const spell = spellAliases.get(spellKey);
+    const triggers = ability.triggers.map((trigger) => {
+      const spell = spellAliases.get(trigger.spellKey);
       if (!spell) {
-        diagnostics.push(danglingDiagnostic(ability, "spell", spellKey));
-        return [];
+        diagnostics.push(
+          danglingDiagnostic(ability, "spell", trigger.spellName),
+        );
+        return trigger;
       }
-      return [spell.id];
+      return { ...trigger, spellId: spell.id };
     });
     return {
       ...ability,
       ...(skill ? { skillId: skill.id } : {}),
-      spellIds,
+      triggers,
+      spellIds: triggers.flatMap((trigger) =>
+        trigger.spellId ? [trigger.spellId] : [],
+      ),
     };
   });
 }
@@ -285,26 +291,40 @@ function linkSkills(
   diagnostics: DiagnosticDraft[],
 ): Skill[] {
   const itemAliases = aliasesFor(items);
-  const abilitiesBySkill = new Map<string, string[]>();
+  const abilitiesBySkill = new Map<string, Ability[]>();
   for (const ability of abilities) {
     if (!ability.skillId) {
       continue;
     }
-    const ids = abilitiesBySkill.get(ability.skillId) ?? [];
-    ids.push(ability.id);
-    abilitiesBySkill.set(ability.skillId, ids);
+    const entries = abilitiesBySkill.get(ability.skillId) ?? [];
+    entries.push(ability);
+    abilitiesBySkill.set(ability.skillId, entries);
   }
 
   return skills.map((skill) => {
-    for (const loadoutKey of skill.loadoutItemKeys) {
-      if (!itemAliases.has(loadoutKey)) {
-        diagnostics.push(danglingDiagnostic(skill, "item", loadoutKey));
+    const loadouts = skill.loadouts.map((loadout) => {
+      if (!loadout.itemKey) {
+        return loadout;
       }
-    }
+      const item = itemAliases.get(loadout.itemKey);
+      if (!item) {
+        diagnostics.push(
+          danglingDiagnostic(
+            skill,
+            "item",
+            loadout.itemName ?? loadout.itemKey,
+          ),
+        );
+        return loadout;
+      }
+      return { ...loadout, itemId: item.id };
+    });
+    const linkedAbilities = abilitiesBySkill.get(skill.id) ?? [];
     return {
       ...skill,
-      abilityIds: (abilitiesBySkill.get(skill.id) ?? []).sort((left, right) =>
-        left.localeCompare(right, "en"),
+      loadouts,
+      abilityIds: skillAbilityRelationships(linkedAbilities, skill.id).map(
+        ({ ability }) => ability.id,
       ),
     };
   });

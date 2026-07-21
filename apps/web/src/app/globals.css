@@ -801,6 +801,22 @@ input {
   white-space: nowrap;
 }
 
+.relation-list .skill-loadout-name {
+  display: grid;
+  gap: 0.15rem;
+  color: inherit;
+  font-size: inherit;
+}
+
+.skill-loadout-name small {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+}
+
+.skill-loadout-name .trigger-resolution-unresolved {
+  color: var(--danger);
+}
+
 .instability-pool-details {
   margin-block-start: 1rem;
 }

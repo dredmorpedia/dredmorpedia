@@ -381,7 +381,12 @@ export default async function SpellPage({
                   <ul className="relation-list">
                     {abilityBacklinks.map((ability) => (
                       <li key={ability.id}>
-                        <strong>{ability.name}</strong>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/abilities/${ability.slug}`}
+                        >
+                          {ability.name}
+                        </Link>
                         <span>Ability spell hook</span>
                       </li>
                     ))}

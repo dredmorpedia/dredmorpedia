@@ -96,7 +96,7 @@ export const itemTriggerKinds = [
 
 export type ItemTriggerKind = (typeof itemTriggerKinds)[number];
 
-export interface ItemTrigger {
+export interface SpellTrigger {
   kind: ItemTriggerKind;
   spellKey: string;
   spellName: string;
@@ -107,6 +107,8 @@ export interface ItemTrigger {
   unresistable: boolean;
   monsterTaxonomy: string | null;
 }
+
+export type ItemTrigger = SpellTrigger;
 
 export interface Item extends NormalizedEntityBase {
   kind: "item";
@@ -175,10 +177,20 @@ export interface Encrustment extends NormalizedEntityBase {
   appearanceDescriptors: string[];
 }
 
+export interface SkillLoadout {
+  itemKey?: string;
+  itemName?: string;
+  itemId?: string;
+  itemType?: string;
+  amount: number;
+  always: boolean;
+}
+
 export interface Skill extends NormalizedEntityBase {
   kind: "skill";
   archetype: string;
   iconPath: string | null;
+  loadouts: SkillLoadout[];
   loadoutItemKeys: string[];
   abilityIds: string[];
 }
@@ -188,6 +200,9 @@ export interface Ability extends NormalizedEntityBase {
   skillKey: string;
   skillId?: string;
   iconPath: string | null;
+  level: number;
+  startSkill: boolean;
+  triggers: SpellTrigger[];
   spellKeys: string[];
   spellIds: string[];
 }

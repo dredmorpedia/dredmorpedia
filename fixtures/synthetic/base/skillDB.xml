@@ -3,9 +3,16 @@
   <skill id="clockwork-combat" name="Clockwork Combat" type="warrior" description="Training for precisely timed attacks.">
     <art icon="assets/synthetic.svg" />
     <loadout subtype="Brass Ingot" amount="1" always="1" />
+    <loadout subtype="Missing Kit" type="weapon" amount="2" />
+    <loadout type="food" amount="3" />
   </skill>
-  <ability id="measured-strike" name="Measured Strike" skill="clockwork-combat" icon="assets/synthetic.svg">
+  <ability id="measured-strike" name="Measured Strike" skill="clockwork-combat" icon="assets/synthetic.svg" startSkill="1">
     <description text="Perform a measured strike and trigger a synthetic spell." />
     <spell name="Clockwork Spark" />
+    <spell name="Missing Ability Spell" />
+  </ability>
+  <ability id="clockwork-followthrough" name="Clockwork Followthrough" skill="clockwork-combat" icon="assets/synthetic.svg" level="1">
+    <description text="Follow through with a timed on-hit spell trigger." />
+    <targetHitEffectBuff name="Clockwork Echo" percent="25" />
   </ability>
 </skills>

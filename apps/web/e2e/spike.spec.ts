@@ -260,6 +260,85 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
 });
 
+test("navigates skill, ability, loadout, and spell relationships", async ({
+  page,
+}) => {
+  await page.goto("/items/brass-ingot/");
+  const loadoutBacklinks = page.getByRole("region", {
+    name: "Starting loadout relationships",
+  });
+  const skillLink = loadoutBacklinks.getByRole("link", {
+    name: "Clockwork Combat",
+  });
+  await expect(loadoutBacklinks.getByText("1 × always included")).toBeVisible();
+  await skillLink.focus();
+  await expect(skillLink).toBeFocused();
+  await skillLink.press("Enter");
+  await expect(page).toHaveURL(/\/skills\/clockwork-combat\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Clockwork Combat" }),
+  ).toBeVisible();
+
+  const loadout = page.getByRole("region", {
+    name: "Starting loadout",
+    exact: true,
+  });
+  await expect(
+    loadout.getByRole("link", { name: "Brass Ingot" }),
+  ).toBeVisible();
+  await expect(loadout.getByText("Missing Kit", { exact: true })).toBeVisible();
+  await expect(loadout.getByText("Unresolved item")).toBeVisible();
+  await expect(loadout.getByText("Random Food", { exact: true })).toBeVisible();
+
+  const abilities = page.getByRole("region", {
+    name: "Abilities",
+    exact: true,
+  });
+  await expect(abilities.getByText("Starting ability")).toBeVisible();
+  await expect(abilities.getByText("Level 1")).toBeVisible();
+  await abilities.getByRole("link", { name: "Measured Strike" }).click();
+  await expect(page).toHaveURL(/\/abilities\/measured-strike\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Measured Strike" }),
+  ).toBeVisible();
+
+  const triggers = page.getByRole("region", {
+    name: "Spell triggers",
+    exact: true,
+  });
+  await expect(
+    triggers.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    triggers.getByText("Missing Ability Spell", { exact: true }),
+  ).toBeVisible();
+  await expect(triggers.getByText("Unresolved spell reference")).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Skill progression" })
+      .getByRole("link", { name: "Clockwork Combat" }),
+  ).toBeVisible();
+
+  await triggers.getByRole("link", { name: "Clockwork Spark" }).click();
+  await expect(page).toHaveURL(/\/spells\/clockwork-spark\/$/);
+  await expect(
+    page
+      .getByRole("region", { name: "Referenced by" })
+      .getByRole("link", { name: "Measured Strike" }),
+  ).toBeVisible();
+
+  await page.goto("/abilities/clockwork-followthrough/");
+  const eventTrigger = page.getByRole("region", {
+    name: "Spell triggers",
+    exact: true,
+  });
+  await expect(eventTrigger.getByText("When you hit in melee")).toBeVisible();
+  await expect(eventTrigger.getByText("25%", { exact: true })).toBeVisible();
+  await expect(
+    eventTrigger.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -273,6 +352,9 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/training-trap/",
     "/encrustments/synthetic-gear-polish/",
     "/recipes/clockwork-blade-recipe/",
+    "/skills/clockwork-combat/",
+    "/abilities/measured-strike/",
+    "/abilities/clockwork-followthrough/",
     "/spells/clockwork-spark/",
     "/stats/melee-power/",
   ]) {

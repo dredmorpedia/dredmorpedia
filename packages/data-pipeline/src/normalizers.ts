@@ -22,6 +22,7 @@ import {
   type Recipe,
   type Skill,
   type Spell,
+  type SpellTrigger,
   type Stat,
   type Template,
 } from "@dredmorpedia/domain";
@@ -152,14 +153,15 @@ const partiallySupportedItemChildren = new Set([
   "weapon",
 ]);
 
-function parseItemTrigger(
+function parseSpellTrigger(
   record: XmlRecord,
   kind: ItemTriggerKind,
   referenceAttributes: readonly string[],
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-): ItemTrigger | null {
+  ownerLabel: "item" | "ability",
+): SpellTrigger | null {
   const spellName = referenceAttributes
     .map((attribute) => xmlAttribute(record, attribute))
     .find((value): value is string => Boolean(value));
@@ -167,7 +169,7 @@ function parseItemTrigger(
     context.diagnostics.push({
       severity: "warning",
       code: "missing_trigger_spell",
-      message: `An item ${kind} trigger is missing its spell reference.`,
+      message: `An ${ownerLabel} ${kind} trigger is missing its spell reference.`,
       source: provenance,
       entityId: currentEntityId,
       details: { triggerKind: kind },
@@ -204,40 +206,58 @@ function parseItemTrigger(
     chance:
       chanceText === undefined
         ? null
-        : numericMetadata(chanceText, "item trigger chance", 100),
+        : numericMetadata(chanceText, `${ownerLabel} trigger chance`, 100),
     delay:
       effectType === "trigger"
-        ? numericMetadata(amountText, "item trigger delay")
+        ? numericMetadata(amountText, `${ownerLabel} trigger delay`)
         : 0,
     duration:
       effectType === "dot"
-        ? numericMetadata(amountText, "item trigger duration")
+        ? numericMetadata(amountText, `${ownerLabel} trigger duration`)
         : 0,
     unresistable: xmlAttribute(record, "resistable") === "0",
     monsterTaxonomy: xmlAttribute(record, "taxa") ?? null,
   };
 }
 
-function parseItemTriggers(
+function compareSpellTriggers(left: SpellTrigger, right: SpellTrigger): number {
+  return (
+    (itemTriggerKindRanks.get(left.kind) ?? 0) -
+      (itemTriggerKindRanks.get(right.kind) ?? 0) ||
+    left.spellKey.localeCompare(right.spellKey, "en") ||
+    (left.chance ?? -1) - (right.chance ?? -1) ||
+    left.delay - right.delay ||
+    left.duration - right.duration ||
+    Number(left.unresistable) - Number(right.unresistable) ||
+    (left.monsterTaxonomy ?? "").localeCompare(
+      right.monsterTaxonomy ?? "",
+      "en",
+    )
+  );
+}
+
+function parseDirectSpellTriggers(
   record: XmlRecord,
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-): ItemTrigger[] {
-  const triggers: ItemTrigger[] = [];
+  ownerLabel: "item" | "ability",
+): SpellTrigger[] {
+  const triggers: SpellTrigger[] = [];
   const addTriggers = (
     children: readonly XmlRecord[],
     kind: ItemTriggerKind,
     referenceAttributes: readonly string[],
   ) => {
     for (const child of children) {
-      const trigger = parseItemTrigger(
+      const trigger = parseSpellTrigger(
         child,
         kind,
         referenceAttributes,
         context,
         provenance,
         currentEntityId,
+        ownerLabel,
       );
       if (trigger) {
         triggers.push(trigger);
@@ -257,6 +277,43 @@ function parseItemTriggers(
       addTriggers([effect], kind, ["name", "spell"]);
     }
   }
+
+  return triggers.sort(compareSpellTriggers);
+}
+
+function parseItemTriggers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemTrigger[] {
+  const triggers = parseDirectSpellTriggers(
+    record,
+    context,
+    provenance,
+    currentEntityId,
+    "item",
+  );
+  const addTriggers = (
+    children: readonly XmlRecord[],
+    kind: ItemTriggerKind,
+    referenceAttributes: readonly string[],
+  ) => {
+    for (const child of children) {
+      const trigger = parseSpellTrigger(
+        child,
+        kind,
+        referenceAttributes,
+        context,
+        provenance,
+        currentEntityId,
+        "item",
+      );
+      if (trigger) {
+        triggers.push(trigger);
+      }
+    }
+  };
 
   const food = xmlChildren(record, "food");
   const foodKind = food.some((child) => xmlAttribute(child, "hp") !== undefined)
@@ -309,20 +366,7 @@ function parseItemTriggers(
     ["hit"],
   );
 
-  return triggers.sort(
-    (left, right) =>
-      (itemTriggerKindRanks.get(left.kind) ?? 0) -
-        (itemTriggerKindRanks.get(right.kind) ?? 0) ||
-      left.spellKey.localeCompare(right.spellKey, "en") ||
-      (left.chance ?? -1) - (right.chance ?? -1) ||
-      left.delay - right.delay ||
-      left.duration - right.duration ||
-      Number(left.unresistable) - Number(right.unresistable) ||
-      (left.monsterTaxonomy ?? "").localeCompare(
-        right.monsterTaxonomy ?? "",
-        "en",
-      ),
-  );
+  return triggers.sort(compareSpellTriggers);
 }
 
 function booleanAttribute(record: XmlRecord, name: string): boolean {
@@ -1032,6 +1076,24 @@ function parseSkills(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, "skill", name, originalId);
     const currentEntityId = entityId("skill", name);
+    const loadouts = xmlChildren(record, "loadout").map((loadout) => {
+      const itemName = xmlAttribute(loadout, "subtype");
+      const itemType = xmlAttribute(loadout, "type");
+      return {
+        ...(itemName ? { itemKey: canonicalKey(itemName), itemName } : {}),
+        ...(itemType ? { itemType } : {}),
+        amount: integerValue(
+          xmlAttribute(loadout, "amount"),
+          1,
+          context,
+          provenance,
+          "skill loadout amount",
+          currentEntityId,
+          1,
+        ),
+        always: booleanAttribute(loadout, "always"),
+      };
+    });
     const skill: Skill = {
       ...baseEntity(
         "skill",
@@ -1046,10 +1108,9 @@ function parseSkills(
         provenance,
         currentEntityId,
       ),
-      loadoutItemKeys: xmlChildren(record, "loadout")
-        .map((loadout) => xmlAttribute(loadout, "subtype"))
-        .filter((value): value is string => Boolean(value))
-        .map(canonicalKey)
+      loadouts,
+      loadoutItemKeys: loadouts
+        .flatMap((loadout) => (loadout.itemKey ? [loadout.itemKey] : []))
         .sort((left, right) => left.localeCompare(right, "en")),
       abilityIds: [],
     };
@@ -1071,6 +1132,13 @@ function parseSkills(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, "ability", name, originalId);
     const currentEntityId = entityId("ability", name);
+    const triggers = parseDirectSpellTriggers(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+      "ability",
+    );
     const ability: Ability = {
       ...baseEntity(
         "ability",
@@ -1085,18 +1153,31 @@ function parseSkills(
         provenance,
         currentEntityId,
       ),
-      spellKeys: xmlChildren(record, "spell")
-        .map((spell) => xmlAttribute(spell, "name"))
-        .filter((value): value is string => Boolean(value))
-        .map(canonicalKey)
+      level: integerValue(
+        xmlAttribute(record, "level"),
+        0,
+        context,
+        provenance,
+        "ability level",
+        currentEntityId,
+        0,
+      ),
+      startSkill: booleanAttribute(record, "startSkill"),
+      triggers,
+      spellKeys: triggers
+        .map((trigger) => trigger.spellKey)
         .sort((left, right) => left.localeCompare(right, "en")),
       spellIds: [],
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "spell"]),
+      new Set([
+        "description",
+        ...directItemTriggerSpecs.map((spec) => spec.childName),
+      ]),
       currentEntityId,
+      new Set(["effect"]),
     );
     addCandidate(result.abilities, ability, context.source.precedence);
   }

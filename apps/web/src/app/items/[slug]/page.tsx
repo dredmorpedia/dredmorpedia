@@ -6,38 +6,15 @@ import {
   entityRouteSlugs,
   itemEncrustmentRelationships,
   itemRecipeRelationships,
+  itemSkillLoadoutRelationships,
   matchesEntityRoute,
-  type ItemTriggerKind,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { spellTriggerLabels } from "@/lib/spell-triggers";
 
 export const dynamicParams = false;
-
-const triggerLabels: Readonly<Record<ItemTriggerKind, string>> = {
-  "stepped-on": "When stepped on",
-  zapped: "When zapped",
-  quaffed: "When quaffed",
-  munched: "When munched",
-  "item-hit": "When the item hits",
-  "melee-target": "When you hit in melee",
-  "crossbow-target": "When your bolt hits",
-  "thrown-target": "When your thrown weapon hits",
-  "kill-target": "When you kill an enemy",
-  "melee-self": "When you are hit in melee",
-  dodge: "When you dodge",
-  critical: "When you critically hit",
-  counter: "When you counter",
-  block: "When you block",
-  cast: "When you cast a spell",
-  activated: "When activated",
-  eaten: "When eaten",
-  drunk: "When drunk",
-  "trigger-once": "Triggered once",
-  "trigger-repeat": "Repeated trigger",
-  "trigger-list": "Triggered from a list",
-};
 
 export function generateStaticParams() {
   return loadArtifact().entities.items.flatMap((item) =>
@@ -94,6 +71,10 @@ export default async function ItemPage({
   );
   const encrustmentRelationships = itemEncrustmentRelationships(
     artifact.entities.encrustments,
+    item.id,
+  );
+  const skillLoadoutRelationships = itemSkillLoadoutRelationships(
+    artifact.entities.skills,
     item.id,
   );
   const statsById = new Map(
@@ -194,7 +175,7 @@ export default async function ItemPage({
                   <li key={`${trigger.kind}:${trigger.spellKey}:${index}`}>
                     <div className="trigger-summary">
                       <span className="relationship-title">
-                        {triggerLabels[trigger.kind]}
+                        {spellTriggerLabels[trigger.kind]}
                       </span>
                       {spell ? (
                         <Link
@@ -352,6 +333,39 @@ export default async function ItemPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No linked encrustments.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="skill-loadout-relations-heading"
+        >
+          <h2 id="skill-loadout-relations-heading" className="section-title-sm">
+            Starting loadout relationships
+          </h2>
+          {skillLoadoutRelationships.length > 0 ? (
+            <ul className="relation-list">
+              {skillLoadoutRelationships.map(
+                ({ skill, loadout, loadoutIndex }) => (
+                  <li key={`${skill.id}:${loadoutIndex}`}>
+                    <Link
+                      className="entity-link font-semibold"
+                      href={`/skills/${skill.slug}`}
+                    >
+                      {skill.name}
+                    </Link>
+                    <span>
+                      {loadout.amount} ×{" "}
+                      {loadout.always ? "always included" : "possible option"}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No skill loadouts reference this item.
             </p>
           )}
         </section>

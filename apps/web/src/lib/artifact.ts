@@ -38,6 +38,65 @@ let artifactCache: DatasetArtifact | undefined;
 let diagnosticsCache: Diagnostic[] | undefined;
 let searchCache: SearchArtifact | undefined;
 
+function hasValidSpellTrigger(trigger: unknown): boolean {
+  return (
+    trigger !== null &&
+    typeof trigger === "object" &&
+    "kind" in trigger &&
+    typeof trigger.kind === "string" &&
+    itemTriggerKindSet.has(trigger.kind) &&
+    "spellKey" in trigger &&
+    typeof trigger.spellKey === "string" &&
+    "spellName" in trigger &&
+    typeof trigger.spellName === "string" &&
+    "chance" in trigger &&
+    (trigger.chance === null ||
+      (typeof trigger.chance === "number" &&
+        Number.isInteger(trigger.chance) &&
+        trigger.chance >= 0 &&
+        trigger.chance <= 100)) &&
+    "delay" in trigger &&
+    typeof trigger.delay === "number" &&
+    Number.isInteger(trigger.delay) &&
+    trigger.delay >= 0 &&
+    "duration" in trigger &&
+    typeof trigger.duration === "number" &&
+    Number.isInteger(trigger.duration) &&
+    trigger.duration >= 0 &&
+    "unresistable" in trigger &&
+    typeof trigger.unresistable === "boolean" &&
+    "monsterTaxonomy" in trigger &&
+    (trigger.monsterTaxonomy === null ||
+      typeof trigger.monsterTaxonomy === "string") &&
+    (!("spellId" in trigger) || typeof trigger.spellId === "string")
+  );
+}
+
+function hasValidRoutedEntity(value: unknown): boolean {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "id" in value &&
+    typeof value.id === "string" &&
+    "canonicalKey" in value &&
+    typeof value.canonicalKey === "string" &&
+    "slug" in value &&
+    typeof value.slug === "string" &&
+    "slugAliases" in value &&
+    Array.isArray(value.slugAliases) &&
+    value.slugAliases.every((alias: unknown) => typeof alias === "string") &&
+    "name" in value &&
+    typeof value.name === "string" &&
+    "description" in value &&
+    typeof value.description === "string" &&
+    "diagnosticIds" in value &&
+    Array.isArray(value.diagnosticIds) &&
+    value.diagnosticIds.every(
+      (diagnosticId: unknown) => typeof diagnosticId === "string",
+    )
+  );
+}
+
 function hasValidItems(value: unknown): boolean {
   if (value === null || typeof value !== "object" || !("items" in value)) {
     return false;
@@ -58,38 +117,7 @@ function hasValidItems(value: unknown): boolean {
     ) {
       return false;
     }
-    return item.triggers.every(
-      (trigger: unknown) =>
-        trigger !== null &&
-        typeof trigger === "object" &&
-        "kind" in trigger &&
-        typeof trigger.kind === "string" &&
-        itemTriggerKindSet.has(trigger.kind) &&
-        "spellKey" in trigger &&
-        typeof trigger.spellKey === "string" &&
-        "spellName" in trigger &&
-        typeof trigger.spellName === "string" &&
-        "chance" in trigger &&
-        (trigger.chance === null ||
-          (typeof trigger.chance === "number" &&
-            Number.isInteger(trigger.chance) &&
-            trigger.chance >= 0 &&
-            trigger.chance <= 100)) &&
-        "delay" in trigger &&
-        typeof trigger.delay === "number" &&
-        Number.isInteger(trigger.delay) &&
-        trigger.delay >= 0 &&
-        "duration" in trigger &&
-        typeof trigger.duration === "number" &&
-        Number.isInteger(trigger.duration) &&
-        trigger.duration >= 0 &&
-        "unresistable" in trigger &&
-        typeof trigger.unresistable === "boolean" &&
-        "monsterTaxonomy" in trigger &&
-        (trigger.monsterTaxonomy === null ||
-          typeof trigger.monsterTaxonomy === "string") &&
-        (!("spellId" in trigger) || typeof trigger.spellId === "string"),
-    );
+    return item.triggers.every(hasValidSpellTrigger);
   });
 }
 
@@ -266,6 +294,89 @@ function hasValidSpells(value: unknown): boolean {
   );
 }
 
+function hasValidSkills(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("skills" in value) ||
+    !Array.isArray(value.skills)
+  ) {
+    return false;
+  }
+  return value.skills.every(
+    (skill) =>
+      hasValidRoutedEntity(skill) &&
+      skill !== null &&
+      typeof skill === "object" &&
+      "archetype" in skill &&
+      typeof skill.archetype === "string" &&
+      "loadouts" in skill &&
+      Array.isArray(skill.loadouts) &&
+      skill.loadouts.every(
+        (loadout: unknown) =>
+          loadout !== null &&
+          typeof loadout === "object" &&
+          (("itemKey" in loadout && typeof loadout.itemKey === "string") ||
+            ("itemType" in loadout && typeof loadout.itemType === "string")) &&
+          (!("itemName" in loadout) || typeof loadout.itemName === "string") &&
+          (!("itemId" in loadout) || typeof loadout.itemId === "string") &&
+          "amount" in loadout &&
+          typeof loadout.amount === "number" &&
+          Number.isInteger(loadout.amount) &&
+          loadout.amount >= 1 &&
+          "always" in loadout &&
+          typeof loadout.always === "boolean",
+      ) &&
+      "loadoutItemKeys" in skill &&
+      Array.isArray(skill.loadoutItemKeys) &&
+      skill.loadoutItemKeys.every(
+        (itemKey: unknown) => typeof itemKey === "string",
+      ) &&
+      "abilityIds" in skill &&
+      Array.isArray(skill.abilityIds) &&
+      skill.abilityIds.every(
+        (abilityId: unknown) => typeof abilityId === "string",
+      ),
+  );
+}
+
+function hasValidAbilities(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("abilities" in value) ||
+    !Array.isArray(value.abilities)
+  ) {
+    return false;
+  }
+  return value.abilities.every(
+    (ability) =>
+      hasValidRoutedEntity(ability) &&
+      ability !== null &&
+      typeof ability === "object" &&
+      "skillKey" in ability &&
+      typeof ability.skillKey === "string" &&
+      (!("skillId" in ability) || typeof ability.skillId === "string") &&
+      "level" in ability &&
+      typeof ability.level === "number" &&
+      Number.isInteger(ability.level) &&
+      ability.level >= 0 &&
+      "startSkill" in ability &&
+      typeof ability.startSkill === "boolean" &&
+      "triggers" in ability &&
+      Array.isArray(ability.triggers) &&
+      ability.triggers.every(hasValidSpellTrigger) &&
+      "spellKeys" in ability &&
+      Array.isArray(ability.spellKeys) &&
+      ability.spellKeys.every(
+        (spellKey: unknown) => typeof spellKey === "string",
+      ) &&
+      "spellIds" in ability &&
+      Array.isArray(ability.spellIds) &&
+      ability.spellIds.every((spellId: unknown) => typeof spellId === "string"),
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -282,6 +393,8 @@ export function loadArtifact(): DatasetArtifact {
     !("entities" in parsed) ||
     !hasValidItems(parsed.entities) ||
     !hasValidEncrustments(parsed.entities) ||
+    !hasValidSkills(parsed.entities) ||
+    !hasValidAbilities(parsed.entities) ||
     !hasValidSpells(parsed.entities)
   ) {
     throw new Error(

@@ -1,0 +1,25 @@
+import type { ItemTriggerKind } from "@dredmorpedia/domain";
+
+export const spellTriggerLabels: Readonly<Record<ItemTriggerKind, string>> = {
+  "stepped-on": "When stepped on",
+  zapped: "When zapped",
+  quaffed: "When quaffed",
+  munched: "When munched",
+  "item-hit": "When the item hits",
+  "melee-target": "When you hit in melee",
+  "crossbow-target": "When your bolt hits",
+  "thrown-target": "When your thrown weapon hits",
+  "kill-target": "When you kill an enemy",
+  "melee-self": "When you are hit in melee",
+  dodge: "When you dodge",
+  critical: "When you critically hit",
+  counter: "When you counter",
+  block: "When you block",
+  cast: "When you cast a spell",
+  activated: "When activated",
+  eaten: "When eaten",
+  drunk: "When drunk",
+  "trigger-once": "Triggered once",
+  "trigger-repeat": "Repeated trigger",
+  "trigger-list": "Triggered from a list",
+};

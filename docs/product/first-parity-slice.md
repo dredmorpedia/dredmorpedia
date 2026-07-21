@@ -6,7 +6,7 @@ The first product slice is **items + stats + source provenance + search**. This 
 
 ## User outcome
 
-A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat/recipe/encrustment/spell relationships, inspect crafting, encrusting, and spell-effect details, and share a URL that preserves a structured search query. Missing definitions, broken relationships, and recursive spell cycles are visible rather than silently invented.
+A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat/recipe/encrustment/skill/ability/spell relationships, inspect crafting, encrusting, loadout, progression, and spell-effect details, and share a URL that preserves a structured search query. Missing definitions, broken relationships, and recursive spell cycles are visible rather than silently invented.
 
 ## Functional acceptance
 
@@ -16,6 +16,8 @@ A player can find an item or stat, understand its normalized game values and sou
 - Name collisions receive deterministic unique canonical routes. A version-scoped route registry preserves reviewed canonical slugs and historical aliases; unambiguous source-ID aliases are also generated. Every alternate path resolves to the same record and visibly links to its canonical URL.
 - Every available standalone stat definition has a stable static detail route with item and spell-effect backlinks plus source/file provenance.
 - Every normalized spell has a stable static detail route with direct effects, resolved or explicitly unresolved spell/stat targets, cycle-safe recursive effect relationships, item/spell/ability/instability backlinks, source/file provenance, and attached diagnostics. Resolved spell references on item, stat, and encrustment pages link to these routes.
+- Every normalized skill has a stable static detail route with archetype, complete named/generic starting loadouts, ordered ability progression, source/file provenance, and attached diagnostics. Resolved named items link both ways; generic choices and unresolved names remain visible without fabricated item routes.
+- Every normalized ability has a stable static detail route with its resolved or explicitly unresolved parent skill, starting/level position, resolved or explicitly unresolved spell triggers, source/file provenance, and attached diagnostics. Supported direct event-trigger shapes retain chance, delay, duration, resistance, and taxonomy metadata.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
 - Search covers item and stat records and supports shareable text, entity-type, source, item-category, and item-stat filters.
 - Text matching requires every normalized query token. Exact and prefix name matches rank above description-only matches; ties are deterministic.
@@ -33,13 +35,13 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Quality acceptance
 
-- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, and spell-effect navigation.
-- Representative home, search, item, stat, recipe, encrustment, and spell pages have no automatically detected axe violations.
+- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, spell-effect navigation, and item/skill/ability/loadout navigation.
+- Representative home, search, item, stat, recipe, encrustment, skill, ability, and spell pages have no automatically detected axe violations.
 - Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
 - Representative relevance examples still require owner approval before ADR 0003 can be accepted.
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment/spell relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment/spell routes, item/stat/crafting/encrusting/spell backlinks, cycle-safe effect traversal, item spell-trigger normalization/linking/presentation, direct encrustment outcomes, the separately modeled shared instability-effect pool, explicit missing-definition/reference/cycle states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment/skill/ability/spell relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment/skill/ability/spell routes, item/stat/crafting/encrusting/loadout/spell backlinks, cycle-safe effect traversal, item and ability spell-trigger normalization/linking/presentation, direct encrustment outcomes, the separately modeled shared instability-effect pool, explicit missing-definition/reference/cycle states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, connect ability backlinks to navigable skill/ability routes, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
+Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, normalize the remaining ability stat modifiers and non-spell hooks, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
