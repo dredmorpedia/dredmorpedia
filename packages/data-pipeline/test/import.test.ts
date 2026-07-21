@@ -539,6 +539,14 @@ describe("synthetic dataset import", () => {
         (document) => document.id === "item:clockwork blade",
       )?.statKeys,
     ).toEqual(["melee power"]);
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "monster:armored training diggle",
+      ),
+    ).toMatchObject({
+      category: "Animal",
+      url: "/monsters/armored-training-diggle",
+    });
     expect(blade).toMatchObject({
       price: 160,
       quality: 3,
@@ -735,7 +743,20 @@ describe("synthetic dataset import", () => {
     ).toBe(undefined);
     expect(inheritedMonster).toMatchObject({
       taxonomy: "Animal",
+      depth: 2,
+      special: false,
       iconPath: "assets/synthetic.svg",
+      paletteName: "Synthetic brass",
+      paletteTint: 45,
+      archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
+      experienceValue: 10,
+      modifiers: [
+        { kind: "damage", sourceKey: "crushing", amount: 3 },
+        { kind: "damage", sourceKey: "voltaic", amount: -1 },
+        { kind: "resistance", sourceKey: "toxic", amount: 2 },
+        { kind: "primary", sourceKey: "2", amount: 1 },
+        { kind: "secondary", sourceKey: "6", amount: 1 },
+      ],
       inheritsId: "monster:training diggle",
     });
     const trainingWands = result.artifact.entities.items.filter((item) =>
@@ -766,6 +787,20 @@ describe("synthetic dataset import", () => {
             diagnostic.entityId?.startsWith("ability:")) &&
           (diagnostic.code === "unknown_element" ||
             diagnostic.code === "partially_supported_element"),
+      ),
+    ).toEqual([]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId?.startsWith("monster:") &&
+          [
+            "damage",
+            "resistances",
+            "primarybuff",
+            "secondarybuff",
+            "palette",
+            "stats",
+          ].includes(String(diagnostic.details?.element)),
       ),
     ).toEqual([]);
     expect(result.inputs.map((input) => input.file)).toContain(

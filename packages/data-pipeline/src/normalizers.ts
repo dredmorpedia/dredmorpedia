@@ -763,6 +763,8 @@ const statModifierDamageKeys = new Set([
 const statModifierElementNames = [
   "damagebuff",
   "resistbuff",
+  "damage",
+  "resistances",
   "primarybuff",
   "secondarybuff",
 ] as const;
@@ -800,11 +802,11 @@ function parseStatModifiers(
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-  ownerLabel: "ability" | "encrustment",
+  ownerLabel: "ability" | "encrustment" | "monster",
 ): StatModifier[] {
   const modifiers: StatModifier[] = [];
   const addAttributeModifiers = (
-    childName: "damagebuff" | "resistbuff",
+    childName: "damagebuff" | "resistbuff" | "damage" | "resistances",
     kind: "damage" | "resistance",
   ) => {
     for (const child of statModifierChildren(record, childName)) {
@@ -839,8 +841,14 @@ function parseStatModifiers(
       }
     }
   };
-  addAttributeModifiers("damagebuff", "damage");
-  addAttributeModifiers("resistbuff", "resistance");
+  addAttributeModifiers(
+    ownerLabel === "monster" ? "damage" : "damagebuff",
+    "damage",
+  );
+  addAttributeModifiers(
+    ownerLabel === "monster" ? "resistances" : "resistbuff",
+    "resistance",
+  );
 
   const addIndexedModifiers = (
     childName: "primarybuff" | "secondarybuff",
@@ -1418,6 +1426,19 @@ function parseMonsters(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, "monster", name, originalId);
     const currentEntityId = entityId("monster", name);
+    const sourceLevel = xmlAttribute(record, "level");
+    const normalizedLevel = integerValue(
+      sourceLevel,
+      0,
+      context,
+      provenance,
+      "dungeon level",
+      currentEntityId,
+      0,
+    );
+    const stats = xmlChildren(record, "stats")[0];
+    const palette = xmlChildren(record, "palette")[0];
+    const paletteTint = palette ? xmlAttribute(palette, "tint") : undefined;
     const monster: Monster = {
       ...baseEntity(
         "monster",
@@ -1426,19 +1447,74 @@ function parseMonsters(
         provenance,
       ),
       taxonomy: xmlAttribute(record, "taxa") ?? "",
-      level: integerValue(
-        xmlAttribute(record, "level"),
-        0,
-        context,
-        provenance,
-        "level",
-        currentEntityId,
-      ),
+      level: normalizedLevel,
+      depth: sourceLevel === undefined ? null : normalizedLevel + 1,
+      special: booleanAttribute(record, "special"),
       iconPath: normalizeAssetPath(
         childAttribute(record, "idleSprite", "down"),
         context,
         provenance,
         currentEntityId,
+      ),
+      paletteName: palette ? (xmlAttribute(palette, "name") ?? null) : null,
+      paletteTint:
+        paletteTint === undefined
+          ? null
+          : integerValue(
+              paletteTint,
+              0,
+              context,
+              provenance,
+              "palette tint",
+              currentEntityId,
+            ),
+      archetypeLevels: {
+        fighter: integerValue(
+          stats ? xmlAttribute(stats, "numFig") : undefined,
+          0,
+          context,
+          provenance,
+          "fighter level",
+          currentEntityId,
+          0,
+        ),
+        rogue: integerValue(
+          stats ? xmlAttribute(stats, "numRog") : undefined,
+          0,
+          context,
+          provenance,
+          "rogue level",
+          currentEntityId,
+          0,
+        ),
+        wizard: integerValue(
+          stats ? xmlAttribute(stats, "numWiz") : undefined,
+          0,
+          context,
+          provenance,
+          "wizard level",
+          currentEntityId,
+          0,
+        ),
+      },
+      experienceValue:
+        !stats || xmlAttribute(stats, "xpValue") === undefined
+          ? null
+          : integerValue(
+              xmlAttribute(stats, "xpValue"),
+              0,
+              context,
+              provenance,
+              "experience value",
+              currentEntityId,
+              0,
+            ),
+      modifiers: parseStatModifiers(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+        "monster",
       ),
       ...(parentName
         ? { inheritsName: parentName, inheritsKey: canonicalKey(parentName) }
@@ -1447,7 +1523,19 @@ function parseMonsters(
     reportUnknownChildren(
       context,
       record,
-      new Set(["info", "idleSprite", "stats", "monster"]),
+      new Set([
+        "info",
+        "idleSprite",
+        "palette",
+        "stats",
+        "damage",
+        "resistances",
+        "primarybuff",
+        "primaryBuff",
+        "secondarybuff",
+        "secondaryBuff",
+        "monster",
+      ]),
       currentEntityId,
     );
     addCandidate(result.monsters, monster, context.source.precedence);

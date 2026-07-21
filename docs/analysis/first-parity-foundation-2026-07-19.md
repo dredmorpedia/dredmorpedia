@@ -1,7 +1,7 @@
 # First parity foundation result
 
 Date: 2026-07-19
-Scope: split generated artifacts, project-owned search/query logic, collision-safe and registry-pinned item/stat/recipe/encrustment/skill/ability/spell routes, crafting/encrusting/loadout/spell backlinks, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
+Scope: split generated artifacts, project-owned search/query logic, collision-safe and registry-pinned item/stat/recipe/encrustment/skill/ability/spell/monster routes, crafting/encrusting/loadout/spell and monster-family backlinks, and provenance UI using tracked synthetic fixtures plus ignored read-only official measurements
 
 ## Implemented result
 
@@ -22,6 +22,7 @@ Scope: split generated artifacts, project-owned search/query logic, collision-sa
 - The domain spell traversal records every direct spell edge, expands a resolved spell only once, and marks cycle-closing or already-expanded branches instead of recursing indefinitely. Dangling targets remain terminal visible steps.
 - Skill normalization retains complete named and generic loadout definitions, quantity, always/optional semantics, ordered progression, and resolved item links. Static skill pages link abilities and items; item pages expose deterministic starting-loadout backlinks.
 - Ability normalization retains starting/level position, signed damage/resistance/primary/secondary modifiers, exact source flags, recovery/currency source values, and the legacy-supported direct event/activated spell triggers with chance, delay, duration, resistance, and taxonomy metadata. The observed `triggerondodge` spelling is normalized as a dodge trigger. Skill normalization retains exact source flags and ordered level/name progression tags. Static pages expose these values with a neutral metadata disclosure rather than inventing undocumented gameplay formulas.
+- Monster normalization retains taxonomy, dungeon depth/special classification, source archetype levels, experience, icon/palette metadata, and signed damage/resistance/primary/secondary bonuses. Nested variants inherit verified description/taxonomy/depth/appearance/bonus fields with child bonuses overriding matching parent values. Static monster routes expose parent and direct-variant navigation while declining to invent derived combat totals.
 - Item/stat provenance displays dataset/source versions, override history, and reviewed patch reasons with field-level before/after values.
 - Canonical item/stat routes use deterministic collision resolution. Registry routes are reserved before automatic allocation; registered historical aliases and unambiguous source original IDs generate alternate paths. Alias pages identify themselves, link to the canonical path, and use `noindex, follow` metadata.
 - Browser tests build and serve the static export on their own local port, so they can run while the development server is open.
@@ -30,35 +31,37 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 33,503 bytes.
-- Search artifact: 7,846 bytes for 19 documents.
+- Normalized artifact: 35,110 bytes.
+- Search artifact: 7,952 bytes for 19 documents.
 - Diagnostics remain the intentional 1 error and 18 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, and skill-loadout targets remain explicit.
 - Domain/pipeline tests: 38 passed.
-- Browser tests: 16 passed across desktop and mobile Chromium.
-- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell, source-ID alias, and registered historical-alias routes.
+- Browser tests: 18 passed across desktop and mobile Chromium.
+- Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell/monster, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 - Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
 - Synthetic item-trigger coverage includes resolved weapon, potion, wand, combat-event, and repeated triggers plus an intentionally unresolved trap spell. The UI exposes the unresolved state without creating a route, and axe checks include representative resolved and unresolved pages.
 - Synthetic encrustment coverage includes resolved and unresolved ingredients, two applicable slots, skill level, instability, signed direct modifiers, a probabilistic named power hook, an appearance descriptor, provenance, item backlinks, and two shared instability effects with resolved and unresolved spell references. Desktop/mobile browser and axe checks cover the item-to-encrustment-to-item flow, direct outcomes, the shared-pool disclosure, and its explicit selection-semantics boundary.
 - Synthetic spell coverage includes a resolved two-spell chain, a deliberate cycle, a dangling spell target, a resolved stat target, direct/backlink navigation, provenance, and diagnostics. Desktop/mobile browser checks follow an item trigger into the chain, verify the explicit stop states, and navigate between both spell pages.
 - Synthetic skill/ability coverage includes resolved, dangling, and generic loadout choices; always/optional quantities; a starting and leveled ability; signed damage/resistance/primary/secondary modifiers; source flags, progression tags, recovery/currency source values; resolved and dangling activated spells; and probabilistic melee and dodge event triggers. Desktop/mobile browser checks follow item→skill→ability→spell relationships in both directions, verify numeric stat-ID and neutral metadata disclosures, and exercise keyboard navigation.
+- Synthetic monster coverage includes a parent and nested child, inherited taxonomy/icon/palette/stat bonuses, a child bonus override, dungeon depth, source archetype levels, experience, provenance, and bidirectional family navigation. Desktop/mobile browser checks exercise keyboard navigation from child to parent and the representative monster route is included in axe scans.
 
 ## Read-only official verification
 
-The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, and 2,767 search documents with 0 errors, 3,852 warnings, and 71 info records.
+The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 3,273 warnings, and 71 info records.
 
-- Normalized artifact: 4,066,100 bytes.
-- Search artifact: 1,235,035 bytes uncompressed.
-- Diagnostics: 1,771,887 bytes.
+- Normalized artifact: 4,249,498 bytes.
+- Search artifact: 1,246,462 bytes uncompressed.
+- Diagnostics: 1,514,677 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - The earlier 1,000-query local CPU benchmark over the 2,710-document pre-encrustment artifact measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency; the user-facing search route still filters its payload to items and stats.
-- The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, and 951 spell pages plus registered/source-ID aliases, completed in approximately 39.2 seconds and prerendered 2,606 static pages.
+- The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, 951 spell, and 183 monster pages plus registered/source-ID aliases, completed in approximately 44.9 seconds and prerendered 2,789 static pages.
 - The generated JSON and static export contain no local installation or user-profile path.
 - The reviewed quality rule matched all 763 official items with zero discrepancies: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 traps use nested `<trap level>`, and 184 other records use zero. This includes 68 food/potion records whose unrelated root `level` is deliberately ignored. All normalized values were present, non-negative integers; the observed maximum was 16.
 - The item-trigger adapter produced 227 triggers across 214 official items. All 227 spell references resolved: 153 came from weapon/food/booze/trap/wand/potion/mushroom shapes and 74 from direct combat-event elements. The direct elements supplied 74 integer chance values and two taxonomy restrictions; the canonical dataset has no item-trigger delay, duration, or unresistable values, while those legacy-compatible fields remain covered synthetically.
 - The encrustment adapter read 58 source records and deterministically selected 57 active identities after one same-name collision. The active records contain 190 ingredient references, all resolved, across 11 equipment slot types; skill levels span 0â€“6 and signed instability spans -5â€“40. Direct outcomes comprise 126 modifiers (28 damage, 31 resistance, 11 primary, and 56 secondary), 7 named power hooks (3 probabilistic), and 67 appearance descriptors. The separate shared pool contains 16 unique name/spell pairs, and all 16 resolve. Those definitions contain only `name` and `spell`; the importer therefore does not claim weights, assignments, trigger rules, or a complete probability formula.
 - The 951-spell graph contains 1,634 direct effects and 807 spell-reference edges; all 807 targets resolve. A deterministic depth-first measurement observed 14 cycle-closing edges. The largest spell has 34 direct effects, the largest reachable set contains 28 spells, and the maximum shortest-path depth is 7, so explicit cycle handling is necessary while full static traversal remains tractable.
 - All 352 active abilities resolve to 52 skills, with at most 9 abilities in one progression. The adapter preserves 76 loadout definitions: 63 name an item, 47 of those resolve, 16 remain explicit dangling references, and 13 are generic type-only choices. It captures 264 ability spell triggers (176 activated, 41 melee-target, 23 kill-target, 12 melee-self, 1 dodge, and 11 across crossbow/cast/thrown/block/counter events); all 264 resolve and the largest ability has 4 triggers. The 333 previously unsupported modifier elements produce 473 signed modifiers across 217 abilities: 48 damage, 82 resistance, 68 primary, and 275 secondary, with at most 8 on one ability. Lowercase and observed camel-case element variants normalize identically, no official modifier diagnostics remain, and numeric primary/secondary IDs are preserved without fabricated definitions. The final 21 skill/ability diagnostics are now explicit data: 5 skill flag values across 3 skills, 6 ability flag values across 5 abilities, 4 progression tags on 1 skill, 10 recovery amounts with observed values 5/10/15, and 1 currency percent value of 0.1. No measured official skill/ability child element remains unsupported.
+- The 183 active monsters include 132 nested variants and 23 special records; all 183 resolve an effective dungeon depth, 177 supply experience, and 131 supply palette metadata. Verified inheritance produces 1,331 effective signed bonuses: 458 damage, 486 resistance, 12 primary, and 375 secondary. Observed palette-tint integers span -200 through 600 and are preserved rather than coerced into an assumed hue range. The remaining 578 monster element diagnostics are explicit: 115 AI, 82 spell, 49 on-hit, 15 drop, and 317 sound/sprite/movement/other behavior elements. Monster spell/drop relationships and derived formulas remain subsequent work.
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.
 

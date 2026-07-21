@@ -3,10 +3,16 @@
   <monster id="training-diggle" name="Training Diggle" taxa="Animal" level="0">
     <info text="A synthetic monster used only by automated tests." />
     <idleSprite down="assets/synthetic.svg" />
-    <stats numFig="1" numRog="0" numWiz="0" />
+    <palette name="Synthetic brass" tint="45" />
+    <stats numFig="1" numRog="0" numWiz="0" xpValue="5" />
+    <damage crushing="1" voltaic="-1" />
+    <resistances toxic="2" />
+    <secondarybuff id="6" amount="1" />
     <monster id="armored-training-diggle" name="Armored Training Diggle" level="1">
       <info text="A nested monster that inherits from Training Diggle." />
-      <stats numFig="2" numRog="0" numWiz="0" />
+      <stats numFig="2" numRog="0" numWiz="0" xpValue="10" />
+      <damage crushing="3" />
+      <primarybuff id="2" amount="1" />
     </monster>
   </monster>
 </monsters>

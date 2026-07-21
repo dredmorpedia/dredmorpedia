@@ -34,6 +34,10 @@ function categoryFor(entity: NormalizedEntity): string | null {
     return entity.tool;
   }
 
+  if (entity.kind === "monster") {
+    return entity.taxonomy || null;
+  }
+
   return null;
 }
 
@@ -55,6 +59,14 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
     entity.kind,
     category ?? "",
     entity.provenance.sourceId,
+    ...(entity.kind === "monster"
+      ? [
+          entity.depth === null ? "" : `dungeon level ${entity.depth}`,
+          `fighter ${entity.archetypeLevels.fighter}`,
+          `rogue ${entity.archetypeLevels.rogue}`,
+          `wizard ${entity.archetypeLevels.wizard}`,
+        ]
+      : []),
     ...statText,
   ];
 

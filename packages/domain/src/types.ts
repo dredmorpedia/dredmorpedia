@@ -246,11 +246,24 @@ export interface Spell extends NormalizedEntityBase {
   effects: SpellEffect[];
 }
 
+export interface MonsterArchetypeLevels {
+  fighter: number;
+  rogue: number;
+  wizard: number;
+}
+
 export interface Monster extends NormalizedEntityBase {
   kind: "monster";
   taxonomy: string;
   level: number;
+  depth: number | null;
+  special: boolean;
   iconPath: string | null;
+  paletteName: string | null;
+  paletteTint: number | null;
+  archetypeLevels: MonsterArchetypeLevels;
+  experienceValue: number | null;
+  modifiers: StatModifier[];
   inheritsKey?: string;
   inheritsName?: string;
   inheritsId?: string;

@@ -1,0 +1,280 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+
+import { ProvenanceCard } from "@/components/provenance-card";
+import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  signedStatModifierValue,
+  statModifierLabel,
+} from "@/lib/stat-modifiers";
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return loadArtifact().entities.monsters.flatMap((monster) =>
+    entityRouteSlugs(monster).map((slug) => ({ slug })),
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const monster = loadArtifact().entities.monsters.find((entry) =>
+    matchesEntityRoute(entry, slug),
+  );
+  return monster
+    ? {
+        title: monster.name,
+        description:
+          monster.description ||
+          `${monster.taxonomy || "Unclassified"} monster profile and source provenance.`,
+        ...(slug === monster.slug
+          ? {}
+          : { robots: { index: false, follow: true } }),
+      }
+    : { title: "Monster not found" };
+}
+
+export default async function MonsterPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const artifact = loadArtifact();
+  const monster = artifact.entities.monsters.find((entry) =>
+    matchesEntityRoute(entry, slug),
+  );
+  if (!monster) {
+    notFound();
+  }
+
+  const parent = monster.inheritsId
+    ? artifact.entities.monsters.find(
+        (entry) => entry.id === monster.inheritsId,
+      )
+    : undefined;
+  const variants = artifact.entities.monsters.filter(
+    (entry) => entry.inheritsId === monster.id,
+  );
+  const diagnostics = loadDiagnostics().filter((entry) =>
+    monster.diagnosticIds.includes(entry.id),
+  );
+  const isAlias = slug !== monster.slug;
+  const encounterGroup = monster.special
+    ? "Special monster"
+    : monster.depth === null
+      ? "Unknown dungeon depth"
+      : `Dungeon level ${monster.depth}`;
+
+  return (
+    <article className="detail-page">
+      <nav aria-label="Breadcrumb" className="breadcrumb">
+        <Link href="/">Items</Link>
+        <span aria-hidden="true">/</span>
+        <span>Monsters</span>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{monster.name}</span>
+      </nav>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {monster.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/monsters/${monster.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
+
+      <header className="detail-header">
+        <div>
+          <p className="eyebrow">
+            {monster.taxonomy || "Unclassified monster"}
+          </p>
+          <h1 className="detail-title">{monster.name}</h1>
+          <p className="detail-copy">
+            {monster.description || "No normalized monster description."}
+          </p>
+        </div>
+        <dl className="price-block">
+          <div>
+            <dt>Encounter group</dt>
+            <dd>{encounterGroup}</dd>
+          </div>
+          <div>
+            <dt>Stat bonuses</dt>
+            <dd>{monster.modifiers.length}</dd>
+          </div>
+        </dl>
+      </header>
+
+      <div className="detail-grid">
+        <section className="detail-card" aria-labelledby="profile-heading">
+          <h2 id="profile-heading" className="section-title-sm">
+            Combat profile
+          </h2>
+          <dl className="stat-list">
+            <div>
+              <dt>Fighter level</dt>
+              <dd>{monster.archetypeLevels.fighter}</dd>
+            </div>
+            <div>
+              <dt>Rogue level</dt>
+              <dd>{monster.archetypeLevels.rogue}</dd>
+            </div>
+            <div>
+              <dt>Wizard level</dt>
+              <dd>{monster.archetypeLevels.wizard}</dd>
+            </div>
+            <div>
+              <dt>Experience value</dt>
+              <dd>{monster.experienceValue ?? "Not supplied"}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These are normalized source values. Derived combat totals are not
+            calculated until their formulas are independently verified.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="bonuses-heading">
+          <h2 id="bonuses-heading" className="section-title-sm">
+            Stat bonuses
+          </h2>
+          {monster.modifiers.length > 0 ? (
+            <dl className="stat-list">
+              {monster.modifiers.map((modifier) => (
+                <div key={`${modifier.kind}:${modifier.sourceKey}`}>
+                  <dt>{statModifierLabel(modifier)}</dt>
+                  <dd>{signedStatModifierValue(modifier.amount)}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized stat bonuses.
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Bonuses inherited from a parent monster are included; matching
+            values declared by this monster take precedence.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="family-heading">
+          <h2 id="family-heading" className="section-title-sm">
+            Monster family
+          </h2>
+          {parent || variants.length > 0 ? (
+            <div className="relationship-groups">
+              {parent ? (
+                <section aria-labelledby="parent-heading">
+                  <h3 id="parent-heading" className="relationship-title">
+                    Inherits from
+                  </h3>
+                  <ul className="relation-list">
+                    <li>
+                      <Link
+                        className="entity-link font-semibold"
+                        href={`/monsters/${parent.slug}`}
+                      >
+                        {parent.name}
+                      </Link>
+                      <span>Resolved parent monster</span>
+                    </li>
+                  </ul>
+                </section>
+              ) : null}
+              {variants.length > 0 ? (
+                <section aria-labelledby="variants-heading">
+                  <h3 id="variants-heading" className="relationship-title">
+                    Direct variants
+                  </h3>
+                  <ul className="relation-list">
+                    {variants.map((variant) => (
+                      <li key={variant.id}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/monsters/${variant.slug}`}
+                        >
+                          {variant.name}
+                        </Link>
+                        <span>{variant.taxonomy || "Unclassified"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No resolved parent or direct variants.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading" className="section-title-sm">
+            Source appearance
+          </h2>
+          <dl className="provenance-list">
+            <div>
+              <dt>Sprite reference</dt>
+              <dd>{monster.iconPath ?? "Not supplied"}</dd>
+            </div>
+            <div>
+              <dt>Palette</dt>
+              <dd>{monster.paletteName ?? "Not supplied"}</dd>
+            </div>
+            <div>
+              <dt>Palette tint</dt>
+              <dd>{monster.paletteTint ?? "Not supplied"}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <ProvenanceCard
+          artifact={artifact}
+          entity={monster}
+          headingId="monster-provenance-heading"
+        />
+
+        <section
+          className="detail-card"
+          aria-labelledby="monster-diagnostics-heading"
+        >
+          <h2 id="monster-diagnostics-heading" className="section-title-sm">
+            Diagnostics
+          </h2>
+          {diagnostics.length > 0 ? (
+            <ul className="diagnostic-list">
+              {diagnostics.map((diagnostic) => (
+                <li key={diagnostic.id}>
+                  <span className={`severity severity-${diagnostic.severity}`}>
+                    {diagnostic.severity}
+                  </span>
+                  <span>{diagnostic.message}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No diagnostics are attached to the active monster.
+            </p>
+          )}
+        </section>
+      </div>
+    </article>
+  );
+}

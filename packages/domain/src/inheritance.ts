@@ -1,5 +1,14 @@
 import type { Monster } from "./types";
 
+const modifierKindRanks: Readonly<
+  Record<Monster["modifiers"][number]["kind"], number>
+> = {
+  damage: 0,
+  resistance: 1,
+  primary: 2,
+  secondary: 3,
+};
+
 export interface MonsterInheritanceIssue {
   type: "missing-parent" | "cycle";
   monsterId: string;
@@ -9,6 +18,27 @@ export interface MonsterInheritanceIssue {
 export interface MonsterInheritanceResult {
   monsters: Monster[];
   issues: MonsterInheritanceIssue[];
+}
+
+function inheritModifiers(
+  parent: Monster["modifiers"],
+  child: Monster["modifiers"],
+): Monster["modifiers"] {
+  const inherited = new Map(
+    parent.map((modifier) => [
+      `${modifier.kind}:${modifier.sourceKey}`,
+      modifier,
+    ]),
+  );
+  for (const modifier of child) {
+    inherited.set(`${modifier.kind}:${modifier.sourceKey}`, modifier);
+  }
+  return [...inherited.values()].sort(
+    (left, right) =>
+      modifierKindRanks[left.kind] - modifierKindRanks[right.kind] ||
+      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      left.amount - right.amount,
+  );
 }
 
 export function applyMonsterInheritance(
@@ -56,8 +86,13 @@ export function applyMonsterInheritance(
     const resolvedParent = resolve(parent, nextAncestors);
     const inherited: Monster = {
       ...monster,
+      description: monster.description || resolvedParent.description,
       taxonomy: monster.taxonomy || resolvedParent.taxonomy,
+      depth: monster.depth ?? resolvedParent.depth,
       iconPath: monster.iconPath ?? resolvedParent.iconPath,
+      paletteName: monster.paletteName ?? resolvedParent.paletteName,
+      paletteTint: monster.paletteTint ?? resolvedParent.paletteTint,
+      modifiers: inheritModifiers(resolvedParent.modifiers, monster.modifiers),
       inheritsId: resolvedParent.id,
     };
     resolved.set(monster.canonicalKey, inherited);

@@ -384,6 +384,51 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   ).toBeVisible();
 });
 
+test("shows inherited monster stats and navigates its family", async ({
+  page,
+}) => {
+  await page.goto("/monsters/armored-training-diggle/");
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Armored Training Diggle",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Dungeon level 2", { exact: true }),
+  ).toBeVisible();
+
+  const profile = page.getByRole("region", { name: "Combat profile" });
+  await expect(profile.getByText("Fighter level")).toBeVisible();
+  await expect(profile.getByText("2", { exact: true })).toBeVisible();
+  await expect(profile.getByText("Experience value")).toBeVisible();
+  await expect(profile.getByText("10", { exact: true })).toBeVisible();
+  await expect(
+    profile.getByText(/derived combat totals are not calculated/i),
+  ).toBeVisible();
+
+  const bonuses = page.getByRole("region", { name: "Stat bonuses" });
+  await expect(bonuses.getByText("Crushing damage")).toBeVisible();
+  await expect(bonuses.getByText("+3", { exact: true })).toBeVisible();
+  await expect(bonuses.getByText("Voltaic damage")).toBeVisible();
+  await expect(bonuses.getByText("-1", { exact: true })).toBeVisible();
+  await expect(bonuses.getByText("Toxic resistance")).toBeVisible();
+  await expect(bonuses.getByText("Primary attribute 2")).toBeVisible();
+  await expect(bonuses.getByText("Secondary stat 6")).toBeVisible();
+
+  const family = page.getByRole("region", { name: "Monster family" });
+  const parentLink = family.getByRole("link", { name: "Training Diggle" });
+  await parentLink.focus();
+  await expect(parentLink).toBeFocused();
+  await parentLink.press("Enter");
+  await expect(page).toHaveURL(/\/monsters\/training-diggle\/$/);
+  await expect(
+    page
+      .getByRole("region", { name: "Monster family" })
+      .getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -401,6 +446,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/abilities/measured-strike/",
     "/abilities/clockwork-followthrough/",
     "/spells/clockwork-spark/",
+    "/monsters/armored-training-diggle/",
     "/stats/melee-power/",
   ]) {
     await page.goto(route);

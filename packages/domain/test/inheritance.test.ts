@@ -19,10 +19,22 @@ function monster(name: string, inheritsKey?: string): Monster {
     slug: canonicalKey.replaceAll(" ", "-"),
     slugAliases: [],
     name,
-    description: "",
+    description: inheritsKey ? "" : "Inherited description",
     taxonomy: inheritsKey ? "" : "Animal",
     level: 1,
+    depth: inheritsKey ? null : 2,
+    special: false,
     iconPath: inheritsKey ? null : "assets/synthetic.svg",
+    paletteName: inheritsKey ? null : "Synthetic brass",
+    paletteTint: inheritsKey ? null : 45,
+    archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
+    experienceValue: 10,
+    modifiers: inheritsKey
+      ? [{ kind: "damage", sourceKey: "crushing", amount: 3 }]
+      : [
+          { kind: "damage", sourceKey: "crushing", amount: 1 },
+          { kind: "resistance", sourceKey: "toxic", amount: 2 },
+        ],
     ...(inheritsKey ? { inheritsKey, inheritsName: "Parent" } : {}),
     provenance,
     variants: [provenance],
@@ -42,8 +54,16 @@ describe("monster inheritance", () => {
     );
 
     expect(result.issues).toEqual([]);
+    expect(resolvedChild?.description).toBe("Inherited description");
     expect(resolvedChild?.taxonomy).toBe("Animal");
+    expect(resolvedChild?.depth).toBe(2);
     expect(resolvedChild?.iconPath).toBe("assets/synthetic.svg");
+    expect(resolvedChild?.paletteName).toBe("Synthetic brass");
+    expect(resolvedChild?.paletteTint).toBe(45);
+    expect(resolvedChild?.modifiers).toEqual([
+      { kind: "damage", sourceKey: "crushing", amount: 3 },
+      { kind: "resistance", sourceKey: "toxic", amount: 2 },
+    ]);
     expect(resolvedChild?.inheritsId).toBe(parent.id);
   });
 });

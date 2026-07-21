@@ -426,6 +426,67 @@ function hasValidAbilities(value: unknown): boolean {
   );
 }
 
+function hasValidMonsters(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("monsters" in value) ||
+    !Array.isArray(value.monsters)
+  ) {
+    return false;
+  }
+  return value.monsters.every(
+    (monster) =>
+      hasValidRoutedEntity(monster) &&
+      monster !== null &&
+      typeof monster === "object" &&
+      "taxonomy" in monster &&
+      typeof monster.taxonomy === "string" &&
+      "level" in monster &&
+      typeof monster.level === "number" &&
+      Number.isInteger(monster.level) &&
+      monster.level >= 0 &&
+      "depth" in monster &&
+      (monster.depth === null ||
+        (typeof monster.depth === "number" &&
+          Number.isInteger(monster.depth) &&
+          monster.depth >= 1)) &&
+      "special" in monster &&
+      typeof monster.special === "boolean" &&
+      "iconPath" in monster &&
+      (monster.iconPath === null || typeof monster.iconPath === "string") &&
+      "paletteName" in monster &&
+      (monster.paletteName === null ||
+        typeof monster.paletteName === "string") &&
+      "paletteTint" in monster &&
+      (monster.paletteTint === null ||
+        (typeof monster.paletteTint === "number" &&
+          Number.isInteger(monster.paletteTint))) &&
+      "archetypeLevels" in monster &&
+      monster.archetypeLevels !== null &&
+      typeof monster.archetypeLevels === "object" &&
+      ["fighter", "rogue", "wizard"].every((key) => {
+        const level = (monster.archetypeLevels as Record<string, unknown>)[key];
+        return (
+          typeof level === "number" && Number.isInteger(level) && level >= 0
+        );
+      }) &&
+      "experienceValue" in monster &&
+      (monster.experienceValue === null ||
+        (typeof monster.experienceValue === "number" &&
+          Number.isInteger(monster.experienceValue) &&
+          monster.experienceValue >= 0)) &&
+      "modifiers" in monster &&
+      Array.isArray(monster.modifiers) &&
+      monster.modifiers.every(hasValidStatModifier) &&
+      (!("inheritsKey" in monster) ||
+        typeof monster.inheritsKey === "string") &&
+      (!("inheritsName" in monster) ||
+        typeof monster.inheritsName === "string") &&
+      (!("inheritsId" in monster) || typeof monster.inheritsId === "string"),
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -444,7 +505,8 @@ export function loadArtifact(): DatasetArtifact {
     !hasValidEncrustments(parsed.entities) ||
     !hasValidSkills(parsed.entities) ||
     !hasValidAbilities(parsed.entities) ||
-    !hasValidSpells(parsed.entities)
+    !hasValidSpells(parsed.entities) ||
+    !hasValidMonsters(parsed.entities)
   ) {
     throw new Error(
       "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",

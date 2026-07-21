@@ -4,7 +4,7 @@ These XML files and SVGs are independently authored test data. They imitate only
 
 The fixture set deliberately includes:
 
-- representative items, stats, a recipe, a skill with resolved/dangling/generic loadouts plus source flags and progression tags, starting and leveled abilities with signed damage/resistance/primary/secondary modifiers, recovery/currency source values, source flags, and resolved/dangling/event spell triggers, a cyclic spell chain, an inherited monster, and a targeting template;
+- representative items, stats, a recipe, a skill with resolved/dangling/generic loadouts plus source flags and progression tags, starting and leveled abilities with signed damage/resistance/primary/secondary modifiers, recovery/currency source values, source flags, and resolved/dangling/event spell triggers, a cyclic spell chain, an inherited monster with depth, archetype levels, experience, palette metadata, and overriding/inherited stat bonuses, and a targeting template;
 - a higher-precedence item override;
 - a version-guarded patch that changes one active item value without modifying its XML source;
 - a dataset-versioned route registry that pins canonical item slugs and preserves a historical alias;
