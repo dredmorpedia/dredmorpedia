@@ -196,7 +196,16 @@ export default async function ItemPage({
                       <span className="relationship-title">
                         {triggerLabels[trigger.kind]}
                       </span>
-                      <strong>{spell?.name ?? trigger.spellName}</strong>
+                      {spell ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${spell.slug}`}
+                        >
+                          {spell.name}
+                        </Link>
+                      ) : (
+                        <strong>{trigger.spellName}</strong>
+                      )}
                       <small
                         className={
                           spell

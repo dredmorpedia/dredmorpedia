@@ -26,7 +26,7 @@ A useful first prompt on the new machine is:
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
-- Dataset schema 3 separates normalized records from search schema 1; output-manifest schema 2 checksums normalized, search, and diagnostic outputs. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and an optional version-scoped route registry. The web application has deterministic collision-safe item/stat/recipe/encrustment routes, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search filters, item/stat/crafting/encrusting backlinks, normalized item spell triggers, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference states.
+- Dataset schema 3 separates normalized records from search schema 1; output-manifest schema 2 checksums normalized, search, and diagnostic outputs. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and an optional version-scoped route registry. The web application has deterministic collision-safe item/stat/recipe/encrustment/spell routes, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search filters, item/stat/crafting/encrusting/spell backlinks, normalized item spell triggers, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
 - Synthetic desktop/mobile keyboard and axe checks pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
 - Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
@@ -79,7 +79,7 @@ Continue the first parity slice without assuming permission to publish official 
 2. Accept or revise ADRs 0001 and 0002 after that decision.
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Add navigable static spell details and recursive effect relationships so resolved item-trigger and instability-pool references can lead somewhere useful. Preserve explicit cycle and dangling-reference handling.
+5. Add navigable static skill and ability details, connect the existing spell-page ability backlinks to those routes, and expose deterministic skill/ability/spell/loadout relationships. Preserve unresolved item and spell references rather than fabricating routes.
 6. Treat the current 4,274 unsupported/partially-supported element diagnostics and 16 dangling references as the measured compatibility backlog, not as silently completed parity. The 16-entry shared instability pool is implemented and fully resolves in the canonical dataset; its source does not define weights, per-encrustment assignments, trigger rules, or a complete risk formula.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
@@ -87,6 +87,10 @@ Architecture and foundation results are in `docs/analysis/architecture-spike-202
 ## Item-quality review completed
 
 The item-quality slice passed its separate code review on 2026-07-21. Read-only comparison against all 763 official item records found zero mismatches: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 trap records use nested `<trap level>`, and 184 other records use zero. The last group includes 68 food/potion records with unrelated root levels that must not be displayed as quality. Patch validation now permits only non-negative integers, current web consumers reject stale schema 3 artifacts without valid quality, and the reviewed card/detail layouts have no horizontal overflow at desktop or 390-pixel mobile widths. Synthetic generation, full workspace checks, desktop/mobile Playwright flows, and axe checks remain the repeatable regression evidence.
+
+## Spell relationship slice completed
+
+Static spell details now expose direct effects, resolved or dangling spell/stat targets, provenance, diagnostics, and deterministic backlinks from spells, items, abilities, and the shared instability pool. The pure domain traversal records every direct edge, expands each resolved spell once, and marks cycles or repeated branches where recursion stops. Synthetic desktop/mobile and axe coverage includes a deliberate two-spell cycle and dangling target. The ignored official dataset builds 951 spell routes within 2,150 static pages; all 807 official spell-reference edges resolve, and the measured maximum shortest-path depth is 7.
 
 ## Open decisions and blockers
 

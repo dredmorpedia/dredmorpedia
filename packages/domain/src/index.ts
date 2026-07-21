@@ -5,6 +5,7 @@ export * from "./patches";
 export * from "./recipe-relationships";
 export * from "./resolution";
 export * from "./search";
+export * from "./spell-relationships";
 export {
   encrustmentModifierKinds,
   entityKinds,

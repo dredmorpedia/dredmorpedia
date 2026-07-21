@@ -167,7 +167,12 @@ export default async function StatPage({
             <ul className="relation-list">
               {spells.map((spell) => (
                 <li key={spell.id}>
-                  <strong>{spell.name}</strong>
+                  <Link
+                    className="entity-link font-semibold"
+                    href={`/spells/${spell.slug}`}
+                  >
+                    {spell.name}
+                  </Link>
                   <span>Modifies this stat</span>
                 </li>
               ))}

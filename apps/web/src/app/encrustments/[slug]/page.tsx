@@ -364,7 +364,16 @@ export default async function EncrustmentPage({
                             effect.provenance.sourceId}
                         </small>
                       </span>
-                      <strong>{spell?.name ?? effect.spellName}</strong>
+                      {spell ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${spell.slug}`}
+                        >
+                          {spell.name}
+                        </Link>
+                      ) : (
+                        <strong>{effect.spellName}</strong>
+                      )}
                     </li>
                   );
                 })}

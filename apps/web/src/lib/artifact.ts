@@ -212,6 +212,60 @@ function hasValidEncrustmentInstabilityEffects(value: unknown): boolean {
   );
 }
 
+function hasValidSpells(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("spells" in value) ||
+    !Array.isArray(value.spells)
+  ) {
+    return false;
+  }
+  return value.spells.every(
+    (spell) =>
+      spell !== null &&
+      typeof spell === "object" &&
+      "id" in spell &&
+      typeof spell.id === "string" &&
+      "canonicalKey" in spell &&
+      typeof spell.canonicalKey === "string" &&
+      "slug" in spell &&
+      typeof spell.slug === "string" &&
+      "slugAliases" in spell &&
+      Array.isArray(spell.slugAliases) &&
+      spell.slugAliases.every((alias: unknown) => typeof alias === "string") &&
+      "name" in spell &&
+      typeof spell.name === "string" &&
+      "description" in spell &&
+      typeof spell.description === "string" &&
+      "spellType" in spell &&
+      typeof spell.spellType === "string" &&
+      "diagnosticIds" in spell &&
+      Array.isArray(spell.diagnosticIds) &&
+      spell.diagnosticIds.every(
+        (diagnosticId: unknown) => typeof diagnosticId === "string",
+      ) &&
+      "effects" in spell &&
+      Array.isArray(spell.effects) &&
+      spell.effects.every(
+        (effect: unknown) =>
+          effect !== null &&
+          typeof effect === "object" &&
+          "type" in effect &&
+          typeof effect.type === "string" &&
+          (!("spellKey" in effect) || typeof effect.spellKey === "string") &&
+          (!("spellName" in effect) || typeof effect.spellName === "string") &&
+          (!("spellId" in effect) || typeof effect.spellId === "string") &&
+          (!("statKey" in effect) || typeof effect.statKey === "string") &&
+          (!("statName" in effect) || typeof effect.statName === "string") &&
+          (!("statId" in effect) || typeof effect.statId === "string") &&
+          (!("amount" in effect) ||
+            (typeof effect.amount === "number" &&
+              Number.isFinite(effect.amount))),
+      ),
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -227,7 +281,8 @@ export function loadArtifact(): DatasetArtifact {
     !hasValidEncrustmentInstabilityEffects(parsed) ||
     !("entities" in parsed) ||
     !hasValidItems(parsed.entities) ||
-    !hasValidEncrustments(parsed.entities)
+    !hasValidEncrustments(parsed.entities) ||
+    !hasValidSpells(parsed.entities)
   ) {
     throw new Error(
       "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",

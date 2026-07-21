@@ -213,6 +213,53 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("navigates spell details and stops recursive effect cycles", async ({
+  page,
+}) => {
+  await page.goto("/items/clockwork-blade/");
+  const weaponTriggers = page.getByRole("region", { name: "Triggers" });
+  const spellLink = weaponTriggers.getByRole("link", {
+    name: "Clockwork Spark",
+  });
+  await spellLink.focus();
+  await expect(spellLink).toBeFocused();
+  await spellLink.press("Enter");
+  await expect(page).toHaveURL(/\/spells\/clockwork-spark\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Clockwork Spark" }),
+  ).toBeVisible();
+
+  const effects = page.getByRole("region", { name: "Effects", exact: true });
+  await expect(
+    effects.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    effects.getByText("Missing Echo", { exact: true }),
+  ).toBeVisible();
+  await expect(effects.getByText("Unresolved spell target")).toBeVisible();
+
+  const chain = page.getByRole("region", { name: "Effect chain" });
+  await expect(chain.getByText("Cycle detected")).toBeVisible();
+  await expect(chain.getByText("Unresolved target")).toBeVisible();
+
+  const backlinks = page.getByRole("region", { name: "Referenced by" });
+  await expect(
+    backlinks.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await expect(backlinks.getByText("Synthetic Mishap")).toBeVisible();
+
+  await effects.getByRole("link", { name: "Clockwork Echo" }).click();
+  await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Referenced by" })
+      .getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+});
+
 test("representative pages have no automatically detectable accessibility violations", async ({
   page,
 }) => {
@@ -226,6 +273,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/training-trap/",
     "/encrustments/synthetic-gear-polish/",
     "/recipes/clockwork-blade-recipe/",
+    "/spells/clockwork-spark/",
     "/stats/melee-power/",
   ]) {
     await page.goto(route);

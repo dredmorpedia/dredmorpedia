@@ -717,6 +717,27 @@ input {
   padding-block-start: 0;
 }
 
+.spell-chain-list {
+  margin-block-start: 0.75rem;
+}
+
+.spell-chain-route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.spell-chain-status {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.spell-chain-status-stop {
+  color: var(--danger);
+}
+
 .trigger-summary {
   display: grid;
   align-content: start;
