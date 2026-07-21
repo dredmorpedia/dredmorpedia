@@ -115,6 +115,31 @@ function hasValidMonsterSpellTrigger(trigger: unknown): boolean {
   );
 }
 
+function hasValidMonsterDrop(drop: unknown): boolean {
+  if (drop === null || typeof drop !== "object") {
+    return false;
+  }
+  const hasNamedItem =
+    "itemKey" in drop &&
+    typeof drop.itemKey === "string" &&
+    "itemName" in drop &&
+    typeof drop.itemName === "string";
+  const hasDropType = "dropType" in drop && typeof drop.dropType === "string";
+  const hasPartialNamedItem = "itemKey" in drop || "itemName" in drop;
+
+  return (
+    hasNamedItem !== hasDropType &&
+    (!hasPartialNamedItem || hasNamedItem) &&
+    (!("itemId" in drop) ||
+      (hasNamedItem && typeof drop.itemId === "string")) &&
+    "chance" in drop &&
+    typeof drop.chance === "number" &&
+    Number.isInteger(drop.chance) &&
+    drop.chance >= 0 &&
+    drop.chance <= 100
+  );
+}
+
 function hasValidSourceFlags(value: unknown): boolean {
   return (
     Array.isArray(value) &&
@@ -518,6 +543,9 @@ function hasValidMonsters(value: unknown): boolean {
       "triggers" in monster &&
       Array.isArray(monster.triggers) &&
       monster.triggers.every(hasValidMonsterSpellTrigger) &&
+      "drops" in monster &&
+      Array.isArray(monster.drops) &&
+      monster.drops.every(hasValidMonsterDrop) &&
       (!("inheritsKey" in monster) ||
         typeof monster.inheritsKey === "string") &&
       (!("inheritsName" in monster) ||

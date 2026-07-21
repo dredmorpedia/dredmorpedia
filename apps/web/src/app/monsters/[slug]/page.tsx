@@ -11,6 +11,14 @@ import {
   statModifierLabel,
 } from "@/lib/stat-modifiers";
 
+function titleCase(value: string): string {
+  return value
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toLocaleUpperCase("en") + part.slice(1))
+    .join(" ");
+}
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -65,6 +73,9 @@ export default async function MonsterPage({
   );
   const spellsById = new Map(
     artifact.entities.spells.map((spell) => [spell.id, spell]),
+  );
+  const itemsById = new Map(
+    artifact.entities.items.map((item) => [item.id, item]),
   );
   const diagnostics = loadDiagnostics().filter((entry) =>
     monster.diagnosticIds.includes(entry.id),
@@ -241,6 +252,75 @@ export default async function MonsterPage({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             One-in odds remain exact. Approximate percentages are rounded only
             for display; an AI casting chance may inherit from the parent.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="drops-heading">
+          <h2 id="drops-heading" className="section-title-sm">
+            Drops on defeat
+          </h2>
+          {monster.drops.length > 0 ? (
+            <ul className="trigger-list">
+              {monster.drops.map((drop, index) => {
+                const item = drop.itemId
+                  ? itemsById.get(drop.itemId)
+                  : undefined;
+                const dropLabel =
+                  drop.itemName ?? titleCase(drop.dropType ?? "unknown");
+                const resolution = drop.itemName
+                  ? item
+                    ? "Resolved item"
+                    : "Unresolved item reference"
+                  : "Game-defined drop type";
+                return (
+                  <li
+                    key={`${drop.itemKey ?? `type:${drop.dropType}`}:${index}`}
+                  >
+                    <div className="trigger-summary">
+                      <span className="relationship-title">On defeat</span>
+                      {item ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/items/${item.slug}`}
+                        >
+                          {item.name}
+                        </Link>
+                      ) : (
+                        <strong>{dropLabel}</strong>
+                      )}
+                      <small
+                        className={
+                          drop.itemName && !item
+                            ? "trigger-resolution trigger-resolution-unresolved"
+                            : "trigger-resolution"
+                        }
+                      >
+                        {resolution}
+                      </small>
+                    </div>
+                    <dl className="trigger-facts">
+                      <div>
+                        <dt>Chance</dt>
+                        <dd>
+                          {drop.chance === 100
+                            ? "Always (100%)"
+                            : `${drop.chance}%`}
+                        </dd>
+                      </div>
+                    </dl>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized monster drops.
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Drops are direct declarations for this monster and do not inherit
+            from its parent. Type-driven drops remain visible without
+            fabricating an item link.
           </p>
         </section>
 

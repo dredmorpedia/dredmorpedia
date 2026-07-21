@@ -47,6 +47,21 @@ function monster(name: string, inheritsKey?: string): Monster {
           },
         ]
       : [],
+    drops: inheritsKey
+      ? [
+          {
+            itemKey: "child loot",
+            itemName: "Child Loot",
+            chance: 40,
+          },
+        ]
+      : [
+          {
+            itemKey: "parent loot",
+            itemName: "Parent Loot",
+            chance: 75,
+          },
+        ],
     ...(inheritsKey ? { inheritsKey, inheritsName: "Parent" } : {}),
     provenance,
     variants: [provenance],
@@ -84,6 +99,13 @@ describe("monster inheritance", () => {
         spellName: "Clockwork Echo",
         chance: 25,
         oneChanceIn: null,
+      },
+    ]);
+    expect(resolvedChild?.drops).toEqual([
+      {
+        itemKey: "child loot",
+        itemName: "Child Loot",
+        chance: 40,
       },
     ]);
     expect(resolvedChild?.inheritsId).toBe(parent.id);

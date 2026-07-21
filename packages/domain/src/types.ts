@@ -265,6 +265,14 @@ export interface MonsterSpellTrigger {
   oneChanceIn: number | null;
 }
 
+export interface MonsterDrop {
+  itemKey?: string;
+  itemName?: string;
+  itemId?: string;
+  dropType?: string;
+  chance: number;
+}
+
 export interface Monster extends NormalizedEntityBase {
   kind: "monster";
   taxonomy: string;
@@ -279,6 +287,7 @@ export interface Monster extends NormalizedEntityBase {
   modifiers: StatModifier[];
   spellChance: number | null;
   triggers: MonsterSpellTrigger[];
+  drops: MonsterDrop[];
   inheritsKey?: string;
   inheritsName?: string;
   inheritsId?: string;

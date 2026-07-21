@@ -16,6 +16,7 @@ import {
   type ItemTrigger,
   type ItemTriggerKind,
   type Monster,
+  type MonsterDrop,
   type MonsterSpellTrigger,
   type NormalizedEntityBase,
   type Recipe,
@@ -1520,6 +1521,37 @@ function parseMonsters(
         left.spellKey.localeCompare(right.spellKey, "en") ||
         (left.oneChanceIn ?? -1) - (right.oneChanceIn ?? -1),
     );
+    const drops: MonsterDrop[] = [];
+    for (const drop of xmlChildren(record, "drop")) {
+      const itemName = xmlAttribute(drop, "name");
+      const dropType = xmlAttribute(drop, "type");
+      if (!itemName && !dropType) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_monster_drop_target",
+          message:
+            "A monster drop is missing both its item name and drop type.",
+          source: provenance,
+          entityId: currentEntityId,
+        });
+        continue;
+      }
+      drops.push({
+        ...(itemName
+          ? { itemName, itemKey: canonicalKey(itemName) }
+          : { dropType: dropType! }),
+        chance: integerValue(
+          xmlAttribute(drop, "percent"),
+          100,
+          context,
+          provenance,
+          "monster drop chance",
+          currentEntityId,
+          0,
+          100,
+        ),
+      });
+    }
     const monster: Monster = {
       ...baseEntity(
         "monster",
@@ -1599,6 +1631,7 @@ function parseMonsters(
       ),
       spellChance,
       triggers,
+      drops,
       ...(parentName
         ? { inheritsName: parentName, inheritsKey: canonicalKey(parentName) }
         : {}),
@@ -1620,6 +1653,7 @@ function parseMonsters(
         "spell",
         "onhit",
         "onHit",
+        "drop",
         "monster",
       ]),
       currentEntityId,

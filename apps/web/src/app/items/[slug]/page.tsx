@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import {
   entityRouteSlugs,
   itemEncrustmentRelationships,
+  itemMonsterDropRelationships,
   itemRecipeRelationships,
   itemSkillLoadoutRelationships,
   matchesEntityRoute,
@@ -75,6 +76,10 @@ export default async function ItemPage({
   );
   const skillLoadoutRelationships = itemSkillLoadoutRelationships(
     artifact.entities.skills,
+    item.id,
+  );
+  const monsterDropRelationships = itemMonsterDropRelationships(
+    artifact.entities.monsters,
     item.id,
   );
   const statsById = new Map(
@@ -299,6 +304,38 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">No linked recipes.</p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="monster-drop-relations-heading"
+        >
+          <h2 id="monster-drop-relations-heading" className="section-title-sm">
+            Monster drop relationships
+          </h2>
+          {monsterDropRelationships.length > 0 ? (
+            <ul className="relation-list">
+              {monsterDropRelationships.map(({ monster, drop, dropIndex }) => (
+                <li key={`${monster.id}:${dropIndex}`}>
+                  <Link
+                    className="entity-link font-semibold"
+                    href={`/monsters/${monster.slug}`}
+                  >
+                    {monster.name}
+                  </Link>
+                  <span>
+                    {drop.chance === 100
+                      ? "Always on defeat (100%)"
+                      : `${drop.chance}% on defeat`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No monster drops reference this item.
+            </p>
           )}
         </section>
 

@@ -11,6 +11,8 @@
     <ai spellPercentage="20" aggressiveness="1" />
     <spell name="Clockwork Spark" />
     <onHit spell="Clockwork Echo" onechancein="4" />
+    <drop name="Brass Ingot" percent="75" />
+    <drop type="artifact" />
     <monster id="armored-training-diggle" name="Armored Training Diggle" level="1">
       <info text="A nested monster that inherits from Training Diggle." />
       <stats numFig="2" numRog="0" numWiz="0" xpValue="10" />
@@ -18,6 +20,8 @@
       <primarybuff id="2" amount="1" />
       <spell name="Clockwork Echo" />
       <onhit spell="Missing Monster Spell" onechancein="3" />
+      <drop name="Clockwork Blade" percent="40" />
+      <drop name="Missing Monster Loot" percent="10" />
     </monster>
   </monster>
 </monsters>

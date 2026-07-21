@@ -377,6 +377,7 @@ function linkSpells(
 function linkMonsters(
   monsters: Monster[],
   spells: readonly Spell[],
+  items: readonly Item[],
   diagnostics: DiagnosticDraft[],
 ): Monster[] {
   const result = applyMonsterInheritance(monsters);
@@ -399,6 +400,7 @@ function linkMonsters(
     });
   }
   const spellAliases = aliasesFor(spells);
+  const itemAliases = aliasesFor(items);
   return result.monsters.map((monster) => ({
     ...monster,
     triggers: monster.triggers.map((trigger) => {
@@ -408,6 +410,17 @@ function linkMonsters(
       }
       diagnostics.push(danglingDiagnostic(monster, "spell", trigger.spellName));
       return trigger;
+    }),
+    drops: monster.drops.map((drop) => {
+      if (!drop.itemKey || !drop.itemName) {
+        return drop;
+      }
+      const item = itemAliases.get(drop.itemKey);
+      if (item) {
+        return { ...drop, itemId: item.id };
+      }
+      diagnostics.push(danglingDiagnostic(monster, "item", drop.itemName));
+      return drop;
     }),
   }));
 }
@@ -728,7 +741,12 @@ function resolveCollections(
     skills: linkedSkills,
     abilities: linkedAbilities,
     spells: linkedSpells,
-    monsters: linkMonsters(routed.monsters.entities, linkedSpells, diagnostics),
+    monsters: linkMonsters(
+      routed.monsters.entities,
+      linkedSpells,
+      linkedItems,
+      diagnostics,
+    ),
     stats: linkedStats,
     templates: routed.templates.entities,
   };

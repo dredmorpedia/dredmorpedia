@@ -555,6 +555,16 @@ describe("synthetic dataset import", () => {
         (document) => document.id === "monster:armored training diggle",
       )?.text,
     ).toContain("clockwork echo");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "monster:armored training diggle",
+      )?.text,
+    ).toContain("clockwork blade");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "monster:training diggle",
+      )?.text,
+    ).toContain("artifact");
     expect(blade).toMatchObject({
       price: 160,
       quality: 3,
@@ -783,6 +793,19 @@ describe("synthetic dataset import", () => {
           oneChanceIn: null,
         },
       ],
+      drops: [
+        {
+          itemKey: "clockwork blade",
+          itemName: "Clockwork Blade",
+          itemId: "item:clockwork blade",
+          chance: 40,
+        },
+        {
+          itemKey: "missing monster loot",
+          itemName: "Missing Monster Loot",
+          chance: 10,
+        },
+      ],
       inheritsId: "monster:training diggle",
     });
     expect(parentMonster).toMatchObject({
@@ -800,6 +823,15 @@ describe("synthetic dataset import", () => {
           chance: 20,
           oneChanceIn: null,
         },
+      ],
+      drops: [
+        {
+          itemKey: "brass ingot",
+          itemName: "Brass Ingot",
+          itemId: "item:brass ingot",
+          chance: 75,
+        },
+        { dropType: "artifact", chance: 100 },
       ],
     });
     const trainingWands = result.artifact.entities.items.filter((item) =>
@@ -846,6 +878,7 @@ describe("synthetic dataset import", () => {
             "spell",
             "onhit",
             "onHit",
+            "drop",
           ].includes(String(diagnostic.details?.element)),
       ),
     ).toEqual([]);
@@ -855,6 +888,14 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "monster:armored training diggle" &&
           diagnostic.code === "dangling_reference" &&
           diagnostic.details?.reference === "Missing Monster Spell",
+      ),
+    ).toBeDefined();
+    expect(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.entityId === "monster:armored training diggle" &&
+          diagnostic.code === "dangling_reference" &&
+          diagnostic.details?.reference === "Missing Monster Loot",
       ),
     ).toBeDefined();
     expect(result.inputs.map((input) => input.file)).toContain(

@@ -433,6 +433,33 @@ test("shows inherited monster stats and navigates its family", async ({
     spellHooks.getByText("Unresolved spell reference"),
   ).toBeVisible();
 
+  const drops = page.getByRole("region", { name: "Drops on defeat" });
+  await expect(
+    drops.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await expect(drops.getByText("40%", { exact: true })).toBeVisible();
+  await expect(
+    drops.getByText("Missing Monster Loot", { exact: true }),
+  ).toBeVisible();
+  await expect(drops.getByText("Unresolved item reference")).toBeVisible();
+  await expect(drops.getByRole("link", { name: "Brass Ingot" })).toHaveCount(0);
+
+  await drops.getByRole("link", { name: "Clockwork Blade" }).click();
+  await expect(page).toHaveURL(/\/items\/clockwork-blade\/$/);
+  const monsterDrops = page.getByRole("region", {
+    name: "Monster drop relationships",
+  });
+  await expect(
+    monsterDrops.getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+  await expect(
+    monsterDrops.getByText("40% on defeat", { exact: true }),
+  ).toBeVisible();
+  await monsterDrops
+    .getByRole("link", { name: "Armored Training Diggle" })
+    .click();
+  await expect(page).toHaveURL(/\/monsters\/armored-training-diggle\/$/);
+
   await spellHooks.getByRole("link", { name: "Clockwork Echo" }).click();
   await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
   const backlinks = page.getByRole("region", { name: "Referenced by" });
@@ -454,6 +481,18 @@ test("shows inherited monster stats and navigates its family", async ({
     page
       .getByRole("region", { name: "Monster family" })
       .getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+  const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
+  await expect(
+    parentDrops.getByRole("link", { name: "Brass Ingot" }),
+  ).toBeVisible();
+  await expect(parentDrops.getByText("75%", { exact: true })).toBeVisible();
+  await expect(
+    parentDrops.getByText("Artifact", { exact: true }),
+  ).toBeVisible();
+  await expect(parentDrops.getByText("Game-defined drop type")).toBeVisible();
+  await expect(
+    parentDrops.getByText("Always (100%)", { exact: true }),
   ).toBeVisible();
 });
 

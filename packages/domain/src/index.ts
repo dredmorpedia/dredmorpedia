@@ -1,6 +1,7 @@
 export * from "./encrustment-relationships";
 export * from "./identity";
 export * from "./inheritance";
+export * from "./monster-relationships";
 export * from "./patches";
 export * from "./recipe-relationships";
 export * from "./resolution";

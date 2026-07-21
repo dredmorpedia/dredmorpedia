@@ -66,6 +66,10 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
           `rogue ${entity.archetypeLevels.rogue}`,
           `wizard ${entity.archetypeLevels.wizard}`,
           ...entity.triggers.map((trigger) => trigger.spellName),
+          ...entity.drops.flatMap((drop) => [
+            drop.itemName ?? "",
+            drop.dropType ?? "",
+          ]),
         ]
       : []),
     ...statText,

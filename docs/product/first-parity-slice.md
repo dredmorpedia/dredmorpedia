@@ -6,7 +6,7 @@ The first product slice is **items + stats + source provenance + search**. This 
 
 ## User outcome
 
-A player can find an item or stat, understand normalized game values and sources, follow implemented item/stat/recipe/encrustment/skill/ability/spell/monster relationships, inspect crafting, encrusting, loadout, progression, spell-effect, and monster-profile details, and share a URL that preserves a structured search query. Missing definitions, broken relationships, and recursive spell cycles are visible rather than silently invented.
+A player can find an item or stat, understand normalized game values and sources, follow implemented item/stat/recipe/encrustment/skill/ability/spell/monster relationships, inspect crafting, encrusting, loadout, progression, spell-effect, monster-profile, and monster-drop details, and share a URL that preserves a structured search query. Missing definitions, broken relationships, and recursive spell cycles are visible rather than silently invented.
 
 ## Functional acceptance
 
@@ -18,7 +18,7 @@ A player can find an item or stat, understand normalized game values and sources
 - Every normalized spell has a stable static detail route with direct effects, resolved or explicitly unresolved spell/stat targets, cycle-safe recursive effect relationships, item/spell/ability/monster/instability backlinks, source/file provenance, and attached diagnostics. Resolved spell references on item, stat, encrustment, and monster pages link to these routes.
 - Every normalized skill has a stable static detail route with archetype, complete named/generic starting loadouts, ordered ability progression, source/file provenance, and attached diagnostics. Resolved named items link both ways; generic choices and unresolved names remain visible without fabricated item routes.
 - Every normalized ability has a stable static detail route with its resolved or explicitly unresolved parent skill, starting/level position, resolved or explicitly unresolved spell triggers, source/file provenance, and attached diagnostics. Supported direct event-trigger shapes retain chance, delay, duration, resistance, and taxonomy metadata.
-- Every normalized monster has a stable static detail route with taxonomy, dungeon-depth/special classification, source archetype levels and experience, inherited stat bonuses and AI casting chance, palette metadata, resolved or explicitly unresolved on-hit/cast spell hooks, resolved parent/direct-variant navigation, source/file provenance, and attached diagnostics. Exact one-in odds remain visible, resolved spells link both ways, and the page does not present unverified derived combat totals.
+- Every normalized monster has a stable static detail route with taxonomy, dungeon-depth/special classification, source archetype levels and experience, inherited stat bonuses and AI casting chance, palette metadata, resolved or explicitly unresolved on-hit/cast spell hooks, direct named or type-driven drops, resolved parent/direct-variant navigation, source/file provenance, and attached diagnostics. Exact one-in odds remain visible, resolved spells and named drop items link both ways, type-driven drops do not fabricate items, and the page does not present unverified derived combat totals or inherited drop behavior.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
 - Search covers item and stat records and supports shareable text, entity-type, source, item-category, and item-stat filters.
 - Text matching requires every normalized query token. Exact and prefix name matches rank above description-only matches; ties are deterministic.
@@ -26,6 +26,7 @@ A player can find an item or stat, understand normalized game values and sources
 - Item-to-stat and stat-to-item links do not produce broken routes for available definitions.
 - Item-to-recipe and recipe-to-item links do not produce broken routes for resolved references.
 - Item-to-encrustment and encrustment-to-item links do not produce broken routes for resolved references.
+- Monster-to-item drop links and reciprocal item backlinks do not produce broken routes for resolved named drops.
 
 ## Data and safety acceptance
 
@@ -36,13 +37,13 @@ A player can find an item or stat, understand normalized game values and sources
 
 ## Quality acceptance
 
-- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, spell-effect navigation, item/skill/ability/loadout navigation, and monster-family/spell navigation.
+- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, spell-effect navigation, item/skill/ability/loadout navigation, and monster-family/spell/drop navigation.
 - Representative home, search, item, stat, recipe, encrustment, skill, ability, spell, and monster pages have no automatically detected axe violations.
 - Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
 - Representative relevance examples still require owner approval before ADR 0003 can be accepted.
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment/skill/ability/spell relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment/skill/ability/spell/monster routes, item/stat/crafting/encrusting/loadout/spell and monster-family backlinks, cycle-safe effect traversal, item/ability/monster spell-trigger normalization/linking/presentation, shared signed ability/encrustment/monster modifier normalization, skill/ability source metadata and dodge hooks, monster core stat/inheritance profiles and reciprocal spell links, direct encrustment outcomes, the separately modeled shared instability-effect pool, explicit missing-definition/reference/cycle states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment/skill/ability/spell/monster-drop relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment/skill/ability/spell/monster routes, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, cycle-safe effect traversal, item/ability/monster spell-trigger normalization/linking/presentation, shared signed ability/encrustment/monster modifier normalization, skill/ability source metadata and dodge hooks, monster core stat/inheritance profiles, reciprocal spell links, and direct named/type-driven drops, direct encrustment outcomes, the separately modeled shared instability-effect pool, explicit missing-definition/reference/cycle states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, finish monster drop/AI/behavior and derived-stat parity plus item backlinks, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
+Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, finish remaining monster AI/behavior and independently verified derived-stat parity, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
