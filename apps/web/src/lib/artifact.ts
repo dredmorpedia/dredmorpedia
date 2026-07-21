@@ -526,6 +526,16 @@ function hasValidMonsters(value: unknown): boolean {
           typeof level === "number" && Number.isInteger(level) && level >= 0
         );
       }) &&
+      "ai" in monster &&
+      monster.ai !== null &&
+      typeof monster.ai === "object" &&
+      ["aggressiveness", "span"].every((key) => {
+        const value = (monster.ai as Record<string, unknown>)[key];
+        return (
+          value === null ||
+          (typeof value === "number" && Number.isInteger(value) && value >= 0)
+        );
+      }) &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&

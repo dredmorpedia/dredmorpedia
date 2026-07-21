@@ -186,6 +186,25 @@ export default async function MonsterPage({
           </p>
         </section>
 
+        <section className="detail-card" aria-labelledby="ai-heading">
+          <h2 id="ai-heading" className="section-title-sm">
+            AI source metadata
+          </h2>
+          <dl className="stat-list">
+            <div>
+              <dt>Aggressiveness</dt>
+              <dd>{monster.ai.aggressiveness ?? "Not supplied"}</dd>
+            </div>
+            <div>
+              <dt>Span</dt>
+              <dd>{monster.ai.span ?? "Not supplied"}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These are source values. Their gameplay behavior is not inferred.
+          </p>
+        </section>
+
         <section className="detail-card" aria-labelledby="spell-hooks-heading">
           <h2 id="spell-hooks-heading" className="section-title-sm">
             Spell hooks

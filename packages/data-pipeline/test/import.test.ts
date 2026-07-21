@@ -767,6 +767,7 @@ describe("synthetic dataset import", () => {
       paletteName: "Synthetic brass",
       paletteTint: 45,
       archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
+      ai: { aggressiveness: 4, span: 10 },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -809,6 +810,7 @@ describe("synthetic dataset import", () => {
       inheritsId: "monster:training diggle",
     });
     expect(parentMonster).toMatchObject({
+      ai: { aggressiveness: 1, span: 8 },
       spellChance: 20,
       triggers: [
         {

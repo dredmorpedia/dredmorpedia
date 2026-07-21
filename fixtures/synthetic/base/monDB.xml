@@ -8,7 +8,7 @@
     <damage crushing="1" voltaic="-1" />
     <resistances toxic="2" />
     <secondarybuff id="6" amount="1" />
-    <ai spellPercentage="20" aggressiveness="1" />
+    <ai spellPercentage="20" aggressiveness="1" span="8" />
     <spell name="Clockwork Spark" />
     <onHit spell="Clockwork Echo" onechancein="4" />
     <drop name="Brass Ingot" percent="75" />
@@ -18,6 +18,7 @@
       <stats numFig="2" numRog="0" numWiz="0" xpValue="10" />
       <damage crushing="3" />
       <primarybuff id="2" amount="1" />
+      <ai aggressiveness="4" span="10" />
       <spell name="Clockwork Echo" />
       <onhit spell="Missing Monster Spell" onechancein="3" />
       <drop name="Clockwork Blade" percent="40" />

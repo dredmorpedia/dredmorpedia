@@ -252,6 +252,11 @@ export interface MonsterArchetypeLevels {
   wizard: number;
 }
 
+export interface MonsterAiMetadata {
+  aggressiveness: number | null;
+  span: number | null;
+}
+
 export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;
 
 export type MonsterSpellTriggerKind = (typeof monsterSpellTriggerKinds)[number];
@@ -283,6 +288,7 @@ export interface Monster extends NormalizedEntityBase {
   paletteName: string | null;
   paletteTint: number | null;
   archetypeLevels: MonsterArchetypeLevels;
+  ai: MonsterAiMetadata;
   experienceValue: number | null;
   modifiers: StatModifier[];
   spellChance: number | null;

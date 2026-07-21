@@ -28,6 +28,10 @@ function monster(name: string, inheritsKey?: string): Monster {
     paletteName: inheritsKey ? null : "Synthetic brass",
     paletteTint: inheritsKey ? null : 45,
     archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
+    ai: {
+      aggressiveness: inheritsKey ? 4 : 1,
+      span: inheritsKey ? 10 : 8,
+    },
     experienceValue: 10,
     modifiers: inheritsKey
       ? [{ kind: "damage", sourceKey: "crushing", amount: 3 }]
@@ -87,6 +91,7 @@ describe("monster inheritance", () => {
     expect(resolvedChild?.iconPath).toBe("assets/synthetic.svg");
     expect(resolvedChild?.paletteName).toBe("Synthetic brass");
     expect(resolvedChild?.paletteTint).toBe(45);
+    expect(resolvedChild?.ai).toEqual({ aggressiveness: 4, span: 10 });
     expect(resolvedChild?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 3 },
       { kind: "resistance", sourceKey: "toxic", amount: 2 },

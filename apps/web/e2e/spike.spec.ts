@@ -407,6 +407,15 @@ test("shows inherited monster stats and navigates its family", async ({
     profile.getByText(/derived combat totals are not calculated/i),
   ).toBeVisible();
 
+  const aiMetadata = page.getByRole("region", { name: "AI source metadata" });
+  await expect(aiMetadata.getByText("Aggressiveness")).toBeVisible();
+  await expect(aiMetadata.getByText("4", { exact: true })).toBeVisible();
+  await expect(aiMetadata.getByText("Span")).toBeVisible();
+  await expect(aiMetadata.getByText("10", { exact: true })).toBeVisible();
+  await expect(
+    aiMetadata.getByText(/gameplay behavior is not inferred/i),
+  ).toBeVisible();
+
   const bonuses = page.getByRole("region", { name: "Stat bonuses" });
   await expect(bonuses.getByText("Crushing damage")).toBeVisible();
   await expect(bonuses.getByText("+3", { exact: true })).toBeVisible();

@@ -28,6 +28,7 @@ function monster(name: string, itemId?: string): Monster {
     paletteName: null,
     paletteTint: null,
     archetypeLevels: { fighter: 0, rogue: 0, wizard: 0 },
+    ai: { aggressiveness: null, span: null },
     experienceValue: 0,
     modifiers: [],
     spellChance: null,
