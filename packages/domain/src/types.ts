@@ -191,12 +191,24 @@ export interface SkillLoadout {
   always: boolean;
 }
 
+export interface SourceFlag {
+  sourceKey: string;
+  value: string;
+}
+
+export interface SkillProgressionTag {
+  level: number;
+  name: string;
+}
+
 export interface Skill extends NormalizedEntityBase {
   kind: "skill";
   archetype: string;
   iconPath: string | null;
   loadouts: SkillLoadout[];
   loadoutItemKeys: string[];
+  sourceFlags: SourceFlag[];
+  progressionTags: SkillProgressionTag[];
   abilityIds: string[];
 }
 
@@ -208,6 +220,9 @@ export interface Ability extends NormalizedEntityBase {
   level: number;
   startSkill: boolean;
   modifiers: AbilityModifier[];
+  sourceFlags: SourceFlag[];
+  recoveryBuffAmounts: number[];
+  currencyBuffPercents: number[];
   triggers: SpellTrigger[];
   spellKeys: string[];
   spellIds: string[];

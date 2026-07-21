@@ -21,9 +21,11 @@ import {
   type Skill,
   type Spell,
   type SpellTrigger,
+  type SourceFlag,
   type StatModifier,
   type StatModifierKind,
   type Stat,
+  type SkillProgressionTag,
   type Template,
 } from "@dredmorpedia/domain";
 
@@ -113,6 +115,7 @@ const directItemTriggerSpecs: readonly {
   { childName: "targetKillBuff", kind: "kill-target" },
   { childName: "playerHitEffectBuff", kind: "melee-self" },
   { childName: "dodgeBuff", kind: "dodge" },
+  { childName: "triggerondodge", kind: "dodge" },
   { childName: "criticalBuff", kind: "critical" },
   { childName: "counterBuff", kind: "counter" },
   { childName: "blockBuff", kind: "block" },
@@ -149,6 +152,7 @@ const partiallySupportedItemChildren = new Set([
   "thrownBuff",
   "trap",
   "triggeroncast",
+  "triggerondodge",
   "wand",
   "weapon",
 ]);
@@ -1088,6 +1092,98 @@ function parseEncrustments(
   }
 }
 
+function parseSourceFlags(record: XmlRecord): SourceFlag[] {
+  return xmlChildren(record, "flags")
+    .flatMap((flags) =>
+      Object.entries(flags).flatMap(([attribute, value]) =>
+        attribute.startsWith("@") && typeof value === "string"
+          ? [{ sourceKey: attribute.slice(1), value }]
+          : [],
+      ),
+    )
+    .sort(
+      (left, right) =>
+        left.sourceKey.localeCompare(right.sourceKey, "en") ||
+        left.value.localeCompare(right.value, "en"),
+    );
+}
+
+function parseSkillProgressionTags(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SkillProgressionTag[] {
+  return xmlChildren(record, "tag")
+    .flatMap((tag) => {
+      const name = xmlAttribute(tag, "name");
+      if (!name) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_skill_tag_name",
+          message: "A skill progression tag is missing its name.",
+          source: provenance,
+          entityId: currentEntityId,
+        });
+        return [];
+      }
+      return [
+        {
+          name,
+          level: integerValue(
+            xmlAttribute(tag, "level"),
+            0,
+            context,
+            provenance,
+            `skill progression tag:${name}`,
+            currentEntityId,
+            0,
+          ),
+        },
+      ];
+    })
+    .sort(
+      (left, right) =>
+        left.level - right.level || left.name.localeCompare(right.name, "en"),
+    );
+}
+
+function parseAbilityNumericMetadata(
+  record: XmlRecord,
+  childName: "recoverybuff" | "zorkmidbuff",
+  attributeName: "amount" | "percent",
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): number[] {
+  return xmlChildren(record, childName)
+    .flatMap((child) => {
+      const value = xmlAttribute(child, attributeName);
+      if (value === undefined) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_ability_metadata_value",
+          message: `An ability <${childName}> is missing its ${attributeName} value.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { element: childName, field: attributeName },
+        });
+        return [];
+      }
+      return [
+        numberValue(
+          value,
+          0,
+          context,
+          provenance,
+          `ability ${childName} ${attributeName}`,
+          currentEntityId,
+        ),
+      ];
+    })
+    .sort((left, right) => left - right);
+}
+
 function parseSkills(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -1136,12 +1232,19 @@ function parseSkills(
       loadoutItemKeys: loadouts
         .flatMap((loadout) => (loadout.itemKey ? [loadout.itemKey] : []))
         .sort((left, right) => left.localeCompare(right, "en")),
+      sourceFlags: parseSourceFlags(record),
+      progressionTags: parseSkillProgressionTags(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       abilityIds: [],
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["art", "loadout"]),
+      new Set(["art", "loadout", "flags", "tag"]),
       currentEntityId,
     );
     addCandidate(result.skills, skill, context.source.precedence);
@@ -1195,6 +1298,23 @@ function parseSkills(
       ),
       startSkill: booleanAttribute(record, "startSkill"),
       modifiers,
+      sourceFlags: parseSourceFlags(record),
+      recoveryBuffAmounts: parseAbilityNumericMetadata(
+        record,
+        "recoverybuff",
+        "amount",
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      currencyBuffPercents: parseAbilityNumericMetadata(
+        record,
+        "zorkmidbuff",
+        "percent",
+        context,
+        provenance,
+        currentEntityId,
+      ),
       triggers,
       spellKeys: triggers
         .map((trigger) => trigger.spellKey)
@@ -1206,6 +1326,9 @@ function parseSkills(
       record,
       new Set([
         "description",
+        "flags",
+        "recoverybuff",
+        "zorkmidbuff",
         ...matchingStatModifierElementNames(record),
         ...directItemTriggerSpecs.map((spec) => spec.childName),
       ]),

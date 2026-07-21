@@ -85,6 +85,30 @@ function hasValidStatModifier(modifier: unknown): boolean {
   );
 }
 
+function hasValidSourceFlags(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (flag: unknown) =>
+        flag !== null &&
+        typeof flag === "object" &&
+        "sourceKey" in flag &&
+        typeof flag.sourceKey === "string" &&
+        "value" in flag &&
+        typeof flag.value === "string",
+    )
+  );
+}
+
+function hasValidFiniteNumberArray(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (entry: unknown) => typeof entry === "number" && Number.isFinite(entry),
+    )
+  );
+}
+
 function hasValidRoutedEntity(value: unknown): boolean {
   return (
     value !== null &&
@@ -333,6 +357,21 @@ function hasValidSkills(value: unknown): boolean {
       skill.loadoutItemKeys.every(
         (itemKey: unknown) => typeof itemKey === "string",
       ) &&
+      "sourceFlags" in skill &&
+      hasValidSourceFlags(skill.sourceFlags) &&
+      "progressionTags" in skill &&
+      Array.isArray(skill.progressionTags) &&
+      skill.progressionTags.every(
+        (tag: unknown) =>
+          tag !== null &&
+          typeof tag === "object" &&
+          "level" in tag &&
+          typeof tag.level === "number" &&
+          Number.isInteger(tag.level) &&
+          tag.level >= 0 &&
+          "name" in tag &&
+          typeof tag.name === "string",
+      ) &&
       "abilityIds" in skill &&
       Array.isArray(skill.abilityIds) &&
       skill.abilityIds.every(
@@ -367,6 +406,12 @@ function hasValidAbilities(value: unknown): boolean {
       "modifiers" in ability &&
       Array.isArray(ability.modifiers) &&
       ability.modifiers.every(hasValidStatModifier) &&
+      "sourceFlags" in ability &&
+      hasValidSourceFlags(ability.sourceFlags) &&
+      "recoveryBuffAmounts" in ability &&
+      hasValidFiniteNumberArray(ability.recoveryBuffAmounts) &&
+      "currencyBuffPercents" in ability &&
+      hasValidFiniteNumberArray(ability.currencyBuffPercents) &&
       "triggers" in ability &&
       Array.isArray(ability.triggers) &&
       ability.triggers.every(hasValidSpellTrigger) &&

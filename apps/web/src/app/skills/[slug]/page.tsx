@@ -10,6 +10,7 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
 
 export const dynamicParams = false;
 
@@ -197,6 +198,57 @@ export default async function SkillPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized abilities reference this skill.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="skill-metadata-heading"
+        >
+          <h2 id="skill-metadata-heading" className="section-title-sm">
+            Progression metadata
+          </h2>
+          {skill.progressionTags.length > 0 || skill.sourceFlags.length > 0 ? (
+            <div className="relationship-groups">
+              {skill.progressionTags.length > 0 ? (
+                <section aria-labelledby="skill-tags-heading">
+                  <h3 id="skill-tags-heading" className="relationship-title">
+                    Progression tags
+                  </h3>
+                  <ul className="relation-list">
+                    {skill.progressionTags.map((tag, index) => (
+                      <li key={`${tag.level}:${tag.name}:${index}`}>
+                        <strong>{tag.name}</strong>
+                        <span>Level {tag.level}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {skill.sourceFlags.length > 0 ? (
+                <section aria-labelledby="skill-flags-heading">
+                  <h3 id="skill-flags-heading" className="relationship-title">
+                    Source flags
+                  </h3>
+                  <dl className="stat-list">
+                    {skill.sourceFlags.map((flag, index) => (
+                      <div key={`${flag.sourceKey}:${flag.value}:${index}`}>
+                        <dt>{sourceFlagLabel(flag)}</dt>
+                        <dd>{sourceFlagValue(flag)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ) : null}
+              <p className="text-xs leading-5 text-muted-foreground">
+                These values preserve source metadata without inferring
+                undocumented gameplay behavior.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized progression metadata.
             </p>
           )}
         </section>

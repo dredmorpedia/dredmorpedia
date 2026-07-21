@@ -290,6 +290,18 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(loadout.getByText("Unresolved item")).toBeVisible();
   await expect(loadout.getByText("Random Food", { exact: true })).toBeVisible();
 
+  const skillMetadata = page.getByRole("region", {
+    name: "Progression metadata",
+    exact: true,
+  });
+  await expect(skillMetadata.getByText("Clockwork Trainee")).toBeVisible();
+  await expect(skillMetadata.getByText("Level 0")).toBeVisible();
+  await expect(skillMetadata.getByText("Clockwork Mechanist")).toBeVisible();
+  await expect(skillMetadata.getByText("Level 1")).toBeVisible();
+  await expect(skillMetadata.getByText("Friendly taxonomy")).toBeVisible();
+  await expect(skillMetadata.getByText("Construct")).toBeVisible();
+  await expect(skillMetadata.getByText("Training Mode")).toBeVisible();
+
   const abilities = page.getByRole("region", {
     name: "Abilities",
     exact: true,
@@ -317,12 +329,30 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
     modifiers.getByText(/retain their numeric game stat IDs/),
   ).toBeVisible();
 
+  const abilityMetadata = page.getByRole("region", {
+    name: "Source metadata",
+    exact: true,
+  });
+  await expect(abilityMetadata.getByText("Recovery buff amount")).toBeVisible();
+  await expect(abilityMetadata.getByText("+5", { exact: true })).toBeVisible();
+  await expect(
+    abilityMetadata.getByText("Currency buff percent"),
+  ).toBeVisible();
+  await expect(abilityMetadata.getByText("0.1", { exact: true })).toBeVisible();
+  await expect(abilityMetadata.getByText("Training Mode")).toBeVisible();
+  await expect(abilityMetadata.getByText("Enabled")).toBeVisible();
+
   const triggers = page.getByRole("region", {
     name: "Spell triggers",
     exact: true,
   });
   await expect(
     triggers.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(triggers.getByText("When you dodge")).toBeVisible();
+  await expect(triggers.getByText("30%", { exact: true })).toBeVisible();
+  await expect(
+    triggers.getByRole("link", { name: "Clockwork Echo" }),
   ).toBeVisible();
   await expect(
     triggers.getByText("Missing Ability Spell", { exact: true }),

@@ -5,6 +5,9 @@
     <loadout subtype="Brass Ingot" amount="1" always="1" />
     <loadout subtype="Missing Kit" type="weapon" amount="2" />
     <loadout type="food" amount="3" />
+    <flags trainingMode="1" friendlyTaxa="Construct" />
+    <tag level="0" name="Clockwork Trainee" />
+    <tag level="1" name="Clockwork Mechanist" />
   </skill>
   <ability id="measured-strike" name="Measured Strike" skill="clockwork-combat" icon="assets/synthetic.svg" startSkill="1">
     <description text="Perform a measured strike and trigger a synthetic spell." />
@@ -12,6 +15,10 @@
     <resistbuff toxic="3" />
     <primarybuff id="2" amount="1" />
     <secondarybuff id="6" amount="-2" />
+    <flags trainingMode="1" />
+    <recoverybuff amount="5" />
+    <zorkmidbuff percent="0.1" />
+    <triggerondodge name="Clockwork Echo" percent="30" />
     <spell name="Clockwork Spark" />
     <spell name="Missing Ability Spell" />
   </ability>

@@ -396,7 +396,7 @@ describe("synthetic dataset import", () => {
     );
   });
 
-  it("normalizes ability modifiers and diagnoses invalid fields", () => {
+  it("normalizes ability metadata and diagnoses invalid fields", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-ability-modifiers-"),
     );
@@ -407,12 +407,18 @@ describe("synthetic dataset import", () => {
       path.join(sourceRoot, "skillDB.xml"),
       `<?xml version="1.0"?>
 <skills>
-  <skill id="modifier-skill" name="Modifier Skill" type="warrior" />
+  <skill id="modifier-skill" name="Modifier Skill" type="warrior">
+    <tag level="1" />
+  </skill>
   <ability name="Modifier Validation" skill="modifier-skill" startSkill="1">
     <damagebuff crushing="1.5" impossible="3" />
     <resistBuff toxic="-2" />
     <primaryBuff amount="1" />
     <secondaryBuff id="6" amount="invalid" />
+    <flags trainingMode="1" />
+    <recoverybuff note="missing amount" />
+    <zorkmidbuff percent="invalid" />
+    <triggerondodge percent="30" />
   </ability>
 </skills>`,
     );
@@ -440,16 +446,25 @@ describe("synthetic dataset import", () => {
       repositoryRoot: temporaryRoot,
     });
 
-    expect(result.artifact.entities.abilities[0]?.modifiers).toEqual([
-      { kind: "damage", sourceKey: "crushing", amount: 1.5 },
-      { kind: "resistance", sourceKey: "toxic", amount: -2 },
-      { kind: "secondary", sourceKey: "6", amount: 0 },
-    ]);
+    expect(result.artifact.entities.abilities[0]).toMatchObject({
+      modifiers: [
+        { kind: "damage", sourceKey: "crushing", amount: 1.5 },
+        { kind: "resistance", sourceKey: "toxic", amount: -2 },
+        { kind: "secondary", sourceKey: "6", amount: 0 },
+      ],
+      sourceFlags: [{ sourceKey: "trainingMode", value: "1" }],
+      recoveryBuffAmounts: [],
+      currencyBuffPercents: [0],
+      triggers: [],
+    });
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(
       expect.arrayContaining([
         "invalid_number",
         "unknown_ability_modifier",
         "missing_ability_modifier_key",
+        "missing_ability_metadata_value",
+        "missing_skill_tag_name",
+        "missing_trigger_spell",
       ]),
     );
   });
@@ -657,6 +672,14 @@ describe("synthetic dataset import", () => {
         "ability:measured strike",
         "ability:clockwork followthrough",
       ],
+      sourceFlags: [
+        { sourceKey: "friendlyTaxa", value: "Construct" },
+        { sourceKey: "trainingMode", value: "1" },
+      ],
+      progressionTags: [
+        { level: 0, name: "Clockwork Trainee" },
+        { level: 1, name: "Clockwork Mechanist" },
+      ],
     });
     expect(measuredStrike).toMatchObject({
       skillId: "skill:clockwork combat",
@@ -669,7 +692,16 @@ describe("synthetic dataset import", () => {
         { kind: "primary", sourceKey: "2", amount: 1 },
         { kind: "secondary", sourceKey: "6", amount: -2 },
       ],
+      sourceFlags: [{ sourceKey: "trainingMode", value: "1" }],
+      recoveryBuffAmounts: [5],
+      currencyBuffPercents: [0.1],
       triggers: [
+        {
+          kind: "dodge",
+          spellName: "Clockwork Echo",
+          spellId: "spell:clockwork echo",
+          chance: 30,
+        },
         {
           kind: "activated",
           spellName: "Clockwork Spark",
@@ -680,7 +712,7 @@ describe("synthetic dataset import", () => {
           spellName: "Missing Ability Spell",
         },
       ],
-      spellIds: ["spell:clockwork spark"],
+      spellIds: ["spell:clockwork echo", "spell:clockwork spark"],
     });
     expect(followthrough).toMatchObject({
       skillId: "skill:clockwork combat",
@@ -727,6 +759,15 @@ describe("synthetic dataset import", () => {
         "route_registry_applied",
       ]),
     );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          (diagnostic.entityId?.startsWith("skill:") ||
+            diagnostic.entityId?.startsWith("ability:")) &&
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "partially_supported_element"),
+      ),
+    ).toEqual([]);
     expect(result.inputs.map((input) => input.file)).toContain(
       "fixtures/synthetic/patches/clockwork-blade-value.json",
     );

@@ -39,6 +39,8 @@ function skill(name: string, loadouts: SkillLoadout[] = []): Skill {
     loadoutItemKeys: loadouts.flatMap((loadout) =>
       loadout.itemKey ? [loadout.itemKey] : [],
     ),
+    sourceFlags: [],
+    progressionTags: [],
     abilityIds: [],
   };
 }
@@ -68,6 +70,9 @@ function ability(
     level,
     startSkill,
     modifiers: [],
+    sourceFlags: [],
+    recoveryBuffAmounts: [],
+    currencyBuffPercents: [],
     triggers: [],
     spellKeys: [],
     spellIds: [],

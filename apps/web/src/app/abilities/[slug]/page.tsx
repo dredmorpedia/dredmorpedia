@@ -7,6 +7,7 @@ import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
+import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
 import {
   signedStatModifierValue,
   statModifierLabel,
@@ -154,6 +155,49 @@ export default async function AbilityPage({
               </span>
             </li>
           </ul>
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="ability-metadata-heading"
+        >
+          <h2 id="ability-metadata-heading" className="section-title-sm">
+            Source metadata
+          </h2>
+          {ability.sourceFlags.length > 0 ||
+          ability.recoveryBuffAmounts.length > 0 ||
+          ability.currencyBuffPercents.length > 0 ? (
+            <>
+              <dl className="stat-list">
+                {ability.recoveryBuffAmounts.map((amount, index) => (
+                  <div key={`recovery:${amount}:${index}`}>
+                    <dt>Recovery buff amount</dt>
+                    <dd>{signedStatModifierValue(amount)}</dd>
+                  </div>
+                ))}
+                {ability.currencyBuffPercents.map((percent, index) => (
+                  <div key={`currency:${percent}:${index}`}>
+                    <dt>Currency buff percent</dt>
+                    <dd>{percent}</dd>
+                  </div>
+                ))}
+                {ability.sourceFlags.map((flag, index) => (
+                  <div key={`${flag.sourceKey}:${flag.value}:${index}`}>
+                    <dt>{sourceFlagLabel(flag)}</dt>
+                    <dd>{sourceFlagValue(flag)}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                These values preserve source metadata without inferring
+                undocumented formulas or gameplay behavior.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized source metadata.
+            </p>
+          )}
         </section>
 
         <section
