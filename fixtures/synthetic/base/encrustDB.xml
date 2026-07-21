@@ -16,5 +16,6 @@
     <power name="Synthetic Pulse" chance="0.25" />
     <encrustwith name="polished brass" />
   </encrust>
-  <unstableEffect name="Synthetic Mishap" spell="Synthetic Spark" />
+  <unstableEffect name="Synthetic Mishap" spell="Clockwork Spark" />
+  <unstableEffect name="Broken Mishap" spell="Missing Instability Spell" />
 </encrustDB>

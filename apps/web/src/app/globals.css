@@ -780,6 +780,43 @@ input {
   white-space: nowrap;
 }
 
+.instability-pool-details {
+  margin-block-start: 1rem;
+}
+
+.instability-pool-details summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.instability-pool-details summary:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+
+.instability-effect-list {
+  margin-block-start: 0.75rem;
+}
+
+.relation-list .instability-effect-name {
+  display: grid;
+  gap: 0.15rem;
+  color: inherit;
+  font-size: inherit;
+}
+
+.instability-effect-name strong,
+.instability-effect-list > li > strong {
+  overflow-wrap: anywhere;
+}
+
+.instability-effect-list > li > strong {
+  text-align: end;
+}
+
 .encrustment-slot-list,
 .encrustment-descriptor-list {
   display: flex;

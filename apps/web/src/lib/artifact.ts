@@ -174,6 +174,44 @@ function hasValidEncrustments(value: unknown): boolean {
   );
 }
 
+function hasValidEncrustmentInstabilityEffects(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("encrustmentInstabilityEffects" in value) ||
+    !Array.isArray(value.encrustmentInstabilityEffects)
+  ) {
+    return false;
+  }
+  return value.encrustmentInstabilityEffects.every(
+    (effect) =>
+      effect !== null &&
+      typeof effect === "object" &&
+      "name" in effect &&
+      typeof effect.name === "string" &&
+      "spellKey" in effect &&
+      typeof effect.spellKey === "string" &&
+      "spellName" in effect &&
+      typeof effect.spellName === "string" &&
+      (!("spellId" in effect) || typeof effect.spellId === "string") &&
+      "provenance" in effect &&
+      effect.provenance !== null &&
+      typeof effect.provenance === "object" &&
+      "sourceId" in effect.provenance &&
+      typeof effect.provenance.sourceId === "string" &&
+      "file" in effect.provenance &&
+      typeof effect.provenance.file === "string" &&
+      "line" in effect.provenance &&
+      typeof effect.provenance.line === "number" &&
+      Number.isInteger(effect.provenance.line) &&
+      effect.provenance.line >= 1 &&
+      "column" in effect.provenance &&
+      typeof effect.provenance.column === "number" &&
+      Number.isInteger(effect.provenance.column) &&
+      effect.provenance.column >= 1,
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -186,6 +224,7 @@ export function loadArtifact(): DatasetArtifact {
     parsed.schemaVersion !== 3 ||
     !("datasetVersion" in parsed) ||
     typeof parsed.datasetVersion !== "string" ||
+    !hasValidEncrustmentInstabilityEffects(parsed) ||
     !("entities" in parsed) ||
     !hasValidItems(parsed.entities) ||
     !hasValidEncrustments(parsed.entities)

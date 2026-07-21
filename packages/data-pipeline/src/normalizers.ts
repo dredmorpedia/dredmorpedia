@@ -7,6 +7,7 @@ import {
   slugify,
   type Ability,
   type Encrustment,
+  type EncrustmentInstabilityEffect,
   type EncrustmentModifier,
   type EncrustmentModifierKind,
   type EncrustmentPower,
@@ -43,6 +44,7 @@ export interface CandidateCollections {
   items: EntityCandidate<Item>[];
   recipes: EntityCandidate<Recipe>[];
   encrustments: EntityCandidate<Encrustment>[];
+  encrustmentInstabilityEffects: EncrustmentInstabilityEffect[];
   skills: EntityCandidate<Skill>[];
   abilities: EntityCandidate<Ability>[];
   spells: EntityCandidate<Spell>[];
@@ -68,6 +70,7 @@ export function emptyCandidateCollections(): CandidateCollections {
     items: [],
     recipes: [],
     encrustments: [],
+    encrustmentInstabilityEffects: [],
     skills: [],
     abilities: [],
     spells: [],
@@ -980,17 +983,39 @@ function parseEncrustments(
     addCandidate(result.encrustments, encrustment, context.source.precedence);
   }
 
-  const unstableEffects = collectElements(
+  for (const record of collectElements(
     context.parsed.document,
     "unstableEffect",
-  );
-  if (unstableEffects.length > 0) {
-    context.diagnostics.push({
-      severity: "warning",
-      code: "unsupported_encrustment_effects",
-      message: `${unstableEffects.length} unstable encrustment effect definitions remain unmodeled.`,
-      source: context.parsed.locateElement("unstableEffect"),
-      details: { count: unstableEffects.length },
+  )) {
+    const name = xmlAttribute(record, "name");
+    if (!name) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_instability_effect_name",
+        message: "An unstable encrustment effect is missing its name.",
+        source: context.parsed.locateElement("unstableEffect"),
+      });
+      continue;
+    }
+
+    const provenance = provenanceFor(context, "unstableEffect", name);
+    const spellName = xmlAttribute(record, "spell");
+    if (!spellName) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_instability_effect_spell",
+        message: `Unstable encrustment effect ${name} is missing its spell reference.`,
+        source: provenance,
+        details: { instabilityEffectName: name },
+      });
+      continue;
+    }
+
+    result.encrustmentInstabilityEffects.push({
+      name,
+      spellKey: canonicalKey(spellName),
+      spellName,
+      provenance,
     });
   }
 }
@@ -1281,6 +1306,9 @@ export function mergeCandidateCollections(
   target.items.push(...source.items);
   target.recipes.push(...source.recipes);
   target.encrustments.push(...source.encrustments);
+  target.encrustmentInstabilityEffects.push(
+    ...source.encrustmentInstabilityEffects,
+  );
   target.skills.push(...source.skills);
   target.abilities.push(...source.abilities);
   target.spells.push(...source.spells);

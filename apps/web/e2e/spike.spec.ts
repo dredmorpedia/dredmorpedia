@@ -130,6 +130,29 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(outcomes.getByText("Synthetic Pulse")).toBeVisible();
   await expect(outcomes.getByText("25% chance")).toBeVisible();
   await expect(outcomes.getByText("polished brass")).toBeVisible();
+  const instabilityPool = page.getByRole("region", {
+    name: "Shared instability pool",
+  });
+  await expect(
+    instabilityPool.getByText(
+      /no effect weights, per-encrustment assignments, or complete risk formula/i,
+    ),
+  ).toBeVisible();
+  await instabilityPool.getByText("Show 2 effect definitions").click();
+  await expect(instabilityPool.getByText("Synthetic Mishap")).toBeVisible();
+  await expect(
+    instabilityPool.getByText("Clockwork Spark", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    instabilityPool.getByText("Resolved target spell · Synthetic Base"),
+  ).toBeVisible();
+  await expect(instabilityPool.getByText("Broken Mishap")).toBeVisible();
+  await expect(
+    instabilityPool.getByText("Missing Instability Spell", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    instabilityPool.getByText("Unresolved spell reference · Synthetic Base"),
+  ).toBeVisible();
   await expect(page.getByText("Missing Polish", { exact: true })).toBeVisible();
   await expect(page.getByText("Unresolved item")).toBeVisible();
   await page.getByRole("link", { name: "Brass Ingot" }).click();

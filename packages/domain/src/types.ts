@@ -154,6 +154,14 @@ export interface EncrustmentPower {
   chance: number | null;
 }
 
+export interface EncrustmentInstabilityEffect {
+  name: string;
+  spellKey: string;
+  spellName: string;
+  spellId?: string;
+  provenance: EntityProvenance;
+}
+
 export interface Encrustment extends NormalizedEntityBase {
   kind: "encrustment";
   tool: string;
@@ -278,6 +286,7 @@ export interface DatasetArtifact {
   datasetVersion: string;
   language: "en";
   sources: SourceSummary[];
+  encrustmentInstabilityEffects: EncrustmentInstabilityEffect[];
   entities: EntityCollections;
   diagnostics: DiagnosticCounts;
 }

@@ -353,6 +353,8 @@ describe("synthetic dataset import", () => {
     <primarybuff amount="1" />
     <power name="Invalid Chance" chance="2" />
   </encrust>
+  <unstableEffect spell="Missing Name" />
+  <unstableEffect name="Missing Spell" />
 </encrustDB>`,
     );
     const outcomeManifestPath = path.join(temporaryRoot, "manifest.json");
@@ -388,6 +390,8 @@ describe("synthetic dataset import", () => {
         "invalid_number",
         "unknown_encrustment_modifier",
         "missing_encrustment_modifier_key",
+        "missing_instability_effect_name",
+        "missing_instability_effect_spell",
       ]),
     );
   });
@@ -550,6 +554,19 @@ describe("synthetic dataset import", () => {
         }),
       ],
     });
+    expect(result.artifact.encrustmentInstabilityEffects).toEqual([
+      expect.objectContaining({
+        name: "Broken Mishap",
+        spellKey: "missing instability spell",
+        spellName: "Missing Instability Spell",
+      }),
+      expect.objectContaining({
+        name: "Synthetic Mishap",
+        spellKey: "clockwork spark",
+        spellName: "Clockwork Spark",
+        spellId: "spell:clockwork spark",
+      }),
+    ]);
     expect(encrustment?.inputs[1]?.itemId).toBeUndefined();
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
@@ -576,7 +593,6 @@ describe("synthetic dataset import", () => {
         "missing_asset",
         "unknown_element",
         "partially_supported_element",
-        "unsupported_encrustment_effects",
         "slug_collision",
         "patch_applied",
         "route_registry_applied",
@@ -626,8 +642,12 @@ describe("synthetic dataset import", () => {
     );
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
-        code: "unsupported_encrustment_effects",
-        details: { count: 1 },
+        code: "dangling_reference",
+        details: {
+          targetKind: "spell",
+          reference: "Missing Instability Spell",
+          instabilityEffectName: "Broken Mishap",
+        },
       }),
     );
   });

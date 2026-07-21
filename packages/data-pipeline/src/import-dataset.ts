@@ -13,6 +13,7 @@ import {
   type Diagnostic,
   type DiagnosticCounts,
   type Encrustment,
+  type EncrustmentInstabilityEffect,
   type EntityCollections,
   type EntityPatchDefinition,
   type EntityProvenance,
@@ -208,6 +209,44 @@ function linkEncrustments(
       return { ...reference, itemId: item.id };
     }),
   }));
+}
+
+function linkEncrustmentInstabilityEffects(
+  effects: readonly EncrustmentInstabilityEffect[],
+  spells: readonly Spell[],
+  diagnostics: DiagnosticDraft[],
+): EncrustmentInstabilityEffect[] {
+  const spellAliases = aliasesFor(spells);
+  return [...effects]
+    .sort(
+      (left, right) =>
+        canonicalKey(left.name).localeCompare(canonicalKey(right.name), "en") ||
+        left.spellKey.localeCompare(right.spellKey, "en") ||
+        left.provenance.sourceId.localeCompare(
+          right.provenance.sourceId,
+          "en",
+        ) ||
+        left.provenance.file.localeCompare(right.provenance.file, "en") ||
+        left.provenance.line - right.provenance.line,
+    )
+    .map((effect) => {
+      const spell = spellAliases.get(effect.spellKey);
+      if (!spell) {
+        diagnostics.push({
+          severity: "warning",
+          code: "dangling_reference",
+          message: `Instability effect ${effect.name} references an unknown spell: ${effect.spellName}`,
+          source: sourceLocation(effect.provenance),
+          details: {
+            targetKind: "spell",
+            reference: effect.spellName,
+            instabilityEffectName: effect.name,
+          },
+        });
+        return effect;
+      }
+      return { ...effect, spellId: spell.id };
+    });
 }
 
 function linkAbilities(
@@ -799,6 +838,11 @@ export function importDataset(
     ),
     diagnostics,
   );
+  const encrustmentInstabilityEffects = linkEncrustmentInstabilityEffects(
+    candidates.encrustmentInstabilityEffects,
+    linkedEntities.spells,
+    diagnostics,
+  );
   const finalizedDiagnostics = finalizeDiagnostics(diagnostics);
   const entities = attachDiagnosticIds(linkedEntities, finalizedDiagnostics);
   const artifact: DatasetArtifact = {
@@ -813,6 +857,7 @@ export function importDataset(
       version: source.version,
       precedence: source.precedence,
     })),
+    encrustmentInstabilityEffects,
     entities,
     diagnostics: countDiagnostics(finalizedDiagnostics),
   };

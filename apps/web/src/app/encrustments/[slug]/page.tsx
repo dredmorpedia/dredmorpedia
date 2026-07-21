@@ -139,6 +139,12 @@ export default async function EncrustmentPage({
   const itemsById = new Map(
     artifact.entities.items.map((item) => [item.id, item]),
   );
+  const spellsById = new Map(
+    artifact.entities.spells.map((spell) => [spell.id, spell]),
+  );
+  const sourceLabels = new Map(
+    artifact.sources.map((source) => [source.id, source.label]),
+  );
   const isAlias = slug !== encrustment.slug;
   const tool = titleCase(encrustment.tool);
 
@@ -310,6 +316,63 @@ export default async function EncrustmentPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized direct outcomes.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="instability-effects-heading"
+        >
+          <h2 id="instability-effects-heading" className="section-title-sm">
+            Shared instability pool
+          </h2>
+          <p className="text-sm leading-6 text-muted-foreground">
+            These definitions are stored outside individual encrustments. The
+            source provides names and spell references, but no effect weights,
+            per-encrustment assignments, or complete risk formula.
+          </p>
+          {artifact.encrustmentInstabilityEffects.length > 0 ? (
+            <details className="instability-pool-details">
+              <summary>
+                Show {artifact.encrustmentInstabilityEffects.length} effect
+                definitions
+              </summary>
+              <ul className="relation-list instability-effect-list">
+                {artifact.encrustmentInstabilityEffects.map((effect) => {
+                  const spell = effect.spellId
+                    ? spellsById.get(effect.spellId)
+                    : undefined;
+                  return (
+                    <li
+                      key={`${effect.name}:${effect.spellKey}:${effect.provenance.sourceId}:${effect.provenance.line}`}
+                    >
+                      <span className="instability-effect-name">
+                        <strong>{effect.name}</strong>
+                        <small
+                          className={
+                            spell
+                              ? "trigger-resolution"
+                              : "trigger-resolution trigger-resolution-unresolved"
+                          }
+                        >
+                          {spell
+                            ? `Resolved ${spell.spellType} spell`
+                            : "Unresolved spell reference"}
+                          {" · "}
+                          {sourceLabels.get(effect.provenance.sourceId) ??
+                            effect.provenance.sourceId}
+                        </small>
+                      </span>
+                      <strong>{spell?.name ?? effect.spellName}</strong>
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              No shared instability effects are defined for this dataset.
             </p>
           )}
         </section>

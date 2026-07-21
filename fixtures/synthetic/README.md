@@ -13,6 +13,6 @@ The fixture set deliberately includes:
 - one dangling item reference;
 - one missing asset;
 - one unsupported element; and
-- one normalized encrustment with resolved and unresolved ingredients, signed direct modifiers, a probabilistic named power hook, an appearance descriptor, and an explicitly unmodeled shared unstable effect.
+- one normalized encrustment with resolved and unresolved ingredients, signed direct modifiers, a probabilistic named power hook, an appearance descriptor, and a shared instability pool containing resolved and unresolved spell references.
 
 The explicit manifest controls source order and file discovery so output never depends on filesystem enumeration order.
