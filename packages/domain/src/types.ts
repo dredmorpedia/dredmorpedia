@@ -134,6 +134,26 @@ export interface Recipe extends NormalizedEntityBase {
   outputs: ItemReference[];
 }
 
+export const encrustmentModifierKinds = [
+  "damage",
+  "resistance",
+  "primary",
+  "secondary",
+] as const;
+
+export type EncrustmentModifierKind = (typeof encrustmentModifierKinds)[number];
+
+export interface EncrustmentModifier {
+  kind: EncrustmentModifierKind;
+  sourceKey: string;
+  amount: number;
+}
+
+export interface EncrustmentPower {
+  name: string;
+  chance: number | null;
+}
+
 export interface Encrustment extends NormalizedEntityBase {
   kind: "encrustment";
   tool: string;
@@ -142,6 +162,9 @@ export interface Encrustment extends NormalizedEntityBase {
   inputs: ItemReference[];
   slots: string[];
   instability: number;
+  modifiers: EncrustmentModifier[];
+  powers: EncrustmentPower[];
+  appearanceDescriptors: string[];
 }
 
 export interface Skill extends NormalizedEntityBase {

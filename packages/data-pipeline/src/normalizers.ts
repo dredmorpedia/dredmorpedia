@@ -7,6 +7,9 @@ import {
   slugify,
   type Ability,
   type Encrustment,
+  type EncrustmentModifier,
+  type EncrustmentModifierKind,
+  type EncrustmentPower,
   type EntityCandidate,
   type EntityKind,
   type EntityProvenance,
@@ -365,6 +368,40 @@ function integerValue(
   return fallback;
 }
 
+function numberValue(
+  value: string | undefined,
+  fallback: number,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+  minimum?: number,
+  maximum?: number,
+): number {
+  if (value === undefined || value === "") {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (
+    Number.isFinite(parsed) &&
+    (minimum === undefined || parsed >= minimum) &&
+    (maximum === undefined || parsed <= maximum)
+  ) {
+    return parsed;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_number",
+    message: `Expected ${minimum === undefined ? "a finite number" : maximum === undefined ? `a number greater than or equal to ${minimum}` : `a number from ${minimum} to ${maximum}`} for ${field}; used ${fallback} instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return fallback;
+}
+
 function provenanceFor(
   context: NormalizationContext,
   tag: string,
@@ -653,6 +690,168 @@ function parseRecipes(
   }
 }
 
+const encrustmentDamageKeys = new Set([
+  "acidic",
+  "aethereal",
+  "asphyxiative",
+  "blasting",
+  "conflagratory",
+  "crushing",
+  "existential",
+  "hyperborean",
+  "necromantic",
+  "piercing",
+  "putrefying",
+  "righteous",
+  "slashing",
+  "toxic",
+  "transmutative",
+  "voltaic",
+]);
+
+const encrustmentModifierKindRanks: Readonly<
+  Record<EncrustmentModifierKind, number>
+> = {
+  damage: 0,
+  resistance: 1,
+  primary: 2,
+  secondary: 3,
+};
+
+function parseEncrustmentModifiers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): EncrustmentModifier[] {
+  const modifiers: EncrustmentModifier[] = [];
+  const addAttributeModifiers = (
+    childName: "damagebuff" | "resistbuff",
+    kind: "damage" | "resistance",
+  ) => {
+    for (const child of xmlChildren(record, childName)) {
+      for (const [attribute, value] of Object.entries(child)) {
+        if (!attribute.startsWith("@") || typeof value !== "string") {
+          continue;
+        }
+        const sourceKey = attribute.slice(1);
+        if (!encrustmentDamageKeys.has(sourceKey)) {
+          context.diagnostics.push({
+            severity: "warning",
+            code: "unknown_encrustment_modifier",
+            message: `Unsupported ${kind} modifier key: ${sourceKey}.`,
+            source: provenance,
+            entityId: currentEntityId,
+            details: { modifierKind: kind, sourceKey },
+          });
+          continue;
+        }
+        modifiers.push({
+          kind,
+          sourceKey,
+          amount: numberValue(
+            value,
+            0,
+            context,
+            provenance,
+            `encrustment ${kind}:${sourceKey}`,
+            currentEntityId,
+          ),
+        });
+      }
+    }
+  };
+  addAttributeModifiers("damagebuff", "damage");
+  addAttributeModifiers("resistbuff", "resistance");
+
+  const addIndexedModifiers = (
+    childName: "primarybuff" | "secondarybuff",
+    kind: "primary" | "secondary",
+  ) => {
+    for (const child of xmlChildren(record, childName)) {
+      const sourceKey = xmlAttribute(child, "id");
+      if (!sourceKey) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_encrustment_modifier_key",
+          message: `An encrustment ${kind} modifier is missing its source stat ID.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { modifierKind: kind },
+        });
+        continue;
+      }
+      modifiers.push({
+        kind,
+        sourceKey,
+        amount: numberValue(
+          xmlAttribute(child, "amount"),
+          0,
+          context,
+          provenance,
+          `encrustment ${kind}:${sourceKey}`,
+          currentEntityId,
+        ),
+      });
+    }
+  };
+  addIndexedModifiers("primarybuff", "primary");
+  addIndexedModifiers("secondarybuff", "secondary");
+
+  return modifiers.sort(
+    (left, right) =>
+      encrustmentModifierKindRanks[left.kind] -
+        encrustmentModifierKindRanks[right.kind] ||
+      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      left.amount - right.amount,
+  );
+}
+
+function parseEncrustmentPowers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): EncrustmentPower[] {
+  return xmlChildren(record, "power")
+    .map((power) => {
+      const name = xmlAttribute(power, "name");
+      if (!name) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_encrustment_power_name",
+          message: "An encrustment power hook is missing its name.",
+          source: provenance,
+          entityId: currentEntityId,
+        });
+        return null;
+      }
+      const chance = xmlAttribute(power, "chance");
+      return {
+        name,
+        chance:
+          chance === undefined
+            ? null
+            : numberValue(
+                chance,
+                0,
+                context,
+                provenance,
+                `encrustment power chance:${name}`,
+                currentEntityId,
+                0,
+                1,
+              ),
+      };
+    })
+    .filter((power): power is EncrustmentPower => power !== null)
+    .sort(
+      (left, right) =>
+        left.name.localeCompare(right.name, "en") ||
+        (left.chance ?? -1) - (right.chance ?? -1),
+    );
+}
+
 function parseEncrustments(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -743,11 +942,39 @@ function parseEncrustments(
         "encrustment instability",
         currentEntityId,
       ),
+      modifiers: parseEncrustmentModifiers(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      powers: parseEncrustmentPowers(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      appearanceDescriptors: xmlChildren(record, "encrustwith")
+        .map((descriptor) => xmlAttribute(descriptor, "name"))
+        .filter((value): value is string => Boolean(value)),
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "tool", "input", "skill", "slot", "instability"]),
+      new Set([
+        "description",
+        "tool",
+        "input",
+        "skill",
+        "slot",
+        "instability",
+        "damagebuff",
+        "resistbuff",
+        "primarybuff",
+        "secondarybuff",
+        "power",
+        "encrustwith",
+      ]),
       currentEntityId,
     );
     addCandidate(result.encrustments, encrustment, context.source.precedence);

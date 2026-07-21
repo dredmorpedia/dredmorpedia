@@ -337,6 +337,61 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("normalizes encrustment outcomes and diagnoses invalid fields", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-encrustment-outcomes-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "encrustDB.xml"),
+      `<?xml version="1.0"?>
+<encrustDB>
+  <encrust name="Outcome Validation">
+    <damagebuff crushing="1.5" impossible="3" />
+    <primarybuff amount="1" />
+    <power name="Invalid Chance" chance="2" />
+  </encrust>
+</encrustDB>`,
+    );
+    const outcomeManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      outcomeManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "encrustment-outcome-test",
+        sources: [
+          {
+            id: "outcome-source",
+            label: "Outcome Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "encrustments", path: "encrustDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: outcomeManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.entities.encrustments[0]).toMatchObject({
+      modifiers: [{ kind: "damage", sourceKey: "crushing", amount: 1.5 }],
+      powers: [{ name: "Invalid Chance", chance: 0 }],
+    });
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(
+      expect.arrayContaining([
+        "invalid_number",
+        "unknown_encrustment_modifier",
+        "missing_encrustment_modifier_key",
+      ]),
+    );
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -474,6 +529,15 @@ describe("synthetic dataset import", () => {
       skillLevel: 2,
       slots: ["ranged", "weapon"],
       instability: 5,
+      modifiers: [
+        { kind: "damage", sourceKey: "crushing", amount: 2 },
+        { kind: "damage", sourceKey: "voltaic", amount: -1 },
+        { kind: "resistance", sourceKey: "toxic", amount: 3 },
+        { kind: "primary", sourceKey: "2", amount: 1 },
+        { kind: "secondary", sourceKey: "6", amount: 1 },
+      ],
+      powers: [{ name: "Synthetic Pulse", chance: 0.25 }],
+      appearanceDescriptors: ["polished brass"],
       inputs: [
         expect.objectContaining({
           itemName: "Brass Ingot",
@@ -558,13 +622,6 @@ describe("synthetic dataset import", () => {
           targetKind: "item",
           reference: "Missing Polish",
         }),
-      }),
-    );
-    expect(result.diagnostics).toContainEqual(
-      expect.objectContaining({
-        code: "unknown_element",
-        entityId: "encrustment:synthetic gear polish",
-        details: { element: "secondarybuff" },
       }),
     );
     expect(result.diagnostics).toContainEqual(

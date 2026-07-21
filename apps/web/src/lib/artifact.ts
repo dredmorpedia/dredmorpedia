@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
+  encrustmentModifierKinds,
   itemTriggerKinds,
   type DatasetArtifact,
   type Diagnostic,
@@ -9,6 +10,9 @@ import {
 } from "@dredmorpedia/domain";
 
 const itemTriggerKindSet: ReadonlySet<string> = new Set(itemTriggerKinds);
+const encrustmentModifierKindSet: ReadonlySet<string> = new Set(
+  encrustmentModifierKinds,
+);
 
 function generatedFile(name: string): string {
   const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
@@ -116,6 +120,41 @@ function hasValidEncrustments(value: unknown): boolean {
       "instability" in encrustment &&
       typeof encrustment.instability === "number" &&
       Number.isInteger(encrustment.instability) &&
+      "modifiers" in encrustment &&
+      Array.isArray(encrustment.modifiers) &&
+      encrustment.modifiers.every(
+        (modifier: unknown) =>
+          modifier !== null &&
+          typeof modifier === "object" &&
+          "kind" in modifier &&
+          typeof modifier.kind === "string" &&
+          encrustmentModifierKindSet.has(modifier.kind) &&
+          "sourceKey" in modifier &&
+          typeof modifier.sourceKey === "string" &&
+          "amount" in modifier &&
+          typeof modifier.amount === "number" &&
+          Number.isFinite(modifier.amount),
+      ) &&
+      "powers" in encrustment &&
+      Array.isArray(encrustment.powers) &&
+      encrustment.powers.every(
+        (power: unknown) =>
+          power !== null &&
+          typeof power === "object" &&
+          "name" in power &&
+          typeof power.name === "string" &&
+          "chance" in power &&
+          (power.chance === null ||
+            (typeof power.chance === "number" &&
+              Number.isFinite(power.chance) &&
+              power.chance >= 0 &&
+              power.chance <= 1)),
+      ) &&
+      "appearanceDescriptors" in encrustment &&
+      Array.isArray(encrustment.appearanceDescriptors) &&
+      encrustment.appearanceDescriptors.every(
+        (descriptor: unknown) => typeof descriptor === "string",
+      ) &&
       "inputs" in encrustment &&
       Array.isArray(encrustment.inputs) &&
       encrustment.inputs.every(

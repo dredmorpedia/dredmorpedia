@@ -780,7 +780,8 @@ input {
   white-space: nowrap;
 }
 
-.encrustment-slot-list {
+.encrustment-slot-list,
+.encrustment-descriptor-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;

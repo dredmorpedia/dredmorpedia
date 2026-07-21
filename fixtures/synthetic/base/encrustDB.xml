@@ -9,7 +9,12 @@
     <slot type="weapon" />
     <slot type="ranged" />
     <instability amount="5" />
+    <damagebuff crushing="2" voltaic="-1" />
+    <resistbuff toxic="3" />
+    <primarybuff id="2" amount="1" />
     <secondarybuff id="6" amount="1" />
+    <power name="Synthetic Pulse" chance="0.25" />
+    <encrustwith name="polished brass" />
   </encrust>
   <unstableEffect name="Synthetic Mishap" spell="Synthetic Spark" />
 </encrustDB>

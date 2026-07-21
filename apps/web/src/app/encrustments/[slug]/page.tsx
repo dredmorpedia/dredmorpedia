@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import {
   entityRouteSlugs,
   matchesEntityRoute,
+  type EncrustmentModifier,
   type Item,
   type ItemReference,
 } from "@dredmorpedia/domain";
@@ -21,6 +22,32 @@ function titleCase(value: string): string {
       (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
     )
     .join(" ");
+}
+
+function modifierLabel(modifier: EncrustmentModifier): string {
+  switch (modifier.kind) {
+    case "damage":
+      return `${titleCase(modifier.sourceKey)} damage`;
+    case "resistance":
+      return `${titleCase(modifier.sourceKey)} resistance`;
+    case "primary":
+      return `Primary attribute ${modifier.sourceKey}`;
+    case "secondary":
+      return `Secondary stat ${modifier.sourceKey}`;
+  }
+}
+
+function signedValue(value: number): string {
+  return value > 0 ? `+${value}` : String(value);
+}
+
+function powerFrequency(chance: number | null): string {
+  return chance === null
+    ? "No chance specified"
+    : `${new Intl.NumberFormat("en", {
+        style: "percent",
+        maximumFractionDigits: 2,
+      }).format(chance)} chance`;
 }
 
 function EncrustmentIngredients({
@@ -205,6 +232,84 @@ export default async function EncrustmentPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized equipment slots.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="outcomes-heading">
+          <h2 id="outcomes-heading" className="section-title-sm">
+            Outcomes
+          </h2>
+          {encrustment.modifiers.length > 0 ||
+          encrustment.powers.length > 0 ||
+          encrustment.appearanceDescriptors.length > 0 ? (
+            <div className="relationship-groups">
+              {encrustment.modifiers.length > 0 ? (
+                <section aria-labelledby="modifiers-heading">
+                  <h3 id="modifiers-heading" className="relationship-title">
+                    Modifiers
+                  </h3>
+                  <dl className="stat-list">
+                    {encrustment.modifiers.map((modifier, index) => (
+                      <div
+                        key={`${modifier.kind}:${modifier.sourceKey}:${index}`}
+                      >
+                        <dt>{modifierLabel(modifier)}</dt>
+                        <dd>{signedValue(modifier.amount)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {encrustment.modifiers.some(
+                    (modifier) =>
+                      modifier.kind === "primary" ||
+                      modifier.kind === "secondary",
+                  ) ? (
+                    <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                      Primary and secondary modifiers retain their numeric game
+                      stat IDs until an approved standalone stat-definition
+                      source is selected.
+                    </p>
+                  ) : null}
+                </section>
+              ) : null}
+              {encrustment.powers.length > 0 ? (
+                <section aria-labelledby="powers-heading">
+                  <h3 id="powers-heading" className="relationship-title">
+                    Power hooks
+                  </h3>
+                  <ul className="relation-list">
+                    {encrustment.powers.map((power, index) => (
+                      <li key={`${power.name}:${index}`}>
+                        <strong>{power.name}</strong>
+                        <span>{powerFrequency(power.chance)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {encrustment.appearanceDescriptors.length > 0 ? (
+                <section aria-labelledby="appearance-heading">
+                  <h3 id="appearance-heading" className="relationship-title">
+                    Appearance descriptors
+                  </h3>
+                  <ul className="encrustment-descriptor-list">
+                    {encrustment.appearanceDescriptors.map(
+                      (descriptor, index) => (
+                        <li
+                          key={`${descriptor}:${index}`}
+                          className="category-chip"
+                        >
+                          {descriptor}
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized direct outcomes.
             </p>
           )}
         </section>

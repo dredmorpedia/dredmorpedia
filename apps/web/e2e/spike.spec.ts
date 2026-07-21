@@ -119,6 +119,17 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(page.getByText("+5", { exact: true })).toBeVisible();
   await expect(page.getByText("Ranged", { exact: true })).toBeVisible();
   await expect(page.getByText("Weapon", { exact: true })).toBeVisible();
+  const outcomes = page.getByRole("region", { name: "Outcomes" });
+  await expect(outcomes.getByText("Crushing damage")).toBeVisible();
+  await expect(outcomes.getByText("+2", { exact: true })).toBeVisible();
+  await expect(outcomes.getByText("Voltaic damage")).toBeVisible();
+  await expect(outcomes.getByText("-1", { exact: true })).toBeVisible();
+  await expect(outcomes.getByText("Toxic resistance")).toBeVisible();
+  await expect(outcomes.getByText("Primary attribute 2")).toBeVisible();
+  await expect(outcomes.getByText("Secondary stat 6")).toBeVisible();
+  await expect(outcomes.getByText("Synthetic Pulse")).toBeVisible();
+  await expect(outcomes.getByText("25% chance")).toBeVisible();
+  await expect(outcomes.getByText("polished brass")).toBeVisible();
   await expect(page.getByText("Missing Polish", { exact: true })).toBeVisible();
   await expect(page.getByText("Unresolved item")).toBeVisible();
   await page.getByRole("link", { name: "Brass Ingot" }).click();

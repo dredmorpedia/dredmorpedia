@@ -34,6 +34,9 @@ function encrustment(name: string, inputItemIds: string[]): Encrustment {
     })),
     slots: ["weapon"],
     instability: 5,
+    modifiers: [],
+    powers: [],
+    appearanceDescriptors: [],
   };
 }
 
