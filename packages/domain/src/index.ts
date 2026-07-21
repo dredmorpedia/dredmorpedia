@@ -11,6 +11,7 @@ export {
   encrustmentModifierKinds,
   entityKinds,
   itemTriggerKinds,
+  monsterSpellTriggerKinds,
   statModifierKinds,
 } from "./types";
 export type * from "./types";

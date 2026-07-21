@@ -35,6 +35,18 @@ function monster(name: string, inheritsKey?: string): Monster {
           { kind: "damage", sourceKey: "crushing", amount: 1 },
           { kind: "resistance", sourceKey: "toxic", amount: 2 },
         ],
+    spellChance: inheritsKey ? null : 25,
+    triggers: inheritsKey
+      ? [
+          {
+            kind: "cast-when-aware",
+            spellKey: "clockwork echo",
+            spellName: "Clockwork Echo",
+            chance: null,
+            oneChanceIn: null,
+          },
+        ]
+      : [],
     ...(inheritsKey ? { inheritsKey, inheritsName: "Parent" } : {}),
     provenance,
     variants: [provenance],
@@ -63,6 +75,16 @@ describe("monster inheritance", () => {
     expect(resolvedChild?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 3 },
       { kind: "resistance", sourceKey: "toxic", amount: 2 },
+    ]);
+    expect(resolvedChild?.spellChance).toBe(25);
+    expect(resolvedChild?.triggers).toEqual([
+      {
+        kind: "cast-when-aware",
+        spellKey: "clockwork echo",
+        spellName: "Clockwork Echo",
+        chance: 25,
+        oneChanceIn: null,
+      },
     ]);
     expect(resolvedChild?.inheritsId).toBe(parent.id);
   });

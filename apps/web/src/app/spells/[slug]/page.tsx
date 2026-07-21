@@ -94,11 +94,17 @@ export default async function SpellPage({
   const abilityBacklinks = artifact.entities.abilities.filter((ability) =>
     ability.spellIds.includes(spell.id),
   );
+  const monsterBacklinks = artifact.entities.monsters.flatMap((monster) =>
+    monster.triggers.flatMap((trigger, triggerIndex) =>
+      trigger.spellId === spell.id ? [{ monster, trigger, triggerIndex }] : [],
+    ),
+  );
   const backlinkCount =
     spellBacklinks.length +
     itemBacklinks.length +
     instabilityBacklinks.length +
-    abilityBacklinks.length;
+    abilityBacklinks.length +
+    monsterBacklinks.length;
   const isAlias = slug !== spell.slug;
 
   return (
@@ -390,6 +396,35 @@ export default async function SpellPage({
                         <span>Ability spell hook</span>
                       </li>
                     ))}
+                  </ul>
+                </section>
+              ) : null}
+              {monsterBacklinks.length > 0 ? (
+                <section aria-labelledby="monster-backlinks-heading">
+                  <h3
+                    id="monster-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Monsters
+                  </h3>
+                  <ul className="relation-list">
+                    {monsterBacklinks.map(
+                      ({ monster, trigger, triggerIndex }) => (
+                        <li key={`${monster.id}:${triggerIndex}`}>
+                          <Link
+                            className="entity-link font-semibold"
+                            href={`/monsters/${monster.slug}`}
+                          >
+                            {monster.name}
+                          </Link>
+                          <span>
+                            {trigger.kind === "on-hit"
+                              ? "On-hit spell"
+                              : "Aware-casting spell"}
+                          </span>
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </section>
               ) : null}

@@ -16,6 +16,7 @@ import {
   type ItemTrigger,
   type ItemTriggerKind,
   type Monster,
+  type MonsterSpellTrigger,
   type NormalizedEntityBase,
   type Recipe,
   type Skill,
@@ -1439,6 +1440,86 @@ function parseMonsters(
     const stats = xmlChildren(record, "stats")[0];
     const palette = xmlChildren(record, "palette")[0];
     const paletteTint = palette ? xmlAttribute(palette, "tint") : undefined;
+    const ai = xmlChildren(record, "ai")[0];
+    const spellChanceText = ai
+      ? (xmlAttribute(ai, "spellPercentage") ??
+        xmlAttribute(ai, "spellpercentage"))
+      : undefined;
+    const spellChance =
+      spellChanceText === undefined
+        ? null
+        : integerValue(
+            spellChanceText,
+            0,
+            context,
+            provenance,
+            "monster spell chance",
+            currentEntityId,
+            0,
+            100,
+          );
+    const triggers: MonsterSpellTrigger[] = [];
+    const onHitRecords = Object.keys(record)
+      .filter((key) => key.toLocaleLowerCase("en") === "onhit")
+      .flatMap((key) => xmlChildren(record, key));
+    for (const onHit of onHitRecords) {
+      const spellName = xmlAttribute(onHit, "spell");
+      if (!spellName) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_monster_trigger_spell",
+          message: "A monster on-hit trigger is missing its spell reference.",
+          source: provenance,
+          entityId: currentEntityId,
+          details: { triggerKind: "on-hit" },
+        });
+        continue;
+      }
+      const oneChanceIn = integerValue(
+        xmlAttribute(onHit, "onechancein"),
+        1,
+        context,
+        provenance,
+        "monster on-hit one-in chance",
+        currentEntityId,
+        1,
+      );
+      triggers.push({
+        kind: "on-hit",
+        spellKey: canonicalKey(spellName),
+        spellName,
+        chance: Math.round(100 / oneChanceIn),
+        oneChanceIn,
+      });
+    }
+    for (const spell of xmlChildren(record, "spell")) {
+      const spellName = xmlAttribute(spell, "name");
+      if (!spellName) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_monster_trigger_spell",
+          message: "A monster cast hook is missing its spell reference.",
+          source: provenance,
+          entityId: currentEntityId,
+          details: { triggerKind: "cast-when-aware" },
+        });
+        continue;
+      }
+      triggers.push({
+        kind: "cast-when-aware",
+        spellKey: canonicalKey(spellName),
+        spellName,
+        chance: spellChance,
+        oneChanceIn: null,
+      });
+    }
+    triggers.sort(
+      (left, right) =>
+        Number(left.kind === "cast-when-aware") -
+          Number(right.kind === "cast-when-aware") ||
+        left.spellKey.localeCompare(right.spellKey, "en") ||
+        (left.oneChanceIn ?? -1) - (right.oneChanceIn ?? -1),
+    );
     const monster: Monster = {
       ...baseEntity(
         "monster",
@@ -1516,6 +1597,8 @@ function parseMonsters(
         currentEntityId,
         "monster",
       ),
+      spellChance,
+      triggers,
       ...(parentName
         ? { inheritsName: parentName, inheritsKey: canonicalKey(parentName) }
         : {}),
@@ -1534,9 +1617,13 @@ function parseMonsters(
         "primaryBuff",
         "secondarybuff",
         "secondaryBuff",
+        "spell",
+        "onhit",
+        "onHit",
         "monster",
       ]),
       currentEntityId,
+      new Set(["ai"]),
     );
     addCandidate(result.monsters, monster, context.source.precedence);
   }

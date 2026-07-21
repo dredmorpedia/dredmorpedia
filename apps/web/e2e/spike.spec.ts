@@ -416,6 +416,34 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(bonuses.getByText("Primary attribute 2")).toBeVisible();
   await expect(bonuses.getByText("Secondary stat 6")).toBeVisible();
 
+  const spellHooks = page.getByRole("region", { name: "Spell hooks" });
+  await expect(spellHooks.getByText("When aware of the player")).toBeVisible();
+  await expect(spellHooks.getByText("20%", { exact: true })).toBeVisible();
+  await expect(
+    spellHooks.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(spellHooks.getByText("When its attack hits")).toBeVisible();
+  await expect(
+    spellHooks.getByText("1 in 3 (about 33%)", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    spellHooks.getByText("Missing Monster Spell", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    spellHooks.getByText("Unresolved spell reference"),
+  ).toBeVisible();
+
+  await spellHooks.getByRole("link", { name: "Clockwork Echo" }).click();
+  await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+  const backlinks = page.getByRole("region", { name: "Referenced by" });
+  await expect(
+    backlinks.getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+  await expect(
+    backlinks.getByRole("link", { name: "Training Diggle", exact: true }),
+  ).toBeVisible();
+
+  await page.goto("/monsters/armored-training-diggle/");
   const family = page.getByRole("region", { name: "Monster family" });
   const parentLink = family.getByRole("link", { name: "Training Diggle" });
   await parentLink.focus();

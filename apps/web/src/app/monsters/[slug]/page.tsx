@@ -63,6 +63,9 @@ export default async function MonsterPage({
   const variants = artifact.entities.monsters.filter(
     (entry) => entry.inheritsId === monster.id,
   );
+  const spellsById = new Map(
+    artifact.entities.spells.map((spell) => [spell.id, spell]),
+  );
   const diagnostics = loadDiagnostics().filter((entry) =>
     monster.diagnosticIds.includes(entry.id),
   );
@@ -169,6 +172,75 @@ export default async function MonsterPage({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             Bonuses inherited from a parent monster are included; matching
             values declared by this monster take precedence.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="spell-hooks-heading">
+          <h2 id="spell-hooks-heading" className="section-title-sm">
+            Spell hooks
+          </h2>
+          {monster.triggers.length > 0 ? (
+            <ul className="trigger-list">
+              {monster.triggers.map((trigger, index) => {
+                const spell = trigger.spellId
+                  ? spellsById.get(trigger.spellId)
+                  : undefined;
+                const eventLabel =
+                  trigger.kind === "on-hit"
+                    ? "When its attack hits"
+                    : "When aware of the player";
+                const chanceLabel =
+                  trigger.oneChanceIn !== null
+                    ? trigger.oneChanceIn === 1
+                      ? "Always (1 in 1)"
+                      : `1 in ${trigger.oneChanceIn} (about ${trigger.chance}%)`
+                    : trigger.chance === null
+                      ? "Not supplied"
+                      : `${trigger.chance}%`;
+                return (
+                  <li key={`${trigger.kind}:${trigger.spellKey}:${index}`}>
+                    <div className="trigger-summary">
+                      <span className="relationship-title">{eventLabel}</span>
+                      {spell ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${spell.slug}`}
+                        >
+                          {spell.name}
+                        </Link>
+                      ) : (
+                        <strong>{trigger.spellName}</strong>
+                      )}
+                      <small
+                        className={
+                          spell
+                            ? "trigger-resolution"
+                            : "trigger-resolution trigger-resolution-unresolved"
+                        }
+                      >
+                        {spell
+                          ? `Resolved ${spell.spellType} spell`
+                          : "Unresolved spell reference"}
+                      </small>
+                    </div>
+                    <dl className="trigger-facts">
+                      <div>
+                        <dt>Chance</dt>
+                        <dd>{chanceLabel}</dd>
+                      </div>
+                    </dl>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized monster spell hooks.
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            One-in odds remain exact. Approximate percentages are rounded only
+            for display; an AI casting chance may inherit from the parent.
           </p>
         </section>
 

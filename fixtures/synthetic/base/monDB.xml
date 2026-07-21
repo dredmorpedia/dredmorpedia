@@ -8,11 +8,16 @@
     <damage crushing="1" voltaic="-1" />
     <resistances toxic="2" />
     <secondarybuff id="6" amount="1" />
+    <ai spellPercentage="20" aggressiveness="1" />
+    <spell name="Clockwork Spark" />
+    <onHit spell="Clockwork Echo" onechancein="4" />
     <monster id="armored-training-diggle" name="Armored Training Diggle" level="1">
       <info text="A nested monster that inherits from Training Diggle." />
       <stats numFig="2" numRog="0" numWiz="0" xpValue="10" />
       <damage crushing="3" />
       <primarybuff id="2" amount="1" />
+      <spell name="Clockwork Echo" />
+      <onhit spell="Missing Monster Spell" onechancein="3" />
     </monster>
   </monster>
 </monsters>

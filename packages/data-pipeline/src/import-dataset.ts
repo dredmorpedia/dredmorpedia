@@ -376,6 +376,7 @@ function linkSpells(
 
 function linkMonsters(
   monsters: Monster[],
+  spells: readonly Spell[],
   diagnostics: DiagnosticDraft[],
 ): Monster[] {
   const result = applyMonsterInheritance(monsters);
@@ -397,7 +398,18 @@ function linkMonsters(
       details: { parentKey: issue.parentKey },
     });
   }
-  return result.monsters;
+  const spellAliases = aliasesFor(spells);
+  return result.monsters.map((monster) => ({
+    ...monster,
+    triggers: monster.triggers.map((trigger) => {
+      const spell = spellAliases.get(trigger.spellKey);
+      if (spell) {
+        return { ...trigger, spellId: spell.id };
+      }
+      diagnostics.push(danglingDiagnostic(monster, "spell", trigger.spellName));
+      return trigger;
+    }),
+  }));
 }
 
 function attachDiagnosticIds(
@@ -716,7 +728,7 @@ function resolveCollections(
     skills: linkedSkills,
     abilities: linkedAbilities,
     spells: linkedSpells,
-    monsters: linkMonsters(routed.monsters.entities, diagnostics),
+    monsters: linkMonsters(routed.monsters.entities, linkedSpells, diagnostics),
     stats: linkedStats,
     templates: routed.templates.entities,
   };

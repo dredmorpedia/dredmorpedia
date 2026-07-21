@@ -65,6 +65,7 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
           `fighter ${entity.archetypeLevels.fighter}`,
           `rogue ${entity.archetypeLevels.rogue}`,
           `wizard ${entity.archetypeLevels.wizard}`,
+          ...entity.triggers.map((trigger) => trigger.spellName),
         ]
       : []),
     ...statText,

@@ -84,6 +84,7 @@ export function applyMonsterInheritance(
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(monster.canonicalKey);
     const resolvedParent = resolve(parent, nextAncestors);
+    const spellChance = monster.spellChance ?? resolvedParent.spellChance;
     const inherited: Monster = {
       ...monster,
       description: monster.description || resolvedParent.description,
@@ -93,6 +94,14 @@ export function applyMonsterInheritance(
       paletteName: monster.paletteName ?? resolvedParent.paletteName,
       paletteTint: monster.paletteTint ?? resolvedParent.paletteTint,
       modifiers: inheritModifiers(resolvedParent.modifiers, monster.modifiers),
+      spellChance,
+      triggers: monster.triggers.map((trigger) =>
+        trigger.kind === "cast-when-aware" &&
+        trigger.chance === null &&
+        spellChance !== null
+          ? { ...trigger, chance: spellChance }
+          : trigger,
+      ),
       inheritsId: resolvedParent.id,
     };
     resolved.set(monster.canonicalKey, inherited);

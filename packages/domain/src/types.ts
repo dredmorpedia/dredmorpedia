@@ -252,6 +252,19 @@ export interface MonsterArchetypeLevels {
   wizard: number;
 }
 
+export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;
+
+export type MonsterSpellTriggerKind = (typeof monsterSpellTriggerKinds)[number];
+
+export interface MonsterSpellTrigger {
+  kind: MonsterSpellTriggerKind;
+  spellKey: string;
+  spellName: string;
+  spellId?: string;
+  chance: number | null;
+  oneChanceIn: number | null;
+}
+
 export interface Monster extends NormalizedEntityBase {
   kind: "monster";
   taxonomy: string;
@@ -264,6 +277,8 @@ export interface Monster extends NormalizedEntityBase {
   archetypeLevels: MonsterArchetypeLevels;
   experienceValue: number | null;
   modifiers: StatModifier[];
+  spellChance: number | null;
+  triggers: MonsterSpellTrigger[];
   inheritsKey?: string;
   inheritsName?: string;
   inheritsId?: string;

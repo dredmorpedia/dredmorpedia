@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   itemTriggerKinds,
+  monsterSpellTriggerKinds,
   statModifierKinds,
   type DatasetArtifact,
   type Diagnostic,
@@ -10,6 +11,9 @@ import {
 } from "@dredmorpedia/domain";
 
 const itemTriggerKindSet: ReadonlySet<string> = new Set(itemTriggerKinds);
+const monsterSpellTriggerKindSet: ReadonlySet<string> = new Set(
+  monsterSpellTriggerKinds,
+);
 const statModifierKindSet: ReadonlySet<string> = new Set(statModifierKinds);
 
 function generatedFile(name: string): string {
@@ -82,6 +86,32 @@ function hasValidStatModifier(modifier: unknown): boolean {
     "amount" in modifier &&
     typeof modifier.amount === "number" &&
     Number.isFinite(modifier.amount)
+  );
+}
+
+function hasValidMonsterSpellTrigger(trigger: unknown): boolean {
+  return (
+    trigger !== null &&
+    typeof trigger === "object" &&
+    "kind" in trigger &&
+    typeof trigger.kind === "string" &&
+    monsterSpellTriggerKindSet.has(trigger.kind) &&
+    "spellKey" in trigger &&
+    typeof trigger.spellKey === "string" &&
+    "spellName" in trigger &&
+    typeof trigger.spellName === "string" &&
+    (!("spellId" in trigger) || typeof trigger.spellId === "string") &&
+    "chance" in trigger &&
+    (trigger.chance === null ||
+      (typeof trigger.chance === "number" &&
+        Number.isInteger(trigger.chance) &&
+        trigger.chance >= 0 &&
+        trigger.chance <= 100)) &&
+    "oneChanceIn" in trigger &&
+    (trigger.oneChanceIn === null ||
+      (typeof trigger.oneChanceIn === "number" &&
+        Number.isInteger(trigger.oneChanceIn) &&
+        trigger.oneChanceIn >= 1))
   );
 }
 
@@ -479,6 +509,15 @@ function hasValidMonsters(value: unknown): boolean {
       "modifiers" in monster &&
       Array.isArray(monster.modifiers) &&
       monster.modifiers.every(hasValidStatModifier) &&
+      "spellChance" in monster &&
+      (monster.spellChance === null ||
+        (typeof monster.spellChance === "number" &&
+          Number.isInteger(monster.spellChance) &&
+          monster.spellChance >= 0 &&
+          monster.spellChance <= 100)) &&
+      "triggers" in monster &&
+      Array.isArray(monster.triggers) &&
+      monster.triggers.every(hasValidMonsterSpellTrigger) &&
       (!("inheritsKey" in monster) ||
         typeof monster.inheritsKey === "string") &&
       (!("inheritsName" in monster) ||

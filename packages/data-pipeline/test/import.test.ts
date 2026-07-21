@@ -505,6 +505,9 @@ describe("synthetic dataset import", () => {
     const inheritedMonster = result.artifact.entities.monsters.find(
       (monster) => monster.name === "Armored Training Diggle",
     );
+    const parentMonster = result.artifact.entities.monsters.find(
+      (monster) => monster.name === "Training Diggle",
+    );
     const diagnosticCodes = result.diagnostics.map(
       (diagnostic) => diagnostic.code,
     );
@@ -547,6 +550,11 @@ describe("synthetic dataset import", () => {
       category: "Animal",
       url: "/monsters/armored-training-diggle",
     });
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "monster:armored training diggle",
+      )?.text,
+    ).toContain("clockwork echo");
     expect(blade).toMatchObject({
       price: 160,
       quality: 3,
@@ -757,7 +765,42 @@ describe("synthetic dataset import", () => {
         { kind: "primary", sourceKey: "2", amount: 1 },
         { kind: "secondary", sourceKey: "6", amount: 1 },
       ],
+      spellChance: 20,
+      triggers: [
+        {
+          kind: "on-hit",
+          spellKey: "missing monster spell",
+          spellName: "Missing Monster Spell",
+          chance: 33,
+          oneChanceIn: 3,
+        },
+        {
+          kind: "cast-when-aware",
+          spellKey: "clockwork echo",
+          spellName: "Clockwork Echo",
+          spellId: "spell:clockwork echo",
+          chance: 20,
+          oneChanceIn: null,
+        },
+      ],
       inheritsId: "monster:training diggle",
+    });
+    expect(parentMonster).toMatchObject({
+      spellChance: 20,
+      triggers: [
+        {
+          kind: "on-hit",
+          spellId: "spell:clockwork echo",
+          chance: 25,
+          oneChanceIn: 4,
+        },
+        {
+          kind: "cast-when-aware",
+          spellId: "spell:clockwork spark",
+          chance: 20,
+          oneChanceIn: null,
+        },
+      ],
     });
     const trainingWands = result.artifact.entities.items.filter((item) =>
       item.name.startsWith("Training Wand"),
@@ -800,9 +843,20 @@ describe("synthetic dataset import", () => {
             "secondarybuff",
             "palette",
             "stats",
+            "spell",
+            "onhit",
+            "onHit",
           ].includes(String(diagnostic.details?.element)),
       ),
     ).toEqual([]);
+    expect(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.entityId === "monster:armored training diggle" &&
+          diagnostic.code === "dangling_reference" &&
+          diagnostic.details?.reference === "Missing Monster Spell",
+      ),
+    ).toBeDefined();
     expect(result.inputs.map((input) => input.file)).toContain(
       "fixtures/synthetic/patches/clockwork-blade-value.json",
     );
