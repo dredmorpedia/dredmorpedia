@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import {
   entityRouteSlugs,
+  itemEncrustmentRelationships,
   itemRecipeRelationships,
   matchesEntityRoute,
   type ItemTriggerKind,
@@ -90,6 +91,10 @@ export default async function ItemPage({
   );
   const usedToCraft = recipeRelationships.filter(
     (relationship) => relationship.inputAmount > 0,
+  );
+  const encrustmentRelationships = itemEncrustmentRelationships(
+    artifact.entities.encrustments,
+    item.id,
   );
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
@@ -304,6 +309,41 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">No linked recipes.</p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="encrustment-relations-heading"
+        >
+          <h2 id="encrustment-relations-heading" className="section-title-sm">
+            Encrusting relationships
+          </h2>
+          {encrustmentRelationships.length > 0 ? (
+            <section aria-labelledby="used-to-encrust-heading">
+              <h3 id="used-to-encrust-heading" className="relationship-title">
+                Used to encrust
+              </h3>
+              <ul className="relation-list">
+                {encrustmentRelationships.map(
+                  ({ encrustment, inputAmount }) => (
+                    <li key={encrustment.id}>
+                      <Link
+                        className="entity-link font-semibold"
+                        href={`/encrustments/${encrustment.slug}`}
+                      >
+                        {encrustment.name}
+                      </Link>
+                      <span>Uses {inputAmount}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </section>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No linked encrustments.
+            </p>
           )}
         </section>
 

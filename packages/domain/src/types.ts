@@ -1,6 +1,7 @@
 export const entityKinds = [
   "item",
   "recipe",
+  "encrustment",
   "skill",
   "ability",
   "spell",
@@ -133,6 +134,16 @@ export interface Recipe extends NormalizedEntityBase {
   outputs: ItemReference[];
 }
 
+export interface Encrustment extends NormalizedEntityBase {
+  kind: "encrustment";
+  tool: string;
+  hidden: boolean;
+  skillLevel: number;
+  inputs: ItemReference[];
+  slots: string[];
+  instability: number;
+}
+
 export interface Skill extends NormalizedEntityBase {
   kind: "skill";
   archetype: string;
@@ -190,7 +201,15 @@ export interface Template extends NormalizedEntityBase {
 }
 
 export type NormalizedEntity =
-  Item | Recipe | Skill | Ability | Spell | Monster | Stat | Template;
+  | Item
+  | Recipe
+  | Encrustment
+  | Skill
+  | Ability
+  | Spell
+  | Monster
+  | Stat
+  | Template;
 
 export interface SourceSummary {
   id: string;
@@ -203,6 +222,7 @@ export interface SourceSummary {
 export interface EntityCollections {
   items: Item[];
   recipes: Recipe[];
+  encrustments: Encrustment[];
   skills: Skill[];
   abilities: Ability[];
   spells: Spell[];

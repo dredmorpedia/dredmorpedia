@@ -6,12 +6,13 @@ The first product slice is **items + stats + source provenance + search**. This 
 
 ## User outcome
 
-A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat/recipe relationships, inspect crafting requirements, and share a URL that preserves a structured search query. Missing definitions and broken relationships are visible rather than silently invented.
+A player can find an item or stat, understand its normalized game values and source, follow implemented item/stat/recipe/encrustment relationships, inspect crafting and encrusting requirements, and share a URL that preserves a structured search query. Missing definitions and broken relationships are visible rather than silently invented.
 
 ## Functional acceptance
 
 - Every normalized item has a stable static detail route with category, description, price, quality, stats, resolved or explicitly unresolved spell triggers, source/file provenance, attached diagnostics, and known recipe relationships.
 - Every linked recipe has a stable static detail route with tool, skill requirement, visibility, input/output quantities, source/file provenance, and attached diagnostics. Resolved items link both ways; unresolved ingredients remain visible without a fabricated item route.
+- Every linked encrustment has a stable static detail route with tool, skill requirement, visibility, instability, applicable slots, ingredients, source/file provenance, and attached diagnostics. Ingredient items expose used-to-encrust backlinks; unresolved ingredients remain visible without a fabricated item route.
 - Name collisions receive deterministic unique canonical routes. A version-scoped route registry preserves reviewed canonical slugs and historical aliases; unambiguous source-ID aliases are also generated. Every alternate path resolves to the same record and visibly links to its canonical URL.
 - Every available standalone stat definition has a stable static detail route with item and spell-effect backlinks plus source/file provenance.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
@@ -20,6 +21,7 @@ A player can find an item or stat, understand its normalized game values and sou
 - Search renders at most 50 results at once and exposes the total match count and useful empty/reset states.
 - Item-to-stat and stat-to-item links do not produce broken routes for available definitions.
 - Item-to-recipe and recipe-to-item links do not produce broken routes for resolved references.
+- Item-to-encrustment and encrustment-to-item links do not produce broken routes for resolved references.
 
 ## Data and safety acceptance
 
@@ -30,13 +32,13 @@ A player can find an item or stat, understand its normalized game values and sou
 
 ## Quality acceptance
 
-- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, and recipe backlinks.
-- Representative home, search, item, stat, and recipe pages have no automatically detected axe violations.
+- Desktop and mobile keyboard flows pass for item filters, global search filters, item details, stat details, recipe backlinks, and encrustment backlinks.
+- Representative home, search, item, stat, recipe, and encrustment pages have no automatically detected axe violations.
 - Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
 - Representative relevance examples still require owner approval before ADR 0003 can be accepted.
 
 ## Current progress
 
-Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe routes, item/stat/crafting backlinks, item spell-trigger normalization/linking/presentation, explicit missing-definition/reference states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
+Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment relationship APIs, shareable global search, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment routes, item/stat/crafting/encrusting backlinks, item spell-trigger normalization/linking/presentation, explicit missing-definition/reference states, and synthetic desktop/mobile browser coverage. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete encrustment relationships, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
+Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, normalize the deeper encrustment modifier/unstable-effect vocabulary, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.

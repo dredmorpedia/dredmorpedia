@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<encrusts>
-  <encrust name="Synthetic Gear Polish" tool="armor">
-    <input name="Brass Ingot" amount="1" />
+<encrustDB>
+  <encrust id="synthetic-gear-polish" name="Synthetic Gear Polish" hidden="0">
+    <description text="A stable synthetic coating for training weapons." />
+    <tool tag="smithing" />
+    <input name="Brass Ingot" />
+    <input name="Missing Polish" />
+    <skill level="2" />
+    <slot type="weapon" />
+    <slot type="ranged" />
+    <instability amount="5" />
+    <secondarybuff id="6" amount="1" />
   </encrust>
-</encrusts>
+  <unstableEffect name="Synthetic Mishap" spell="Synthetic Spark" />
+</encrustDB>

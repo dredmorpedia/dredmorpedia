@@ -89,6 +89,52 @@ function hasValidItems(value: unknown): boolean {
   });
 }
 
+function hasValidEncrustments(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("encrustments" in value) ||
+    !Array.isArray(value.encrustments)
+  ) {
+    return false;
+  }
+  return value.encrustments.every(
+    (encrustment) =>
+      encrustment !== null &&
+      typeof encrustment === "object" &&
+      "tool" in encrustment &&
+      typeof encrustment.tool === "string" &&
+      "hidden" in encrustment &&
+      typeof encrustment.hidden === "boolean" &&
+      "skillLevel" in encrustment &&
+      typeof encrustment.skillLevel === "number" &&
+      Number.isInteger(encrustment.skillLevel) &&
+      encrustment.skillLevel >= 0 &&
+      "slots" in encrustment &&
+      Array.isArray(encrustment.slots) &&
+      encrustment.slots.every((slot: unknown) => typeof slot === "string") &&
+      "instability" in encrustment &&
+      typeof encrustment.instability === "number" &&
+      Number.isInteger(encrustment.instability) &&
+      "inputs" in encrustment &&
+      Array.isArray(encrustment.inputs) &&
+      encrustment.inputs.every(
+        (input: unknown) =>
+          input !== null &&
+          typeof input === "object" &&
+          "itemKey" in input &&
+          typeof input.itemKey === "string" &&
+          "itemName" in input &&
+          typeof input.itemName === "string" &&
+          "amount" in input &&
+          typeof input.amount === "number" &&
+          Number.isInteger(input.amount) &&
+          input.amount >= 1 &&
+          (!("itemId" in input) || typeof input.itemId === "string"),
+      ),
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -102,7 +148,8 @@ export function loadArtifact(): DatasetArtifact {
     !("datasetVersion" in parsed) ||
     typeof parsed.datasetVersion !== "string" ||
     !("entities" in parsed) ||
-    !hasValidItems(parsed.entities)
+    !hasValidItems(parsed.entities) ||
+    !hasValidEncrustments(parsed.entities)
   ) {
     throw new Error(
       "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",

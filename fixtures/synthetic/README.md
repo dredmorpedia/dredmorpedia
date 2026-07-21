@@ -13,6 +13,6 @@ The fixture set deliberately includes:
 - one dangling item reference;
 - one missing asset;
 - one unsupported element; and
-- one valid but not-yet-normalized encrustment database.
+- one normalized encrustment with resolved and unresolved ingredients plus explicitly unmodeled effect vocabulary.
 
 The explicit manifest controls source order and file discovery so output never depends on filesystem enumeration order.

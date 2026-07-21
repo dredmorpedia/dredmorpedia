@@ -6,6 +6,7 @@ import {
   itemTriggerKinds,
   slugify,
   type Ability,
+  type Encrustment,
   type EntityCandidate,
   type EntityKind,
   type EntityProvenance,
@@ -38,6 +39,7 @@ import {
 export interface CandidateCollections {
   items: EntityCandidate<Item>[];
   recipes: EntityCandidate<Recipe>[];
+  encrustments: EntityCandidate<Encrustment>[];
   skills: EntityCandidate<Skill>[];
   abilities: EntityCandidate<Ability>[];
   spells: EntityCandidate<Spell>[];
@@ -62,6 +64,7 @@ export function emptyCandidateCollections(): CandidateCollections {
   return {
     items: [],
     recipes: [],
+    encrustments: [],
     skills: [],
     abilities: [],
     spells: [],
@@ -479,7 +482,16 @@ function reportUnknownChildren(
 }
 
 function addCandidate<
-  T extends Item | Recipe | Skill | Ability | Spell | Monster | Stat | Template,
+  T extends
+    | Item
+    | Recipe
+    | Encrustment
+    | Skill
+    | Ability
+    | Spell
+    | Monster
+    | Stat
+    | Template,
 >(collection: EntityCandidate<T>[], entity: T, precedence: number): void {
   collection.push({ entity, precedence });
 }
@@ -638,6 +650,121 @@ function parseRecipes(
       currentEntityId,
     );
     addCandidate(result.recipes, recipe, context.source.precedence);
+  }
+}
+
+function parseEncrustments(
+  context: NormalizationContext,
+  result: CandidateCollections,
+): void {
+  for (const record of collectElements(context.parsed.document, "encrust")) {
+    const name = xmlAttribute(record, "name");
+    if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "An <encrust> is missing its required name attribute.",
+        source: context.parsed.locateElement("encrust"),
+      });
+      continue;
+    }
+
+    const originalId = xmlAttribute(record, "id");
+    const provenance = provenanceFor(context, "encrust", name, originalId);
+    const currentEntityId = entityId("encrustment", name);
+    const inputRecords = xmlChildren(record, "input");
+    const inputs = inputRecords
+      .map((input) => {
+        const itemName = xmlAttribute(input, "name");
+        if (!itemName) {
+          return null;
+        }
+        return {
+          itemKey: canonicalKey(itemName),
+          itemName,
+          amount: integerValue(
+            xmlAttribute(input, "amount"),
+            1,
+            context,
+            provenance,
+            "encrustment ingredient amount",
+            currentEntityId,
+            1,
+          ),
+        };
+      })
+      .filter(
+        (reference): reference is NonNullable<typeof reference> =>
+          reference !== null,
+      );
+    const skillLevel = Math.max(
+      0,
+      ...xmlChildren(record, "skill").map((skill) =>
+        integerValue(
+          xmlAttribute(skill, "level"),
+          0,
+          context,
+          provenance,
+          "encrustment skill level",
+          currentEntityId,
+          0,
+        ),
+      ),
+    );
+    const slots = [
+      ...new Set(
+        xmlChildren(record, "slot")
+          .map((slot) => xmlAttribute(slot, "type"))
+          .filter((value): value is string => Boolean(value))
+          .map(canonicalKey),
+      ),
+    ].sort((left, right) => left.localeCompare(right, "en"));
+    const tool =
+      childAttribute(record, "tool", "tag") ??
+      xmlAttribute(record, "tool") ??
+      "unknown";
+    const encrustment: Encrustment = {
+      ...baseEntity(
+        "encrustment",
+        name,
+        childAttribute(record, "description", "text") ?? "",
+        provenance,
+      ),
+      tool,
+      hidden: booleanAttribute(record, "hidden"),
+      skillLevel,
+      inputs,
+      slots,
+      instability: integerValue(
+        childAttribute(record, "instability", "amount"),
+        0,
+        context,
+        provenance,
+        "encrustment instability",
+        currentEntityId,
+      ),
+    };
+    reportUnknownChildren(
+      context,
+      record,
+      new Set(["description", "tool", "input", "skill", "slot", "instability"]),
+      currentEntityId,
+    );
+    addCandidate(result.encrustments, encrustment, context.source.precedence);
+  }
+
+  const unstableEffects = collectElements(
+    context.parsed.document,
+    "unstableEffect",
+  );
+  if (unstableEffects.length > 0) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "unsupported_encrustment_effects",
+      message: `${unstableEffects.length} unstable encrustment effect definitions remain unmodeled.`,
+      source: context.parsed.locateElement("unstableEffect"),
+      details: { count: unstableEffects.length },
+    });
   }
 }
 
@@ -899,19 +1026,7 @@ export function parseDatabase(
       parseRecipes(context, result);
       break;
     case "encrustments":
-      context.diagnostics.push({
-        severity: "warning",
-        code: "unsupported_database_kind",
-        message:
-          "Encrustment databases are inventoried but not normalized by the architecture spike.",
-        source: {
-          sourceId: context.source.id,
-          file: context.file,
-          line: 1,
-          column: 1,
-        },
-        details: { kind },
-      });
+      parseEncrustments(context, result);
       break;
     case "skills":
       parseSkills(context, result);
@@ -938,6 +1053,7 @@ export function mergeCandidateCollections(
 ): void {
   target.items.push(...source.items);
   target.recipes.push(...source.recipes);
+  target.encrustments.push(...source.encrustments);
   target.skills.push(...source.skills);
   target.abilities.push(...source.abilities);
   target.spells.push(...source.spells);

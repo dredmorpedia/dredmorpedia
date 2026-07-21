@@ -90,6 +90,14 @@ const patchableFields: Record<
     hidden: isBoolean,
     skillLevel: isNumber,
   },
+  encrustment: {
+    description: isString,
+    tool: isString,
+    hidden: isBoolean,
+    skillLevel: isNonNegativeInteger,
+    slots: isStringArray,
+    instability: isNumber,
+  },
   skill: {
     description: isString,
     archetype: isString,
@@ -142,6 +150,7 @@ function allEntities(collections: EntityCollections): NormalizedEntity[] {
   return [
     ...collections.items,
     ...collections.recipes,
+    ...collections.encrustments,
     ...collections.skills,
     ...collections.abilities,
     ...collections.spells,
@@ -161,6 +170,7 @@ function replacePatchedEntities(
   return {
     items: replace(collections.items),
     recipes: replace(collections.recipes),
+    encrustments: replace(collections.encrustments),
     skills: replace(collections.skills),
     abilities: replace(collections.abilities),
     spells: replace(collections.spells),

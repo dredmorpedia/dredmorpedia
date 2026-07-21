@@ -140,6 +140,7 @@ function allEntities(collections: EntityCollections): NormalizedEntity[] {
   return [
     ...collections.items,
     ...collections.recipes,
+    ...collections.encrustments,
     ...collections.skills,
     ...collections.abilities,
     ...collections.spells,

@@ -46,6 +46,7 @@ function collections(activeItem: Item): EntityCollections {
   return {
     items: [activeItem],
     recipes: [],
+    encrustments: [],
     skills: [],
     abilities: [],
     spells: [],

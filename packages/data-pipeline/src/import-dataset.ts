@@ -12,6 +12,7 @@ import {
   type DatasetArtifact,
   type Diagnostic,
   type DiagnosticCounts,
+  type Encrustment,
   type EntityCollections,
   type EntityPatchDefinition,
   type EntityProvenance,
@@ -188,6 +189,27 @@ function linkRecipes(
   });
 }
 
+function linkEncrustments(
+  encrustments: Encrustment[],
+  items: readonly Item[],
+  diagnostics: DiagnosticDraft[],
+): Encrustment[] {
+  const itemAliases = aliasesFor(items);
+  return encrustments.map((encrustment) => ({
+    ...encrustment,
+    inputs: encrustment.inputs.map((reference) => {
+      const item = itemAliases.get(reference.itemKey);
+      if (!item) {
+        diagnostics.push(
+          danglingDiagnostic(encrustment, "item", reference.itemName),
+        );
+        return reference;
+      }
+      return { ...reference, itemId: item.id };
+    }),
+  }));
+}
+
 function linkAbilities(
   abilities: Ability[],
   skills: readonly Skill[],
@@ -341,6 +363,7 @@ function attachDiagnosticIds(
   return {
     items: entities.items.map(attach),
     recipes: entities.recipes.map(attach),
+    encrustments: entities.encrustments.map(attach),
     skills: entities.skills.map(attach),
     abilities: entities.abilities.map(attach),
     spells: entities.spells.map(attach),
@@ -374,6 +397,7 @@ function resolveCollections(
   const resolutions = {
     items: resolveEntityCandidates(candidates.items),
     recipes: resolveEntityCandidates(candidates.recipes),
+    encrustments: resolveEntityCandidates(candidates.encrustments),
     skills: resolveEntityCandidates(candidates.skills),
     abilities: resolveEntityCandidates(candidates.abilities),
     spells: resolveEntityCandidates(candidates.spells),
@@ -402,6 +426,7 @@ function resolveCollections(
   let patchedEntities: EntityCollections = {
     items: resolutions.items.active,
     recipes: resolutions.recipes.active,
+    encrustments: resolutions.encrustments.active,
     skills: resolutions.skills.active,
     abilities: resolutions.abilities.active,
     spells: resolutions.spells.active,
@@ -531,6 +556,10 @@ function resolveCollections(
       patchedEntities.recipes,
       routeReservations?.reservations,
     ),
+    encrustments: allocateEntityRoutes(
+      patchedEntities.encrustments,
+      routeReservations?.reservations,
+    ),
     skills: allocateEntityRoutes(
       patchedEntities.skills,
       routeReservations?.reservations,
@@ -598,6 +627,11 @@ function resolveCollections(
     linkedItems,
     diagnostics,
   );
+  const linkedEncrustments = linkEncrustments(
+    routed.encrustments.entities,
+    linkedItems,
+    diagnostics,
+  );
   const linkedSpells = linkSpells(
     routed.spells.entities,
     linkedStats,
@@ -619,6 +653,7 @@ function resolveCollections(
   return {
     items: linkedItems,
     recipes: linkedRecipes,
+    encrustments: linkedEncrustments,
     skills: linkedSkills,
     abilities: linkedAbilities,
     spells: linkedSpells,

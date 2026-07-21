@@ -68,8 +68,8 @@ export default function HomePage() {
             Fixture diagnostics are intentionally present
           </h2>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            The malformed XML, dangling reference, missing asset, deferred
-            encrustment, unknown element, and precedence collision are test
+            The malformed XML, dangling reference, missing asset, unmodeled
+            encrustment effect, unknown element, and precedence collision are
             evidence—not silent failures.
           </p>
         </div>

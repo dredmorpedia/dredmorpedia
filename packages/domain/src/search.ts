@@ -8,6 +8,7 @@ import type {
 const routeSegments: Record<NormalizedEntity["kind"], string> = {
   item: "items",
   recipe: "recipes",
+  encrustment: "encrustments",
   skill: "skills",
   ability: "abilities",
   spell: "spells",
@@ -27,6 +28,10 @@ function categoryFor(entity: NormalizedEntity): string | null {
 
   if (entity.kind === "stat") {
     return entity.group;
+  }
+
+  if (entity.kind === "encrustment") {
+    return entity.tool;
   }
 
   return null;

@@ -360,6 +360,7 @@ describe("synthetic dataset import", () => {
       result.artifact.entities.items.map((item) => [item.name, item]),
     );
     const recipe = result.artifact.entities.recipes[0];
+    const encrustment = result.artifact.entities.encrustments[0];
     const inheritedMonster = result.artifact.entities.monsters.find(
       (monster) => monster.name === "Armored Training Diggle",
     );
@@ -369,6 +370,7 @@ describe("synthetic dataset import", () => {
 
     expect(result.artifact.entities.items).toHaveLength(7);
     expect(result.artifact.entities.recipes).toHaveLength(1);
+    expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(1);
     expect(result.artifact.entities.spells).toHaveLength(2);
@@ -385,7 +387,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(17);
+    expect(result.search.documents).toHaveLength(18);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -463,6 +465,28 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Trap")?.triggers[0]?.spellId).toBe(
       undefined,
     );
+    expect(encrustment).toMatchObject({
+      id: "encrustment:synthetic gear polish",
+      slug: "synthetic-gear-polish",
+      description: "A stable synthetic coating for training weapons.",
+      tool: "smithing",
+      hidden: false,
+      skillLevel: 2,
+      slots: ["ranged", "weapon"],
+      instability: 5,
+      inputs: [
+        expect.objectContaining({
+          itemName: "Brass Ingot",
+          amount: 1,
+          itemId: "item:brass ingot",
+        }),
+        expect.objectContaining({
+          itemName: "Missing Polish",
+          amount: 1,
+        }),
+      ],
+    });
+    expect(encrustment?.inputs[1]?.itemId).toBeUndefined();
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,
@@ -488,7 +512,7 @@ describe("synthetic dataset import", () => {
         "missing_asset",
         "unknown_element",
         "partially_supported_element",
-        "unsupported_database_kind",
+        "unsupported_encrustment_effects",
         "slug_collision",
         "patch_applied",
         "route_registry_applied",
@@ -524,6 +548,29 @@ describe("synthetic dataset import", () => {
         code: "partially_supported_element",
         entityId: "item:training trap",
         details: { element: "trap" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "encrustment:synthetic gear polish",
+        details: expect.objectContaining({
+          targetKind: "item",
+          reference: "Missing Polish",
+        }),
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unknown_element",
+        entityId: "encrustment:synthetic gear polish",
+        details: { element: "secondarybuff" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unsupported_encrustment_effects",
+        details: { count: 1 },
       }),
     );
   });

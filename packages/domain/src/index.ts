@@ -1,3 +1,4 @@
+export * from "./encrustment-relationships";
 export * from "./identity";
 export * from "./inheritance";
 export * from "./patches";
