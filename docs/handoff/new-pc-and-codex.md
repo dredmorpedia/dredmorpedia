@@ -79,8 +79,8 @@ Continue the first parity slice without assuming permission to publish official 
 2. Accept or revise ADRs 0001 and 0002 after that decision.
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Normalize the remaining ability effects, beginning with the 333 measured damage/resistance/primary/secondary modifier diagnostics, then explicitly model or defer the 21 recovery/flag/currency/dodge constructs. Do not invent standalone stat definitions for numeric primary/secondary IDs.
-6. Treat the current 4,190 unsupported/partially-supported element diagnostics and 16 dangling references as the measured compatibility backlog, not as silently completed parity. The 16-entry shared instability pool is implemented and fully resolves in the canonical dataset; its source does not define weights, per-encrustment assignments, trigger rules, or a complete risk formula.
+5. Explicitly model or defer the remaining 21 skill/ability recovery/flag/currency/dodge/tag constructs. The 333 measured damage/resistance/primary/secondary modifier elements are normalized; do not invent standalone stat definitions for numeric primary/secondary IDs.
+6. Treat the current 3,857 unsupported/partially-supported element diagnostics and 16 dangling references as the measured compatibility backlog, not as silently completed parity. The 16-entry shared instability pool is implemented and fully resolves in the canonical dataset; its source does not define weights, per-encrustment assignments, trigger rules, or a complete risk formula.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -94,7 +94,7 @@ Static spell details now expose direct effects, resolved or dangling spell/stat 
 
 ## Skill and ability relationship slice completed
 
-Static skill and ability details now expose archetype, complete named/generic starting loadouts, always/optional quantities, ordered progression, supported spell-trigger events, provenance, and diagnostics. Resolved items and spells link both ways; dangling names stay visible without fabricated routes. Synthetic desktop/mobile and axe coverage follows item→skill→ability→spell navigation and includes generic/dangling loadouts plus a dangling ability spell. The ignored official dataset contains 52 skills, 352 linked abilities, 76 loadout definitions, and 263 fully resolved ability triggers; its full export builds 2,606 pages. Sixteen named loadouts remain genuinely unresolved. The next compatibility slice is the remaining ability modifiers/hooks, not route scaffolding.
+Static skill and ability details now expose archetype, complete named/generic starting loadouts, always/optional quantities, ordered progression, signed damage/resistance/primary/secondary modifiers, supported spell-trigger events, provenance, and diagnostics. Resolved items and spells link both ways; dangling names stay visible without fabricated routes. Synthetic desktop/mobile and axe coverage follows item→skill→ability→spell navigation and includes generic/dangling loadouts, signed modifier values, numeric stat-ID disclosure, and a dangling ability spell. The ignored official dataset contains 52 skills, 352 linked abilities, 76 loadout definitions, 263 fully resolved ability triggers, and 473 direct modifiers across 217 abilities; its full export builds 2,606 pages. Sixteen named loadouts remain genuinely unresolved. The next compatibility slice is the 21 skill/ability recovery/flag/currency/dodge/tag constructs, not route scaffolding.
 
 ## Open decisions and blockers
 

@@ -8,6 +8,10 @@
   </skill>
   <ability id="measured-strike" name="Measured Strike" skill="clockwork-combat" icon="assets/synthetic.svg" startSkill="1">
     <description text="Perform a measured strike and trigger a synthetic spell." />
+    <damagebuff crushing="2" voltaic="-1" />
+    <resistbuff toxic="3" />
+    <primarybuff id="2" amount="1" />
+    <secondarybuff id="6" amount="-2" />
     <spell name="Clockwork Spark" />
     <spell name="Missing Ability Spell" />
   </ability>

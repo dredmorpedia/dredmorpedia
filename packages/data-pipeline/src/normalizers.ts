@@ -8,8 +8,6 @@ import {
   type Ability,
   type Encrustment,
   type EncrustmentInstabilityEffect,
-  type EncrustmentModifier,
-  type EncrustmentModifierKind,
   type EncrustmentPower,
   type EntityCandidate,
   type EntityKind,
@@ -23,6 +21,8 @@ import {
   type Skill,
   type Spell,
   type SpellTrigger,
+  type StatModifier,
+  type StatModifierKind,
   type Stat,
   type Template,
 } from "@dredmorpedia/domain";
@@ -737,7 +737,7 @@ function parseRecipes(
   }
 }
 
-const encrustmentDamageKeys = new Set([
+const statModifierDamageKeys = new Set([
   "acidic",
   "aethereal",
   "asphyxiative",
@@ -756,36 +756,63 @@ const encrustmentDamageKeys = new Set([
   "voltaic",
 ]);
 
-const encrustmentModifierKindRanks: Readonly<
-  Record<EncrustmentModifierKind, number>
-> = {
+const statModifierElementNames = [
+  "damagebuff",
+  "resistbuff",
+  "primarybuff",
+  "secondarybuff",
+] as const;
+
+type StatModifierElementName = (typeof statModifierElementNames)[number];
+
+function matchingStatModifierElementNames(record: XmlRecord): string[] {
+  const canonicalNames = new Set(statModifierElementNames);
+  return Object.keys(record).filter((key) =>
+    canonicalNames.has(key.toLocaleLowerCase("en") as StatModifierElementName),
+  );
+}
+
+function statModifierChildren(
+  record: XmlRecord,
+  childName: StatModifierElementName,
+): XmlRecord[] {
+  return matchingStatModifierElementNames(record)
+    .filter(
+      (key) =>
+        key.toLocaleLowerCase("en") === childName.toLocaleLowerCase("en"),
+    )
+    .flatMap((key) => xmlChildren(record, key));
+}
+
+const statModifierKindRanks: Readonly<Record<StatModifierKind, number>> = {
   damage: 0,
   resistance: 1,
   primary: 2,
   secondary: 3,
 };
 
-function parseEncrustmentModifiers(
+function parseStatModifiers(
   record: XmlRecord,
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-): EncrustmentModifier[] {
-  const modifiers: EncrustmentModifier[] = [];
+  ownerLabel: "ability" | "encrustment",
+): StatModifier[] {
+  const modifiers: StatModifier[] = [];
   const addAttributeModifiers = (
     childName: "damagebuff" | "resistbuff",
     kind: "damage" | "resistance",
   ) => {
-    for (const child of xmlChildren(record, childName)) {
+    for (const child of statModifierChildren(record, childName)) {
       for (const [attribute, value] of Object.entries(child)) {
         if (!attribute.startsWith("@") || typeof value !== "string") {
           continue;
         }
         const sourceKey = attribute.slice(1);
-        if (!encrustmentDamageKeys.has(sourceKey)) {
+        if (!statModifierDamageKeys.has(sourceKey)) {
           context.diagnostics.push({
             severity: "warning",
-            code: "unknown_encrustment_modifier",
+            code: `unknown_${ownerLabel}_modifier`,
             message: `Unsupported ${kind} modifier key: ${sourceKey}.`,
             source: provenance,
             entityId: currentEntityId,
@@ -801,7 +828,7 @@ function parseEncrustmentModifiers(
             0,
             context,
             provenance,
-            `encrustment ${kind}:${sourceKey}`,
+            `${ownerLabel} ${kind}:${sourceKey}`,
             currentEntityId,
           ),
         });
@@ -815,13 +842,13 @@ function parseEncrustmentModifiers(
     childName: "primarybuff" | "secondarybuff",
     kind: "primary" | "secondary",
   ) => {
-    for (const child of xmlChildren(record, childName)) {
+    for (const child of statModifierChildren(record, childName)) {
       const sourceKey = xmlAttribute(child, "id");
       if (!sourceKey) {
         context.diagnostics.push({
           severity: "warning",
-          code: "missing_encrustment_modifier_key",
-          message: `An encrustment ${kind} modifier is missing its source stat ID.`,
+          code: `missing_${ownerLabel}_modifier_key`,
+          message: `An ${ownerLabel} ${kind} modifier is missing its source stat ID.`,
           source: provenance,
           entityId: currentEntityId,
           details: { modifierKind: kind },
@@ -836,7 +863,7 @@ function parseEncrustmentModifiers(
           0,
           context,
           provenance,
-          `encrustment ${kind}:${sourceKey}`,
+          `${ownerLabel} ${kind}:${sourceKey}`,
           currentEntityId,
         ),
       });
@@ -847,8 +874,7 @@ function parseEncrustmentModifiers(
 
   return modifiers.sort(
     (left, right) =>
-      encrustmentModifierKindRanks[left.kind] -
-        encrustmentModifierKindRanks[right.kind] ||
+      statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
       left.sourceKey.localeCompare(right.sourceKey, "en") ||
       left.amount - right.amount,
   );
@@ -989,11 +1015,12 @@ function parseEncrustments(
         "encrustment instability",
         currentEntityId,
       ),
-      modifiers: parseEncrustmentModifiers(
+      modifiers: parseStatModifiers(
         record,
         context,
         provenance,
         currentEntityId,
+        "encrustment",
       ),
       powers: parseEncrustmentPowers(
         record,
@@ -1015,10 +1042,7 @@ function parseEncrustments(
         "skill",
         "slot",
         "instability",
-        "damagebuff",
-        "resistbuff",
-        "primarybuff",
-        "secondarybuff",
+        ...matchingStatModifierElementNames(record),
         "power",
         "encrustwith",
       ]),
@@ -1139,6 +1163,13 @@ function parseSkills(
       currentEntityId,
       "ability",
     );
+    const modifiers = parseStatModifiers(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+      "ability",
+    );
     const ability: Ability = {
       ...baseEntity(
         "ability",
@@ -1163,6 +1194,7 @@ function parseSkills(
         0,
       ),
       startSkill: booleanAttribute(record, "startSkill"),
+      modifiers,
       triggers,
       spellKeys: triggers
         .map((trigger) => trigger.spellKey)
@@ -1174,6 +1206,7 @@ function parseSkills(
       record,
       new Set([
         "description",
+        ...matchingStatModifierElementNames(record),
         ...directItemTriggerSpecs.map((spec) => spec.childName),
       ]),
       currentEntityId,

@@ -5,13 +5,16 @@ import { notFound } from "next/navigation";
 import {
   entityRouteSlugs,
   matchesEntityRoute,
-  type EncrustmentModifier,
   type Item,
   type ItemReference,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  signedStatModifierValue,
+  statModifierLabel,
+} from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -22,23 +25,6 @@ function titleCase(value: string): string {
       (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
     )
     .join(" ");
-}
-
-function modifierLabel(modifier: EncrustmentModifier): string {
-  switch (modifier.kind) {
-    case "damage":
-      return `${titleCase(modifier.sourceKey)} damage`;
-    case "resistance":
-      return `${titleCase(modifier.sourceKey)} resistance`;
-    case "primary":
-      return `Primary attribute ${modifier.sourceKey}`;
-    case "secondary":
-      return `Secondary stat ${modifier.sourceKey}`;
-  }
-}
-
-function signedValue(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 function powerFrequency(chance: number | null): string {
@@ -260,8 +246,8 @@ export default async function EncrustmentPage({
                       <div
                         key={`${modifier.kind}:${modifier.sourceKey}:${index}`}
                       >
-                        <dt>{modifierLabel(modifier)}</dt>
-                        <dd>{signedValue(modifier.amount)}</dd>
+                        <dt>{statModifierLabel(modifier)}</dt>
+                        <dd>{signedStatModifierValue(modifier.amount)}</dd>
                       </div>
                     ))}
                   </dl>

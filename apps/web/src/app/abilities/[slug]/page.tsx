@@ -7,6 +7,10 @@ import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
+import {
+  signedStatModifierValue,
+  statModifierLabel,
+} from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -30,7 +34,7 @@ export async function generateMetadata({
         title: ability.name,
         description:
           ability.description ||
-          "Ability with normalized skill progression and spell triggers.",
+          "Ability with normalized skill progression, modifiers, and spell triggers.",
         ...(slug === ability.slug
           ? {}
           : { robots: { index: false, follow: true } }),
@@ -111,6 +115,10 @@ export default async function AbilityPage({
             <dd>{ability.triggers.length}</dd>
           </div>
           <div>
+            <dt>Modifiers</dt>
+            <dd>{ability.modifiers.length}</dd>
+          </div>
+          <div>
             <dt>Skill</dt>
             <dd>{skill?.name ?? ability.skillKey}</dd>
           </div>
@@ -146,6 +154,41 @@ export default async function AbilityPage({
               </span>
             </li>
           </ul>
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="ability-modifiers-heading"
+        >
+          <h2 id="ability-modifiers-heading" className="section-title-sm">
+            Direct modifiers
+          </h2>
+          {ability.modifiers.length > 0 ? (
+            <>
+              <dl className="stat-list">
+                {ability.modifiers.map((modifier, index) => (
+                  <div key={`${modifier.kind}:${modifier.sourceKey}:${index}`}>
+                    <dt>{statModifierLabel(modifier)}</dt>
+                    <dd>{signedStatModifierValue(modifier.amount)}</dd>
+                  </div>
+                ))}
+              </dl>
+              {ability.modifiers.some(
+                (modifier) =>
+                  modifier.kind === "primary" || modifier.kind === "secondary",
+              ) ? (
+                <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                  Primary and secondary modifiers retain their numeric game stat
+                  IDs until an approved standalone stat-definition source is
+                  selected.
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized direct modifiers.
+            </p>
+          )}
         </section>
 
         <section

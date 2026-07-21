@@ -136,20 +136,25 @@ export interface Recipe extends NormalizedEntityBase {
   outputs: ItemReference[];
 }
 
-export const encrustmentModifierKinds = [
+export const statModifierKinds = [
   "damage",
   "resistance",
   "primary",
   "secondary",
 ] as const;
 
-export type EncrustmentModifierKind = (typeof encrustmentModifierKinds)[number];
+export type StatModifierKind = (typeof statModifierKinds)[number];
 
-export interface EncrustmentModifier {
-  kind: EncrustmentModifierKind;
+export interface StatModifier {
+  kind: StatModifierKind;
   sourceKey: string;
   amount: number;
 }
+
+export const encrustmentModifierKinds = statModifierKinds;
+export type EncrustmentModifierKind = StatModifierKind;
+export type EncrustmentModifier = StatModifier;
+export type AbilityModifier = StatModifier;
 
 export interface EncrustmentPower {
   name: string;
@@ -202,6 +207,7 @@ export interface Ability extends NormalizedEntityBase {
   iconPath: string | null;
   level: number;
   startSkill: boolean;
+  modifiers: AbilityModifier[];
   triggers: SpellTrigger[];
   spellKeys: string[];
   spellIds: string[];

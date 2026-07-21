@@ -67,6 +67,7 @@ function ability(
     iconPath: null,
     level,
     startSkill,
+    modifiers: [],
     triggers: [],
     spellKeys: [],
     spellIds: [],

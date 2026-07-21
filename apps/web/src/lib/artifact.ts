@@ -2,17 +2,15 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
-  encrustmentModifierKinds,
   itemTriggerKinds,
+  statModifierKinds,
   type DatasetArtifact,
   type Diagnostic,
   type SearchArtifact,
 } from "@dredmorpedia/domain";
 
 const itemTriggerKindSet: ReadonlySet<string> = new Set(itemTriggerKinds);
-const encrustmentModifierKindSet: ReadonlySet<string> = new Set(
-  encrustmentModifierKinds,
-);
+const statModifierKindSet: ReadonlySet<string> = new Set(statModifierKinds);
 
 function generatedFile(name: string): string {
   const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
@@ -69,6 +67,21 @@ function hasValidSpellTrigger(trigger: unknown): boolean {
     (trigger.monsterTaxonomy === null ||
       typeof trigger.monsterTaxonomy === "string") &&
     (!("spellId" in trigger) || typeof trigger.spellId === "string")
+  );
+}
+
+function hasValidStatModifier(modifier: unknown): boolean {
+  return (
+    modifier !== null &&
+    typeof modifier === "object" &&
+    "kind" in modifier &&
+    typeof modifier.kind === "string" &&
+    statModifierKindSet.has(modifier.kind) &&
+    "sourceKey" in modifier &&
+    typeof modifier.sourceKey === "string" &&
+    "amount" in modifier &&
+    typeof modifier.amount === "number" &&
+    Number.isFinite(modifier.amount)
   );
 }
 
@@ -150,19 +163,7 @@ function hasValidEncrustments(value: unknown): boolean {
       Number.isInteger(encrustment.instability) &&
       "modifiers" in encrustment &&
       Array.isArray(encrustment.modifiers) &&
-      encrustment.modifiers.every(
-        (modifier: unknown) =>
-          modifier !== null &&
-          typeof modifier === "object" &&
-          "kind" in modifier &&
-          typeof modifier.kind === "string" &&
-          encrustmentModifierKindSet.has(modifier.kind) &&
-          "sourceKey" in modifier &&
-          typeof modifier.sourceKey === "string" &&
-          "amount" in modifier &&
-          typeof modifier.amount === "number" &&
-          Number.isFinite(modifier.amount),
-      ) &&
+      encrustment.modifiers.every(hasValidStatModifier) &&
       "powers" in encrustment &&
       Array.isArray(encrustment.powers) &&
       encrustment.powers.every(
@@ -363,6 +364,9 @@ function hasValidAbilities(value: unknown): boolean {
       ability.level >= 0 &&
       "startSkill" in ability &&
       typeof ability.startSkill === "boolean" &&
+      "modifiers" in ability &&
+      Array.isArray(ability.modifiers) &&
+      ability.modifiers.every(hasValidStatModifier) &&
       "triggers" in ability &&
       Array.isArray(ability.triggers) &&
       ability.triggers.every(hasValidSpellTrigger) &&

@@ -302,6 +302,21 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
     page.getByRole("heading", { level: 1, name: "Measured Strike" }),
   ).toBeVisible();
 
+  const modifiers = page.getByRole("region", {
+    name: "Direct modifiers",
+    exact: true,
+  });
+  await expect(modifiers.getByText("Crushing damage")).toBeVisible();
+  await expect(modifiers.getByText("+2", { exact: true })).toBeVisible();
+  await expect(modifiers.getByText("Voltaic damage")).toBeVisible();
+  await expect(modifiers.getByText("-1", { exact: true })).toBeVisible();
+  await expect(modifiers.getByText("Toxic resistance")).toBeVisible();
+  await expect(modifiers.getByText("Primary attribute 2")).toBeVisible();
+  await expect(modifiers.getByText("Secondary stat 6")).toBeVisible();
+  await expect(
+    modifiers.getByText(/retain their numeric game stat IDs/),
+  ).toBeVisible();
+
   const triggers = page.getByRole("region", {
     name: "Spell triggers",
     exact: true,
