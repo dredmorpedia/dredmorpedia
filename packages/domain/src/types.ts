@@ -268,7 +268,45 @@ export interface MonsterSightMetadata {
   modifier: number | null;
 }
 
-export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;
+export interface MonsterDigMetadata {
+  chance: number | null;
+  ambushChance: number | null;
+  blockedChance: number | null;
+  minimumTurns: number | null;
+  maximumTurns: number | null;
+  minimumDistance: number | null;
+}
+
+export interface MonsterDashMetadata {
+  chance: number | null;
+  speed: number | null;
+  minimumDistance: number | null;
+  interruptible: boolean | null;
+}
+
+export interface MonsterChargeMetadata {
+  chance: number | null;
+  range: number | null;
+  turns: number | null;
+  interruptible: boolean | null;
+  blocksAction: boolean | null;
+  targetsSelf: boolean | null;
+}
+
+export interface MonsterMovementMetadata {
+  dig: MonsterDigMetadata | null;
+  dash: MonsterDashMetadata | null;
+  charge: MonsterChargeMetadata | null;
+}
+
+export const monsterSpellTriggerKinds = [
+  "on-hit",
+  "cast-when-aware",
+  "on-death",
+  "dash-hit",
+  "dash-miss",
+  "charge",
+] as const;
 
 export type MonsterSpellTriggerKind = (typeof monsterSpellTriggerKinds)[number];
 
@@ -313,6 +351,7 @@ export interface Monster extends NormalizedEntityBase {
   archetypeLevels: MonsterArchetypeLevels;
   ai: MonsterAiMetadata;
   sight: MonsterSightMetadata;
+  movement: MonsterMovementMetadata;
   experienceValue: number | null;
   modifiers: StatModifier[];
   spellChance: number | null;

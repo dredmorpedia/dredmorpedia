@@ -463,6 +463,54 @@ test("shows inherited monster stats and navigates its family", async ({
     sightMetadata.getByText(/without inferring their gameplay behavior/i),
   ).toBeVisible();
 
+  const movementMetadata = page.getByRole("region", {
+    name: "Movement source metadata",
+  });
+  const digMetadata = movementMetadata.getByRole("region", { name: "Dig" });
+  await expect(
+    digMetadata.getByText("Chance").locator("..").getByText("40%"),
+  ).toBeVisible();
+  await expect(
+    digMetadata.getByText("Ambush chance").locator("..").getByText("25%"),
+  ).toBeVisible();
+  const dashMetadata = movementMetadata.getByRole("region", { name: "Dash" });
+  await expect(
+    dashMetadata.getByText("Chance").locator("..").getByText("75%"),
+  ).toBeVisible();
+  await expect(
+    dashMetadata
+      .getByText("Interruptible source flag")
+      .locator("..")
+      .getByText("Enabled"),
+  ).toBeVisible();
+  const chargeMetadata = movementMetadata.getByRole("region", {
+    name: "Charge",
+  });
+  await expect(
+    chargeMetadata.getByText("Chance").locator("..").getByText("15%"),
+  ).toBeVisible();
+  await expect(
+    chargeMetadata
+      .getByText("Interruptible source flag")
+      .locator("..")
+      .getByText("Disabled"),
+  ).toBeVisible();
+  await expect(
+    chargeMetadata
+      .getByText("Blocks action source flag")
+      .locator("..")
+      .getByText("Enabled"),
+  ).toBeVisible();
+  await expect(
+    chargeMetadata
+      .getByText("Targets self source flag")
+      .locator("..")
+      .getByText("Disabled"),
+  ).toBeVisible();
+  await expect(
+    movementMetadata.getByText(/no complete movement behavior is inferred/i),
+  ).toBeVisible();
+
   const bonuses = page.getByRole("region", { name: "Stat bonuses" });
   await expect(bonuses.getByText("Crushing damage")).toBeVisible();
   await expect(bonuses.getByText("+3", { exact: true })).toBeVisible();
@@ -477,7 +525,7 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(spellHooks.getByText("20%", { exact: true })).toBeVisible();
   await expect(
     spellHooks.getByRole("link", { name: "Clockwork Echo" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
   await expect(spellHooks.getByText("When its attack hits")).toBeVisible();
   await expect(
     spellHooks.getByText("1 in 3 (about 33%)", { exact: true }),
@@ -485,8 +533,18 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(
     spellHooks.getByText("Missing Monster Spell", { exact: true }),
   ).toBeVisible();
+  await expect(spellHooks.getByText("Unresolved spell reference")).toHaveCount(
+    2,
+  );
+  await expect(spellHooks.getByText("When defeated")).toBeVisible();
+  await expect(spellHooks.getByText("When a dash hits")).toBeVisible();
+  await expect(spellHooks.getByText("When a dash misses")).toBeVisible();
+  await expect(spellHooks.getByText("During a charge")).toBeVisible();
   await expect(
-    spellHooks.getByText("Unresolved spell reference"),
+    spellHooks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toHaveCount(2);
+  await expect(
+    spellHooks.getByText("Missing Dash Spell", { exact: true }),
   ).toBeVisible();
 
   const drops = page.getByRole("region", { name: "Drops on defeat" });
@@ -516,12 +574,18 @@ test("shows inherited monster stats and navigates its family", async ({
     .click();
   await expect(page).toHaveURL(/\/monsters\/armored-training-diggle\/$/);
 
-  await spellHooks.getByRole("link", { name: "Clockwork Echo" }).click();
+  await spellHooks
+    .getByText("When aware of the player")
+    .locator("..")
+    .getByRole("link", { name: "Clockwork Echo" })
+    .click();
   await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
   const backlinks = page.getByRole("region", { name: "Referenced by" });
   await expect(
     backlinks.getByRole("link", { name: "Armored Training Diggle" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
+  await expect(backlinks.getByText("Aware-casting spell")).toBeVisible();
+  await expect(backlinks.getByText("Charge spell")).toBeVisible();
   await expect(
     backlinks.getByRole("link", { name: "Training Diggle", exact: true }),
   ).toBeVisible();
@@ -549,6 +613,11 @@ test("shows inherited monster stats and navigates its family", async ({
       .getByRole("region", { name: "Sight source metadata" })
       .getByText("Not supplied", { exact: true }),
   ).toHaveCount(2);
+  await expect(
+    page
+      .getByRole("region", { name: "Movement source metadata" })
+      .getByText("Not supplied", { exact: true }),
+  ).toHaveCount(3);
   const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
   await expect(
     parentDrops.getByRole("link", { name: "Brass Ingot" }),

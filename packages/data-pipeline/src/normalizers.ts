@@ -4,6 +4,7 @@ import {
   canonicalKey,
   entityId,
   itemTriggerKinds,
+  monsterSpellTriggerKinds,
   slugify,
   type Ability,
   type Encrustment,
@@ -133,6 +134,10 @@ const effectTriggerKinds: Readonly<Record<string, ItemTriggerKind>> = {
 
 const itemTriggerKindRanks = new Map(
   itemTriggerKinds.map((kind, index) => [kind, index]),
+);
+
+const monsterSpellTriggerKindRanks = new Map(
+  monsterSpellTriggerKinds.map((kind, index) => [kind, index]),
 );
 
 const partiallySupportedItemChildren = new Set([
@@ -378,6 +383,15 @@ function parseItemTriggers(
 function booleanAttribute(record: XmlRecord, name: string): boolean {
   const value = xmlAttribute(record, name);
   return value === "1" || value === "true";
+}
+
+function optionalBooleanAttribute(
+  record: XmlRecord,
+  name: string,
+): boolean | null {
+  return xmlAttribute(record, name) === undefined
+    ? null
+    : booleanAttribute(record, name);
 }
 
 function integerValue(
@@ -1485,6 +1499,98 @@ function parseMonsters(
         currentEntityId,
       );
     }
+    const dig = xmlChildren(record, "dig")[0];
+    const dash = xmlChildren(record, "dash")[0];
+    const charge = xmlChildren(record, "charge")[0];
+    const onDeathRecords = xmlChildren(record, "ondeath");
+    const optionalMovementInteger = (
+      behavior: XmlRecord,
+      attribute: string,
+      field: string,
+      maximum?: number,
+    ): number | null => {
+      const value = xmlAttribute(behavior, attribute);
+      return value === undefined
+        ? null
+        : integerValue(
+            value,
+            0,
+            context,
+            provenance,
+            field,
+            currentEntityId,
+            0,
+            maximum,
+          );
+    };
+    if (dig) {
+      reportUnknownAttributes(
+        context,
+        dig,
+        "dig",
+        new Set([
+          "percent",
+          "ambushpercent",
+          "blockedpercent",
+          "minturns",
+          "maxTurns",
+          "mindistance",
+        ]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    if (dash) {
+      reportUnknownAttributes(
+        context,
+        dash,
+        "dash",
+        new Set([
+          "chance",
+          "speed",
+          "mindistance",
+          "interruptable",
+          "hitspell",
+          "missspell",
+        ]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    if (charge) {
+      reportUnknownAttributes(
+        context,
+        charge,
+        "charge",
+        new Set([
+          "chance",
+          "range",
+          "turns",
+          "interruptable",
+          "blockaction",
+          "targetself",
+          "spell",
+        ]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    for (const onDeath of onDeathRecords) {
+      reportUnknownAttributes(
+        context,
+        onDeath,
+        "ondeath",
+        new Set(["percent", "spell"]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    const dashChance = dash
+      ? optionalMovementInteger(dash, "chance", "monster dash chance", 100)
+      : null;
+    const chargeChance = charge
+      ? optionalMovementInteger(charge, "chance", "monster charge chance", 100)
+      : null;
     const ai = xmlChildren(record, "ai")[0];
     const spellChanceText = ai
       ? (xmlAttribute(ai, "spellPercentage") ??
@@ -1593,10 +1699,67 @@ function parseMonsters(
         oneChanceIn: null,
       });
     }
+    const addBehaviorTrigger = (
+      behavior: XmlRecord,
+      kind: MonsterSpellTrigger["kind"],
+      spellAttribute: string,
+      chance: number | null,
+    ) => {
+      const spellName = xmlAttribute(behavior, spellAttribute);
+      if (!spellName) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_monster_trigger_spell",
+          message: `A monster ${kind} trigger is missing its spell reference.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { triggerKind: kind },
+        });
+        return;
+      }
+      triggers.push({
+        kind,
+        spellKey: canonicalKey(spellName),
+        spellName,
+        chance,
+        oneChanceIn: null,
+      });
+    };
+    for (const onDeath of onDeathRecords) {
+      const percent = xmlAttribute(onDeath, "percent");
+      addBehaviorTrigger(
+        onDeath,
+        "on-death",
+        "spell",
+        percent === undefined
+          ? null
+          : integerValue(
+              percent,
+              0,
+              context,
+              provenance,
+              "monster on-death chance",
+              currentEntityId,
+              0,
+              100,
+            ),
+      );
+    }
+    if (dash) {
+      if (xmlAttribute(dash, "hitspell") !== undefined) {
+        addBehaviorTrigger(dash, "dash-hit", "hitspell", dashChance);
+      }
+      if (xmlAttribute(dash, "missspell") !== undefined) {
+        addBehaviorTrigger(dash, "dash-miss", "missspell", dashChance);
+      }
+    }
+    if (charge && xmlAttribute(charge, "spell") !== undefined) {
+      addBehaviorTrigger(charge, "charge", "spell", chargeChance);
+    }
     triggers.sort(
       (left, right) =>
-        Number(left.kind === "cast-when-aware") -
-          Number(right.kind === "cast-when-aware") ||
+        (monsterSpellTriggerKindRanks.get(left.kind) ?? 0) -
+          (monsterSpellTriggerKindRanks.get(right.kind) ?? 0) ||
         left.spellKey.localeCompare(right.spellKey, "en") ||
         (left.oneChanceIn ?? -1) - (right.oneChanceIn ?? -1),
     );
@@ -1770,6 +1933,79 @@ function parseMonsters(
                 0,
               ),
       },
+      movement: {
+        dig: dig
+          ? {
+              chance: optionalMovementInteger(
+                dig,
+                "percent",
+                "monster dig chance",
+                100,
+              ),
+              ambushChance: optionalMovementInteger(
+                dig,
+                "ambushpercent",
+                "monster dig ambush chance",
+                100,
+              ),
+              blockedChance: optionalMovementInteger(
+                dig,
+                "blockedpercent",
+                "monster dig blocked chance",
+                100,
+              ),
+              minimumTurns: optionalMovementInteger(
+                dig,
+                "minturns",
+                "monster dig minimum turns",
+              ),
+              maximumTurns: optionalMovementInteger(
+                dig,
+                "maxTurns",
+                "monster dig maximum turns",
+              ),
+              minimumDistance: optionalMovementInteger(
+                dig,
+                "mindistance",
+                "monster dig minimum distance",
+              ),
+            }
+          : null,
+        dash: dash
+          ? {
+              chance: dashChance,
+              speed: optionalMovementInteger(
+                dash,
+                "speed",
+                "monster dash speed",
+              ),
+              minimumDistance: optionalMovementInteger(
+                dash,
+                "mindistance",
+                "monster dash minimum distance",
+              ),
+              interruptible: optionalBooleanAttribute(dash, "interruptable"),
+            }
+          : null,
+        charge: charge
+          ? {
+              chance: chargeChance,
+              range: optionalMovementInteger(
+                charge,
+                "range",
+                "monster charge range",
+              ),
+              turns: optionalMovementInteger(
+                charge,
+                "turns",
+                "monster charge turns",
+              ),
+              interruptible: optionalBooleanAttribute(charge, "interruptable"),
+              blocksAction: optionalBooleanAttribute(charge, "blockaction"),
+              targetsSelf: optionalBooleanAttribute(charge, "targetself"),
+            }
+          : null,
+      },
       experienceValue:
         !stats || xmlAttribute(stats, "xpValue") === undefined
           ? null
@@ -1817,6 +2053,10 @@ function parseMonsters(
         "monster",
         "ai",
         "sight",
+        "dig",
+        "dash",
+        "charge",
+        "ondeath",
       ]),
       currentEntityId,
     );

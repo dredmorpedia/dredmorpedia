@@ -43,6 +43,7 @@ function monster(name: string, itemId?: string): Monster {
       stealPercentage: null,
     },
     sight: { cone: null, modifier: null },
+    movement: { dig: null, dash: null, charge: null },
     experienceValue: 0,
     modifiers: [],
     spellChance: null,

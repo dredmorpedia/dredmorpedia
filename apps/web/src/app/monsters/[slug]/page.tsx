@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+import {
+  entityRouteSlugs,
+  matchesEntityRoute,
+  type MonsterSpellTriggerKind,
+} from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
@@ -22,6 +26,16 @@ function titleCase(value: string): string {
 function sourceFlagLabel(value: boolean | null): string {
   return value === null ? "Not supplied" : value ? "Enabled" : "Disabled";
 }
+
+const monsterTriggerLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
+  {
+    "on-hit": "When its attack hits",
+    "cast-when-aware": "When aware of the player",
+    "on-death": "When defeated",
+    "dash-hit": "When a dash hits",
+    "dash-miss": "When a dash misses",
+    charge: "During a charge",
+  };
 
 export const dynamicParams = false;
 
@@ -257,6 +271,152 @@ export default async function MonsterPage({
           </p>
         </section>
 
+        <section className="detail-card" aria-labelledby="movement-heading">
+          <h2 id="movement-heading" className="section-title-sm">
+            Movement source metadata
+          </h2>
+          <div className="relationship-groups">
+            <section aria-labelledby="dig-movement-heading">
+              <h3 id="dig-movement-heading" className="relationship-title">
+                Dig
+              </h3>
+              {monster.movement.dig ? (
+                <dl className="stat-list">
+                  <div>
+                    <dt>Chance</dt>
+                    <dd>
+                      {monster.movement.dig.chance === null
+                        ? "Not supplied"
+                        : `${monster.movement.dig.chance}%`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Ambush chance</dt>
+                    <dd>
+                      {monster.movement.dig.ambushChance === null
+                        ? "Not supplied"
+                        : `${monster.movement.dig.ambushChance}%`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Blocked chance</dt>
+                    <dd>
+                      {monster.movement.dig.blockedChance === null
+                        ? "Not supplied"
+                        : `${monster.movement.dig.blockedChance}%`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Minimum turns</dt>
+                    <dd>
+                      {monster.movement.dig.minimumTurns ?? "Not supplied"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Maximum turns</dt>
+                    <dd>
+                      {monster.movement.dig.maximumTurns ?? "Not supplied"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Minimum distance</dt>
+                    <dd>
+                      {monster.movement.dig.minimumDistance ?? "Not supplied"}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not supplied</p>
+              )}
+            </section>
+            <section aria-labelledby="dash-movement-heading">
+              <h3 id="dash-movement-heading" className="relationship-title">
+                Dash
+              </h3>
+              {monster.movement.dash ? (
+                <dl className="stat-list">
+                  <div>
+                    <dt>Chance</dt>
+                    <dd>
+                      {monster.movement.dash.chance === null
+                        ? "Not supplied"
+                        : `${monster.movement.dash.chance}%`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Speed</dt>
+                    <dd>{monster.movement.dash.speed ?? "Not supplied"}</dd>
+                  </div>
+                  <div>
+                    <dt>Minimum distance</dt>
+                    <dd>
+                      {monster.movement.dash.minimumDistance ?? "Not supplied"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Interruptible source flag</dt>
+                    <dd>
+                      {sourceFlagLabel(monster.movement.dash.interruptible)}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not supplied</p>
+              )}
+            </section>
+            <section aria-labelledby="charge-movement-heading">
+              <h3 id="charge-movement-heading" className="relationship-title">
+                Charge
+              </h3>
+              {monster.movement.charge ? (
+                <dl className="stat-list">
+                  <div>
+                    <dt>Chance</dt>
+                    <dd>
+                      {monster.movement.charge.chance === null
+                        ? "Not supplied"
+                        : `${monster.movement.charge.chance}%`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Range</dt>
+                    <dd>{monster.movement.charge.range ?? "Not supplied"}</dd>
+                  </div>
+                  <div>
+                    <dt>Turns</dt>
+                    <dd>{monster.movement.charge.turns ?? "Not supplied"}</dd>
+                  </div>
+                  <div>
+                    <dt>Interruptible source flag</dt>
+                    <dd>
+                      {sourceFlagLabel(monster.movement.charge.interruptible)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Blocks action source flag</dt>
+                    <dd>
+                      {sourceFlagLabel(monster.movement.charge.blocksAction)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Targets self source flag</dt>
+                    <dd>
+                      {sourceFlagLabel(monster.movement.charge.targetsSelf)}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not supplied</p>
+              )}
+            </section>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These local declarations are shown as source metadata. They do not
+            inherit from a parent monster, and no complete movement behavior is
+            inferred from them.
+          </p>
+        </section>
+
         <section className="detail-card" aria-labelledby="spell-hooks-heading">
           <h2 id="spell-hooks-heading" className="section-title-sm">
             Spell hooks
@@ -267,10 +427,7 @@ export default async function MonsterPage({
                 const spell = trigger.spellId
                   ? spellsById.get(trigger.spellId)
                   : undefined;
-                const eventLabel =
-                  trigger.kind === "on-hit"
-                    ? "When its attack hits"
-                    : "When aware of the player";
+                const eventLabel = monsterTriggerLabels[trigger.kind];
                 const chanceLabel =
                   trigger.oneChanceIn !== null
                     ? trigger.oneChanceIn === 1
@@ -323,6 +480,7 @@ export default async function MonsterPage({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             One-in odds remain exact. Approximate percentages are rounded only
             for display; an AI casting chance may inherit from the parent.
+            Movement-hook percentages remain uninterpreted source values.
           </p>
         </section>
 

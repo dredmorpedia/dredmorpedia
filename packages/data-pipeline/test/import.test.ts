@@ -587,6 +587,177 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("preserves local monster movement metadata and behavior spell hooks", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-monster-movement-metadata-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "monDB.xml"),
+      `<?xml version="1.0"?>
+<monsters>
+  <monster name="Behavior Supplied">
+    <dig percent="40" ambushpercent="25" blockedpercent="100" minturns="2" maxTurns="5" mindistance="3" futureDig="synthetic" />
+    <dash chance="75" speed="3" mindistance="2" interruptable="1" hitspell="Known Behavior Spell" missspell="Missing Behavior Spell" futureDash="synthetic" />
+    <charge chance="15" range="5" turns="3" interruptable="0" blockaction="1" targetself="0" spell="Known Behavior Spell" futureCharge="synthetic" />
+    <ondeath percent="45" spell="Known Behavior Spell" futureDeath="synthetic" />
+  </monster>
+  <monster name="Behavior Invalid">
+    <dig percent="-1" ambushpercent="101" blockedpercent="-1" minturns="1.5" maxTurns="bad" mindistance="-3" />
+    <dash chance="101" speed="-1" mindistance="bad" interruptable="0" hitspell="Known Behavior Spell" missspell="Known Behavior Spell" />
+    <charge chance="-1" range="-1" turns="bad" interruptable="1" blockaction="0" targetself="1" spell="Known Behavior Spell" />
+    <ondeath percent="101" spell="Known Behavior Spell" />
+  </monster>
+  <monster name="Behavior Absent" />
+</monsters>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spells><spell name="Known Behavior Spell" type="utility" /></spells>`,
+    );
+    const behaviorManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      behaviorManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "monster-movement-metadata-test",
+        sources: [
+          {
+            id: "monster-movement-source",
+            label: "Monster Movement Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "monsters", path: "monDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: behaviorManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const monsters = new Map(
+      result.artifact.entities.monsters.map((monster) => [
+        monster.name,
+        monster,
+      ]),
+    );
+
+    expect(monsters.get("Behavior Supplied")?.movement).toEqual({
+      dig: {
+        chance: 40,
+        ambushChance: 25,
+        blockedChance: 100,
+        minimumTurns: 2,
+        maximumTurns: 5,
+        minimumDistance: 3,
+      },
+      dash: {
+        chance: 75,
+        speed: 3,
+        minimumDistance: 2,
+        interruptible: true,
+      },
+      charge: {
+        chance: 15,
+        range: 5,
+        turns: 3,
+        interruptible: false,
+        blocksAction: true,
+        targetsSelf: false,
+      },
+    });
+    expect(monsters.get("Behavior Invalid")?.movement).toEqual({
+      dig: {
+        chance: 0,
+        ambushChance: 0,
+        blockedChance: 0,
+        minimumTurns: 0,
+        maximumTurns: 0,
+        minimumDistance: 0,
+      },
+      dash: {
+        chance: 0,
+        speed: 0,
+        minimumDistance: 0,
+        interruptible: false,
+      },
+      charge: {
+        chance: 0,
+        range: 0,
+        turns: 0,
+        interruptible: true,
+        blocksAction: false,
+        targetsSelf: true,
+      },
+    });
+    expect(monsters.get("Behavior Absent")?.movement).toEqual({
+      dig: null,
+      dash: null,
+      charge: null,
+    });
+    expect(monsters.get("Behavior Supplied")?.triggers).toMatchObject([
+      {
+        kind: "on-death",
+        spellId: "spell:known behavior spell",
+        chance: 45,
+      },
+      {
+        kind: "dash-hit",
+        spellId: "spell:known behavior spell",
+        chance: 75,
+      },
+      {
+        kind: "dash-miss",
+        spellName: "Missing Behavior Spell",
+        chance: 75,
+      },
+      {
+        kind: "charge",
+        spellId: "spell:known behavior spell",
+        chance: 15,
+      },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "invalid_number" &&
+          diagnostic.entityId === "monster:behavior invalid",
+      ),
+    ).toHaveLength(13);
+    for (const [element, attribute] of [
+      ["dig", "futureDig"],
+      ["dash", "futureDash"],
+      ["charge", "futureCharge"],
+      ["ondeath", "futureDeath"],
+    ]) {
+      expect(result.diagnostics).toContainEqual(
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "monster:behavior supplied",
+          details: { element, attribute },
+        }),
+      );
+    }
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "monster:behavior supplied",
+        details: expect.objectContaining({
+          reference: "Missing Behavior Spell",
+        }),
+      }),
+    );
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -896,6 +1067,30 @@ describe("synthetic dataset import", () => {
         stealPercentage: 20,
       },
       sight: { cone: 270, modifier: 1.25 },
+      movement: {
+        dig: {
+          chance: 40,
+          ambushChance: 25,
+          blockedChance: 100,
+          minimumTurns: 2,
+          maximumTurns: 5,
+          minimumDistance: 3,
+        },
+        dash: {
+          chance: 75,
+          speed: 3,
+          minimumDistance: 2,
+          interruptible: true,
+        },
+        charge: {
+          chance: 15,
+          range: 5,
+          turns: 3,
+          interruptible: false,
+          blocksAction: true,
+          targetsSelf: false,
+        },
+      },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -919,6 +1114,30 @@ describe("synthetic dataset import", () => {
           spellName: "Clockwork Echo",
           spellId: "spell:clockwork echo",
           chance: 20,
+          oneChanceIn: null,
+        },
+        {
+          kind: "on-death",
+          spellId: "spell:clockwork spark",
+          chance: 45,
+          oneChanceIn: null,
+        },
+        {
+          kind: "dash-hit",
+          spellId: "spell:clockwork spark",
+          chance: 75,
+          oneChanceIn: null,
+        },
+        {
+          kind: "dash-miss",
+          spellName: "Missing Dash Spell",
+          chance: 75,
+          oneChanceIn: null,
+        },
+        {
+          kind: "charge",
+          spellId: "spell:clockwork echo",
+          chance: 15,
           oneChanceIn: null,
         },
       ],
@@ -949,6 +1168,7 @@ describe("synthetic dataset import", () => {
         stealPercentage: null,
       },
       sight: { cone: null, modifier: null },
+      movement: { dig: null, dash: null, charge: null },
       spellChance: 20,
       triggers: [
         {

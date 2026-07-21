@@ -7,6 +7,7 @@ import {
   matchesEntityRoute,
   spellEffectBacklinks,
   spellEffectChain,
+  type MonsterSpellTriggerKind,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
@@ -26,6 +27,16 @@ function titleCase(value: string): string {
 function signedValue(value: number): string {
   return value > 0 ? `+${value}` : String(value);
 }
+
+const monsterBacklinkLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
+  {
+    "on-hit": "On-hit spell",
+    "cast-when-aware": "Aware-casting spell",
+    "on-death": "On-defeat spell",
+    "dash-hit": "Dash-hit spell",
+    "dash-miss": "Dash-miss spell",
+    charge: "Charge spell",
+  };
 
 export function generateStaticParams() {
   return loadArtifact().entities.spells.flatMap((spell) =>
@@ -417,11 +428,7 @@ export default async function SpellPage({
                           >
                             {monster.name}
                           </Link>
-                          <span>
-                            {trigger.kind === "on-hit"
-                              ? "On-hit spell"
-                              : "Aware-casting spell"}
-                          </span>
+                          <span>{monsterBacklinkLabels[trigger.kind]}</span>
                         </li>
                       ),
                     )}

@@ -41,6 +41,20 @@ function monster(name: string, inheritsKey?: string): Monster {
     sight: inheritsKey
       ? { cone: null, modifier: null }
       : { cone: 90, modifier: 0.8 },
+    movement: inheritsKey
+      ? { dig: null, dash: null, charge: null }
+      : {
+          dig: {
+            chance: 20,
+            ambushChance: 20,
+            blockedChance: 100,
+            minimumTurns: 3,
+            maximumTurns: 6,
+            minimumDistance: 3,
+          },
+          dash: null,
+          charge: null,
+        },
     experienceValue: 10,
     modifiers: inheritsKey
       ? [{ kind: "damage", sourceKey: "crushing", amount: 3 }]
@@ -111,6 +125,11 @@ describe("monster inheritance", () => {
       stealPercentage: 20,
     });
     expect(resolvedChild?.sight).toEqual({ cone: null, modifier: null });
+    expect(resolvedChild?.movement).toEqual({
+      dig: null,
+      dash: null,
+      charge: null,
+    });
     expect(resolvedChild?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 3 },
       { kind: "resistance", sourceKey: "toxic", amount: 2 },

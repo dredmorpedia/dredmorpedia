@@ -116,6 +116,84 @@ function hasValidMonsterSpellTrigger(trigger: unknown): boolean {
   );
 }
 
+function hasValidNullableInteger(value: unknown, maximum?: number): boolean {
+  return (
+    value === null ||
+    (typeof value === "number" &&
+      Number.isInteger(value) &&
+      value >= 0 &&
+      (maximum === undefined || value <= maximum))
+  );
+}
+
+function hasValidMonsterDigMetadata(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const metadata = value as Record<string, unknown>;
+  return (
+    hasValidNullableInteger(metadata.chance, 100) &&
+    hasValidNullableInteger(metadata.ambushChance, 100) &&
+    hasValidNullableInteger(metadata.blockedChance, 100) &&
+    hasValidNullableInteger(metadata.minimumTurns) &&
+    hasValidNullableInteger(metadata.maximumTurns) &&
+    hasValidNullableInteger(metadata.minimumDistance)
+  );
+}
+
+function hasValidMonsterDashMetadata(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const metadata = value as Record<string, unknown>;
+  return (
+    hasValidNullableInteger(metadata.chance, 100) &&
+    hasValidNullableInteger(metadata.speed) &&
+    hasValidNullableInteger(metadata.minimumDistance) &&
+    (metadata.interruptible === null ||
+      typeof metadata.interruptible === "boolean")
+  );
+}
+
+function hasValidMonsterChargeMetadata(value: unknown): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const metadata = value as Record<string, unknown>;
+  return (
+    hasValidNullableInteger(metadata.chance, 100) &&
+    hasValidNullableInteger(metadata.range) &&
+    hasValidNullableInteger(metadata.turns) &&
+    ["interruptible", "blocksAction", "targetsSelf"].every(
+      (key) => metadata[key] === null || typeof metadata[key] === "boolean",
+    )
+  );
+}
+
+function hasValidMonsterMovementMetadata(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const movement = value as Record<string, unknown>;
+  return (
+    "dig" in movement &&
+    hasValidMonsterDigMetadata(movement.dig) &&
+    "dash" in movement &&
+    hasValidMonsterDashMetadata(movement.dash) &&
+    "charge" in movement &&
+    hasValidMonsterChargeMetadata(movement.charge)
+  );
+}
+
 function hasValidSourceFlags(value: unknown): boolean {
   return (
     Array.isArray(value) &&
@@ -534,6 +612,8 @@ function hasValidMonsters(value: unknown): boolean {
           (typeof value === "number" && Number.isFinite(value) && value >= 0)
         );
       }) &&
+      "movement" in monster &&
+      hasValidMonsterMovementMetadata(monster.movement) &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&
