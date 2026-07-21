@@ -469,7 +469,7 @@ describe("synthetic dataset import", () => {
     );
   });
 
-  it("preserves absent, disabled, and enabled monster AI metadata", () => {
+  it("preserves loss-aware monster AI and sight source metadata", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-monster-ai-metadata-"),
     );
@@ -481,8 +481,8 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <monsters>
   <monster name="AI Not Supplied"><ai aggressiveness="1" span="4" futureflag="synthetic" /></monster>
-  <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /></monster>
-  <monster name="AI Enabled"><ai invisible="1" chicken="1" cancharm="1" canparalyze="1" stealgold="1" stealPercentage="50" /></monster>
+  <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /><sight cone="270" modifier="1.25" futureSight="synthetic" /></monster>
+  <monster name="AI Enabled"><ai invisible="1" chicken="1" cancharm="1" canparalyze="1" stealgold="1" stealPercentage="50" /><sight cone="-1" modifier="not-a-number" /></monster>
 </monsters>`,
     );
     const aiManifestPath = path.join(temporaryRoot, "manifest.json");
@@ -512,46 +512,55 @@ describe("synthetic dataset import", () => {
     expect(
       result.artifact.entities.monsters.map((monster) => [
         monster.name,
-        monster.ai,
+        { ai: monster.ai, sight: monster.sight },
       ]),
     ).toEqual([
       [
         "AI Disabled",
         {
-          aggressiveness: null,
-          span: null,
-          invisible: false,
-          chicken: false,
-          canCharm: false,
-          canParalyze: false,
-          stealGold: false,
-          stealPercentage: 0,
+          ai: {
+            aggressiveness: null,
+            span: null,
+            invisible: false,
+            chicken: false,
+            canCharm: false,
+            canParalyze: false,
+            stealGold: false,
+            stealPercentage: 0,
+          },
+          sight: { cone: 270, modifier: 1.25 },
         },
       ],
       [
         "AI Enabled",
         {
-          aggressiveness: null,
-          span: null,
-          invisible: true,
-          chicken: true,
-          canCharm: true,
-          canParalyze: true,
-          stealGold: true,
-          stealPercentage: 50,
+          ai: {
+            aggressiveness: null,
+            span: null,
+            invisible: true,
+            chicken: true,
+            canCharm: true,
+            canParalyze: true,
+            stealGold: true,
+            stealPercentage: 50,
+          },
+          sight: { cone: 0, modifier: 0 },
         },
       ],
       [
         "AI Not Supplied",
         {
-          aggressiveness: 1,
-          span: 4,
-          invisible: null,
-          chicken: null,
-          canCharm: null,
-          canParalyze: null,
-          stealGold: null,
-          stealPercentage: null,
+          ai: {
+            aggressiveness: 1,
+            span: 4,
+            invisible: null,
+            chicken: null,
+            canCharm: null,
+            canParalyze: null,
+            stealGold: null,
+            stealPercentage: null,
+          },
+          sight: { cone: null, modifier: null },
         },
       ],
     ]);
@@ -562,6 +571,20 @@ describe("synthetic dataset import", () => {
         details: { element: "ai", attribute: "futureflag" },
       }),
     );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unknown_attribute",
+        entityId: "monster:ai disabled",
+        details: { element: "sight", attribute: "futureSight" },
+      }),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "invalid_number" &&
+          diagnostic.entityId === "monster:ai enabled",
+      ),
+    ).toHaveLength(2);
   });
 
   it("produces byte-identical normalized artifacts and diagnostics", () => {
@@ -872,6 +895,7 @@ describe("synthetic dataset import", () => {
         stealGold: true,
         stealPercentage: 20,
       },
+      sight: { cone: 270, modifier: 1.25 },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -924,6 +948,7 @@ describe("synthetic dataset import", () => {
         stealGold: null,
         stealPercentage: null,
       },
+      sight: { cone: null, modifier: null },
       spellChance: 20,
       triggers: [
         {

@@ -452,6 +452,17 @@ test("shows inherited monster stats and navigates its family", async ({
     aiMetadata.getByText(/gameplay behavior is not inferred/i),
   ).toBeVisible();
 
+  const sightMetadata = page.getByRole("region", {
+    name: "Sight source metadata",
+  });
+  await expect(sightMetadata.getByText("Sight cone")).toBeVisible();
+  await expect(sightMetadata.getByText("270", { exact: true })).toBeVisible();
+  await expect(sightMetadata.getByText("Sight modifier")).toBeVisible();
+  await expect(sightMetadata.getByText("1.25", { exact: true })).toBeVisible();
+  await expect(
+    sightMetadata.getByText(/without inferring their gameplay behavior/i),
+  ).toBeVisible();
+
   const bonuses = page.getByRole("region", { name: "Stat bonuses" });
   await expect(bonuses.getByText("Crushing damage")).toBeVisible();
   await expect(bonuses.getByText("+3", { exact: true })).toBeVisible();
@@ -533,6 +544,11 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(
     parentAiMetadata.getByText("Not supplied", { exact: true }),
   ).toHaveCount(6);
+  await expect(
+    page
+      .getByRole("region", { name: "Sight source metadata" })
+      .getByText("Not supplied", { exact: true }),
+  ).toHaveCount(2);
   const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
   await expect(
     parentDrops.getByRole("link", { name: "Brass Ingot" }),

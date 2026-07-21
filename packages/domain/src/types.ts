@@ -263,6 +263,11 @@ export interface MonsterAiMetadata {
   stealPercentage: number | null;
 }
 
+export interface MonsterSightMetadata {
+  cone: number | null;
+  modifier: number | null;
+}
+
 export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;
 
 export type MonsterSpellTriggerKind = (typeof monsterSpellTriggerKinds)[number];
@@ -307,6 +312,7 @@ export interface Monster extends NormalizedEntityBase {
   paletteTint: number | null;
   archetypeLevels: MonsterArchetypeLevels;
   ai: MonsterAiMetadata;
+  sight: MonsterSightMetadata;
   experienceValue: number | null;
   modifiers: StatModifier[];
   spellChance: number | null;

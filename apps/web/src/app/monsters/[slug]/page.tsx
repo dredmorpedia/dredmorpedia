@@ -237,6 +237,26 @@ export default async function MonsterPage({
           </p>
         </section>
 
+        <section className="detail-card" aria-labelledby="sight-heading">
+          <h2 id="sight-heading" className="section-title-sm">
+            Sight source metadata
+          </h2>
+          <dl className="stat-list">
+            <div>
+              <dt>Sight cone</dt>
+              <dd>{monster.sight.cone ?? "Not supplied"}</dd>
+            </div>
+            <div>
+              <dt>Sight modifier</dt>
+              <dd>{monster.sight.modifier ?? "Not supplied"}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These local source values are shown without inferring their gameplay
+            behavior or inheriting values from a parent monster.
+          </p>
+        </section>
+
         <section className="detail-card" aria-labelledby="spell-hooks-heading">
           <h2 id="spell-hooks-heading" className="section-title-sm">
             Spell hooks

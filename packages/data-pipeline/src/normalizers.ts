@@ -1470,6 +1470,21 @@ function parseMonsters(
     const stats = xmlChildren(record, "stats")[0];
     const palette = xmlChildren(record, "palette")[0];
     const paletteTint = palette ? xmlAttribute(palette, "tint") : undefined;
+    const sight = xmlChildren(record, "sight")[0];
+    const sightConeText = sight ? xmlAttribute(sight, "cone") : undefined;
+    const sightModifierText = sight
+      ? xmlAttribute(sight, "modifier")
+      : undefined;
+    if (sight) {
+      reportUnknownAttributes(
+        context,
+        sight,
+        "sight",
+        new Set(["cone", "modifier"]),
+        provenance,
+        currentEntityId,
+      );
+    }
     const ai = xmlChildren(record, "ai")[0];
     const spellChanceText = ai
       ? (xmlAttribute(ai, "spellPercentage") ??
@@ -1729,6 +1744,32 @@ function parseMonsters(
                 100,
               ),
       },
+      sight: {
+        cone:
+          sightConeText === undefined
+            ? null
+            : numberValue(
+                sightConeText,
+                0,
+                context,
+                provenance,
+                "monster sight cone",
+                currentEntityId,
+                0,
+              ),
+        modifier:
+          sightModifierText === undefined
+            ? null
+            : numberValue(
+                sightModifierText,
+                0,
+                context,
+                provenance,
+                "monster sight modifier",
+                currentEntityId,
+                0,
+              ),
+      },
       experienceValue:
         !stats || xmlAttribute(stats, "xpValue") === undefined
           ? null
@@ -1775,6 +1816,7 @@ function parseMonsters(
         "drop",
         "monster",
         "ai",
+        "sight",
       ]),
       currentEntityId,
     );

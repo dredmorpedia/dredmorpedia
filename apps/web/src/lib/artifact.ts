@@ -524,6 +524,16 @@ function hasValidMonsters(value: unknown): boolean {
           Number.isInteger(monster.ai.stealPercentage) &&
           monster.ai.stealPercentage >= 0 &&
           monster.ai.stealPercentage <= 100)) &&
+      "sight" in monster &&
+      monster.sight !== null &&
+      typeof monster.sight === "object" &&
+      ["cone", "modifier"].every((key) => {
+        const value = (monster.sight as Record<string, unknown>)[key];
+        return (
+          value === null ||
+          (typeof value === "number" && Number.isFinite(value) && value >= 0)
+        );
+      }) &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&

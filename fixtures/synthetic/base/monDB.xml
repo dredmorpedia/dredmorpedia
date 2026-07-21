@@ -19,6 +19,7 @@
       <damage crushing="3" />
       <primarybuff id="2" amount="1" />
       <ai aggressiveness="4" span="10" invisible="1" chicken="1" cancharm="0" canparalyze="0" stealgold="1" stealpercentage="20" />
+      <sight cone="270" modifier="1.25" />
       <spell name="Clockwork Echo" />
       <onhit spell="Missing Monster Spell" onechancein="3" />
       <drop name="Clockwork Blade" percent="40" />
