@@ -19,6 +19,10 @@ function titleCase(value: string): string {
     .join(" ");
 }
 
+function sourceFlagLabel(value: boolean | null): string {
+  return value === null ? "Not supplied" : value ? "Enabled" : "Disabled";
+}
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -201,12 +205,30 @@ export default async function MonsterPage({
             </div>
             <div>
               <dt>Invisible source flag</dt>
+              <dd>{sourceFlagLabel(monster.ai.invisible)}</dd>
+            </div>
+            <div>
+              <dt>Chicken source flag</dt>
+              <dd>{sourceFlagLabel(monster.ai.chicken)}</dd>
+            </div>
+            <div>
+              <dt>Can charm source flag</dt>
+              <dd>{sourceFlagLabel(monster.ai.canCharm)}</dd>
+            </div>
+            <div>
+              <dt>Can paralyze source flag</dt>
+              <dd>{sourceFlagLabel(monster.ai.canParalyze)}</dd>
+            </div>
+            <div>
+              <dt>Steal gold source flag</dt>
+              <dd>{sourceFlagLabel(monster.ai.stealGold)}</dd>
+            </div>
+            <div>
+              <dt>Steal percentage</dt>
               <dd>
-                {monster.ai.invisible === null
+                {monster.ai.stealPercentage === null
                   ? "Not supplied"
-                  : monster.ai.invisible
-                    ? "Enabled"
-                    : "Disabled"}
+                  : `${monster.ai.stealPercentage}%`}
               </dd>
             </div>
           </dl>

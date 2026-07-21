@@ -256,6 +256,11 @@ export interface MonsterAiMetadata {
   aggressiveness: number | null;
   span: number | null;
   invisible: boolean | null;
+  chicken: boolean | null;
+  canCharm: boolean | null;
+  canParalyze: boolean | null;
+  stealGold: boolean | null;
+  stealPercentage: number | null;
 }
 
 export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;

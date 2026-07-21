@@ -32,6 +32,11 @@ function monster(name: string, inheritsKey?: string): Monster {
       aggressiveness: inheritsKey ? 4 : 1,
       span: inheritsKey ? 10 : 8,
       invisible: Boolean(inheritsKey),
+      chicken: inheritsKey ? true : null,
+      canCharm: inheritsKey ? false : null,
+      canParalyze: inheritsKey ? false : null,
+      stealGold: inheritsKey ? true : null,
+      stealPercentage: inheritsKey ? 20 : null,
     },
     experienceValue: 10,
     modifiers: inheritsKey
@@ -96,6 +101,11 @@ describe("monster inheritance", () => {
       aggressiveness: 4,
       span: 10,
       invisible: true,
+      chicken: true,
+      canCharm: false,
+      canParalyze: false,
+      stealGold: true,
+      stealPercentage: 20,
     });
     expect(resolvedChild?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 3 },

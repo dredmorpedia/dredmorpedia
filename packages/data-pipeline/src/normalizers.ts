@@ -571,6 +571,35 @@ function reportUnknownChildren(
   }
 }
 
+function reportUnknownAttributes(
+  context: NormalizationContext,
+  record: XmlRecord,
+  elementName: string,
+  allowedAttributes: ReadonlySet<string>,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): void {
+  for (const key of Object.keys(record).sort((left, right) =>
+    left.localeCompare(right, "en"),
+  )) {
+    if (!key.startsWith("@")) {
+      continue;
+    }
+    const attribute = key.slice(1);
+    if (allowedAttributes.has(attribute)) {
+      continue;
+    }
+    context.diagnostics.push({
+      severity: "warning",
+      code: "unknown_attribute",
+      message: `Unsupported ${elementName} attribute ${attribute} was preserved only as a diagnostic.`,
+      source: provenance,
+      entityId: currentEntityId,
+      details: { element: elementName, attribute },
+    });
+  }
+}
+
 function addCandidate<
   T extends
     | Item
@@ -1464,6 +1493,36 @@ function parseMonsters(
       : undefined;
     const spanText = ai ? xmlAttribute(ai, "span") : undefined;
     const invisibleText = ai ? xmlAttribute(ai, "invisible") : undefined;
+    const chickenText = ai ? xmlAttribute(ai, "chicken") : undefined;
+    const canCharmText = ai ? xmlAttribute(ai, "cancharm") : undefined;
+    const canParalyzeText = ai ? xmlAttribute(ai, "canparalyze") : undefined;
+    const stealGoldText = ai ? xmlAttribute(ai, "stealgold") : undefined;
+    const stealPercentageText = ai
+      ? (xmlAttribute(ai, "stealpercentage") ??
+        xmlAttribute(ai, "stealPercentage"))
+      : undefined;
+    if (ai) {
+      reportUnknownAttributes(
+        context,
+        ai,
+        "ai",
+        new Set([
+          "aggressiveness",
+          "span",
+          "invisible",
+          "chicken",
+          "cancharm",
+          "canparalyze",
+          "stealgold",
+          "stealpercentage",
+          "stealPercentage",
+          "spellPercentage",
+          "spellpercentage",
+        ]),
+        provenance,
+        currentEntityId,
+      );
+    }
     const triggers: MonsterSpellTrigger[] = [];
     const onHitRecords = Object.keys(record)
       .filter((key) => key.toLocaleLowerCase("en") === "onhit")
@@ -1644,6 +1703,31 @@ function parseMonsters(
           invisibleText === undefined
             ? null
             : booleanAttribute(ai!, "invisible"),
+        chicken:
+          chickenText === undefined ? null : booleanAttribute(ai!, "chicken"),
+        canCharm:
+          canCharmText === undefined ? null : booleanAttribute(ai!, "cancharm"),
+        canParalyze:
+          canParalyzeText === undefined
+            ? null
+            : booleanAttribute(ai!, "canparalyze"),
+        stealGold:
+          stealGoldText === undefined
+            ? null
+            : booleanAttribute(ai!, "stealgold"),
+        stealPercentage:
+          stealPercentageText === undefined
+            ? null
+            : integerValue(
+                stealPercentageText,
+                0,
+                context,
+                provenance,
+                "monster AI steal percentage",
+                currentEntityId,
+                0,
+                100,
+              ),
       },
       experienceValue:
         !stats || xmlAttribute(stats, "xpValue") === undefined
@@ -1690,9 +1774,9 @@ function parseMonsters(
         "onHit",
         "drop",
         "monster",
+        "ai",
       ]),
       currentEntityId,
-      new Set(["ai"]),
     );
     addCandidate(result.monsters, monster, context.source.precedence);
   }

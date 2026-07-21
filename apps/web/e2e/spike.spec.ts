@@ -412,8 +412,42 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(aiMetadata.getByText("4", { exact: true })).toBeVisible();
   await expect(aiMetadata.getByText("Span")).toBeVisible();
   await expect(aiMetadata.getByText("10", { exact: true })).toBeVisible();
-  await expect(aiMetadata.getByText("Invisible source flag")).toBeVisible();
-  await expect(aiMetadata.getByText("Enabled", { exact: true })).toBeVisible();
+  const invisibleMetadata = aiMetadata
+    .getByText("Invisible source flag")
+    .locator("..");
+  await expect(
+    invisibleMetadata.getByText("Enabled", { exact: true }),
+  ).toBeVisible();
+  const chickenMetadata = aiMetadata
+    .getByText("Chicken source flag")
+    .locator("..");
+  await expect(
+    chickenMetadata.getByText("Enabled", { exact: true }),
+  ).toBeVisible();
+  const charmMetadata = aiMetadata
+    .getByText("Can charm source flag")
+    .locator("..");
+  await expect(
+    charmMetadata.getByText("Disabled", { exact: true }),
+  ).toBeVisible();
+  const paralyzeMetadata = aiMetadata
+    .getByText("Can paralyze source flag")
+    .locator("..");
+  await expect(
+    paralyzeMetadata.getByText("Disabled", { exact: true }),
+  ).toBeVisible();
+  const stealGoldMetadata = aiMetadata
+    .getByText("Steal gold source flag")
+    .locator("..");
+  await expect(
+    stealGoldMetadata.getByText("Enabled", { exact: true }),
+  ).toBeVisible();
+  const stealPercentageMetadata = aiMetadata
+    .getByText("Steal percentage")
+    .locator("..");
+  await expect(
+    stealPercentageMetadata.getByText("20%", { exact: true }),
+  ).toBeVisible();
   await expect(
     aiMetadata.getByText(/gameplay behavior is not inferred/i),
   ).toBeVisible();
@@ -498,7 +532,7 @@ test("shows inherited monster stats and navigates its family", async ({
   });
   await expect(
     parentAiMetadata.getByText("Not supplied", { exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(6);
   const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
   await expect(
     parentDrops.getByRole("link", { name: "Brass Ingot" }),

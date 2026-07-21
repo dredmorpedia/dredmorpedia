@@ -469,7 +469,7 @@ describe("synthetic dataset import", () => {
     );
   });
 
-  it("preserves absent, disabled, and enabled monster invisible metadata", () => {
+  it("preserves absent, disabled, and enabled monster AI metadata", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-monster-ai-metadata-"),
     );
@@ -480,9 +480,9 @@ describe("synthetic dataset import", () => {
       path.join(sourceRoot, "monDB.xml"),
       `<?xml version="1.0"?>
 <monsters>
-  <monster name="Invisible Not Supplied"><ai aggressiveness="1" span="4" /></monster>
-  <monster name="Invisible Disabled"><ai invisible="0" /></monster>
-  <monster name="Invisible Enabled"><ai invisible="1" /></monster>
+  <monster name="AI Not Supplied"><ai aggressiveness="1" span="4" futureflag="synthetic" /></monster>
+  <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /></monster>
+  <monster name="AI Enabled"><ai invisible="1" chicken="1" cancharm="1" canparalyze="1" stealgold="1" stealPercentage="50" /></monster>
 </monsters>`,
     );
     const aiManifestPath = path.join(temporaryRoot, "manifest.json");
@@ -512,13 +512,56 @@ describe("synthetic dataset import", () => {
     expect(
       result.artifact.entities.monsters.map((monster) => [
         monster.name,
-        monster.ai.invisible,
+        monster.ai,
       ]),
     ).toEqual([
-      ["Invisible Disabled", false],
-      ["Invisible Enabled", true],
-      ["Invisible Not Supplied", null],
+      [
+        "AI Disabled",
+        {
+          aggressiveness: null,
+          span: null,
+          invisible: false,
+          chicken: false,
+          canCharm: false,
+          canParalyze: false,
+          stealGold: false,
+          stealPercentage: 0,
+        },
+      ],
+      [
+        "AI Enabled",
+        {
+          aggressiveness: null,
+          span: null,
+          invisible: true,
+          chicken: true,
+          canCharm: true,
+          canParalyze: true,
+          stealGold: true,
+          stealPercentage: 50,
+        },
+      ],
+      [
+        "AI Not Supplied",
+        {
+          aggressiveness: 1,
+          span: 4,
+          invisible: null,
+          chicken: null,
+          canCharm: null,
+          canParalyze: null,
+          stealGold: null,
+          stealPercentage: null,
+        },
+      ],
     ]);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unknown_attribute",
+        entityId: "monster:ai not supplied",
+        details: { element: "ai", attribute: "futureflag" },
+      }),
+    );
   });
 
   it("produces byte-identical normalized artifacts and diagnostics", () => {
@@ -819,7 +862,16 @@ describe("synthetic dataset import", () => {
       paletteName: "Synthetic brass",
       paletteTint: 45,
       archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
-      ai: { aggressiveness: 4, span: 10, invisible: true },
+      ai: {
+        aggressiveness: 4,
+        span: 10,
+        invisible: true,
+        chicken: true,
+        canCharm: false,
+        canParalyze: false,
+        stealGold: true,
+        stealPercentage: 20,
+      },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -862,7 +914,16 @@ describe("synthetic dataset import", () => {
       inheritsId: "monster:training diggle",
     });
     expect(parentMonster).toMatchObject({
-      ai: { aggressiveness: 1, span: 8, invisible: null },
+      ai: {
+        aggressiveness: 1,
+        span: 8,
+        invisible: null,
+        chicken: null,
+        canCharm: null,
+        canParalyze: null,
+        stealGold: null,
+        stealPercentage: null,
+      },
       spellChance: 20,
       triggers: [
         {

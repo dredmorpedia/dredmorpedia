@@ -512,9 +512,18 @@ function hasValidMonsters(value: unknown): boolean {
           (typeof value === "number" && Number.isInteger(value) && value >= 0)
         );
       }) &&
-      "invisible" in monster.ai &&
-      (monster.ai.invisible === null ||
-        typeof monster.ai.invisible === "boolean") &&
+      ["invisible", "chicken", "canCharm", "canParalyze", "stealGold"].every(
+        (key) => {
+          const value = (monster.ai as Record<string, unknown>)[key];
+          return value === null || typeof value === "boolean";
+        },
+      ) &&
+      "stealPercentage" in monster.ai &&
+      (monster.ai.stealPercentage === null ||
+        (typeof monster.ai.stealPercentage === "number" &&
+          Number.isInteger(monster.ai.stealPercentage) &&
+          monster.ai.stealPercentage >= 0 &&
+          monster.ai.stealPercentage <= 100)) &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&
