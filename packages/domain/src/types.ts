@@ -255,6 +255,7 @@ export interface MonsterArchetypeLevels {
 export interface MonsterAiMetadata {
   aggressiveness: number | null;
   span: number | null;
+  invisible: boolean | null;
 }
 
 export const monsterSpellTriggerKinds = ["on-hit", "cast-when-aware"] as const;
@@ -270,13 +271,25 @@ export interface MonsterSpellTrigger {
   oneChanceIn: number | null;
 }
 
-export interface MonsterDrop {
-  itemKey?: string;
-  itemName?: string;
-  itemId?: string;
-  dropType?: string;
+interface MonsterDropBase {
   chance: number;
 }
+
+export interface NamedMonsterDrop extends MonsterDropBase {
+  itemKey: string;
+  itemName: string;
+  itemId?: string;
+  dropType?: never;
+}
+
+export interface TypedMonsterDrop extends MonsterDropBase {
+  dropType: string;
+  itemKey?: never;
+  itemName?: never;
+  itemId?: never;
+}
+
+export type MonsterDrop = NamedMonsterDrop | TypedMonsterDrop;
 
 export interface Monster extends NormalizedEntityBase {
   kind: "monster";

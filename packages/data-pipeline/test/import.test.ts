@@ -469,6 +469,58 @@ describe("synthetic dataset import", () => {
     );
   });
 
+  it("preserves absent, disabled, and enabled monster invisible metadata", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-monster-ai-metadata-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "monDB.xml"),
+      `<?xml version="1.0"?>
+<monsters>
+  <monster name="Invisible Not Supplied"><ai aggressiveness="1" span="4" /></monster>
+  <monster name="Invisible Disabled"><ai invisible="0" /></monster>
+  <monster name="Invisible Enabled"><ai invisible="1" /></monster>
+</monsters>`,
+    );
+    const aiManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      aiManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "monster-ai-metadata-test",
+        sources: [
+          {
+            id: "monster-ai-source",
+            label: "Monster AI Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "monsters", path: "monDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: aiManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(
+      result.artifact.entities.monsters.map((monster) => [
+        monster.name,
+        monster.ai.invisible,
+      ]),
+    ).toEqual([
+      ["Invisible Disabled", false],
+      ["Invisible Enabled", true],
+      ["Invisible Not Supplied", null],
+    ]);
+  });
+
   it("produces byte-identical normalized artifacts and diagnostics", () => {
     const first = serializeOutputs(
       importDataset({ manifestPath, repositoryRoot }),
@@ -767,7 +819,7 @@ describe("synthetic dataset import", () => {
       paletteName: "Synthetic brass",
       paletteTint: 45,
       archetypeLevels: { fighter: 2, rogue: 0, wizard: 0 },
-      ai: { aggressiveness: 4, span: 10 },
+      ai: { aggressiveness: 4, span: 10, invisible: true },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -810,7 +862,7 @@ describe("synthetic dataset import", () => {
       inheritsId: "monster:training diggle",
     });
     expect(parentMonster).toMatchObject({
-      ai: { aggressiveness: 1, span: 8 },
+      ai: { aggressiveness: 1, span: 8, invisible: null },
       spellChance: 20,
       triggers: [
         {

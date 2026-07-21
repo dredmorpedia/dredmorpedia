@@ -412,6 +412,8 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(aiMetadata.getByText("4", { exact: true })).toBeVisible();
   await expect(aiMetadata.getByText("Span")).toBeVisible();
   await expect(aiMetadata.getByText("10", { exact: true })).toBeVisible();
+  await expect(aiMetadata.getByText("Invisible source flag")).toBeVisible();
+  await expect(aiMetadata.getByText("Enabled", { exact: true })).toBeVisible();
   await expect(
     aiMetadata.getByText(/gameplay behavior is not inferred/i),
   ).toBeVisible();
@@ -490,6 +492,12 @@ test("shows inherited monster stats and navigates its family", async ({
     page
       .getByRole("region", { name: "Monster family" })
       .getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+  const parentAiMetadata = page.getByRole("region", {
+    name: "AI source metadata",
+  });
+  await expect(
+    parentAiMetadata.getByText("Not supplied", { exact: true }),
   ).toBeVisible();
   const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
   await expect(

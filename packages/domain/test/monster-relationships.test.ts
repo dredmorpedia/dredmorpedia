@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { itemMonsterDropRelationships, type Monster } from "../src/index";
+import {
+  isMonsterDrop,
+  itemMonsterDropRelationships,
+  type Monster,
+} from "../src/index";
 
 function monster(name: string, itemId?: string): Monster {
   const canonicalKey = name.toLocaleLowerCase("en");
@@ -28,7 +32,7 @@ function monster(name: string, itemId?: string): Monster {
     paletteName: null,
     paletteTint: null,
     archetypeLevels: { fighter: 0, rogue: 0, wizard: 0 },
-    ai: { aggressiveness: null, span: null },
+    ai: { aggressiveness: null, span: null, invisible: null },
     experienceValue: 0,
     modifiers: [],
     spellChance: null,
@@ -51,6 +55,36 @@ function monster(name: string, itemId?: string): Monster {
 }
 
 describe("monster drop relationships", () => {
+  it("accepts exactly one named or typed drop shape", () => {
+    expect(
+      isMonsterDrop({
+        itemKey: "clockwork blade",
+        itemName: "Clockwork Blade",
+        itemId: "item:clockwork blade",
+        chance: 40,
+      }),
+    ).toBe(true);
+    expect(isMonsterDrop({ dropType: "artifact", chance: 100 })).toBe(true);
+    expect(
+      isMonsterDrop({
+        itemKey: "clockwork blade",
+        itemName: "Clockwork Blade",
+        dropType: 42,
+        chance: 40,
+      }),
+    ).toBe(false);
+    expect(
+      isMonsterDrop({
+        itemKey: "clockwork blade",
+        itemName: "Clockwork Blade",
+        dropType: "artifact",
+        chance: 40,
+      }),
+    ).toBe(false);
+    expect(isMonsterDrop({ itemKey: "partial", chance: 40 })).toBe(false);
+    expect(isMonsterDrop({ dropType: "artifact", chance: 101 })).toBe(false);
+  });
+
   it("returns only resolved named drops in deterministic monster order", () => {
     const itemId = "item:clockwork blade";
     const relationships = itemMonsterDropRelationships(

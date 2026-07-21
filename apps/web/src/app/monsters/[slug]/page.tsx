@@ -199,6 +199,16 @@ export default async function MonsterPage({
               <dt>Span</dt>
               <dd>{monster.ai.span ?? "Not supplied"}</dd>
             </div>
+            <div>
+              <dt>Invisible source flag</dt>
+              <dd>
+                {monster.ai.invisible === null
+                  ? "Not supplied"
+                  : monster.ai.invisible
+                    ? "Enabled"
+                    : "Disabled"}
+              </dd>
+            </div>
           </dl>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             These are source values. Their gameplay behavior is not inferred.

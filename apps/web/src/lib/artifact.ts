@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import {
+  isMonsterDrop,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   statModifierKinds,
@@ -112,31 +113,6 @@ function hasValidMonsterSpellTrigger(trigger: unknown): boolean {
       (typeof trigger.oneChanceIn === "number" &&
         Number.isInteger(trigger.oneChanceIn) &&
         trigger.oneChanceIn >= 1))
-  );
-}
-
-function hasValidMonsterDrop(drop: unknown): boolean {
-  if (drop === null || typeof drop !== "object") {
-    return false;
-  }
-  const hasNamedItem =
-    "itemKey" in drop &&
-    typeof drop.itemKey === "string" &&
-    "itemName" in drop &&
-    typeof drop.itemName === "string";
-  const hasDropType = "dropType" in drop && typeof drop.dropType === "string";
-  const hasPartialNamedItem = "itemKey" in drop || "itemName" in drop;
-
-  return (
-    hasNamedItem !== hasDropType &&
-    (!hasPartialNamedItem || hasNamedItem) &&
-    (!("itemId" in drop) ||
-      (hasNamedItem && typeof drop.itemId === "string")) &&
-    "chance" in drop &&
-    typeof drop.chance === "number" &&
-    Number.isInteger(drop.chance) &&
-    drop.chance >= 0 &&
-    drop.chance <= 100
   );
 }
 
@@ -536,6 +512,9 @@ function hasValidMonsters(value: unknown): boolean {
           (typeof value === "number" && Number.isInteger(value) && value >= 0)
         );
       }) &&
+      "invisible" in monster.ai &&
+      (monster.ai.invisible === null ||
+        typeof monster.ai.invisible === "boolean") &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&
@@ -555,7 +534,7 @@ function hasValidMonsters(value: unknown): boolean {
       monster.triggers.every(hasValidMonsterSpellTrigger) &&
       "drops" in monster &&
       Array.isArray(monster.drops) &&
-      monster.drops.every(hasValidMonsterDrop) &&
+      monster.drops.every(isMonsterDrop) &&
       (!("inheritsKey" in monster) ||
         typeof monster.inheritsKey === "string") &&
       (!("inheritsName" in monster) ||

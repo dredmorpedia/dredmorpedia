@@ -18,7 +18,7 @@
       <stats numFig="2" numRog="0" numWiz="0" xpValue="10" />
       <damage crushing="3" />
       <primarybuff id="2" amount="1" />
-      <ai aggressiveness="4" span="10" />
+      <ai aggressiveness="4" span="10" invisible="1" />
       <spell name="Clockwork Echo" />
       <onhit spell="Missing Monster Spell" onechancein="3" />
       <drop name="Clockwork Blade" percent="40" />

@@ -1463,6 +1463,7 @@ function parseMonsters(
       ? xmlAttribute(ai, "aggressiveness")
       : undefined;
     const spanText = ai ? xmlAttribute(ai, "span") : undefined;
+    const invisibleText = ai ? xmlAttribute(ai, "invisible") : undefined;
     const triggers: MonsterSpellTrigger[] = [];
     const onHitRecords = Object.keys(record)
       .filter((key) => key.toLocaleLowerCase("en") === "onhit")
@@ -1639,6 +1640,10 @@ function parseMonsters(
                 currentEntityId,
                 0,
               ),
+        invisible:
+          invisibleText === undefined
+            ? null
+            : booleanAttribute(ai!, "invisible"),
       },
       experienceValue:
         !stats || xmlAttribute(stats, "xpValue") === undefined
