@@ -31,9 +31,10 @@ interface SearchExplorerProps {
 }
 
 const kindOptions: FilterOption[] = [
-  { value: "all", label: "Items and stats" },
+  { value: "all", label: "Items, stats, and templates" },
   { value: "item", label: "Items" },
   { value: "stat", label: "Stats" },
+  { value: "template", label: "Templates" },
 ];
 
 function FilterSelect({
@@ -148,7 +149,7 @@ export function SearchExplorer({
       <div>
         <p className="eyebrow">Shareable structured lookup</p>
         <h1 id="search-heading" className="section-title">
-          Search items and stats
+          Search items, stats, and templates
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
           Text and structured filters are applied by deterministic domain logic.

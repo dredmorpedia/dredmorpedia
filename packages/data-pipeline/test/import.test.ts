@@ -952,6 +952,7 @@ describe("synthetic dataset import", () => {
     const parentMonster = result.artifact.entities.monsters.find(
       (monster) => monster.name === "Training Diggle",
     );
+    const template = result.artifact.entities.templates[0];
     const diagnosticCodes = result.diagnostics.map(
       (diagnostic) => diagnostic.code,
     );
@@ -965,6 +966,12 @@ describe("synthetic dataset import", () => {
     expect(result.artifact.entities.monsters).toHaveLength(2);
     expect(result.artifact.entities.stats).toHaveLength(2);
     expect(result.artifact.entities.templates).toHaveLength(1);
+    expect(template).toMatchObject({
+      name: "Small Cross",
+      affectsPlayer: true,
+      rows: [".@.", "@#@", ".@."],
+      slug: "small-cross",
+    });
     expect(result.artifact.schemaVersion).toBe(3);
     expect(result.artifact.datasetVersion).toBe("1.0.0");
     expect(result.artifact.sources).toEqual(
@@ -1009,6 +1016,15 @@ describe("synthetic dataset import", () => {
         (document) => document.id === "monster:training diggle",
       )?.text,
     ).toContain("artifact");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "template:small cross",
+      ),
+    ).toMatchObject({
+      kind: "template",
+      name: "Small Cross",
+      url: "/templates/small-cross",
+    });
     expect(blade).toMatchObject({
       price: 160,
       quality: 3,

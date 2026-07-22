@@ -6,7 +6,8 @@ import { loadArtifact, loadSearchArtifact } from "@/lib/artifact";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search Dredmorpedia items and stats with structured filters.",
+  description:
+    "Search Dredmorpedia items, stats, and targeting templates with structured filters.",
 };
 
 export default function SearchPage() {
@@ -37,7 +38,10 @@ export default function SearchPage() {
     .sort((left, right) => left[1].localeCompare(right[1], "en"))
     .map(([value, label]) => ({ value, label }));
   const documents = search.documents.filter(
-    (document) => document.kind === "item" || document.kind === "stat",
+    (document) =>
+      document.kind === "item" ||
+      document.kind === "stat" ||
+      document.kind === "template",
   );
 
   return (

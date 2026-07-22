@@ -10,6 +10,7 @@ export * from "./resolution";
 export * from "./search";
 export * from "./skill-relationships";
 export * from "./spell-relationships";
+export * from "./template-grid";
 export {
   encrustmentModifierKinds,
   entityKinds,

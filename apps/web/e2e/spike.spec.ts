@@ -59,7 +59,7 @@ test("filters items and exposes a static detail route", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("searches items and stats with shareable structured filters", async ({
+test("searches reference entities with shareable structured filters", async ({
   page,
 }) => {
   await page.goto("/search/");
@@ -78,6 +78,40 @@ test("searches items and stats with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+});
+
+test("finds and renders a targeting template with a keyboard flow", async ({
+  page,
+}) => {
+  await page.goto("/search/?kind=template&q=small+cross");
+  await expect(
+    page.getByRole("combobox", { name: "Entity type" }),
+  ).toContainText("Templates");
+  await expect(page.getByText("1 matching record")).toBeVisible();
+
+  const templateLink = page.getByRole("link", { name: "Small Cross" });
+  await templateLink.focus();
+  await expect(templateLink).toBeFocused();
+  await templateLink.press("Enter");
+
+  await expect(page).toHaveURL(/\/templates\/small-cross\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Small Cross" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("img", {
+      name: /3 rows by 3 columns; 5 affected tiles; anchor is affected/i,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Anchor (affected)")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Provenance" })).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test("resolves alternate aliases to their canonical item route", async ({
@@ -710,6 +744,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/spells/clockwork-spark/",
     "/monsters/armored-training-diggle/",
     "/stats/melee-power/",
+    "/templates/small-cross/",
   ]) {
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

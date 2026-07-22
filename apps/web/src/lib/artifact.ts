@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   isMonsterDrop,
+  isValidTemplateRows,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   statModifierKinds,
@@ -716,6 +717,27 @@ function hasValidMonsters(value: unknown): boolean {
   );
 }
 
+function hasValidTemplates(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("templates" in value) ||
+    !Array.isArray(value.templates)
+  ) {
+    return false;
+  }
+  return value.templates.every(
+    (template) =>
+      hasValidRoutedEntity(template) &&
+      template !== null &&
+      typeof template === "object" &&
+      "affectsPlayer" in template &&
+      typeof template.affectsPlayer === "boolean" &&
+      "rows" in template &&
+      isValidTemplateRows(template.rows),
+  );
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -735,7 +757,8 @@ export function loadArtifact(): DatasetArtifact {
     !hasValidSkills(parsed.entities) ||
     !hasValidAbilities(parsed.entities) ||
     !hasValidSpells(parsed.entities) ||
-    !hasValidMonsters(parsed.entities)
+    !hasValidMonsters(parsed.entities) ||
+    !hasValidTemplates(parsed.entities)
   ) {
     throw new Error(
       "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",

@@ -36,6 +36,17 @@ const documents: SearchDocument[] = [
     url: "/stats/melee-power",
     text: "melee power synthetic close-combat output stat secondary synthetic-base",
   },
+  {
+    id: "template:small cross",
+    kind: "template",
+    name: "Small Cross",
+    summary: "",
+    sourceId: "synthetic-base",
+    category: null,
+    statKeys: [],
+    url: "/templates/small-cross",
+    text: "small cross template synthetic-base",
+  },
 ];
 
 describe("search queries", () => {
@@ -71,5 +82,14 @@ describe("search queries", () => {
       [],
     );
     expect(querySearchDocuments(documents, { limit: 0 })).toEqual([]);
+  });
+
+  it("filters targeting templates without treating them as item categories", () => {
+    expect(
+      querySearchDocuments(documents, {
+        query: "small cross",
+        kinds: ["template"],
+      }).map((result) => result.document.url),
+    ).toEqual(["/templates/small-cross"]);
   });
 });
