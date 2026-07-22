@@ -70,6 +70,10 @@ export interface ItemStatValue {
   statId?: string;
 }
 
+export interface ItemArtifactMetadata {
+  quality: number | null;
+}
+
 export const itemTriggerKinds = [
   "stepped-on",
   "zapped",
@@ -115,6 +119,7 @@ export interface Item extends NormalizedEntityBase {
   category: string;
   price: number | null;
   quality: number;
+  artifacts: ItemArtifactMetadata[];
   iconPath: string | null;
   stats: ItemStatValue[];
   modifiers: StatModifier[];

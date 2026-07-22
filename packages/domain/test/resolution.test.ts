@@ -36,6 +36,7 @@ function candidate(
       category: "weapon",
       price,
       quality: 2,
+      artifacts: [],
       iconPath: null,
       stats: [],
       modifiers: [],

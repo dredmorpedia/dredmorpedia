@@ -58,8 +58,11 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   ).toBeVisible();
   await expect(page.getByText("Dataset version")).toBeVisible();
   await expect(page.getByText("Source version")).toBeVisible();
-  await expect(page.getByText("Quality")).toBeVisible();
+  await expect(page.getByText("Quality", { exact: true })).toBeVisible();
   await expect(page.getByText("3", { exact: true })).toBeVisible();
+  const itemFacts = page.locator(".price-block");
+  await expect(itemFacts.getByText("Artifact quality")).toBeVisible();
+  await expect(itemFacts.getByText("8", { exact: true })).toBeVisible();
   await expect(page.getByText("Sword weapon", { exact: true })).toBeVisible();
   const itemStats = page.getByRole("region", { name: "Stats", exact: true });
   const itemModifiers = itemStats.getByRole("region", {

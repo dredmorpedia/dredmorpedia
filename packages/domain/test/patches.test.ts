@@ -36,6 +36,7 @@ function item(): Item {
     category: "weapon",
     price: 155,
     quality: 3,
+    artifacts: [],
     iconPath: null,
     stats: [],
     modifiers: [],

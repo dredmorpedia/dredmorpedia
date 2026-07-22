@@ -33,6 +33,7 @@ function routeItem(name: string, originalId: string): Item {
     category: "wand",
     price: null,
     quality: 0,
+    artifacts: [],
     iconPath: null,
     stats: [],
     modifiers: [],

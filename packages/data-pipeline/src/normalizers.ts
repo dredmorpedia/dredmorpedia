@@ -14,6 +14,7 @@ import {
   type EntityKind,
   type EntityProvenance,
   type Item,
+  type ItemArtifactMetadata,
   type ItemTrigger,
   type ItemTriggerKind,
   type Monster,
@@ -918,6 +919,12 @@ function parseItems(
         currentEntityId,
         0,
       ),
+      artifacts: parseItemArtifacts(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "iconFile"),
         context,
@@ -937,6 +944,7 @@ function parseItems(
       context,
       record,
       new Set([
+        "artifact",
         "description",
         "price",
         "stat",
@@ -1254,6 +1262,41 @@ function parseItemStatModifiers(
       left.sourceKey.localeCompare(right.sourceKey, "en") ||
       left.amount - right.amount,
   );
+}
+
+function parseItemArtifacts(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemArtifactMetadata[] {
+  const rawArtifacts = Object.hasOwn(record, "artifact")
+    ? Array.isArray(record.artifact)
+      ? record.artifact
+      : [record.artifact]
+    : [];
+  return rawArtifacts.map((rawArtifact, artifactIndex) => {
+    const artifact = isXmlRecord(rawArtifact) ? rawArtifact : {};
+    reportUnknownLeafContent(
+      context,
+      artifact,
+      "artifact",
+      new Set(["quality"]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+    return {
+      quality: optionalIntegerValue(
+        xmlAttribute(artifact, "quality"),
+        context,
+        provenance,
+        `item artifact ${artifactIndex + 1} quality`,
+        currentEntityId,
+        0,
+      ),
+    };
+  });
 }
 
 function parseEncrustmentPowers(

@@ -133,6 +133,13 @@ const itemSchema = z
     category: z.string(),
     price: nonnegativeInteger.nullable(),
     quality: nonnegativeInteger,
+    artifacts: z.array(
+      z
+        .object({
+          quality: nullableNonnegativeInteger,
+        })
+        .strict(),
+    ),
     iconPath: z.string().nullable(),
     stats: z.array(
       z

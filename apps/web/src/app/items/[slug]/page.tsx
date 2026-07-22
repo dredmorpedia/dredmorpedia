@@ -136,6 +136,16 @@ export default async function ItemPage({
             <dt>Quality</dt>
             <dd>{item.quality}</dd>
           </div>
+          {item.artifacts.length > 0 ? (
+            <div>
+              <dt>Artifact quality</dt>
+              <dd>
+                {item.artifacts
+                  .map((artifact) => artifact.quality ?? "Unavailable")
+                  .join(", ")}
+              </dd>
+            </div>
+          ) : null}
         </dl>
       </header>
 

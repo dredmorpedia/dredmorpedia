@@ -8,6 +8,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`analysis/repository-audit-2026-07-19.md`](analysis/repository-audit-2026-07-19.md) — dated evidence about the legacy repository and runtime.
 - [`analysis/architecture-spike-2026-07-19.md`](analysis/architecture-spike-2026-07-19.md) — implemented synthetic-spike evidence, measurements, checks, and remaining validation gates.
 - [`analysis/first-parity-foundation-2026-07-19.md`](analysis/first-parity-foundation-2026-07-19.md) — split-artifact, search, stat-route, accessibility, and read-only official validation evidence.
+- [`analysis/item-artifact-evidence-2026-07-22.md`](analysis/item-artifact-evidence-2026-07-22.md) — loss-aware item artifact-quality semantics, canonical measurements, diagnostics reduction, and regression boundary.
 - [`analysis/spell-mana-cost-evidence-2026-07-22.md`](analysis/spell-mana-cost-evidence-2026-07-22.md) — legacy semantics, canonical shape measurements, compatibility aliases, and explicit mana-formula limits.
 - [`analysis/spell-buff-evidence-2026-07-22.md`](analysis/spell-buff-evidence-2026-07-22.md) — legacy buff behavior, canonical source-shape measurements, signed modifier coverage, and explicit nested-mechanic limits.
 - [`analysis/spell-buff-event-hook-evidence-2026-07-22.md`](analysis/spell-buff-event-hook-evidence-2026-07-22.md) — target/player hit hook semantics, relationship coverage, canonical counts, and remaining nested-buff limits.

@@ -3,6 +3,7 @@
   <item id="clockwork-blade-plus" name="Clockwork Blade" type="0" level="3" iconFile="assets/synthetic.svg">
     <description text="The higher-precedence synthetic expansion variant." />
     <price amount="155" />
+    <artifact quality="8" />
     <stat name="Melee Power" amount="6" />
     <weapon hit="Clockwork Spark" crushing="4" />
     <damagebuff voltaic="-1" />

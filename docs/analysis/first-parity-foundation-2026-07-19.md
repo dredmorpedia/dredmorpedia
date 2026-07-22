@@ -39,6 +39,7 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell/monster, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 - Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
+- Direct item artifact declarations preserve loss-aware quality metadata in deterministic order. The canonical dataset contains 108 valid declarations, removing all 108 former unsupported `<artifact>` diagnostics without inferring artifact-generation or corruption behavior.
 - Synthetic item-modifier coverage includes fixed weapon damage plus signed damage, resistance, primary, and secondary declarations. Focused importer tests cover measured casing aliases and malformed values/keys; the item page separates named stats from direct modifiers; and a keyboard search flow filters by the generated `Crushing damage` facet.
 - Monster drop/item backlinks and the initial aggressiveness/span/invisible AI source metadata passed their separate code review on 2026-07-21. Named and type-driven drops are an exclusive domain union backed by the same runtime guard used at the web artifact boundary; adversarial partial, mixed, invalid-type, and out-of-range records are rejected. All boolean AI metadata distinguishes enabled, explicitly disabled, and absent source values without inferring behavior.
 - Monster sight, movement, and presentation metadata passed separate code review on 2026-07-22. Invalid supplied loss-aware boolean tokens emit `invalid_boolean` and remain unavailable instead of becoming disabled, unexpected nested content in leaf metadata elements emits `unknown_element`, and browser coverage asserts that raw engine references remain absent from the presentation summary.
@@ -51,7 +52,7 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Read-only official verification
 
-The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 3,278 warnings, and 71 info records.
+The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 3,170 warnings, and 71 info records.
 
 - Normalized artifact: 5,356,230 bytes.
 - Search artifact: 1,337,402 bytes uncompressed.

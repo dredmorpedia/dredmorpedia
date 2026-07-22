@@ -337,6 +337,91 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("normalizes loss-aware item artifact declarations", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-artifacts-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Complete Artifact"><artifact quality="9" /></item>
+  <item name="Missing Artifact Quality"><artifact /></item>
+  <item name="Invalid Artifact Quality"><artifact quality="-1" /></item>
+  <item name="Repeated Artifacts"><artifact quality="2" /><artifact quality="3" /></item>
+  <item name="Unknown Artifact Content"><artifact quality="4" future="diagnosed"><future /></artifact></item>
+  <item name="Ordinary Item" />
+</items>`,
+    );
+    const artifactManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      artifactManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-artifact-test",
+        sources: [
+          {
+            id: "artifact-source",
+            label: "Artifact Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: artifactManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const artifactsByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item.artifacts]),
+    );
+
+    expect(artifactsByName).toEqual(
+      new Map([
+        ["Complete Artifact", [{ quality: 9 }]],
+        ["Invalid Artifact Quality", [{ quality: null }]],
+        ["Missing Artifact Quality", [{ quality: null }]],
+        ["Ordinary Item", []],
+        ["Repeated Artifacts", [{ quality: 2 }, { quality: 3 }]],
+        ["Unknown Artifact Content", [{ quality: 4 }]],
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(1);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "artifact",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          details: { element: "future" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "artifact",
+      ),
+    ).toBeUndefined();
+  });
+
   it("derives semantic item categories from source shapes", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-categories-"),
@@ -1890,6 +1975,7 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Trap")?.quality).toBe(5);
     expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
     expect(blade?.category).toBe("weapon:sword");
+    expect(blade?.artifacts).toEqual([{ quality: 8 }]);
     expect(itemByName.get("Brass Ingot")?.category).toBe("material");
     expect(itemByName.get("Clarity Tonic")?.category).toBe("potion");
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
