@@ -110,6 +110,7 @@ export interface SpellTrigger {
   duration: number;
   unresistable: boolean;
   monsterTaxonomy: string | null;
+  sourceFlags: SourceFlag[];
 }
 
 export type ItemTrigger = SpellTrigger;

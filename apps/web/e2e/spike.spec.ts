@@ -290,10 +290,21 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   await page.goto("/items/training-cuirass/");
   const armourTriggers = page.getByRole("region", { name: "Triggers" });
   await expect(armourTriggers.getByText("25%", { exact: true })).toBeVisible();
+  await expect(armourTriggers.getByText("30%", { exact: true })).toBeVisible();
+  await expect(armourTriggers.getByText("40%", { exact: true })).toBeVisible();
   await expect(armourTriggers.getByText("50%", { exact: true })).toBeVisible();
   await expect(armourTriggers.getByText("3 turns")).toBeVisible();
   await expect(armourTriggers.getByText("Animal")).toBeVisible();
   await expect(armourTriggers.getByText("Unresistable")).toBeVisible();
+  await expect(
+    armourTriggers.getByText("When you are hit in melee"),
+  ).toBeVisible();
+  await expect(
+    armourTriggers.getByText("When you kill an enemy"),
+  ).toBeVisible();
+  await expect(
+    armourTriggers.getByText("after=1", { exact: true }),
+  ).toBeVisible();
 
   await page.goto("/items/training-trap/");
   const trapTriggers = page.getByRole("region", { name: "Triggers" });

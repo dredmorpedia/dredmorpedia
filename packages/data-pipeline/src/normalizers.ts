@@ -202,10 +202,12 @@ const directItemTriggerSpecs: readonly {
   kind: ItemTriggerKind;
 }[] = [
   { childName: "targetHitEffectBuff", kind: "melee-target" },
+  { childName: "targethiteffectbuff", kind: "melee-target" },
   { childName: "crossbowShotBuff", kind: "crossbow-target" },
   { childName: "thrownBuff", kind: "thrown-target" },
   { childName: "targetKillBuff", kind: "kill-target" },
   { childName: "playerHitEffectBuff", kind: "melee-self" },
+  { childName: "playerhiteffectbuff", kind: "melee-self" },
   { childName: "dodgeBuff", kind: "dodge" },
   { childName: "triggerondodge", kind: "dodge" },
   { childName: "criticalBuff", kind: "critical" },
@@ -221,6 +223,18 @@ const effectTriggerKinds: Readonly<Record<string, ItemTriggerKind>> = {
   triggerfromlist: "trigger-list",
 };
 
+const directSpellTriggerAttributes = new Set([
+  "after",
+  "amount",
+  "name",
+  "percent",
+  "percentage",
+  "resistable",
+  "spell",
+  "taxa",
+  "type",
+]);
+
 const itemTriggerKindRanks = new Map(
   itemTriggerKinds.map((kind, index) => [kind, index]),
 );
@@ -231,24 +245,12 @@ const monsterSpellTriggerKindRanks = new Map(
 
 const partiallySupportedItemChildren = new Set([
   "armour",
-  "blockBuff",
   "casts",
-  "counterBuff",
-  "criticalBuff",
-  "crossbowShotBuff",
-  "dodgeBuff",
   "effect",
   "food",
   "mushroom",
-  "playerHitEffectBuff",
   "potion",
-  "spell",
-  "targetHitEffectBuff",
-  "targetKillBuff",
-  "thrownBuff",
   "trap",
-  "triggeroncast",
-  "triggerondodge",
   "wand",
   "weapon",
 ]);
@@ -281,6 +283,15 @@ function parseSpellTrigger(
     xmlAttribute(record, "percent") ?? xmlAttribute(record, "percentage");
   const effectType = xmlAttribute(record, "type");
   const amountText = xmlAttribute(record, "amount");
+  const after = xmlAttribute(record, "after");
+  const resistable = optionalBooleanAttribute(
+    record,
+    "resistable",
+    context,
+    provenance,
+    `${ownerLabel} trigger resistable`,
+    currentEntityId,
+  );
   const numericMetadata = (
     value: string | undefined,
     field: string,
@@ -315,8 +326,10 @@ function parseSpellTrigger(
       effectType === "dot"
         ? numericMetadata(amountText, `${ownerLabel} trigger duration`)
         : 0,
-    unresistable: xmlAttribute(record, "resistable") === "0",
+    unresistable: resistable === false,
     monsterTaxonomy: xmlAttribute(record, "taxa") ?? null,
+    sourceFlags:
+      after === undefined ? [] : [{ sourceKey: "after", value: after }],
   };
 }
 
@@ -332,7 +345,16 @@ function compareSpellTriggers(left: SpellTrigger, right: SpellTrigger): number {
     (left.monsterTaxonomy ?? "").localeCompare(
       right.monsterTaxonomy ?? "",
       "en",
-    )
+    ) ||
+    left.sourceFlags
+      .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
+      .join("\u0000")
+      .localeCompare(
+        right.sourceFlags
+          .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
+          .join("\u0000"),
+        "en",
+      )
   );
 }
 
@@ -366,10 +388,19 @@ function parseDirectSpellTriggers(
   };
 
   for (const spec of directItemTriggerSpecs) {
-    addTriggers(xmlChildren(record, spec.childName), spec.kind, [
-      "name",
-      "spell",
-    ]);
+    const children = xmlChildren(record, spec.childName);
+    for (const child of children) {
+      reportUnknownLeafContent(
+        context,
+        child,
+        spec.childName,
+        directSpellTriggerAttributes,
+        provenance,
+        currentEntityId,
+        true,
+      );
+    }
+    addTriggers(children, spec.kind, ["name", "spell"]);
   }
   for (const effect of xmlChildren(record, "effect")) {
     const kind = effectTriggerKinds[xmlAttribute(effect, "type") ?? ""];
@@ -948,6 +979,7 @@ function parseItems(
         "description",
         "price",
         "stat",
+        ...directItemTriggerSpecs.map((spec) => spec.childName),
         ...matchingStatModifierElementNames(record),
       ]),
       currentEntityId,

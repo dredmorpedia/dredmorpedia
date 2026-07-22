@@ -294,6 +294,16 @@ export default async function ItemPage({
                           <dd>Unresistable</dd>
                         </div>
                       ) : null}
+                      {trigger.sourceFlags.map((flag, flagIndex) => (
+                        <div key={`${flag.sourceKey}:${flagIndex}`}>
+                          <dt>Source flag</dt>
+                          <dd>
+                            <code>
+                              {flag.sourceKey}={flag.value}
+                            </code>
+                          </dd>
+                        </div>
+                      ))}
                     </dl>
                   </li>
                 );

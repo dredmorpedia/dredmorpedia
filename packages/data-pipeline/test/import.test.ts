@@ -422,6 +422,114 @@ describe("synthetic dataset import", () => {
     ).toBeUndefined();
   });
 
+  it("fully normalizes direct item spell triggers and casing aliases", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-direct-triggers-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Direct Trigger Item">
+    <targetHitEffectBuff name="Upper Target" percentage="25" taxa="Animal" />
+    <targethiteffectbuff name="Lower Target" percent="30" />
+    <playerHitEffectBuff name="Upper Self" percentage="35" />
+    <playerhiteffectbuff name="Lower Self" percentage="40" />
+    <targetKillBuff name="Kill Target" percentage="45" after="1" />
+    <crossbowShotBuff name="Bolt Target" percentage="50" />
+    <thrownBuff name="Thrown Target" percentage="55" />
+    <targetHitEffectBuff name="Invalid Resistance" percentage="60" resistable="maybe" future="diagnosed"><future /></targetHitEffectBuff>
+  </item>
+</items>`,
+    );
+    const triggerManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      triggerManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-direct-trigger-test",
+        sources: [
+          {
+            id: "trigger-source",
+            label: "Trigger Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: triggerManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const triggers = result.artifact.entities.items[0]?.triggers ?? [];
+    const triggerBySpell = new Map(
+      triggers.map((trigger) => [trigger.spellName, trigger]),
+    );
+
+    expect(triggers).toHaveLength(8);
+    expect(triggerBySpell.get("Upper Target")).toMatchObject({
+      kind: "melee-target",
+      chance: 25,
+      monsterTaxonomy: "Animal",
+      sourceFlags: [],
+    });
+    expect(triggerBySpell.get("Lower Target")).toMatchObject({
+      kind: "melee-target",
+      chance: 30,
+    });
+    expect(triggerBySpell.get("Upper Self")?.kind).toBe("melee-self");
+    expect(triggerBySpell.get("Lower Self")?.kind).toBe("melee-self");
+    expect(triggerBySpell.get("Kill Target")).toMatchObject({
+      kind: "kill-target",
+      sourceFlags: [{ sourceKey: "after", value: "1" }],
+    });
+    expect(triggerBySpell.get("Invalid Resistance")?.unresistable).toBe(false);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_boolean",
+      ),
+    ).toHaveLength(1);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "targetHitEffectBuff",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          details: { element: "future" },
+        }),
+      ]),
+    );
+    const directElementNames = new Set([
+      "crossbowShotBuff",
+      "playerHitEffectBuff",
+      "playerhiteffectbuff",
+      "targetHitEffectBuff",
+      "targethiteffectbuff",
+      "targetKillBuff",
+      "thrownBuff",
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "partially_supported_element") &&
+          directElementNames.has(String(diagnostic.details?.element)),
+      ),
+    ).toEqual([]);
+  });
+
   it("derives semantic item categories from source shapes", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-categories-"),
@@ -1969,6 +2077,7 @@ describe("synthetic dataset import", () => {
         duration: 0,
         unresistable: false,
         monsterTaxonomy: null,
+        sourceFlags: [],
       },
     ]);
     expect(itemByName.get("Training Cuirass")?.quality).toBe(4);
@@ -1993,6 +2102,19 @@ describe("synthetic dataset import", () => {
         spellId: "spell:clockwork echo",
         chance: 25,
         monsterTaxonomy: "Animal",
+        sourceFlags: [],
+      }),
+      expect.objectContaining({
+        kind: "kill-target",
+        spellId: "spell:clockwork spark",
+        chance: 40,
+        sourceFlags: [{ sourceKey: "after", value: "1" }],
+      }),
+      expect.objectContaining({
+        kind: "melee-self",
+        spellId: "spell:clockwork echo",
+        chance: 30,
+        sourceFlags: [],
       }),
       expect.objectContaining({
         kind: "trigger-repeat",
@@ -2000,6 +2122,7 @@ describe("synthetic dataset import", () => {
         chance: 50,
         duration: 3,
         unresistable: true,
+        sourceFlags: [],
       }),
     ]);
     expect(itemByName.get("Training Trap")?.triggers).toEqual([

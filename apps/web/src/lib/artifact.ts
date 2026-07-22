@@ -114,6 +114,7 @@ const spellTriggerSchema = z
     duration: nonnegativeInteger,
     unresistable: z.boolean(),
     monsterTaxonomy: z.string().nullable(),
+    sourceFlags: z.array(sourceFlagSchema),
   })
   .strict();
 

@@ -21,6 +21,8 @@
     <price amount="64" />
     <armour type="chest" level="4" />
     <targetHitEffectBuff name="Clockwork Echo" percentage="25" taxa="Animal" />
+    <playerhiteffectbuff name="Clockwork Echo" percentage="30" />
+    <targetKillBuff name="Clockwork Spark" percentage="40" after="1" />
     <effect type="dot" spell="Clockwork Spark" amount="3" percent="50" resistable="0" />
   </item>
   <item id="training-trap" name="Training Trap" type="trap" iconFile="assets/synthetic.svg">

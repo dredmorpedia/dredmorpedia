@@ -77,7 +77,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(7);
     expect(loadSearchArtifact().documents).toHaveLength(19);
-    expect(loadDiagnostics()).toHaveLength(28);
+    expect(loadDiagnostics()).toHaveLength(27);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -184,6 +184,28 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/artifacts/);
+  });
+
+  it("rejects malformed spell-trigger source flags", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: {
+          triggers: { sourceFlags: { sourceKey: string; value: unknown }[] }[];
+        }[];
+      };
+    };
+    const trigger = typedArtifact.entities.items
+      .flatMap((item) => item.triggers)
+      .at(0);
+    if (!trigger) {
+      throw new Error("Synthetic artifact unexpectedly has no item trigger.");
+    }
+    trigger.sourceFlags = [{ sourceKey: "after", value: 1 }];
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceFlags/);
   });
 
   it("rejects a checksummed search file not derived from the artifact", async () => {
