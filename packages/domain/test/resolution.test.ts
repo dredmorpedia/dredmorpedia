@@ -37,6 +37,8 @@ function candidate(
       price,
       quality: 2,
       artifacts: [],
+      recoveries: [],
+      chargeRanges: [],
       iconPath: null,
       stats: [],
       modifiers: [],

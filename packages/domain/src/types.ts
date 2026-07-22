@@ -74,6 +74,21 @@ export interface ItemArtifactMetadata {
   quality: number | null;
 }
 
+export const itemRecoveryResources = ["life", "mana"] as const;
+
+export type ItemRecoveryResource = (typeof itemRecoveryResources)[number];
+
+export interface ItemRecovery {
+  resource: ItemRecoveryResource;
+  amount: number | null;
+  sourceFlags: SourceFlag[];
+}
+
+export interface ItemChargeRange {
+  minimum: number | null;
+  maximum: number | null;
+}
+
 export const itemTriggerKinds = [
   "stepped-on",
   "zapped",
@@ -121,6 +136,8 @@ export interface Item extends NormalizedEntityBase {
   price: number | null;
   quality: number;
   artifacts: ItemArtifactMetadata[];
+  recoveries: ItemRecovery[];
+  chargeRanges: ItemChargeRange[];
   iconPath: string | null;
   stats: ItemStatValue[];
   modifiers: StatModifier[];

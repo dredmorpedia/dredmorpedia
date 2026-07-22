@@ -7,6 +7,7 @@ import {
   createSearchDocuments,
   entityKinds,
   isValidTemplateRows,
+  itemRecoveryResources,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   spellBuffEventHookKinds,
@@ -118,6 +119,18 @@ const spellTriggerSchema = z
   })
   .strict();
 
+const itemChargeRangeSchema = z
+  .object({
+    minimum: nullableNonnegativeInteger,
+    maximum: nullableNonnegativeInteger,
+  })
+  .strict()
+  .refine(
+    ({ minimum, maximum }) =>
+      minimum === null || maximum === null || minimum <= maximum,
+    { message: "minimum must not exceed maximum" },
+  );
+
 const itemReferenceSchema = z
   .object({
     itemKey: z.string(),
@@ -141,6 +154,16 @@ const itemSchema = z
         })
         .strict(),
     ),
+    recoveries: z.array(
+      z
+        .object({
+          resource: z.enum(itemRecoveryResources),
+          amount: nullableNonnegativeInteger,
+          sourceFlags: z.array(sourceFlagSchema),
+        })
+        .strict(),
+    ),
+    chargeRanges: z.array(itemChargeRangeSchema),
     iconPath: z.string().nullable(),
     stats: z.array(
       z

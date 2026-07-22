@@ -530,6 +530,146 @@ describe("synthetic dataset import", () => {
     ).toEqual([]);
   });
 
+  it("normalizes item recovery, wand charges, and consumable trigger leaves", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-use-metadata-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Training Food"><food hp="12" meat="1" effect="Food Effect" /></item>
+  <item name="Training Booze"><food mp="8" /></item>
+  <item name="Mixed Recovery"><food hp="3" mp="4" /></item>
+  <item name="Invalid Recovery"><food hp="-1" future="diagnosed"><future /></food></item>
+  <item name="Missing Recovery"><food meat="1" /></item>
+  <item name="Training Wand"><wand mincharge="2" maxcharge="5" spell="Wand Effect" /></item>
+  <item name="Incomplete Wand"><wand mincharge="bad" spell="Other Effect" /></item>
+  <item name="Reversed Wand"><wand mincharge="7" maxcharge="3" spell="Reverse Effect" /></item>
+  <item name="Training Potion"><potion spell="Potion Effect" /></item>
+  <item name="Training Mushroom"><mushroom /><casts spell="Mushroom Effect" /></item>
+  <item name="Empty Mushroom"><mushroom /></item>
+  <item name="Unknown Potion Content"><potion spell="Future Effect" future="diagnosed"><future /></potion></item>
+  <item name="Unknown Mushroom Content"><mushroom future="diagnosed"><future /></mushroom><casts spell="Cast Effect" future="diagnosed"><future /></casts></item>
+  <item name="Unscoped Cast"><casts spell="Not A Mushroom Effect" /></item>
+</items>`,
+    );
+    const manifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-use-metadata-test",
+        sources: [
+          {
+            id: "item-use-source",
+            label: "Item Use Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const items = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(items.get("Training Food")?.recoveries).toEqual([
+      {
+        resource: "life",
+        amount: 12,
+        sourceFlags: [{ sourceKey: "meat", value: "1" }],
+      },
+    ]);
+    expect(items.get("Training Booze")?.recoveries).toEqual([
+      { resource: "mana", amount: 8, sourceFlags: [] },
+    ]);
+    expect(items.get("Mixed Recovery")?.recoveries).toEqual([
+      { resource: "life", amount: 3, sourceFlags: [] },
+      { resource: "mana", amount: 4, sourceFlags: [] },
+    ]);
+    expect(items.get("Invalid Recovery")?.recoveries).toEqual([
+      { resource: "life", amount: null, sourceFlags: [] },
+    ]);
+    expect(items.get("Training Wand")?.chargeRanges).toEqual([
+      { minimum: 2, maximum: 5 },
+    ]);
+    expect(items.get("Incomplete Wand")?.chargeRanges).toEqual([
+      { minimum: null, maximum: null },
+    ]);
+    expect(items.get("Reversed Wand")?.chargeRanges).toEqual([
+      { minimum: null, maximum: null },
+    ]);
+    expect(items.get("Training Potion")?.triggers).toEqual([
+      expect.objectContaining({ kind: "quaffed", spellName: "Potion Effect" }),
+    ]);
+    expect(items.get("Training Mushroom")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "munched",
+        spellName: "Mushroom Effect",
+      }),
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "invalid_item_charge_range" }),
+        expect.objectContaining({ code: "missing_item_recovery" }),
+        expect.objectContaining({ code: "missing_mushroom_cast" }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "food",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "potion",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "mushroom",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "casts",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:unscoped cast",
+          details: { element: "casts" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          ["casts", "food", "mushroom", "potion", "wand"].includes(
+            String(diagnostic.details?.element),
+          ),
+      ),
+    ).toEqual([]);
+  });
+
   it("derives semantic item categories from source shapes", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-categories-"),
@@ -1886,7 +2026,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(7);
+    expect(result.artifact.entities.items).toHaveLength(10);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
@@ -1995,7 +2135,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(19);
+    expect(result.search.documents).toHaveLength(22);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -2090,10 +2230,29 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
     expect(itemByName.get("Training Trap")?.category).toBe("trap");
     expect(itemByName.get("Training Wand +1")?.category).toBe("wand");
+    expect(itemByName.get("Training Ration")?.recoveries).toEqual([
+      {
+        resource: "life",
+        amount: 10,
+        sourceFlags: [{ sourceKey: "meat", value: "1" }],
+      },
+    ]);
+    expect(itemByName.get("Training Grog")?.recoveries).toEqual([
+      { resource: "mana", amount: 8, sourceFlags: [] },
+    ]);
+    expect(itemByName.get("Training Wand +1")?.chargeRanges).toEqual([
+      { minimum: 2, maximum: 4 },
+    ]);
     expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
       expect.objectContaining({
         kind: "quaffed",
         spellId: "spell:clockwork spark",
+      }),
+    ]);
+    expect(itemByName.get("Training Mushroom")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "munched",
+        spellId: "spell:clockwork echo",
       }),
     ]);
     expect(itemByName.get("Training Cuirass")?.triggers).toEqual([
@@ -2487,6 +2646,15 @@ describe("synthetic dataset import", () => {
             diagnostic.entityId?.startsWith("ability:")) &&
           (diagnostic.code === "unknown_element" ||
             diagnostic.code === "partially_supported_element"),
+      ),
+    ).toEqual([]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          ["casts", "food", "mushroom", "potion", "wand"].includes(
+            String(diagnostic.details?.element),
+          ),
       ),
     ).toEqual([]);
     expect(

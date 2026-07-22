@@ -75,9 +75,9 @@ describe("generated artifact loading", () => {
     const { loadArtifact, loadDiagnostics, loadSearchArtifact } =
       await import("../src/lib/artifact");
 
-    expect(loadArtifact().entities.items).toHaveLength(7);
-    expect(loadSearchArtifact().documents).toHaveLength(19);
-    expect(loadDiagnostics()).toHaveLength(27);
+    expect(loadArtifact().entities.items).toHaveLength(10);
+    expect(loadSearchArtifact().documents).toHaveLength(22);
+    expect(loadDiagnostics()).toHaveLength(25);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -184,6 +184,53 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/artifacts/);
+  });
+
+  it("rejects malformed item recovery metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { recoveries: { amount: number | null }[] }[];
+      };
+    };
+    const recovery = typedArtifact.entities.items
+      .flatMap((item) => item.recoveries)
+      .at(0);
+    if (!recovery) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item recovery metadata.",
+      );
+    }
+    recovery.amount = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/recoveries/);
+  });
+
+  it("rejects an inverted item charge range", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: {
+          chargeRanges: { minimum: number | null; maximum: number | null }[];
+        }[];
+      };
+    };
+    const range = typedArtifact.entities.items
+      .flatMap((item) => item.chargeRanges)
+      .at(0);
+    if (!range) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item charge metadata.",
+      );
+    }
+    range.minimum = 5;
+    range.maximum = 2;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/minimum must not exceed maximum/);
   });
 
   it("rejects malformed spell-trigger source flags", async () => {

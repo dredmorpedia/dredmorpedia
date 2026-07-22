@@ -15,6 +15,7 @@ export * from "./template-grid";
 export {
   encrustmentModifierKinds,
   entityKinds,
+  itemRecoveryResources,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   spellBuffEventHookKinds,

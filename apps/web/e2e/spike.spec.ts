@@ -34,7 +34,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Item preview" }),
   ).toBeVisible();
-  await expect(page.getByText("Showing 7 of 7 items")).toBeVisible();
+  await expect(page.getByText("Showing 10 of 10 items")).toBeVisible();
   expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
@@ -319,6 +319,51 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
     page.getByText(
       "Supported fields from <trap> were normalized, but other content remains unmodeled.",
     ),
+  ).toBeVisible();
+});
+
+test("shows item recovery and wand charge source values", async ({ page }) => {
+  await page.goto("/items/training-ration/");
+  const rationUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    rationUse.getByRole("heading", { name: "Recovery" }),
+  ).toBeVisible();
+  await expect(rationUse.getByText("Life", { exact: true })).toBeVisible();
+  await expect(rationUse.getByText("10", { exact: true })).toBeVisible();
+  await expect(rationUse.getByText("meat=1", { exact: true })).toBeVisible();
+  await expect(
+    rationUse.getByText(
+      /recovery timing and charge-use behavior are not inferred/,
+    ),
+  ).toBeVisible();
+
+  await page.goto("/items/training-grog/");
+  const grogUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(grogUse.getByText("Mana", { exact: true })).toBeVisible();
+  await expect(grogUse.getByText("8", { exact: true })).toBeVisible();
+
+  await page.goto("/items/training-wand-1/");
+  const wandUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    wandUse.getByRole("heading", { name: "Wand charges" }),
+  ).toBeVisible();
+  await expect(wandUse.getByText("Minimum", { exact: true })).toBeVisible();
+  await expect(wandUse.getByText("2", { exact: true })).toBeVisible();
+  await expect(wandUse.getByText("Maximum", { exact: true })).toBeVisible();
+  await expect(wandUse.getByText("4", { exact: true })).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+
+  await page.goto("/items/clarity-tonic/");
+  await expect(
+    page
+      .getByRole("region", { name: "Use metadata" })
+      .getByText("No normalized recovery or charge metadata."),
   ).toBeVisible();
 });
 
@@ -931,7 +976,9 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/clockwork-blade-plus/",
     "/items/clockwork-sword/",
     "/items/training-cuirass/",
+    "/items/training-ration/",
     "/items/training-trap/",
+    "/items/training-wand-1/",
     "/encrustments/synthetic-gear-polish/",
     "/recipes/clockwork-blade-recipe/",
     "/skills/clockwork-combat/",

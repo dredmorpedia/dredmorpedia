@@ -16,6 +16,22 @@
     <potion spell="Clockwork Spark" />
     <mystery value="unsupported-on-purpose" />
   </item>
+  <item id="training-ration" name="Training Ration" iconFile="assets/synthetic.svg">
+    <description text="A synthetic meal with a measured recovery source value." />
+    <price amount="12" />
+    <food hp="10" meat="1" effect="Clockwork Spark" />
+  </item>
+  <item id="training-grog" name="Training Grog" iconFile="assets/synthetic.svg">
+    <description text="A synthetic drink with a measured recovery source value." />
+    <price amount="14" />
+    <food mp="8" effect="Clockwork Echo" />
+  </item>
+  <item id="training-mushroom" name="Training Mushroom" iconFile="assets/synthetic.svg">
+    <description text="A synthetic mushroom used to verify its cast trigger." />
+    <price amount="9" />
+    <mushroom />
+    <casts spell="Clockwork Echo" />
+  </item>
   <item id="training-cuirass" name="Training Cuirass" type="armour" iconFile="assets/synthetic.svg">
     <description text="Synthetic armour used to verify nested quality levels." />
     <price amount="64" />

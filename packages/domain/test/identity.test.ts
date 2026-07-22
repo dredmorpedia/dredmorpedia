@@ -34,6 +34,8 @@ function routeItem(name: string, originalId: string): Item {
     price: null,
     quality: 0,
     artifacts: [],
+    recoveries: [],
+    chargeRanges: [],
     iconPath: null,
     stats: [],
     modifiers: [],

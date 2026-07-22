@@ -150,6 +150,74 @@ export default async function ItemPage({
       </header>
 
       <div className="detail-grid">
+        <section className="detail-card" aria-labelledby="item-use-heading">
+          <h2 id="item-use-heading" className="section-title-sm">
+            Use metadata
+          </h2>
+          {item.recoveries.length > 0 || item.chargeRanges.length > 0 ? (
+            <div className="relationship-groups">
+              {item.recoveries.length > 0 ? (
+                <section aria-labelledby="item-recovery-heading">
+                  <h3 id="item-recovery-heading" className="relationship-title">
+                    Recovery
+                  </h3>
+                  <dl className="stat-list">
+                    {item.recoveries.flatMap((recovery, recoveryIndex) => [
+                      <div key={`${recovery.resource}:${recoveryIndex}`}>
+                        <dt>
+                          {recovery.resource === "life" ? "Life" : "Mana"}
+                        </dt>
+                        <dd>{recovery.amount ?? "Unavailable"}</dd>
+                      </div>,
+                      ...recovery.sourceFlags.map((flag, flagIndex) => (
+                        <div
+                          key={`${recovery.resource}:${recoveryIndex}:${flag.sourceKey}:${flagIndex}`}
+                        >
+                          <dt>Source flag</dt>
+                          <dd>
+                            <code>
+                              {flag.sourceKey}={flag.value}
+                            </code>
+                          </dd>
+                        </div>
+                      )),
+                    ])}
+                  </dl>
+                </section>
+              ) : null}
+              {item.chargeRanges.length > 0 ? (
+                <section aria-labelledby="item-charges-heading">
+                  <h3 id="item-charges-heading" className="relationship-title">
+                    Wand charges
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.chargeRanges.map((range, index) => (
+                      <dl className="stat-list" key={index}>
+                        <div>
+                          <dt>Minimum</dt>
+                          <dd>{range.minimum ?? "Unavailable"}</dd>
+                        </div>
+                        <div>
+                          <dt>Maximum</dt>
+                          <dd>{range.maximum ?? "Unavailable"}</dd>
+                        </div>
+                      </dl>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+              <p className="supporting-note">
+                These are direct source values; recovery timing and charge-use
+                behavior are not inferred.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized recovery or charge metadata.
+            </p>
+          )}
+        </section>
+
         <section className="detail-card" aria-labelledby="stats-heading">
           <h2 id="stats-heading" className="section-title-sm">
             Stats

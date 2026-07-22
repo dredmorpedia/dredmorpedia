@@ -245,15 +245,119 @@ const monsterSpellTriggerKindRanks = new Map(
 
 const partiallySupportedItemChildren = new Set([
   "armour",
-  "casts",
   "effect",
-  "food",
-  "mushroom",
-  "potion",
   "trap",
-  "wand",
   "weapon",
 ]);
+
+function parseItemRecoveries(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): Item["recoveries"] {
+  const recoveries: Item["recoveries"] = [];
+  for (const food of xmlChildren(record, "food")) {
+    reportUnknownLeafContent(
+      context,
+      food,
+      "food",
+      new Set(["effect", "hp", "meat", "mp"]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+    const meat = xmlAttribute(food, "meat");
+    const sourceFlags =
+      meat === undefined ? [] : [{ sourceKey: "meat", value: meat }];
+    for (const [attribute, resource] of [
+      ["hp", "life"],
+      ["mp", "mana"],
+    ] as const) {
+      const value = xmlAttribute(food, attribute);
+      if (value === undefined) {
+        continue;
+      }
+      recoveries.push({
+        resource,
+        amount: optionalIntegerValue(
+          value,
+          context,
+          provenance,
+          `item ${resource} recovery`,
+          currentEntityId,
+          0,
+        ),
+        sourceFlags: sourceFlags.map((flag) => ({ ...flag })),
+      });
+    }
+    if (
+      xmlAttribute(food, "hp") === undefined &&
+      xmlAttribute(food, "mp") === undefined
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_item_recovery",
+        message:
+          "A food declaration has no hp or mp source value; recovery is unavailable.",
+        source: provenance,
+        entityId: currentEntityId,
+        details: {
+          ...(meat === undefined ? {} : { sourceFlag: `meat=${meat}` }),
+        },
+      });
+    }
+  }
+  return recoveries;
+}
+
+function parseItemChargeRanges(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): Item["chargeRanges"] {
+  return xmlChildren(record, "wand").map((wand) => {
+    reportUnknownLeafContent(
+      context,
+      wand,
+      "wand",
+      new Set(["maxcharge", "mincharge", "spell"]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+    const minimum = optionalIntegerValue(
+      xmlAttribute(wand, "mincharge"),
+      context,
+      provenance,
+      "item wand minimum charges",
+      currentEntityId,
+      0,
+    );
+    const maximum = optionalIntegerValue(
+      xmlAttribute(wand, "maxcharge"),
+      context,
+      provenance,
+      "item wand maximum charges",
+      currentEntityId,
+      0,
+    );
+    if (minimum !== null && maximum !== null && minimum > maximum) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_item_charge_range",
+        message:
+          "A wand minimum charge count exceeded its maximum; the range is unavailable.",
+        source: provenance,
+        entityId: currentEntityId,
+        details: { minimum, maximum },
+      });
+      return { minimum: null, maximum: null };
+    }
+    return { minimum, maximum };
+  });
+}
 
 function parseSpellTrigger(
   record: XmlRecord,
@@ -466,28 +570,55 @@ function parseItemTriggers(
     "stepped-on",
     ["casts"],
   );
-  addTriggers(
-    xmlChildren(record, "wand").filter(
-      (child) => xmlAttribute(child, "spell") !== undefined,
-    ),
-    "zapped",
-    ["spell"],
-  );
-  addTriggers(
-    xmlChildren(record, "potion").filter(
-      (child) => xmlAttribute(child, "spell") !== undefined,
-    ),
-    "quaffed",
-    ["spell"],
-  );
-  if (Object.hasOwn(record, "mushroom")) {
-    addTriggers(
-      xmlChildren(record, "casts").filter(
-        (child) => xmlAttribute(child, "spell") !== undefined,
-      ),
-      "munched",
-      ["spell"],
+  addTriggers(xmlChildren(record, "wand"), "zapped", ["spell"]);
+  const potions = xmlChildren(record, "potion");
+  for (const potion of potions) {
+    reportUnknownLeafContent(
+      context,
+      potion,
+      "potion",
+      new Set(["spell"]),
+      provenance,
+      currentEntityId,
+      true,
     );
+  }
+  addTriggers(potions, "quaffed", ["spell"]);
+  if (Object.hasOwn(record, "mushroom")) {
+    for (const mushroom of xmlChildren(record, "mushroom")) {
+      reportUnknownLeafContent(
+        context,
+        mushroom,
+        "mushroom",
+        new Set(),
+        provenance,
+        currentEntityId,
+        true,
+      );
+    }
+    const casts = xmlChildren(record, "casts");
+    if (casts.length === 0) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_mushroom_cast",
+        message:
+          "A mushroom item has no casts declaration; its spell trigger is unavailable.",
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+    for (const cast of casts) {
+      reportUnknownLeafContent(
+        context,
+        cast,
+        "casts",
+        new Set(["spell"]),
+        provenance,
+        currentEntityId,
+        true,
+      );
+    }
+    addTriggers(casts, "munched", ["spell"]);
   }
   addTriggers(
     xmlChildren(record, "weapon").filter(
@@ -956,6 +1087,18 @@ function parseItems(
         provenance,
         currentEntityId,
       ),
+      recoveries: parseItemRecoveries(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      chargeRanges: parseItemChargeRanges(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "iconFile"),
         context,
@@ -976,6 +1119,11 @@ function parseItems(
       record,
       new Set([
         "artifact",
+        "food",
+        "mushroom",
+        "potion",
+        "wand",
+        ...(Object.hasOwn(record, "mushroom") ? ["casts"] : []),
         "description",
         "price",
         "stat",

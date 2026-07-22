@@ -37,6 +37,8 @@ function item(): Item {
     price: 155,
     quality: 3,
     artifacts: [],
+    recoveries: [],
+    chargeRanges: [],
     iconPath: null,
     stats: [],
     modifiers: [],
