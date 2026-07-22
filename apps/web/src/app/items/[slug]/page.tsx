@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import {
   entityRouteSlugs,
+  itemCategoryLabel,
   itemEncrustmentRelationships,
   itemMonsterDropRelationships,
   itemRecipeRelationships,
@@ -118,7 +119,7 @@ export default async function ItemPage({
 
       <header className="detail-header">
         <div>
-          <p className="eyebrow">{item.category}</p>
+          <p className="eyebrow">{itemCategoryLabel(item.category)}</p>
           <h1 className="detail-title">{item.name}</h1>
           <p className="detail-copy">{item.description}</p>
         </div>

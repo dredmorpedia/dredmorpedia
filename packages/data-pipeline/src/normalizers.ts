@@ -116,6 +116,86 @@ function itemQualityAttribute(record: XmlRecord): string | undefined {
   return undefined;
 }
 
+const weaponCategories: Readonly<Record<string, string>> = {
+  "0": "weapon:sword",
+  "1": "weapon:axe",
+  "2": "weapon:mace",
+  "3": "weapon:staff",
+  "4": "weapon:crossbow",
+  "5": "weapon:thrown",
+  "6": "weapon:ammunition",
+  "7": "weapon:dagger",
+  "8": "weapon:polearm",
+};
+
+const armourCategories: Readonly<Record<string, string>> = {
+  head: "armour:head",
+  chest: "armour:chest",
+  legs: "armour:legs",
+  hands: "armour:hands",
+  feet: "armour:feet",
+  waist: "armour:waist",
+  shield: "armour:shield",
+  ring: "armour:ring",
+  neck: "armour:neck",
+  sleeve: "armour:sleeve",
+};
+
+function itemCategory(record: XmlRecord): string {
+  if (Object.hasOwn(record, "weapon")) {
+    const sourceType = xmlAttribute(record, "type");
+    return weaponCategories[sourceType ?? "0"] ?? "weapon";
+  }
+
+  if (Object.hasOwn(record, "armour")) {
+    const overrideClass = xmlAttribute(record, "overrideClassName")
+      ?.trim()
+      .toLocaleLowerCase("en");
+    if (overrideClass === "orb" || overrideClass === "tome") {
+      return overrideClass;
+    }
+    const sourceType = childAttribute(record, "armour", "type")
+      ?.trim()
+      .toLocaleLowerCase("en");
+    return (sourceType && armourCategories[sourceType]) || "armour";
+  }
+
+  const food = xmlChildren(record, "food");
+  if (food.some((child) => xmlAttribute(child, "hp") !== undefined)) {
+    return "food";
+  }
+  if (food.some((child) => xmlAttribute(child, "mp") !== undefined)) {
+    return "booze";
+  }
+  if (food.length > 0) {
+    return "food";
+  }
+
+  for (const category of [
+    "trap",
+    "wand",
+    "potion",
+    "mushroom",
+    "gem",
+  ] as const) {
+    if (Object.hasOwn(record, category)) {
+      return category;
+    }
+  }
+
+  if (Object.hasOwn(record, "toolkit")) {
+    return "toolkit";
+  }
+  if (xmlAttribute(record, "alchemical") !== undefined) {
+    return "reagent";
+  }
+
+  const sourceType = xmlAttribute(record, "type")?.trim();
+  return sourceType && !/^\d+$/.test(sourceType)
+    ? canonicalKey(sourceType)
+    : "item";
+}
+
 const directItemTriggerSpecs: readonly {
   childName: string;
   kind: ItemTriggerKind;
@@ -827,7 +907,7 @@ function parseItems(
         childAttribute(record, "description", "text") ?? "",
         provenance,
       ),
-      category: xmlAttribute(record, "type") ?? "unknown",
+      category: itemCategory(record),
       price,
       quality: integerValue(
         itemQualityAttribute(record),

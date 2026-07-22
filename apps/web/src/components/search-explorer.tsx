@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  itemCategoryLabel,
   querySearchDocuments,
   type EntityKind,
   type SearchDocument,
@@ -71,15 +72,6 @@ function FilterSelect({
   );
 }
 
-function titleCase(value: string): string {
-  return value
-    .split(/[-_ ]+/)
-    .map(
-      (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
-    )
-    .join(" ");
-}
-
 export function SearchExplorer({
   documents,
   sources,
@@ -98,7 +90,7 @@ export function SearchExplorer({
       { value: "all", label: "All categories" },
       ...[...new Set(documents.flatMap((document) => document.category ?? []))]
         .sort((left, right) => left.localeCompare(right, "en"))
-        .map((value) => ({ value, label: titleCase(value) })),
+        .map((value) => ({ value, label: itemCategoryLabel(value) })),
     ],
     [documents],
   );
@@ -234,7 +226,11 @@ export function SearchExplorer({
                 </div>
                 <div>
                   <dt>Category</dt>
-                  <dd>{document.category ?? "Not categorized"}</dd>
+                  <dd>
+                    {document.category
+                      ? itemCategoryLabel(document.category)
+                      : "Not categorized"}
+                  </dd>
                 </div>
               </dl>
             </li>

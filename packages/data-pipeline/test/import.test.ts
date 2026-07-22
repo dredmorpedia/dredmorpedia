@@ -337,6 +337,122 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("derives semantic item categories from source shapes", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-categories-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Default Sword"><weapon /></item>
+  <item name="Axe" type="1"><weapon /></item>
+  <item name="Mace" type="2"><weapon /></item>
+  <item name="Staff" type="3"><weapon /></item>
+  <item name="Crossbow" type="4"><weapon /></item>
+  <item name="Thrown" type="5"><weapon /></item>
+  <item name="Ammunition" type="6"><weapon /></item>
+  <item name="Dagger" type="7"><weapon /></item>
+  <item name="Polearm" type="8"><weapon /></item>
+  <item name="Future Weapon" type="9"><weapon /></item>
+  <item name="Head"><armour type="head" /></item>
+  <item name="Chest"><armour type="chest" /></item>
+  <item name="Legs"><armour type="legs" /></item>
+  <item name="Hands"><armour type="hands" /></item>
+  <item name="Feet"><armour type="feet" /></item>
+  <item name="Waist"><armour type="waist" /></item>
+  <item name="Shield"><armour type="shield" /></item>
+  <item name="Ring"><armour type="ring" /></item>
+  <item name="Neck"><armour type="neck" /></item>
+  <item name="Sleeve"><armour type="sleeve" /></item>
+  <item name="Future Armour"><armour type="cape" /></item>
+  <item name="Orb" overrideClassName="Orb"><armour type="shield" /></item>
+  <item name="Tome" overrideClassName="Tome"><armour type="shield" /></item>
+  <item name="Food"><food hp="3" /></item>
+  <item name="Booze"><food mp="3" /></item>
+  <item name="Mixed Food"><food hp="3" mp="3" /></item>
+  <item name="Trap"><trap /></item>
+  <item name="Wand"><wand /></item>
+  <item name="Potion"><potion /></item>
+  <item name="Mushroom"><mushroom /></item>
+  <item name="Gem"><gem /></item>
+  <item name="Toolkit" alchemical="1"><toolkit /></item>
+  <item name="Reagent" alchemical="1" />
+  <item name="Custom" type="crafting_material" />
+  <item name="Generic Numeric" type="42" />
+</items>`,
+    );
+    const categoryManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      categoryManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-category-test",
+        sources: [
+          {
+            id: "category-source",
+            label: "Category Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: categoryManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const categoryByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item.category]),
+    );
+
+    expect(categoryByName).toEqual(
+      new Map([
+        ["Ammunition", "weapon:ammunition"],
+        ["Axe", "weapon:axe"],
+        ["Booze", "booze"],
+        ["Chest", "armour:chest"],
+        ["Crossbow", "weapon:crossbow"],
+        ["Custom", "crafting_material"],
+        ["Dagger", "weapon:dagger"],
+        ["Default Sword", "weapon:sword"],
+        ["Feet", "armour:feet"],
+        ["Food", "food"],
+        ["Future Armour", "armour"],
+        ["Future Weapon", "weapon"],
+        ["Gem", "gem"],
+        ["Generic Numeric", "item"],
+        ["Hands", "armour:hands"],
+        ["Head", "armour:head"],
+        ["Legs", "armour:legs"],
+        ["Mace", "weapon:mace"],
+        ["Mixed Food", "food"],
+        ["Mushroom", "mushroom"],
+        ["Neck", "armour:neck"],
+        ["Orb", "orb"],
+        ["Polearm", "weapon:polearm"],
+        ["Potion", "potion"],
+        ["Reagent", "reagent"],
+        ["Ring", "armour:ring"],
+        ["Shield", "armour:shield"],
+        ["Sleeve", "armour:sleeve"],
+        ["Staff", "weapon:staff"],
+        ["Thrown", "weapon:thrown"],
+        ["Toolkit", "toolkit"],
+        ["Tome", "tome"],
+        ["Trap", "trap"],
+        ["Waist", "armour:waist"],
+        ["Wand", "wand"],
+      ]),
+    );
+  });
+
   it("normalizes loss-aware spell mana costs and diagnoses unsupported requirements", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-mana-costs-"),
@@ -1773,6 +1889,12 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Cuirass")?.quality).toBe(4);
     expect(itemByName.get("Training Trap")?.quality).toBe(5);
     expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
+    expect(blade?.category).toBe("weapon:sword");
+    expect(itemByName.get("Brass Ingot")?.category).toBe("material");
+    expect(itemByName.get("Clarity Tonic")?.category).toBe("potion");
+    expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
+    expect(itemByName.get("Training Trap")?.category).toBe("trap");
+    expect(itemByName.get("Training Wand +1")?.category).toBe("wand");
     expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
       expect.objectContaining({
         kind: "quaffed",

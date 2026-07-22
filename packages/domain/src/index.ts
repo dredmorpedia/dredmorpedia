@@ -1,6 +1,7 @@
 export * from "./encrustment-relationships";
 export * from "./identity";
 export * from "./inheritance";
+export * from "./item-categories";
 export * from "./monster-drops";
 export * from "./monster-derived-stats";
 export * from "./monster-relationships";

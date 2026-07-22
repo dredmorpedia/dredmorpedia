@@ -60,6 +60,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(page.getByText("Source version")).toBeVisible();
   await expect(page.getByText("Quality")).toBeVisible();
   await expect(page.getByText("3", { exact: true })).toBeVisible();
+  await expect(page.getByText("Sword weapon", { exact: true })).toBeVisible();
   const itemStats = page.getByRole("region", { name: "Stats", exact: true });
   const itemModifiers = itemStats.getByRole("region", {
     name: "Direct modifiers",
@@ -112,6 +113,20 @@ test("searches reference entities with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+
+  const category = page.getByRole("combobox", { name: "Category" });
+  await category.focus();
+  await category.press("Enter");
+  await page
+    .getByRole("option", { name: "Sword weapon", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/category=weapon%3Asword/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Reset filters" }).click();
 
   const stat = page.getByRole("combobox", { name: "Stat" });
   await stat.focus();

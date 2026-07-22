@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { itemCategoryLabel } from "@dredmorpedia/domain";
+
 import { loadArtifact } from "@/lib/artifact";
 
 const itemPreviewLimit = 24;
@@ -112,7 +114,9 @@ export default function HomePage() {
             {items.map((item) => (
               <li key={item.id} className="item-card">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="category-chip">{item.category}</span>
+                  <span className="category-chip">
+                    {itemCategoryLabel(item.category)}
+                  </span>
                   <span className="grid justify-items-end gap-1 text-xs text-muted-foreground">
                     <span>
                       {item.price === null

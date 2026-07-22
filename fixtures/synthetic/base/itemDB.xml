@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items>
-  <item id="clockwork-blade" name="Clockwork Blade" type="weapon" level="2" iconFile="assets/synthetic.svg">
+  <item id="clockwork-blade" name="Clockwork Blade" type="0" level="2" iconFile="assets/synthetic.svg">
     <description text="A precisely balanced blade built for a synthetic test dungeon." />
     <price amount="120" />
     <stat name="Melee Power" amount="4" />
