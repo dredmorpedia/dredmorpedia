@@ -189,4 +189,32 @@ describe("monster inheritance", () => {
     ]);
     expect(resolvedChild?.inheritsId).toBe(parent.id);
   });
+
+  it("canonicalizes root modifiers and applies child overrides once", () => {
+    const parent = monster("Parent");
+    parent.modifiers = [
+      { kind: "primary", sourceKey: "2", amount: 9 },
+      { kind: "primary", sourceKey: "2", amount: 4 },
+    ];
+    const child = monster("Child", parent.canonicalKey);
+    child.modifiers = [
+      { kind: "primary", sourceKey: "2", amount: 7 },
+      { kind: "primary", sourceKey: "2", amount: 1 },
+    ];
+
+    const result = applyMonsterInheritance([child, parent]);
+    const resolvedParent = result.monsters.find(
+      (entry) => entry.name === "Parent",
+    );
+    const resolvedChild = result.monsters.find(
+      (entry) => entry.name === "Child",
+    );
+
+    expect(resolvedParent?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "2", amount: 4 },
+    ]);
+    expect(resolvedChild?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "2", amount: 1 },
+    ]);
+  });
 });

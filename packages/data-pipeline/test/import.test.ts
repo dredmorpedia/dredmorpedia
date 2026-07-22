@@ -469,6 +469,97 @@ describe("synthetic dataset import", () => {
     );
   });
 
+  it("resolves duplicate monster modifiers before inheritance", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-monster-modifier-overrides-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "monDB.xml"),
+      `<?xml version="1.0"?>
+<monsters>
+  <monster name="Root Override">
+    <stats numFig="1" numRog="0" numWiz="0" />
+    <primarybuff id="2" amount="5" />
+    <primarybuff id="2" amount="-1" />
+  </monster>
+  <monster name="Modifier Parent">
+    <primarybuff id="2" amount="4" />
+    <monster name="Modifier Child">
+      <stats numFig="2" numRog="0" numWiz="0" />
+      <primarybuff id="2" amount="7" />
+      <primarybuff id="2" amount="1" />
+    </monster>
+  </monster>
+</monsters>`,
+    );
+    const modifierManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      modifierManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "monster-modifier-overrides-test",
+        sources: [
+          {
+            id: "modifier-source",
+            label: "Modifier source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "monsters", path: "monDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: modifierManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const monsters = new Map(
+      result.artifact.entities.monsters.map((monster) => [
+        monster.name,
+        monster,
+      ]),
+    );
+
+    expect(monsters.get("Root Override")?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "2", amount: -1 },
+    ]);
+    expect(monsters.get("Modifier Parent")?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "2", amount: 4 },
+    ]);
+    expect(monsters.get("Modifier Child")?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "2", amount: 1 },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "duplicate_monster_modifier",
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        entityId: "monster:root override",
+        details: {
+          modifierKind: "primary",
+          sourceKey: "2",
+          overriddenAmount: 5,
+          replacementAmount: -1,
+        },
+      }),
+      expect.objectContaining({
+        entityId: "monster:modifier child",
+        details: {
+          modifierKind: "primary",
+          sourceKey: "2",
+          overriddenAmount: 7,
+          replacementAmount: 1,
+        },
+      }),
+    ]);
+  });
+
   it("preserves loss-aware monster AI and sight source metadata", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-monster-ai-metadata-"),

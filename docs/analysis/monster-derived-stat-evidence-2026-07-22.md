@@ -8,7 +8,7 @@ Implementation scope: six primary attributes only
 
 ## Decision
 
-The monster page may calculate Burliness, Sagacity, Nimbleness, Caddishness, Stubbornness, and Savvy from the normalized fighter, rogue, and wizard source levels. Effective `primarybuff` modifiers are added by their numeric source ID after monster inheritance is resolved.
+The monster page may calculate Burliness, Sagacity, Nimbleness, Caddishness, Stubbornness, and Savvy from the normalized fighter, rogue, and wizard source levels. Effective `primarybuff` modifiers are added by their numeric source ID after monster inheritance is resolved. Repeated local bonuses use the preserved legacy last-declaration-wins rule rather than being summed; the importer diagnoses that ambiguous source shape before producing a unique effective modifier.
 
 Life, Mana, Melee Power, Magic Power, critical chance, Haywire chance, dodge, block, counter, enemy dodge reduction, magic resistance, sneakiness, mundane melee damage, and other combat totals remain unavailable. The available historical sources conflict about offsets, minimums, coefficients, and even which primary attribute feeds some secondary values.
 
@@ -43,6 +43,7 @@ Applying the scoped calculation to the ignored canonical artifact covers all 183
 ## Verification contract
 
 - Domain tests cover every coefficient and show that only matching primary modifiers affect totals.
+- Adversarial pipeline/domain tests verify that duplicate local modifiers are diagnosed and resolved in source order for both root and inherited monsters before the primary calculation runs.
 - The synthetic child monster verifies a non-zero primary bonus in the browser: fighter `2` produces Nimbleness `2`, then source bonus `+1` produces `3`.
 - The monster page labels these values as verified primary attributes and continues to state that disputed secondary totals are unavailable.
 - No official XML, generated official artifact, absolute installation path, or downloaded research file is tracked.

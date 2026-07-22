@@ -43,7 +43,7 @@ describe("monster primary attribute calculations", () => {
     ]);
   });
 
-  it("adds only matching primary source modifiers", () => {
+  it("uses the last matching primary override and ignores other modifiers", () => {
     const values = calculateMonsterPrimaryAttributes(
       { fighter: 2, rogue: 0, wizard: 0 },
       [
@@ -65,8 +65,8 @@ describe("monster primary attribute calculations", () => {
       key: "nimbleness",
       label: "Nimbleness",
       base: 2,
-      modifier: -1,
-      total: 1,
+      modifier: -2,
+      total: 0,
     });
   });
 });

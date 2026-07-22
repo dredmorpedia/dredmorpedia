@@ -969,7 +969,33 @@ function parseStatModifiers(
   addIndexedModifiers("primarybuff", "primary");
   addIndexedModifiers("secondarybuff", "secondary");
 
-  return modifiers.sort(
+  let normalizedModifiers = modifiers;
+  if (ownerLabel === "monster") {
+    const overrides = new Map<string, StatModifier>();
+    for (const modifier of modifiers) {
+      const overrideKey = `${modifier.kind}:${modifier.sourceKey}`;
+      const previous = overrides.get(overrideKey);
+      if (previous) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "duplicate_monster_modifier",
+          message: `Duplicate monster ${modifier.kind} modifier ${modifier.sourceKey}; the last declaration overrides the earlier value.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: {
+            modifierKind: modifier.kind,
+            sourceKey: modifier.sourceKey,
+            overriddenAmount: previous.amount,
+            replacementAmount: modifier.amount,
+          },
+        });
+      }
+      overrides.set(overrideKey, modifier);
+    }
+    normalizedModifiers = [...overrides.values()];
+  }
+
+  return normalizedModifiers.sort(
     (left, right) =>
       statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
       left.sourceKey.localeCompare(right.sourceKey, "en") ||

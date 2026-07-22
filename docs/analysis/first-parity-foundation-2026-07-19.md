@@ -34,13 +34,14 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 - Normalized artifact: 41,117 bytes.
 - Search artifact: 8,148 bytes for 19 documents.
 - Diagnostics remain the intentional 1 error and 21 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, monster-spell, monster-item, and skill-loadout targets remain explicit.
-- Domain/pipeline tests: 42 passed.
+- Domain/pipeline tests: 46 passed.
 - Browser tests: 18 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell/monster, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 - Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
 - Monster drop/item backlinks and the initial aggressiveness/span/invisible AI source metadata passed their separate code review on 2026-07-21. Named and type-driven drops are an exclusive domain union backed by the same runtime guard used at the web artifact boundary; adversarial partial, mixed, invalid-type, and out-of-range records are rejected. All boolean AI metadata distinguishes enabled, explicitly disabled, and absent source values without inferring behavior.
 - Monster sight, movement, and presentation metadata passed separate code review on 2026-07-22. Invalid supplied loss-aware boolean tokens emit `invalid_boolean` and remain unavailable instead of becoming disabled, unexpected nested content in leaf metadata elements emits `unknown_element`, and browser coverage asserts that raw engine references remain absent from the presentation summary.
+- Monster primary-attribute calculations passed separate code review on 2026-07-22. Duplicate local monster bonuses now emit `duplicate_monster_modifier` and resolve in source order before deterministic sorting; the last matching declaration wins for root monsters and inherited children, matching the preserved legacy override rule rather than summing duplicates.
 - Synthetic item-trigger coverage includes resolved weapon, potion, wand, combat-event, and repeated triggers plus an intentionally unresolved trap spell. The UI exposes the unresolved state without creating a route, and axe checks include representative resolved and unresolved pages.
 - Synthetic encrustment coverage includes resolved and unresolved ingredients, two applicable slots, skill level, instability, signed direct modifiers, a probabilistic named power hook, an appearance descriptor, provenance, item backlinks, and two shared instability effects with resolved and unresolved spell references. Desktop/mobile browser and axe checks cover the item-to-encrustment-to-item flow, direct outcomes, the shared-pool disclosure, and its explicit selection-semantics boundary.
 - Synthetic spell coverage includes a resolved two-spell chain, a deliberate cycle, a dangling spell target, a resolved stat target, direct/backlink navigation, provenance, and diagnostics. Desktop/mobile browser checks follow an item trigger into the chain, verify the explicit stop states, and navigate between both spell pages.
@@ -51,8 +52,8 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,698 warnings, and 71 info records.
 
-- Normalized artifact: 4,495,051 bytes.
-- Search artifact: 1,252,239 bytes uncompressed.
+- Normalized artifact: 4,495,050 bytes.
+- Search artifact: 1,252,238 bytes uncompressed.
 - Diagnostics: 1,263,915 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - The earlier 1,000-query local CPU benchmark over the 2,710-document pre-encrustment artifact measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency; the user-facing search route still filters its payload to items and stats.

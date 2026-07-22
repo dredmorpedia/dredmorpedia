@@ -57,8 +57,12 @@ export function applyMonsterInheritance(
     }
 
     if (!monster.inheritsKey) {
-      resolved.set(monster.canonicalKey, monster);
-      return monster;
+      const root = {
+        ...monster,
+        modifiers: inheritModifiers([], monster.modifiers),
+      };
+      resolved.set(monster.canonicalKey, root);
+      return root;
     }
 
     if (ancestors.has(monster.canonicalKey)) {

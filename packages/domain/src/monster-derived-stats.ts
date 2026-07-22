@@ -59,13 +59,14 @@ export function calculateMonsterPrimaryAttributes(
       levels.fighter * definition.coefficients.fighter +
       levels.rogue * definition.coefficients.rogue +
       levels.wizard * definition.coefficients.wizard;
-    const modifier = modifiers
-      .filter(
-        (candidate) =>
-          candidate.kind === "primary" &&
-          candidate.sourceKey === definition.sourceKey,
-      )
-      .reduce((total, candidate) => total + candidate.amount, 0);
+    const modifier = modifiers.reduce(
+      (effectiveAmount, candidate) =>
+        candidate.kind === "primary" &&
+        candidate.sourceKey === definition.sourceKey
+          ? candidate.amount
+          : effectiveAmount,
+      0,
+    );
 
     return {
       key: definition.key,
