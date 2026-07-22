@@ -25,6 +25,7 @@ import {
   type Spell,
   type SpellBuff,
   type SpellBuffEventHook,
+  type SpellBuffSightModifier,
   type SpellManaCost,
   type SpellTrigger,
   type SourceFlag,
@@ -45,6 +46,7 @@ import type { DiagnosticDraft, ParsedXml, XmlRecord } from "./xml-adapter";
 import {
   collectElements,
   collectNestedElements,
+  isXmlRecord,
   xmlAttribute,
   xmlChildren,
 } from "./xml-adapter";
@@ -1636,6 +1638,61 @@ const spellBuffEventHookSpecs = [
   { childName: "playerHitEffectBuff", kind: "player-hit" },
 ] as const;
 
+function spellBuffSightModifierRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.sightbuff;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffSightModifiers(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffSightModifier[] {
+  return spellBuffSightModifierRecords(buff).map((modifier, modifierIndex) => {
+    reportUnknownLeafContent(
+      context,
+      modifier,
+      "sightbuff",
+      new Set(["amount"]),
+      provenance,
+      currentEntityId,
+    );
+    const amountText = xmlAttribute(modifier, "amount");
+    if (amountText === undefined || amountText === "") {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_buff_sight_amount",
+        message: `Spell buff ${buffIndex + 1} sight modifier ${modifierIndex + 1} is missing its amount.`,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { buffIndex, modifierIndex },
+      });
+      return { amount: null };
+    }
+
+    return {
+      amount: optionalNumberValue(
+        amountText,
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} sight modifier ${modifierIndex + 1} amount`,
+        currentEntityId,
+      ),
+    };
+  });
+}
+
 function parseSpellBuffEventHooks(
   buff: XmlRecord,
   context: NormalizationContext,
@@ -1714,6 +1771,7 @@ function parseSpellBuffs(
       buff,
       new Set([
         ...modifierElementNames,
+        "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
       currentEntityId,
@@ -1853,6 +1911,13 @@ function parseSpellBuffs(
         provenance,
         currentEntityId,
         "spell_buff",
+      ),
+      sightModifiers: parseSpellBuffSightModifiers(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
       ),
       eventHooks: parseSpellBuffEventHooks(
         buff,

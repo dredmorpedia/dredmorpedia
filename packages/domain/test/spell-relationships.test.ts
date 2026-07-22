@@ -83,6 +83,7 @@ function buff(
     stackLimit: null,
     sourceFlags: [],
     modifiers: [],
+    sightModifiers: [],
     eventHooks,
   };
 }

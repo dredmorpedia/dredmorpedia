@@ -453,6 +453,8 @@ describe("synthetic dataset import", () => {
       <resistBuff toxic="-2" />
       <primaryBuff id="2" amount="3" />
       <secondarybuff id="6" amount="-4" />
+      <sightbuff amount="2.5" />
+      <sightbuff amount="-3" />
       <targetHitEffectBuff percentage="75" name="Invalid Buff" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Hook Spell" />
     </buff>
@@ -462,7 +464,8 @@ describe("synthetic dataset import", () => {
     <buff useTimer="-1" time="1.5" manaUpkeep="bad" removable="maybe" self="2" resistable="yes" bad="no" stackable="sometimes" allowstacking="perhaps" stacksize="-2" future="diagnosed">
       <damagebuff impossible="2"><futureChild /></damagebuff>
       <primarybuff amount="1" future="diagnosed" />
-      <sightbuff amount="3" />
+      <sightbuff amount="bad" future="diagnosed"><futureChild /></sightbuff>
+      <sightbuff />
       <targetHitEffectBuff percentage="101" name="Complete Buff" future="diagnosed"><futureChild /></targetHitEffectBuff>
       <playerHitEffectBuff percentage="bad" future="diagnosed" />
     </buff>
@@ -523,6 +526,7 @@ describe("synthetic dataset import", () => {
           { kind: "primary", sourceKey: "2", amount: 3 },
           { kind: "secondary", sourceKey: "6", amount: -4 },
         ],
+        sightModifiers: [{ amount: 2.5 }, { amount: -3 }],
         eventHooks: [
           {
             kind: "target-hit",
@@ -547,6 +551,7 @@ describe("synthetic dataset import", () => {
         manaUpkeep: 2,
         allowStacking: true,
         modifiers: [],
+        sightModifiers: [],
       }),
     ]);
     expect(spells.get("Invalid Buff")?.buffs).toEqual([
@@ -562,6 +567,7 @@ describe("synthetic dataset import", () => {
         allowStacking: null,
         stackLimit: null,
         modifiers: [],
+        sightModifiers: [{ amount: null }, { amount: null }],
         eventHooks: [
           {
             kind: "target-hit",
@@ -578,7 +584,7 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(6);
+    ).toHaveLength(7);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
@@ -602,9 +608,14 @@ describe("synthetic dataset import", () => {
           details: { modifierKind: "primary" },
         }),
         expect.objectContaining({
-          code: "unknown_element",
+          code: "unknown_attribute",
           entityId: "spell:invalid buff",
-          details: { element: "sightbuff" },
+          details: { element: "sightbuff", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_sight_amount",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, modifierIndex: 1 },
         }),
         expect.objectContaining({
           code: "unknown_attribute",
@@ -631,6 +642,13 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.details?.element === "sightbuff" &&
+          diagnostic.code === "unknown_element",
+      ),
+    ).toBe(false);
     expect(
       result.diagnostics.some(
         (diagnostic) =>
@@ -1307,6 +1325,7 @@ describe("synthetic dataset import", () => {
           { kind: "primary", sourceKey: "2", amount: 1 },
           { kind: "secondary", sourceKey: "6", amount: 5 },
         ],
+        sightModifiers: [{ amount: -2 }],
         eventHooks: [
           {
             kind: "target-hit",

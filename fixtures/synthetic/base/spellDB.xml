@@ -8,6 +8,7 @@
       <resistbuff toxic="3" />
       <primaryBuff id="2" amount="1" />
       <secondarybuff id="6" amount="5" />
+      <sightbuff amount="-2" />
       <targetHitEffectBuff percentage="40" name="Clockwork Echo" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Buff Echo" />
     </buff>

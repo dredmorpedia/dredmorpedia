@@ -484,6 +484,16 @@ function hasValidSpellBuffEventHook(hook: unknown): boolean {
   );
 }
 
+function hasValidSpellBuffSightModifier(modifier: unknown): boolean {
+  return (
+    modifier !== null &&
+    typeof modifier === "object" &&
+    "amount" in modifier &&
+    (modifier.amount === null ||
+      (typeof modifier.amount === "number" && Number.isFinite(modifier.amount)))
+  );
+}
+
 function hasValidSpellBuff(buff: unknown): boolean {
   return (
     buff !== null &&
@@ -523,6 +533,9 @@ function hasValidSpellBuff(buff: unknown): boolean {
     "modifiers" in buff &&
     Array.isArray(buff.modifiers) &&
     buff.modifiers.every(hasValidStatModifier) &&
+    "sightModifiers" in buff &&
+    Array.isArray(buff.sightModifiers) &&
+    buff.sightModifiers.every(hasValidSpellBuffSightModifier) &&
     "eventHooks" in buff &&
     Array.isArray(buff.eventHooks) &&
     buff.eventHooks.every(hasValidSpellBuffEventHook)

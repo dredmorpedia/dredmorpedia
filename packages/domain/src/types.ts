@@ -258,6 +258,10 @@ export interface SpellBuffEventHook {
   sourceFlags: SourceFlag[];
 }
 
+export interface SpellBuffSightModifier {
+  amount: number | null;
+}
+
 export interface SpellBuff {
   iconPath: string | null;
   smallIconPath: string | null;
@@ -276,6 +280,7 @@ export interface SpellBuff {
   stackLimit: number | null;
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
+  sightModifiers: SpellBuffSightModifier[];
   eventHooks: SpellBuffEventHook[];
 }
 

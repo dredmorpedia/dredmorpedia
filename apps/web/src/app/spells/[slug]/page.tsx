@@ -410,6 +410,35 @@ export default async function SpellPage({
                       ) : null}
                     </section>
                   ) : null}
+                  {buff.sightModifiers.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-sight-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-sight-heading`}
+                        className="relationship-title"
+                      >
+                        Sight modifiers
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.sightModifiers.map((modifier, modifierIndex) => (
+                          <div key={modifierIndex}>
+                            <dt>Sight radius</dt>
+                            <dd>
+                              {modifier.amount === null
+                                ? "Unavailable"
+                                : signedStatModifierValue(modifier.amount)}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        Signed source modifiers are preserved without deriving
+                        final visibility or darkness behavior.
+                      </p>
+                    </section>
+                  ) : null}
                   {buff.eventHooks.length > 0 ? (
                     <section
                       className="mt-4"

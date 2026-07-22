@@ -288,6 +288,14 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(buffs.getByText("Toxic resistance")).toBeVisible();
   await expect(buffs.getByText("Primary attribute 2")).toBeVisible();
   await expect(buffs.getByText("Secondary stat 6")).toBeVisible();
+  const sightModifiers = buffs.getByRole("region", {
+    name: "Sight modifiers",
+  });
+  await expect(sightModifiers.getByText("Sight radius")).toBeVisible();
+  await expect(sightModifiers.getByText("-2", { exact: true })).toBeVisible();
+  await expect(
+    sightModifiers.getByText(/without deriving final visibility/),
+  ).toBeVisible();
   const buffEventHooks = buffs.getByRole("region", { name: "Event hooks" });
   await expect(
     buffEventHooks.getByRole("link", { name: "Clockwork Echo" }),

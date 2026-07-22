@@ -59,7 +59,9 @@ Two deterministic canonical imports are byte-identical and report no errors, 2,4
 | `senseWallsFlag`    |           1 |
 | `dodgebuff`         |           1 |
 
-Thirteen non-mana spell requirements and two unrelated requirement `level` attributes remain separately diagnosed. This slice does not claim parity for sight changes, nested effects, halos, invisibility, muting, polymorph, timing semantics, or any other unsupported buff mechanic.
+Thirteen non-mana spell requirements and two unrelated requirement `level` attributes remain separately diagnosed. At completion of this slice, sight changes, nested effects, halos, invisibility, muting, polymorph, timing semantics, and other buff mechanics were still unsupported.
+
+The subsequent sight-modifier slice normalizes the 18 `sightbuff` declarations, reducing the current compatibility backlog to 2,413 diagnostics: 1,510 item plus 903 spell diagnostics. Its current remaining-element table and formula boundary are recorded in [`spell-buff-sight-evidence-2026-07-22.md`](spell-buff-sight-evidence-2026-07-22.md).
 
 ## Verification
 

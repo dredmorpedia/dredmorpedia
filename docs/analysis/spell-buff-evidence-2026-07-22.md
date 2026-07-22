@@ -4,7 +4,7 @@ Date: 2026-07-22
 
 Scope: legacy behavior, synthetic compatibility fixtures, and read-only aggregate measurement of the canonical official dataset
 
-Status: implemented source-parameter, direct-modifier, and hit-event relationship slices; other nested buff mechanics remain explicit backlog
+Status: implemented source-parameter, direct-modifier, hit-event relationship, and sight-modifier slices; other nested buff mechanics remain explicit backlog
 
 ## Legacy behavior
 
@@ -56,7 +56,7 @@ Loss-aware boolean coverage is 60 removable declarations, 126 self-targeting dec
 
 After the source-parameter slice, two identical canonical imports were byte-identical and reported no errors, 2,518 warnings, and 71 informational duplicate decisions. The measured unsupported/partially-supported item-and-spell backlog fell from 2,576 to 2,484 constructs: 1,510 item diagnostics and 974 spell diagnostics. Nineteen dangling references remained separately reported.
 
-The buff root and the four supported modifier families no longer produce compatibility diagnostics. The later target/player hit event-hook slice normalizes 61 declarations, all resolved, and reduces the compatibility backlog to 2,431 diagnostics: 1,510 item plus 921 spell diagnostics. Remaining spell work includes animation metadata and nested buff mechanics such as nested effects, sight changes, halos, invisibility, muting, polymorph, and other engine-specific declarations. Those constructs are not represented as completed behavior by this slice. Detailed relationship evidence is recorded in [`spell-buff-event-hook-evidence-2026-07-22.md`](spell-buff-event-hook-evidence-2026-07-22.md).
+The buff root and the four supported modifier families no longer produce compatibility diagnostics. The later target/player hit event-hook slice normalizes 61 declarations, all resolved, and the subsequent sight slice preserves 18 signed sight-radius source modifiers. Together they reduce the compatibility backlog to 2,413 diagnostics: 1,510 item plus 903 spell diagnostics. Remaining spell work includes animation metadata and nested buff mechanics such as nested effects, halos, invisibility, muting, polymorph, and other engine-specific declarations. Those constructs are not represented as completed behavior. Detailed evidence is recorded in [`spell-buff-event-hook-evidence-2026-07-22.md`](spell-buff-event-hook-evidence-2026-07-22.md) and [`spell-buff-sight-evidence-2026-07-22.md`](spell-buff-sight-evidence-2026-07-22.md).
 
 The web page presents the normalized parameters and signed modifiers, explicitly labels them as source declarations, and does not infer stacking resolution, trigger timing, final combat totals, or undocumented currency behavior. Presentation paths remain in the local generated artifact and are not rendered while the asset-publication boundary is unresolved.
 
