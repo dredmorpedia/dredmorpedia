@@ -217,4 +217,47 @@ describe("monster inheritance", () => {
       { kind: "primary", sourceKey: "2", amount: 1 },
     ]);
   });
+
+  it("keeps every member of an inheritance cycle local", () => {
+    const alpha = monster("Alpha", "beta");
+    const beta = monster("Beta", "gamma");
+    const gamma = monster("Gamma", "alpha");
+    alpha.description = "Alpha only";
+    beta.description = "Beta only";
+    gamma.description = "Gamma only";
+
+    const result = applyMonsterInheritance([gamma, alpha, beta]);
+
+    expect(result.issues).toEqual([
+      { type: "cycle", monsterId: alpha.id, parentKey: "beta" },
+      { type: "cycle", monsterId: beta.id, parentKey: "gamma" },
+      { type: "cycle", monsterId: gamma.id, parentKey: "alpha" },
+    ]);
+    expect(
+      result.monsters.map(({ name, description, inheritsId }) => ({
+        name,
+        description,
+        inheritsId,
+      })),
+    ).toEqual([
+      { name: "Alpha", description: "Alpha only", inheritsId: undefined },
+      { name: "Beta", description: "Beta only", inheritsId: undefined },
+      { name: "Gamma", description: "Gamma only", inheritsId: undefined },
+    ]);
+  });
+
+  it("allows a non-cyclic descendant to inherit a cycle member's local data", () => {
+    const alpha = monster("Alpha", "beta");
+    const beta = monster("Beta", "alpha");
+    const child = monster("Child", "alpha");
+    alpha.description = "Alpha local";
+
+    const result = applyMonsterInheritance([child, beta, alpha]);
+    const resolvedChild = result.monsters.find(
+      (entry) => entry.name === "Child",
+    );
+
+    expect(resolvedChild?.description).toBe("Alpha local");
+    expect(resolvedChild?.inheritsId).toBe(alpha.id);
+  });
 });

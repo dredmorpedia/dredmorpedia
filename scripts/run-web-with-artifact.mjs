@@ -26,7 +26,12 @@ const artifactDirectory = path.resolve(
   "generated",
   artifactName,
 );
-const requiredFiles = ["artifact.json", "diagnostics.json", "search.json"];
+const requiredFiles = [
+  "artifact.json",
+  "diagnostics.json",
+  "manifest.json",
+  "search.json",
+];
 const missingFiles = requiredFiles.filter(
   (file) => !existsSync(path.join(artifactDirectory, file)),
 );

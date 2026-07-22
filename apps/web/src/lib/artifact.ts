@@ -1,890 +1,705 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 
 import {
-  isMonsterDrop,
+  createSearchDocuments,
+  entityKinds,
   isValidTemplateRows,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   spellBuffEventHookKinds,
   statModifierKinds,
+  type ArtifactManifest,
   type DatasetArtifact,
   type Diagnostic,
+  type NormalizedEntity,
   type SearchArtifact,
 } from "@dredmorpedia/domain";
+import { z } from "zod";
 
-const itemTriggerKindSet: ReadonlySet<string> = new Set(itemTriggerKinds);
-const monsterSpellTriggerKindSet: ReadonlySet<string> = new Set(
-  monsterSpellTriggerKinds,
-);
-const spellBuffEventHookKindSet: ReadonlySet<string> = new Set(
-  spellBuffEventHookKinds,
-);
-const statModifierKindSet: ReadonlySet<string> = new Set(statModifierKinds);
+const nonnegativeInteger = z.number().int().nonnegative();
+const positiveInteger = z.number().int().positive();
+const percentageInteger = nonnegativeInteger.max(100);
+const nullableNumber = z.number().nullable();
+const nullableNonnegativeNumber = z.number().nonnegative().nullable();
+const nullableNonnegativeInteger = nonnegativeInteger.nullable();
+const nullablePercentageInteger = percentageInteger.nullable();
+const optionalString = z.string().optional();
 
-function generatedFile(name: string): string {
-  const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
-  const candidates = explicitRoot
-    ? [path.resolve(explicitRoot, name)]
-    : [
-        path.resolve(process.cwd(), "../../data/generated/spike", name),
-        path.resolve(process.cwd(), "data/generated/spike", name),
-      ];
-  const match = candidates.find(existsSync);
-  if (!match) {
-    throw new Error(
-      explicitRoot
-        ? `Generated ${name} is missing from the configured artifact directory. Regenerate that dataset or correct DREDMORPEDIA_ARTIFACT_DIRECTORY.`
-        : `Generated ${name} is missing. Run \"pnpm generate\" from the repository root.`,
-    );
-  }
-  return match;
-}
+const patchValueSchema = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.array(z.string()),
+]);
 
-function readJson(name: string): unknown {
-  return JSON.parse(readFileSync(generatedFile(name), "utf8")) as unknown;
-}
+const sourceLocationSchema = z
+  .object({
+    sourceId: z.string(),
+    file: z.string(),
+    line: nonnegativeInteger,
+    column: nonnegativeInteger,
+  })
+  .strict();
 
+const provenanceSchema = sourceLocationSchema.extend({
+  originalName: z.string(),
+  originalId: optionalString,
+});
+
+const appliedOverrideSchema = z
+  .object({
+    previous: provenanceSchema,
+    replacement: provenanceSchema,
+    changedFields: z.array(z.string()),
+  })
+  .strict();
+
+const appliedPatchSchema = z
+  .object({
+    id: z.string(),
+    file: z.string(),
+    reason: z.string(),
+    sourceId: z.string(),
+    sourceVersion: z.string(),
+    changes: z.array(
+      z
+        .object({
+          field: z.string(),
+          previousValue: patchValueSchema,
+          value: patchValueSchema,
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+const entityBaseShape = {
+  id: z.string(),
+  canonicalKey: z.string(),
+  slug: z.string(),
+  slugAliases: z.array(z.string()),
+  name: z.string(),
+  description: z.string(),
+  provenance: provenanceSchema,
+  variants: z.array(provenanceSchema),
+  appliedOverrides: z.array(appliedOverrideSchema),
+  appliedPatches: z.array(appliedPatchSchema),
+  diagnosticIds: z.array(z.string()),
+};
+
+const sourceFlagSchema = z
+  .object({ sourceKey: z.string(), value: z.string() })
+  .strict();
+
+const statModifierSchema = z
+  .object({
+    kind: z.enum(statModifierKinds),
+    sourceKey: z.string(),
+    amount: z.number(),
+  })
+  .strict();
+
+const spellTriggerSchema = z
+  .object({
+    kind: z.enum(itemTriggerKinds),
+    spellKey: z.string(),
+    spellName: z.string(),
+    spellId: optionalString,
+    chance: nullablePercentageInteger,
+    delay: nonnegativeInteger,
+    duration: nonnegativeInteger,
+    unresistable: z.boolean(),
+    monsterTaxonomy: z.string().nullable(),
+  })
+  .strict();
+
+const itemReferenceSchema = z
+  .object({
+    itemKey: z.string(),
+    itemName: z.string(),
+    itemId: optionalString,
+    amount: positiveInteger,
+  })
+  .strict();
+
+const itemSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("item"),
+    category: z.string(),
+    price: nonnegativeInteger.nullable(),
+    quality: nonnegativeInteger,
+    iconPath: z.string().nullable(),
+    stats: z.array(
+      z
+        .object({
+          statKey: z.string(),
+          statName: z.string(),
+          statId: optionalString,
+          amount: z.number().int(),
+        })
+        .strict(),
+    ),
+    triggers: z.array(spellTriggerSchema),
+  })
+  .strict();
+
+const recipeSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("recipe"),
+    tool: z.string(),
+    hidden: z.boolean(),
+    skillLevel: nonnegativeInteger,
+    inputs: z.array(itemReferenceSchema),
+    outputs: z.array(itemReferenceSchema),
+  })
+  .strict();
+
+const encrustmentSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("encrustment"),
+    tool: z.string(),
+    hidden: z.boolean(),
+    skillLevel: nonnegativeInteger,
+    inputs: z.array(itemReferenceSchema),
+    slots: z.array(z.string()),
+    instability: z.number().int(),
+    modifiers: z.array(statModifierSchema),
+    powers: z.array(
+      z
+        .object({
+          name: z.string(),
+          chance: z.number().min(0).max(1).nullable(),
+        })
+        .strict(),
+    ),
+    appearanceDescriptors: z.array(z.string()),
+  })
+  .strict();
+
+const skillSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("skill"),
+    archetype: z.string(),
+    iconPath: z.string().nullable(),
+    loadouts: z.array(
+      z
+        .object({
+          itemKey: optionalString,
+          itemName: optionalString,
+          itemId: optionalString,
+          itemType: optionalString,
+          amount: positiveInteger,
+          always: z.boolean(),
+        })
+        .strict(),
+    ),
+    loadoutItemKeys: z.array(z.string()),
+    sourceFlags: z.array(sourceFlagSchema),
+    progressionTags: z.array(
+      z.object({ level: nonnegativeInteger, name: z.string() }).strict(),
+    ),
+    abilityIds: z.array(z.string()),
+  })
+  .strict();
+
+const abilitySchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("ability"),
+    skillKey: z.string(),
+    skillId: optionalString,
+    iconPath: z.string().nullable(),
+    level: nonnegativeInteger,
+    startSkill: z.boolean(),
+    modifiers: z.array(statModifierSchema),
+    sourceFlags: z.array(sourceFlagSchema),
+    recoveryBuffAmounts: z.array(z.number()),
+    currencyBuffPercents: z.array(z.number()),
+    triggers: z.array(spellTriggerSchema),
+    spellKeys: z.array(z.string()),
+    spellIds: z.array(z.string()),
+  })
+  .strict();
+
+const spellEffectSchema = z
+  .object({
+    type: z.string(),
+    spellKey: optionalString,
+    spellName: optionalString,
+    spellId: optionalString,
+    statKey: optionalString,
+    statName: optionalString,
+    statId: optionalString,
+    amount: z.number().int().optional(),
+  })
+  .strict();
+
+const spellBuffSchema = z
+  .object({
+    iconPath: z.string().nullable(),
+    smallIconPath: z.string().nullable(),
+    timerMode: nullableNonnegativeInteger,
+    duration: nullableNonnegativeInteger,
+    manaUpkeep: nullableNonnegativeInteger,
+    currencyUpkeep: nullableNonnegativeInteger,
+    hitLimit: nullableNonnegativeInteger,
+    attackLimit: nullableNonnegativeInteger,
+    removable: z.boolean().nullable(),
+    affectsSelf: z.boolean().nullable(),
+    resistable: z.boolean().nullable(),
+    detrimental: z.boolean().nullable(),
+    stackable: z.boolean().nullable(),
+    allowStacking: z.boolean().nullable(),
+    stackLimit: nullableNonnegativeInteger,
+    sourceFlags: z.array(sourceFlagSchema),
+    modifiers: z.array(statModifierSchema),
+    sightModifiers: z.array(z.object({ amount: nullableNumber }).strict()),
+    eventHooks: z.array(
+      z
+        .object({
+          kind: z.enum(spellBuffEventHookKinds),
+          spellKey: z.string(),
+          spellName: z.string(),
+          spellId: optionalString,
+          chance: nullablePercentageInteger,
+          sourceFlags: z.array(sourceFlagSchema),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+const spellSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("spell"),
+    spellType: z.string(),
+    iconPath: z.string().nullable(),
+    manaCosts: z.array(
+      z
+        .object({
+          base: nullableNonnegativeNumber,
+          savvyReduction: nullableNonnegativeNumber,
+          minimum: nullableNonnegativeNumber,
+        })
+        .strict(),
+    ),
+    buffs: z.array(spellBuffSchema),
+    effects: z.array(spellEffectSchema),
+  })
+  .strict();
+
+const nullableBoolean = z.boolean().nullable();
+const directionalSpriteSchema = z
+  .object({
+    down: z.string().nullable(),
+    left: z.string().nullable(),
+    right: z.string().nullable(),
+    up: z.string().nullable(),
+  })
+  .strict();
+
+const monsterSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("monster"),
+    taxonomy: z.string(),
+    level: nonnegativeInteger,
+    depth: nullableNonnegativeInteger,
+    special: z.boolean(),
+    iconPath: z.string().nullable(),
+    paletteName: z.string().nullable(),
+    paletteTint: z.number().int().nullable(),
+    archetypeLevels: z
+      .object({
+        fighter: nonnegativeInteger,
+        rogue: nonnegativeInteger,
+        wizard: nonnegativeInteger,
+      })
+      .strict(),
+    ai: z
+      .object({
+        aggressiveness: nullableNonnegativeInteger,
+        span: nullableNonnegativeInteger,
+        invisible: nullableBoolean,
+        chicken: nullableBoolean,
+        canCharm: nullableBoolean,
+        canParalyze: nullableBoolean,
+        stealGold: nullableBoolean,
+        stealPercentage: nullablePercentageInteger,
+      })
+      .strict(),
+    sight: z
+      .object({
+        cone: nullableNonnegativeNumber,
+        modifier: nullableNonnegativeNumber,
+      })
+      .strict(),
+    movement: z
+      .object({
+        dig: z
+          .object({
+            chance: nullablePercentageInteger,
+            ambushChance: nullablePercentageInteger,
+            blockedChance: nullablePercentageInteger,
+            minimumTurns: nullableNonnegativeInteger,
+            maximumTurns: nullableNonnegativeInteger,
+            minimumDistance: nullableNonnegativeInteger,
+          })
+          .strict()
+          .nullable(),
+        dash: z
+          .object({
+            chance: nullablePercentageInteger,
+            speed: nullableNonnegativeInteger,
+            minimumDistance: nullableNonnegativeInteger,
+            interruptible: nullableBoolean,
+          })
+          .strict()
+          .nullable(),
+        charge: z
+          .object({
+            chance: nullablePercentageInteger,
+            range: nullableNonnegativeInteger,
+            turns: nullableNonnegativeInteger,
+            interruptible: nullableBoolean,
+            blocksAction: nullableBoolean,
+            targetsSelf: nullableBoolean,
+          })
+          .strict()
+          .nullable(),
+      })
+      .strict(),
+    presentation: z
+      .object({
+        soundEffects: z
+          .object({
+            attack: z.string().nullable(),
+            death: z.string().nullable(),
+            hit: z.string().nullable(),
+            spell: z.string().nullable(),
+            digIn: z.string().nullable(),
+            digOut: z.string().nullable(),
+          })
+          .strict()
+          .nullable(),
+        attack: directionalSpriteSchema.nullable(),
+        hit: directionalSpriteSchema.nullable(),
+        death: z.object({ name: z.string().nullable() }).strict().nullable(),
+        cast: z.object({ name: z.string().nullable() }).strict().nullable(),
+        beam: directionalSpriteSchema.nullable(),
+        morph: z
+          .object({
+            drink: z.string().nullable(),
+            eat: z.string().nullable(),
+            femaleLevelUp: z.string().nullable(),
+            maleLevelUp: z.string().nullable(),
+            longIdle: z.string().nullable(),
+            vanish: z.string().nullable(),
+          })
+          .strict()
+          .nullable(),
+        dig: z
+          .object({ down: z.string().nullable(), up: z.string().nullable() })
+          .strict()
+          .nullable(),
+      })
+      .strict(),
+    experienceValue: nullableNonnegativeInteger,
+    modifiers: z.array(statModifierSchema),
+    spellChance: nullablePercentageInteger,
+    triggers: z.array(
+      z
+        .object({
+          kind: z.enum(monsterSpellTriggerKinds),
+          spellKey: z.string(),
+          spellName: z.string(),
+          spellId: optionalString,
+          chance: nullablePercentageInteger,
+          oneChanceIn: z.number().int().positive().nullable(),
+        })
+        .strict(),
+    ),
+    drops: z.array(
+      z.union([
+        z
+          .object({
+            itemKey: z.string(),
+            itemName: z.string(),
+            itemId: optionalString,
+            chance: percentageInteger,
+          })
+          .strict(),
+        z
+          .object({
+            dropType: z.string(),
+            chance: percentageInteger,
+          })
+          .strict(),
+      ]),
+    ),
+    inheritsKey: optionalString,
+    inheritsName: optionalString,
+    inheritsId: optionalString,
+  })
+  .strict();
+
+const statSchema = z
+  .object({ ...entityBaseShape, kind: z.literal("stat"), group: z.string() })
+  .strict();
+
+const templateSchema = z
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("template"),
+    affectsPlayer: z.boolean(),
+    rows: z.array(z.string()).refine(isValidTemplateRows, {
+      message: "Template rows must form a rectangular grid with one anchor.",
+    }),
+  })
+  .strict();
+
+const datasetArtifactSchema = z
+  .object({
+    schemaVersion: z.literal(3),
+    datasetId: z.string(),
+    datasetVersion: z.string(),
+    language: z.literal("en"),
+    sources: z.array(
+      z
+        .object({
+          id: z.string(),
+          label: z.string(),
+          kind: z.enum(["base", "expansion", "mod", "fixture"]),
+          version: z.string(),
+          precedence: z.number().int(),
+        })
+        .strict(),
+    ),
+    encrustmentInstabilityEffects: z.array(
+      z
+        .object({
+          name: z.string(),
+          spellKey: z.string(),
+          spellName: z.string(),
+          spellId: optionalString,
+          provenance: provenanceSchema,
+        })
+        .strict(),
+    ),
+    entities: z
+      .object({
+        items: z.array(itemSchema),
+        recipes: z.array(recipeSchema),
+        encrustments: z.array(encrustmentSchema),
+        skills: z.array(skillSchema),
+        abilities: z.array(abilitySchema),
+        spells: z.array(spellSchema),
+        monsters: z.array(monsterSchema),
+        stats: z.array(statSchema),
+        templates: z.array(templateSchema),
+      })
+      .strict(),
+    diagnostics: z
+      .object({
+        info: nonnegativeInteger,
+        warning: nonnegativeInteger,
+        error: nonnegativeInteger,
+      })
+      .strict(),
+  })
+  .strict();
+
+const searchArtifactSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    datasetSchemaVersion: z.literal(3),
+    datasetId: z.string(),
+    language: z.literal("en"),
+    documents: z.array(
+      z
+        .object({
+          id: z.string(),
+          kind: z.enum(entityKinds),
+          name: z.string(),
+          summary: z.string(),
+          sourceId: z.string(),
+          category: z.string().nullable(),
+          statKeys: z.array(z.string()),
+          url: z.string(),
+          text: z.string(),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+const diagnosticSchema = z
+  .object({
+    id: z.string(),
+    severity: z.enum(["info", "warning", "error"]),
+    code: z.string(),
+    message: z.string(),
+    source: z.union([provenanceSchema, sourceLocationSchema]).optional(),
+    entityId: optionalString,
+    details: z.record(z.string(), patchValueSchema).optional(),
+  })
+  .strict();
+
+const checksumSchema = z
+  .object({ file: z.string(), sha256: z.string().regex(/^[a-f0-9]{64}$/) })
+  .strict();
+const outputChecksum = (file: string) =>
+  z
+    .object({
+      file: z.literal(file),
+      sha256: z.string().regex(/^[a-f0-9]{64}$/),
+      bytes: nonnegativeInteger,
+    })
+    .strict();
+
+const artifactManifestSchema = z
+  .object({
+    schemaVersion: z.literal(2),
+    datasetId: z.string(),
+    generator: z.string(),
+    sourceManifest: z.string(),
+    inputs: z.array(checksumSchema),
+    outputs: z
+      .object({
+        artifact: outputChecksum("artifact.json"),
+        search: outputChecksum("search.json"),
+        diagnostics: outputChecksum("diagnostics.json"),
+      })
+      .strict(),
+  })
+  .strict();
+
+let artifactDirectoryCache: string | undefined;
+let manifestCache: ArtifactManifest | undefined;
 let artifactCache: DatasetArtifact | undefined;
 let diagnosticsCache: Diagnostic[] | undefined;
 let searchCache: SearchArtifact | undefined;
 
-function hasValidSpellTrigger(trigger: unknown): boolean {
-  return (
-    trigger !== null &&
-    typeof trigger === "object" &&
-    "kind" in trigger &&
-    typeof trigger.kind === "string" &&
-    itemTriggerKindSet.has(trigger.kind) &&
-    "spellKey" in trigger &&
-    typeof trigger.spellKey === "string" &&
-    "spellName" in trigger &&
-    typeof trigger.spellName === "string" &&
-    "chance" in trigger &&
-    (trigger.chance === null ||
-      (typeof trigger.chance === "number" &&
-        Number.isInteger(trigger.chance) &&
-        trigger.chance >= 0 &&
-        trigger.chance <= 100)) &&
-    "delay" in trigger &&
-    typeof trigger.delay === "number" &&
-    Number.isInteger(trigger.delay) &&
-    trigger.delay >= 0 &&
-    "duration" in trigger &&
-    typeof trigger.duration === "number" &&
-    Number.isInteger(trigger.duration) &&
-    trigger.duration >= 0 &&
-    "unresistable" in trigger &&
-    typeof trigger.unresistable === "boolean" &&
-    "monsterTaxonomy" in trigger &&
-    (trigger.monsterTaxonomy === null ||
-      typeof trigger.monsterTaxonomy === "string") &&
-    (!("spellId" in trigger) || typeof trigger.spellId === "string")
-  );
-}
-
-function hasValidStatModifier(modifier: unknown): boolean {
-  return (
-    modifier !== null &&
-    typeof modifier === "object" &&
-    "kind" in modifier &&
-    typeof modifier.kind === "string" &&
-    statModifierKindSet.has(modifier.kind) &&
-    "sourceKey" in modifier &&
-    typeof modifier.sourceKey === "string" &&
-    "amount" in modifier &&
-    typeof modifier.amount === "number" &&
-    Number.isFinite(modifier.amount)
-  );
-}
-
-function hasValidMonsterSpellTrigger(trigger: unknown): boolean {
-  return (
-    trigger !== null &&
-    typeof trigger === "object" &&
-    "kind" in trigger &&
-    typeof trigger.kind === "string" &&
-    monsterSpellTriggerKindSet.has(trigger.kind) &&
-    "spellKey" in trigger &&
-    typeof trigger.spellKey === "string" &&
-    "spellName" in trigger &&
-    typeof trigger.spellName === "string" &&
-    (!("spellId" in trigger) || typeof trigger.spellId === "string") &&
-    "chance" in trigger &&
-    (trigger.chance === null ||
-      (typeof trigger.chance === "number" &&
-        Number.isInteger(trigger.chance) &&
-        trigger.chance >= 0 &&
-        trigger.chance <= 100)) &&
-    "oneChanceIn" in trigger &&
-    (trigger.oneChanceIn === null ||
-      (typeof trigger.oneChanceIn === "number" &&
-        Number.isInteger(trigger.oneChanceIn) &&
-        trigger.oneChanceIn >= 1))
-  );
-}
-
-function hasValidNullableInteger(value: unknown, maximum?: number): boolean {
-  return (
-    value === null ||
-    (typeof value === "number" &&
-      Number.isInteger(value) &&
-      value >= 0 &&
-      (maximum === undefined || value <= maximum))
-  );
-}
-
-function hasValidMonsterDigMetadata(value: unknown): boolean {
-  if (value === null) {
-    return true;
+function artifactDirectory(): string {
+  if (artifactDirectoryCache) {
+    return artifactDirectoryCache;
   }
-  if (typeof value !== "object") {
-    return false;
+  const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
+  const candidates = explicitRoot
+    ? [path.resolve(explicitRoot)]
+    : [
+        path.resolve(process.cwd(), "../../data/generated/spike"),
+        path.resolve(process.cwd(), "data/generated/spike"),
+      ];
+  const match = candidates.find((candidate) =>
+    existsSync(path.join(candidate, "manifest.json")),
+  );
+  if (!match) {
+    throw new Error(
+      explicitRoot
+        ? "Generated manifest.json is missing from the configured artifact directory. Regenerate that dataset or correct DREDMORPEDIA_ARTIFACT_DIRECTORY."
+        : 'Generated manifest.json is missing. Run "pnpm generate" from the repository root.',
+    );
   }
-  const metadata = value as Record<string, unknown>;
-  return (
-    hasValidNullableInteger(metadata.chance, 100) &&
-    hasValidNullableInteger(metadata.ambushChance, 100) &&
-    hasValidNullableInteger(metadata.blockedChance, 100) &&
-    hasValidNullableInteger(metadata.minimumTurns) &&
-    hasValidNullableInteger(metadata.maximumTurns) &&
-    hasValidNullableInteger(metadata.minimumDistance)
-  );
+  artifactDirectoryCache = match;
+  return match;
 }
 
-function hasValidMonsterDashMetadata(value: unknown): boolean {
-  if (value === null) {
-    return true;
+function readGeneratedText(name: string): string {
+  const file = path.join(artifactDirectory(), name);
+  if (!existsSync(file)) {
+    throw new Error(`Generated ${name} is missing; regenerate the dataset.`);
   }
-  if (typeof value !== "object") {
-    return false;
+  return readFileSync(file, "utf8");
+}
+
+function parseJson(text: string, label: string): unknown {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch (error) {
+    throw new Error(`Generated ${label} is not valid JSON.`, { cause: error });
   }
-  const metadata = value as Record<string, unknown>;
-  return (
-    hasValidNullableInteger(metadata.chance, 100) &&
-    hasValidNullableInteger(metadata.speed) &&
-    hasValidNullableInteger(metadata.minimumDistance) &&
-    (metadata.interruptible === null ||
-      typeof metadata.interruptible === "boolean")
+}
+
+function validationError(label: string, error: z.ZodError): Error {
+  const issue = error.issues[0];
+  const location = issue?.path.length ? ` at ${issue.path.join(".")}` : "";
+  return new Error(
+    `Generated ${label} does not satisfy its schema${location}: ${issue?.message ?? "validation failed"}. Regenerate it with the current pipeline.`,
   );
 }
 
-function hasValidMonsterChargeMetadata(value: unknown): boolean {
-  if (value === null) {
-    return true;
+function loadManifest(): ArtifactManifest {
+  if (manifestCache) {
+    return manifestCache;
   }
-  if (typeof value !== "object") {
-    return false;
+  const result = artifactManifestSchema.safeParse(
+    parseJson(readGeneratedText("manifest.json"), "manifest.json"),
+  );
+  if (!result.success) {
+    throw validationError("manifest.json", result.error);
   }
-  const metadata = value as Record<string, unknown>;
-  return (
-    hasValidNullableInteger(metadata.chance, 100) &&
-    hasValidNullableInteger(metadata.range) &&
-    hasValidNullableInteger(metadata.turns) &&
-    ["interruptible", "blocksAction", "targetsSelf"].every(
-      (key) => metadata[key] === null || typeof metadata[key] === "boolean",
-    )
-  );
+  manifestCache = result.data as ArtifactManifest;
+  return manifestCache;
 }
 
-function hasValidMonsterMovementMetadata(value: unknown): boolean {
-  if (value === null || typeof value !== "object") {
-    return false;
+function readVerifiedOutput(output: keyof ArtifactManifest["outputs"]): string {
+  const expected = loadManifest().outputs[output];
+  const contents = readGeneratedText(expected.file);
+  const actualBytes = Buffer.byteLength(contents);
+  const actualSha256 = createHash("sha256").update(contents).digest("hex");
+  if (actualBytes !== expected.bytes || actualSha256 !== expected.sha256) {
+    throw new Error(
+      `Generated ${expected.file} does not match manifest.json; publication may have been interrupted. Regenerate the dataset before starting the web application.`,
+    );
   }
-  const movement = value as Record<string, unknown>;
-  return (
-    "dig" in movement &&
-    hasValidMonsterDigMetadata(movement.dig) &&
-    "dash" in movement &&
-    hasValidMonsterDashMetadata(movement.dash) &&
-    "charge" in movement &&
-    hasValidMonsterChargeMetadata(movement.charge)
-  );
+  return contents;
 }
 
-function hasValidNullableStringRecord(
-  value: unknown,
-  keys: readonly string[],
-): boolean {
-  if (value === null) {
-    return true;
+function allEntities(artifact: DatasetArtifact): NormalizedEntity[] {
+  return Object.values(artifact.entities).flat();
+}
+
+function assertUnique(values: readonly string[], label: string): void {
+  if (new Set(values).size !== values.length) {
+    throw new Error(`Generated artifact contains duplicate ${label}.`);
   }
-  if (typeof value !== "object") {
-    return false;
-  }
-  const record = value as Record<string, unknown>;
-  return keys.every(
-    (key) =>
-      key in record &&
-      (record[key] === null || typeof record[key] === "string"),
-  );
-}
-
-function hasValidMonsterPresentationMetadata(value: unknown): boolean {
-  if (value === null || typeof value !== "object") {
-    return false;
-  }
-  const presentation = value as Record<string, unknown>;
-  return (
-    "soundEffects" in presentation &&
-    hasValidNullableStringRecord(presentation.soundEffects, [
-      "attack",
-      "death",
-      "hit",
-      "spell",
-      "digIn",
-      "digOut",
-    ]) &&
-    "attack" in presentation &&
-    hasValidNullableStringRecord(presentation.attack, [
-      "down",
-      "left",
-      "right",
-      "up",
-    ]) &&
-    "hit" in presentation &&
-    hasValidNullableStringRecord(presentation.hit, [
-      "down",
-      "left",
-      "right",
-      "up",
-    ]) &&
-    "death" in presentation &&
-    hasValidNullableStringRecord(presentation.death, ["name"]) &&
-    "cast" in presentation &&
-    hasValidNullableStringRecord(presentation.cast, ["name"]) &&
-    "beam" in presentation &&
-    hasValidNullableStringRecord(presentation.beam, [
-      "down",
-      "left",
-      "right",
-      "up",
-    ]) &&
-    "morph" in presentation &&
-    hasValidNullableStringRecord(presentation.morph, [
-      "drink",
-      "eat",
-      "femaleLevelUp",
-      "maleLevelUp",
-      "longIdle",
-      "vanish",
-    ]) &&
-    "dig" in presentation &&
-    hasValidNullableStringRecord(presentation.dig, ["down", "up"])
-  );
-}
-
-function hasValidSourceFlags(value: unknown): boolean {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (flag: unknown) =>
-        flag !== null &&
-        typeof flag === "object" &&
-        "sourceKey" in flag &&
-        typeof flag.sourceKey === "string" &&
-        "value" in flag &&
-        typeof flag.value === "string",
-    )
-  );
-}
-
-function hasValidFiniteNumberArray(value: unknown): boolean {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (entry: unknown) => typeof entry === "number" && Number.isFinite(entry),
-    )
-  );
-}
-
-function hasValidRoutedEntity(value: unknown): boolean {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    "id" in value &&
-    typeof value.id === "string" &&
-    "canonicalKey" in value &&
-    typeof value.canonicalKey === "string" &&
-    "slug" in value &&
-    typeof value.slug === "string" &&
-    "slugAliases" in value &&
-    Array.isArray(value.slugAliases) &&
-    value.slugAliases.every((alias: unknown) => typeof alias === "string") &&
-    "name" in value &&
-    typeof value.name === "string" &&
-    "description" in value &&
-    typeof value.description === "string" &&
-    "diagnosticIds" in value &&
-    Array.isArray(value.diagnosticIds) &&
-    value.diagnosticIds.every(
-      (diagnosticId: unknown) => typeof diagnosticId === "string",
-    )
-  );
-}
-
-function hasValidItems(value: unknown): boolean {
-  if (value === null || typeof value !== "object" || !("items" in value)) {
-    return false;
-  }
-  if (!Array.isArray(value.items)) {
-    return false;
-  }
-  return value.items.every((item) => {
-    if (
-      item === null ||
-      typeof item !== "object" ||
-      !("quality" in item) ||
-      typeof item.quality !== "number" ||
-      !Number.isInteger(item.quality) ||
-      item.quality < 0 ||
-      !("triggers" in item) ||
-      !Array.isArray(item.triggers)
-    ) {
-      return false;
-    }
-    return item.triggers.every(hasValidSpellTrigger);
-  });
-}
-
-function hasValidEncrustments(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("encrustments" in value) ||
-    !Array.isArray(value.encrustments)
-  ) {
-    return false;
-  }
-  return value.encrustments.every(
-    (encrustment) =>
-      encrustment !== null &&
-      typeof encrustment === "object" &&
-      "tool" in encrustment &&
-      typeof encrustment.tool === "string" &&
-      "hidden" in encrustment &&
-      typeof encrustment.hidden === "boolean" &&
-      "skillLevel" in encrustment &&
-      typeof encrustment.skillLevel === "number" &&
-      Number.isInteger(encrustment.skillLevel) &&
-      encrustment.skillLevel >= 0 &&
-      "slots" in encrustment &&
-      Array.isArray(encrustment.slots) &&
-      encrustment.slots.every((slot: unknown) => typeof slot === "string") &&
-      "instability" in encrustment &&
-      typeof encrustment.instability === "number" &&
-      Number.isInteger(encrustment.instability) &&
-      "modifiers" in encrustment &&
-      Array.isArray(encrustment.modifiers) &&
-      encrustment.modifiers.every(hasValidStatModifier) &&
-      "powers" in encrustment &&
-      Array.isArray(encrustment.powers) &&
-      encrustment.powers.every(
-        (power: unknown) =>
-          power !== null &&
-          typeof power === "object" &&
-          "name" in power &&
-          typeof power.name === "string" &&
-          "chance" in power &&
-          (power.chance === null ||
-            (typeof power.chance === "number" &&
-              Number.isFinite(power.chance) &&
-              power.chance >= 0 &&
-              power.chance <= 1)),
-      ) &&
-      "appearanceDescriptors" in encrustment &&
-      Array.isArray(encrustment.appearanceDescriptors) &&
-      encrustment.appearanceDescriptors.every(
-        (descriptor: unknown) => typeof descriptor === "string",
-      ) &&
-      "inputs" in encrustment &&
-      Array.isArray(encrustment.inputs) &&
-      encrustment.inputs.every(
-        (input: unknown) =>
-          input !== null &&
-          typeof input === "object" &&
-          "itemKey" in input &&
-          typeof input.itemKey === "string" &&
-          "itemName" in input &&
-          typeof input.itemName === "string" &&
-          "amount" in input &&
-          typeof input.amount === "number" &&
-          Number.isInteger(input.amount) &&
-          input.amount >= 1 &&
-          (!("itemId" in input) || typeof input.itemId === "string"),
-      ),
-  );
-}
-
-function hasValidEncrustmentInstabilityEffects(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("encrustmentInstabilityEffects" in value) ||
-    !Array.isArray(value.encrustmentInstabilityEffects)
-  ) {
-    return false;
-  }
-  return value.encrustmentInstabilityEffects.every(
-    (effect) =>
-      effect !== null &&
-      typeof effect === "object" &&
-      "name" in effect &&
-      typeof effect.name === "string" &&
-      "spellKey" in effect &&
-      typeof effect.spellKey === "string" &&
-      "spellName" in effect &&
-      typeof effect.spellName === "string" &&
-      (!("spellId" in effect) || typeof effect.spellId === "string") &&
-      "provenance" in effect &&
-      effect.provenance !== null &&
-      typeof effect.provenance === "object" &&
-      "sourceId" in effect.provenance &&
-      typeof effect.provenance.sourceId === "string" &&
-      "file" in effect.provenance &&
-      typeof effect.provenance.file === "string" &&
-      "line" in effect.provenance &&
-      typeof effect.provenance.line === "number" &&
-      Number.isInteger(effect.provenance.line) &&
-      effect.provenance.line >= 1 &&
-      "column" in effect.provenance &&
-      typeof effect.provenance.column === "number" &&
-      Number.isInteger(effect.provenance.column) &&
-      effect.provenance.column >= 1,
-  );
-}
-
-function hasValidNullableNonNegativeInteger(value: unknown): boolean {
-  return (
-    value === null ||
-    (typeof value === "number" && Number.isInteger(value) && value >= 0)
-  );
-}
-
-function hasValidNullableBoolean(value: unknown): boolean {
-  return value === null || typeof value === "boolean";
-}
-
-function hasValidSpellBuffEventHook(hook: unknown): boolean {
-  return (
-    hook !== null &&
-    typeof hook === "object" &&
-    "kind" in hook &&
-    typeof hook.kind === "string" &&
-    spellBuffEventHookKindSet.has(hook.kind) &&
-    "spellKey" in hook &&
-    typeof hook.spellKey === "string" &&
-    "spellName" in hook &&
-    typeof hook.spellName === "string" &&
-    (!("spellId" in hook) || typeof hook.spellId === "string") &&
-    "chance" in hook &&
-    hasValidNullableInteger(hook.chance, 100) &&
-    "sourceFlags" in hook &&
-    hasValidSourceFlags(hook.sourceFlags)
-  );
-}
-
-function hasValidSpellBuffSightModifier(modifier: unknown): boolean {
-  return (
-    modifier !== null &&
-    typeof modifier === "object" &&
-    "amount" in modifier &&
-    (modifier.amount === null ||
-      (typeof modifier.amount === "number" && Number.isFinite(modifier.amount)))
-  );
-}
-
-function hasValidSpellBuff(buff: unknown): boolean {
-  return (
-    buff !== null &&
-    typeof buff === "object" &&
-    "iconPath" in buff &&
-    (buff.iconPath === null || typeof buff.iconPath === "string") &&
-    "smallIconPath" in buff &&
-    (buff.smallIconPath === null || typeof buff.smallIconPath === "string") &&
-    "timerMode" in buff &&
-    hasValidNullableNonNegativeInteger(buff.timerMode) &&
-    "duration" in buff &&
-    hasValidNullableNonNegativeInteger(buff.duration) &&
-    "manaUpkeep" in buff &&
-    hasValidNullableNonNegativeInteger(buff.manaUpkeep) &&
-    "currencyUpkeep" in buff &&
-    hasValidNullableNonNegativeInteger(buff.currencyUpkeep) &&
-    "hitLimit" in buff &&
-    hasValidNullableNonNegativeInteger(buff.hitLimit) &&
-    "attackLimit" in buff &&
-    hasValidNullableNonNegativeInteger(buff.attackLimit) &&
-    "removable" in buff &&
-    hasValidNullableBoolean(buff.removable) &&
-    "affectsSelf" in buff &&
-    hasValidNullableBoolean(buff.affectsSelf) &&
-    "resistable" in buff &&
-    hasValidNullableBoolean(buff.resistable) &&
-    "detrimental" in buff &&
-    hasValidNullableBoolean(buff.detrimental) &&
-    "stackable" in buff &&
-    hasValidNullableBoolean(buff.stackable) &&
-    "allowStacking" in buff &&
-    hasValidNullableBoolean(buff.allowStacking) &&
-    "stackLimit" in buff &&
-    hasValidNullableNonNegativeInteger(buff.stackLimit) &&
-    "sourceFlags" in buff &&
-    hasValidSourceFlags(buff.sourceFlags) &&
-    "modifiers" in buff &&
-    Array.isArray(buff.modifiers) &&
-    buff.modifiers.every(hasValidStatModifier) &&
-    "sightModifiers" in buff &&
-    Array.isArray(buff.sightModifiers) &&
-    buff.sightModifiers.every(hasValidSpellBuffSightModifier) &&
-    "eventHooks" in buff &&
-    Array.isArray(buff.eventHooks) &&
-    buff.eventHooks.every(hasValidSpellBuffEventHook)
-  );
-}
-
-function hasValidSpells(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("spells" in value) ||
-    !Array.isArray(value.spells)
-  ) {
-    return false;
-  }
-  return value.spells.every(
-    (spell) =>
-      spell !== null &&
-      typeof spell === "object" &&
-      "id" in spell &&
-      typeof spell.id === "string" &&
-      "canonicalKey" in spell &&
-      typeof spell.canonicalKey === "string" &&
-      "slug" in spell &&
-      typeof spell.slug === "string" &&
-      "slugAliases" in spell &&
-      Array.isArray(spell.slugAliases) &&
-      spell.slugAliases.every((alias: unknown) => typeof alias === "string") &&
-      "name" in spell &&
-      typeof spell.name === "string" &&
-      "description" in spell &&
-      typeof spell.description === "string" &&
-      "spellType" in spell &&
-      typeof spell.spellType === "string" &&
-      "diagnosticIds" in spell &&
-      Array.isArray(spell.diagnosticIds) &&
-      spell.diagnosticIds.every(
-        (diagnosticId: unknown) => typeof diagnosticId === "string",
-      ) &&
-      "manaCosts" in spell &&
-      Array.isArray(spell.manaCosts) &&
-      spell.manaCosts.every(
-        (manaCost: unknown) =>
-          manaCost !== null &&
-          typeof manaCost === "object" &&
-          "base" in manaCost &&
-          (manaCost.base === null ||
-            (typeof manaCost.base === "number" &&
-              Number.isFinite(manaCost.base) &&
-              manaCost.base >= 0)) &&
-          "savvyReduction" in manaCost &&
-          (manaCost.savvyReduction === null ||
-            (typeof manaCost.savvyReduction === "number" &&
-              Number.isFinite(manaCost.savvyReduction) &&
-              manaCost.savvyReduction >= 0)) &&
-          "minimum" in manaCost &&
-          (manaCost.minimum === null ||
-            (typeof manaCost.minimum === "number" &&
-              Number.isFinite(manaCost.minimum) &&
-              manaCost.minimum >= 0)),
-      ) &&
-      "buffs" in spell &&
-      Array.isArray(spell.buffs) &&
-      spell.buffs.every(hasValidSpellBuff) &&
-      "effects" in spell &&
-      Array.isArray(spell.effects) &&
-      spell.effects.every(
-        (effect: unknown) =>
-          effect !== null &&
-          typeof effect === "object" &&
-          "type" in effect &&
-          typeof effect.type === "string" &&
-          (!("spellKey" in effect) || typeof effect.spellKey === "string") &&
-          (!("spellName" in effect) || typeof effect.spellName === "string") &&
-          (!("spellId" in effect) || typeof effect.spellId === "string") &&
-          (!("statKey" in effect) || typeof effect.statKey === "string") &&
-          (!("statName" in effect) || typeof effect.statName === "string") &&
-          (!("statId" in effect) || typeof effect.statId === "string") &&
-          (!("amount" in effect) ||
-            (typeof effect.amount === "number" &&
-              Number.isFinite(effect.amount))),
-      ),
-  );
-}
-
-function hasValidSkills(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("skills" in value) ||
-    !Array.isArray(value.skills)
-  ) {
-    return false;
-  }
-  return value.skills.every(
-    (skill) =>
-      hasValidRoutedEntity(skill) &&
-      skill !== null &&
-      typeof skill === "object" &&
-      "archetype" in skill &&
-      typeof skill.archetype === "string" &&
-      "loadouts" in skill &&
-      Array.isArray(skill.loadouts) &&
-      skill.loadouts.every(
-        (loadout: unknown) =>
-          loadout !== null &&
-          typeof loadout === "object" &&
-          (("itemKey" in loadout && typeof loadout.itemKey === "string") ||
-            ("itemType" in loadout && typeof loadout.itemType === "string")) &&
-          (!("itemName" in loadout) || typeof loadout.itemName === "string") &&
-          (!("itemId" in loadout) || typeof loadout.itemId === "string") &&
-          "amount" in loadout &&
-          typeof loadout.amount === "number" &&
-          Number.isInteger(loadout.amount) &&
-          loadout.amount >= 1 &&
-          "always" in loadout &&
-          typeof loadout.always === "boolean",
-      ) &&
-      "loadoutItemKeys" in skill &&
-      Array.isArray(skill.loadoutItemKeys) &&
-      skill.loadoutItemKeys.every(
-        (itemKey: unknown) => typeof itemKey === "string",
-      ) &&
-      "sourceFlags" in skill &&
-      hasValidSourceFlags(skill.sourceFlags) &&
-      "progressionTags" in skill &&
-      Array.isArray(skill.progressionTags) &&
-      skill.progressionTags.every(
-        (tag: unknown) =>
-          tag !== null &&
-          typeof tag === "object" &&
-          "level" in tag &&
-          typeof tag.level === "number" &&
-          Number.isInteger(tag.level) &&
-          tag.level >= 0 &&
-          "name" in tag &&
-          typeof tag.name === "string",
-      ) &&
-      "abilityIds" in skill &&
-      Array.isArray(skill.abilityIds) &&
-      skill.abilityIds.every(
-        (abilityId: unknown) => typeof abilityId === "string",
-      ),
-  );
-}
-
-function hasValidAbilities(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("abilities" in value) ||
-    !Array.isArray(value.abilities)
-  ) {
-    return false;
-  }
-  return value.abilities.every(
-    (ability) =>
-      hasValidRoutedEntity(ability) &&
-      ability !== null &&
-      typeof ability === "object" &&
-      "skillKey" in ability &&
-      typeof ability.skillKey === "string" &&
-      (!("skillId" in ability) || typeof ability.skillId === "string") &&
-      "level" in ability &&
-      typeof ability.level === "number" &&
-      Number.isInteger(ability.level) &&
-      ability.level >= 0 &&
-      "startSkill" in ability &&
-      typeof ability.startSkill === "boolean" &&
-      "modifiers" in ability &&
-      Array.isArray(ability.modifiers) &&
-      ability.modifiers.every(hasValidStatModifier) &&
-      "sourceFlags" in ability &&
-      hasValidSourceFlags(ability.sourceFlags) &&
-      "recoveryBuffAmounts" in ability &&
-      hasValidFiniteNumberArray(ability.recoveryBuffAmounts) &&
-      "currencyBuffPercents" in ability &&
-      hasValidFiniteNumberArray(ability.currencyBuffPercents) &&
-      "triggers" in ability &&
-      Array.isArray(ability.triggers) &&
-      ability.triggers.every(hasValidSpellTrigger) &&
-      "spellKeys" in ability &&
-      Array.isArray(ability.spellKeys) &&
-      ability.spellKeys.every(
-        (spellKey: unknown) => typeof spellKey === "string",
-      ) &&
-      "spellIds" in ability &&
-      Array.isArray(ability.spellIds) &&
-      ability.spellIds.every((spellId: unknown) => typeof spellId === "string"),
-  );
-}
-
-function hasValidMonsters(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("monsters" in value) ||
-    !Array.isArray(value.monsters)
-  ) {
-    return false;
-  }
-  return value.monsters.every(
-    (monster) =>
-      hasValidRoutedEntity(monster) &&
-      monster !== null &&
-      typeof monster === "object" &&
-      "taxonomy" in monster &&
-      typeof monster.taxonomy === "string" &&
-      "level" in monster &&
-      typeof monster.level === "number" &&
-      Number.isInteger(monster.level) &&
-      monster.level >= 0 &&
-      "depth" in monster &&
-      (monster.depth === null ||
-        (typeof monster.depth === "number" &&
-          Number.isInteger(monster.depth) &&
-          monster.depth >= 1)) &&
-      "special" in monster &&
-      typeof monster.special === "boolean" &&
-      "iconPath" in monster &&
-      (monster.iconPath === null || typeof monster.iconPath === "string") &&
-      "paletteName" in monster &&
-      (monster.paletteName === null ||
-        typeof monster.paletteName === "string") &&
-      "paletteTint" in monster &&
-      (monster.paletteTint === null ||
-        (typeof monster.paletteTint === "number" &&
-          Number.isInteger(monster.paletteTint))) &&
-      "archetypeLevels" in monster &&
-      monster.archetypeLevels !== null &&
-      typeof monster.archetypeLevels === "object" &&
-      ["fighter", "rogue", "wizard"].every((key) => {
-        const level = (monster.archetypeLevels as Record<string, unknown>)[key];
-        return (
-          typeof level === "number" && Number.isInteger(level) && level >= 0
-        );
-      }) &&
-      "ai" in monster &&
-      monster.ai !== null &&
-      typeof monster.ai === "object" &&
-      ["aggressiveness", "span"].every((key) => {
-        const value = (monster.ai as Record<string, unknown>)[key];
-        return (
-          value === null ||
-          (typeof value === "number" && Number.isInteger(value) && value >= 0)
-        );
-      }) &&
-      ["invisible", "chicken", "canCharm", "canParalyze", "stealGold"].every(
-        (key) => {
-          const value = (monster.ai as Record<string, unknown>)[key];
-          return value === null || typeof value === "boolean";
-        },
-      ) &&
-      "stealPercentage" in monster.ai &&
-      (monster.ai.stealPercentage === null ||
-        (typeof monster.ai.stealPercentage === "number" &&
-          Number.isInteger(monster.ai.stealPercentage) &&
-          monster.ai.stealPercentage >= 0 &&
-          monster.ai.stealPercentage <= 100)) &&
-      "sight" in monster &&
-      monster.sight !== null &&
-      typeof monster.sight === "object" &&
-      ["cone", "modifier"].every((key) => {
-        const value = (monster.sight as Record<string, unknown>)[key];
-        return (
-          value === null ||
-          (typeof value === "number" && Number.isFinite(value) && value >= 0)
-        );
-      }) &&
-      "movement" in monster &&
-      hasValidMonsterMovementMetadata(monster.movement) &&
-      "presentation" in monster &&
-      hasValidMonsterPresentationMetadata(monster.presentation) &&
-      "experienceValue" in monster &&
-      (monster.experienceValue === null ||
-        (typeof monster.experienceValue === "number" &&
-          Number.isInteger(monster.experienceValue) &&
-          monster.experienceValue >= 0)) &&
-      "modifiers" in monster &&
-      Array.isArray(monster.modifiers) &&
-      monster.modifiers.every(hasValidStatModifier) &&
-      "spellChance" in monster &&
-      (monster.spellChance === null ||
-        (typeof monster.spellChance === "number" &&
-          Number.isInteger(monster.spellChance) &&
-          monster.spellChance >= 0 &&
-          monster.spellChance <= 100)) &&
-      "triggers" in monster &&
-      Array.isArray(monster.triggers) &&
-      monster.triggers.every(hasValidMonsterSpellTrigger) &&
-      "drops" in monster &&
-      Array.isArray(monster.drops) &&
-      monster.drops.every(isMonsterDrop) &&
-      (!("inheritsKey" in monster) ||
-        typeof monster.inheritsKey === "string") &&
-      (!("inheritsName" in monster) ||
-        typeof monster.inheritsName === "string") &&
-      (!("inheritsId" in monster) || typeof monster.inheritsId === "string"),
-  );
-}
-
-function hasValidTemplates(value: unknown): boolean {
-  if (
-    value === null ||
-    typeof value !== "object" ||
-    !("templates" in value) ||
-    !Array.isArray(value.templates)
-  ) {
-    return false;
-  }
-  return value.templates.every(
-    (template) =>
-      hasValidRoutedEntity(template) &&
-      template !== null &&
-      typeof template === "object" &&
-      "affectsPlayer" in template &&
-      typeof template.affectsPlayer === "boolean" &&
-      "rows" in template &&
-      isValidTemplateRows(template.rows),
-  );
 }
 
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
   }
-  const parsed = readJson("artifact.json");
-  if (
-    parsed === null ||
-    typeof parsed !== "object" ||
-    !("schemaVersion" in parsed) ||
-    parsed.schemaVersion !== 3 ||
-    !("datasetVersion" in parsed) ||
-    typeof parsed.datasetVersion !== "string" ||
-    !hasValidEncrustmentInstabilityEffects(parsed) ||
-    !("entities" in parsed) ||
-    !hasValidItems(parsed.entities) ||
-    !hasValidEncrustments(parsed.entities) ||
-    !hasValidSkills(parsed.entities) ||
-    !hasValidAbilities(parsed.entities) ||
-    !hasValidSpells(parsed.entities) ||
-    !hasValidMonsters(parsed.entities) ||
-    !hasValidTemplates(parsed.entities)
-  ) {
+  const result = datasetArtifactSchema.safeParse(
+    parseJson(readVerifiedOutput("artifact"), "artifact.json"),
+  );
+  if (!result.success) {
+    throw validationError("artifact.json", result.error);
+  }
+  const artifact = result.data as DatasetArtifact;
+  if (artifact.datasetId !== loadManifest().datasetId) {
     throw new Error(
-      "Generated artifact does not satisfy schema version 3; regenerate it with the current pipeline.",
+      "Generated artifact.json and manifest.json identify different datasets.",
     );
   }
-  artifactCache = parsed as DatasetArtifact;
+  assertUnique(
+    artifact.sources.map((source) => source.id),
+    "source IDs",
+  );
+  assertUnique(
+    allEntities(artifact).map((entity) => entity.id),
+    "entity IDs",
+  );
+  artifactCache = artifact;
   return artifactCache;
 }
 
@@ -892,22 +707,32 @@ export function loadSearchArtifact(): SearchArtifact {
   if (searchCache) {
     return searchCache;
   }
-  const parsed = readJson("search.json");
+  const result = searchArtifactSchema.safeParse(
+    parseJson(readVerifiedOutput("search"), "search.json"),
+  );
+  if (!result.success) {
+    throw validationError("search.json", result.error);
+  }
+  const search = result.data as SearchArtifact;
+  const artifact = loadArtifact();
   if (
-    parsed === null ||
-    typeof parsed !== "object" ||
-    !("schemaVersion" in parsed) ||
-    parsed.schemaVersion !== 1 ||
-    !("datasetSchemaVersion" in parsed) ||
-    parsed.datasetSchemaVersion !== 3 ||
-    !("documents" in parsed) ||
-    !Array.isArray(parsed.documents)
+    search.datasetId !== artifact.datasetId ||
+    search.datasetSchemaVersion !== artifact.schemaVersion ||
+    search.language !== artifact.language ||
+    !isDeepStrictEqual(
+      search.documents,
+      createSearchDocuments(artifact.entities),
+    )
   ) {
     throw new Error(
-      "Generated search artifact does not satisfy schema version 1.",
+      "Generated search.json is not derived from the loaded artifact.json; regenerate the dataset.",
     );
   }
-  searchCache = parsed as SearchArtifact;
+  assertUnique(
+    search.documents.map((document) => document.id),
+    "search document IDs",
+  );
+  searchCache = search;
   return searchCache;
 }
 
@@ -915,10 +740,37 @@ export function loadDiagnostics(): Diagnostic[] {
   if (diagnosticsCache) {
     return diagnosticsCache;
   }
-  const parsed = readJson("diagnostics.json");
-  if (!Array.isArray(parsed)) {
-    throw new Error("Generated diagnostics must be an array.");
+  const result = z
+    .array(diagnosticSchema)
+    .safeParse(
+      parseJson(readVerifiedOutput("diagnostics"), "diagnostics.json"),
+    );
+  if (!result.success) {
+    throw validationError("diagnostics.json", result.error);
   }
-  diagnosticsCache = parsed as Diagnostic[];
+  const diagnostics = result.data as Diagnostic[];
+  const artifact = loadArtifact();
+  const counts = { info: 0, warning: 0, error: 0 };
+  for (const diagnostic of diagnostics) {
+    counts[diagnostic.severity] += 1;
+  }
+  if (!isDeepStrictEqual(counts, artifact.diagnostics)) {
+    throw new Error(
+      "Generated diagnostics.json counts do not match artifact.json; regenerate the dataset.",
+    );
+  }
+  assertUnique(
+    diagnostics.map((diagnostic) => diagnostic.id),
+    "diagnostic IDs",
+  );
+  const diagnosticIds = new Set(diagnostics.map((diagnostic) => diagnostic.id));
+  for (const entity of allEntities(artifact)) {
+    if (entity.diagnosticIds.some((id) => !diagnosticIds.has(id))) {
+      throw new Error(
+        `Generated entity ${entity.id} references a missing diagnostic.`,
+      );
+    }
+  }
+  diagnosticsCache = diagnostics;
   return diagnosticsCache;
 }

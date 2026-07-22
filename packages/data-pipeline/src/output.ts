@@ -1,4 +1,13 @@
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 import type { ArtifactManifest } from "@dredmorpedia/domain";
@@ -15,9 +24,30 @@ export interface SerializedOutputs {
 }
 
 function writeAtomically(targetPath: string, contents: string): void {
-  const temporaryPath = `${targetPath}.tmp`;
-  writeFileSync(temporaryPath, contents, "utf8");
-  renameSync(temporaryPath, targetPath);
+  const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    writeFileSync(temporaryPath, contents, { encoding: "utf8", flag: "wx" });
+    renameSync(temporaryPath, targetPath);
+  } finally {
+    if (existsSync(temporaryPath)) {
+      unlinkSync(temporaryPath);
+    }
+  }
+}
+
+function resolveRealTarget(targetPath: string): string {
+  const missingSegments: string[] = [];
+  let existingAncestor = path.resolve(targetPath);
+  while (!existsSync(existingAncestor)) {
+    const parent = path.dirname(existingAncestor);
+    if (parent === existingAncestor) {
+      break;
+    }
+    missingSegments.unshift(path.basename(existingAncestor));
+    existingAncestor = parent;
+  }
+
+  return path.resolve(realpathSync(existingAncestor), ...missingSegments);
 }
 
 export function serializeOutputs(
@@ -63,11 +93,15 @@ export function writeOutputs(
   result: ImportDatasetResult,
   outputDirectory: string,
 ): SerializedOutputs {
-  const resolvedOutput = path.resolve(outputDirectory);
+  const resolvedOutput = resolveRealTarget(outputDirectory);
   for (const sourceRoot of result.sourceRoots) {
-    if (isPathWithin(sourceRoot, resolvedOutput)) {
+    const resolvedSourceRoot = resolveRealTarget(sourceRoot);
+    if (
+      isPathWithin(resolvedSourceRoot, resolvedOutput) ||
+      isPathWithin(resolvedOutput, resolvedSourceRoot)
+    ) {
       throw new Error(
-        `Refusing to write generated output inside source root: ${sourceRoot}`,
+        `Refusing to write generated output where it overlaps source root: ${sourceRoot}`,
       );
     }
   }
@@ -80,6 +114,19 @@ export function writeOutputs(
     path.join(resolvedOutput, "diagnostics.json"),
     outputs.diagnostics,
   );
+  // The manifest is the commit marker. Consumers verify its checksums, so an
+  // interrupted publication is rejected instead of being read as a mixed set.
   writeAtomically(path.join(resolvedOutput, "manifest.json"), outputs.manifest);
+
+  for (const [file, contents] of [
+    ["artifact.json", outputs.artifact],
+    ["search.json", outputs.search],
+    ["diagnostics.json", outputs.diagnostics],
+    ["manifest.json", outputs.manifest],
+  ] as const) {
+    if (readFileSync(path.join(resolvedOutput, file), "utf8") !== contents) {
+      throw new Error(`Generated output changed during publication: ${file}`);
+    }
+  }
   return outputs;
 }

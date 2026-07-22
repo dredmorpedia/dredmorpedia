@@ -6,6 +6,8 @@ Scope: legacy behavior, synthetic compatibility fixtures, and read-only aggregat
 
 Status: implemented target-hit and player-hit spell relationships; other nested buff mechanics remain explicit backlog
 
+Later note: diagnostic totals in this slice are its historical completion baseline. The subsequent general hardening review exposed previously silent spell-effect attributes and children; current totals are recorded in [`general-project-review-hardening-2026-07-22.md`](general-project-review-hardening-2026-07-22.md).
+
 ## Legacy behavior
 
 The preserved spell parser scans buff descendants for `<targetHitEffectBuff>` and `<playerHitEffectBuff>`. It presents them as conditional spell effects for hitting a target in melee or being hit in melee. Both shapes use `name` as the spell reference, and the shared legacy effect parser reads `percentage` as their chance.

@@ -6,6 +6,8 @@ Scope: legacy behavior, synthetic compatibility fixtures, and read-only aggregat
 
 Status: implemented source-parameter, direct-modifier, hit-event relationship, and sight-modifier slices; other nested buff mechanics remain explicit backlog
 
+Later note: diagnostic totals in this slice are its historical completion baseline. The subsequent general hardening review exposed previously silent spell-effect attributes and children; current totals are recorded in [`general-project-review-hardening-2026-07-22.md`](general-project-review-hardening-2026-07-22.md).
+
 ## Legacy behavior
 
 The preserved spell parser treats a direct `<buff>` child as an effect. It displays duration, mana upkeep, hit and attack limits, removability, stack limit, self targeting, resistance behavior, and nested stat modifiers. The rebuild retains those source declarations but does not copy the legacy parser's implicit defaults or infer engine behavior when an attribute is absent.

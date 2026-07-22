@@ -49,29 +49,54 @@ export function applyMonsterInheritance(
   );
   const resolved = new Map<string, Monster>();
   const issues: MonsterInheritanceIssue[] = [];
+  const states = new Map<string, "visiting" | "resolved">();
+  const cycleMembers = new Set<string>();
+  const reportedCycleMembers = new Set<string>();
 
-  function resolve(monster: Monster, ancestors: Set<string>): Monster {
+  function localOnly(monster: Monster): Monster {
+    const withoutResolvedParent = { ...monster };
+    delete withoutResolvedParent.inheritsId;
+    return {
+      ...withoutResolvedParent,
+      modifiers: inheritModifiers([], monster.modifiers),
+    };
+  }
+
+  function resolve(monster: Monster, stack: string[]): Monster {
     const cached = resolved.get(monster.canonicalKey);
     if (cached) {
       return cached;
     }
 
-    if (!monster.inheritsKey) {
-      const root = {
-        ...monster,
-        modifiers: inheritModifiers([], monster.modifiers),
-      };
-      resolved.set(monster.canonicalKey, root);
-      return root;
+    if (states.get(monster.canonicalKey) === "visiting") {
+      const cycleStart = stack.indexOf(monster.canonicalKey);
+      const members =
+        cycleStart === -1 ? [monster.canonicalKey] : stack.slice(cycleStart);
+      for (const memberKey of members) {
+        cycleMembers.add(memberKey);
+        if (reportedCycleMembers.has(memberKey)) {
+          continue;
+        }
+        const member = byKey.get(memberKey);
+        if (member?.inheritsKey) {
+          issues.push({
+            type: "cycle",
+            monsterId: member.id,
+            parentKey: member.inheritsKey,
+          });
+          reportedCycleMembers.add(memberKey);
+        }
+      }
+      return localOnly(monster);
     }
 
-    if (ancestors.has(monster.canonicalKey)) {
-      issues.push({
-        type: "cycle",
-        monsterId: monster.id,
-        parentKey: monster.inheritsKey,
-      });
-      return monster;
+    states.set(monster.canonicalKey, "visiting");
+
+    if (!monster.inheritsKey) {
+      const root = localOnly(monster);
+      resolved.set(monster.canonicalKey, root);
+      states.set(monster.canonicalKey, "resolved");
+      return root;
     }
 
     const parent = byKey.get(monster.inheritsKey);
@@ -81,13 +106,19 @@ export function applyMonsterInheritance(
         monsterId: monster.id,
         parentKey: monster.inheritsKey,
       });
-      resolved.set(monster.canonicalKey, monster);
-      return monster;
+      const local = localOnly(monster);
+      resolved.set(monster.canonicalKey, local);
+      states.set(monster.canonicalKey, "resolved");
+      return local;
     }
 
-    const nextAncestors = new Set(ancestors);
-    nextAncestors.add(monster.canonicalKey);
-    const resolvedParent = resolve(parent, nextAncestors);
+    const resolvedParent = resolve(parent, [...stack, monster.canonicalKey]);
+    if (cycleMembers.has(monster.canonicalKey)) {
+      const local = localOnly(monster);
+      resolved.set(monster.canonicalKey, local);
+      states.set(monster.canonicalKey, "resolved");
+      return local;
+    }
     const spellChance = monster.spellChance ?? resolvedParent.spellChance;
     const inherited: Monster = {
       ...monster,
@@ -109,12 +140,13 @@ export function applyMonsterInheritance(
       inheritsId: resolvedParent.id,
     };
     resolved.set(monster.canonicalKey, inherited);
+    states.set(monster.canonicalKey, "resolved");
     return inherited;
   }
 
   return {
     monsters: [...monsters]
-      .map((monster) => resolve(monster, new Set()))
+      .map((monster) => resolve(monster, []))
       .sort((left, right) =>
         left.canonicalKey.localeCompare(right.canonicalKey, "en"),
       ),

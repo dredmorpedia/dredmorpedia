@@ -20,7 +20,9 @@ test("shows a dataset-neutral 404 for an unavailable route", async ({
   ).toBeVisible();
 });
 
-test("filters items and exposes a static detail route", async ({ page }) => {
+test("previews a bounded catalogue and exposes a static detail route", async ({
+  page,
+}) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
@@ -29,25 +31,23 @@ test("filters items and exposes a static detail route", async ({ page }) => {
     }),
   ).toBeVisible();
 
-  const search = page.getByRole("searchbox", { name: "Search items" });
-  await search.fill("blade");
-  await expect(page.getByText("1 matching item")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Item preview" }),
+  ).toBeVisible();
+  await expect(page.getByText("Showing 7 of 7 items")).toBeVisible();
+  expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
   await expect(page.getByText("Quality 3", { exact: true })).toBeVisible();
 
-  await search.fill("");
-  const category = page.getByRole("combobox", { name: "Category" });
-  await category.focus();
-  await category.press("Enter");
-  await page.getByRole("option", { name: "Material" }).press("Enter");
-  await expect(page.getByRole("link", { name: "Brass Ingot" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Clockwork Blade" })).toHaveCount(
-    0,
-  );
+  await page.keyboard.press("Home");
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Skip to main content" });
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
 
-  await page.getByRole("button", { name: "Reset filters" }).click();
   await page.getByRole("link", { name: "Clockwork Blade" }).click();
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade" }),

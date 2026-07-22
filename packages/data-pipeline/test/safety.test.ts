@@ -1,4 +1,10 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -6,13 +12,60 @@ import { describe, expect, it } from "vitest";
 
 import {
   loadManifest,
+  importDataset,
   parsePatchDefinition,
   parseRouteRegistry,
   parseXml,
   resolveWithin,
+  writeOutputs,
 } from "../src/index";
 
 describe("input safety", () => {
+  it("rejects real output paths that overlap a source root", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-output-boundary-"),
+    );
+    try {
+      const sourceRoot = path.join(repositoryRoot, "source");
+      mkdirSync(sourceRoot);
+      writeFileSync(path.join(sourceRoot, "itemDB.xml"), "<items />");
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          schemaVersion: 1,
+          datasetId: "output-boundary-test",
+          sources: [
+            {
+              id: "fixture",
+              label: "Fixture",
+              kind: "fixture",
+              precedence: 0,
+              root: "source",
+              files: [{ kind: "items", path: "itemDB.xml" }],
+            },
+          ],
+        }),
+      );
+      const result = importDataset({ manifestPath, repositoryRoot });
+
+      expect(() => writeOutputs(result, repositoryRoot)).toThrow(
+        /overlaps source root/,
+      );
+      expect(() =>
+        writeOutputs(result, path.join(sourceRoot, "generated")),
+      ).toThrow(/overlaps source root/);
+
+      const sourceJunction = path.join(repositoryRoot, "source-junction");
+      symlinkSync(sourceRoot, sourceJunction, "junction");
+      expect(() =>
+        writeOutputs(result, path.join(sourceJunction, "generated")),
+      ).toThrow(/overlaps source root/);
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
+
   it("rejects path traversal before filesystem access", () => {
     expect(() =>
       resolveWithin(path.resolve("fixtures/synthetic"), "../legacy.xml"),

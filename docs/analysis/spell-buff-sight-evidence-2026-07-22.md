@@ -6,6 +6,8 @@ Scope: legacy behavior, synthetic compatibility fixtures, and read-only aggregat
 
 Status: implemented signed sight-radius source modifiers; final visibility and darkness behavior remain uninterpreted
 
+Later note: diagnostic totals in this slice are its historical completion baseline. The subsequent general hardening review exposed previously silent spell-effect attributes and children; current totals are recorded in [`general-project-review-hardening-2026-07-22.md`](general-project-review-hardening-2026-07-22.md).
+
 ## Legacy behavior
 
 The preserved stat parser handles a direct `<sightbuff>` child as a special case. It reads the `amount` attribute as a floating-point value and labels the result `Sight Radius`. This establishes the source declaration's display meaning, but it does not establish a complete engine formula for darkness, visibility, stacking, or the player's final sight radius.

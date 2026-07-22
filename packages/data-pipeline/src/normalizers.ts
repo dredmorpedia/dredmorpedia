@@ -385,9 +385,31 @@ function parseItemTriggers(
   return triggers.sort(compareSpellTriggers);
 }
 
-function booleanAttribute(record: XmlRecord, name: string): boolean {
+function booleanAttribute(
+  record: XmlRecord,
+  name: string,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+): boolean {
   const value = xmlAttribute(record, name);
-  return value === "1" || value === "true";
+  if (value === undefined || value === "0" || value === "false") {
+    return false;
+  }
+  if (value === "1" || value === "true") {
+    return true;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_boolean",
+    message: `Expected 0, 1, false, or true for ${field}; used false instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return false;
 }
 
 function optionalBooleanAttribute(
@@ -434,20 +456,13 @@ function integerValue(
     return fallback;
   }
 
-  if (minimum === undefined) {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isFinite(parsed)) {
-      return parsed;
-    }
-  } else {
-    const parsed = Number(value);
-    if (
-      Number.isInteger(parsed) &&
-      parsed >= minimum &&
-      (maximum === undefined || parsed <= maximum)
-    ) {
-      return parsed;
-    }
+  const parsed = Number(value);
+  if (
+    Number.isInteger(parsed) &&
+    (minimum === undefined || parsed >= minimum) &&
+    (maximum === undefined || parsed <= maximum)
+  ) {
+    return parsed;
   }
 
   context.diagnostics.push({
@@ -684,6 +699,7 @@ function reportUnknownAttributes(
   allowedAttributes: ReadonlySet<string>,
   provenance: EntityProvenance,
   currentEntityId: string,
+  includeValue = false,
 ): void {
   for (const key of Object.keys(record).sort((left, right) =>
     left.localeCompare(right, "en"),
@@ -701,7 +717,13 @@ function reportUnknownAttributes(
       message: `Unsupported ${elementName} attribute ${attribute} was preserved only as a diagnostic.`,
       source: provenance,
       entityId: currentEntityId,
-      details: { element: elementName, attribute },
+      details: {
+        element: elementName,
+        attribute,
+        ...(includeValue
+          ? { value: xmlAttribute(record, attribute) ?? "" }
+          : {}),
+      },
     });
   }
 }
@@ -713,6 +735,7 @@ function reportUnknownLeafContent(
   allowedAttributes: ReadonlySet<string>,
   provenance: EntityProvenance,
   currentEntityId: string,
+  includeAttributeValues = false,
 ): void {
   reportUnknownAttributes(
     context,
@@ -721,6 +744,7 @@ function reportUnknownLeafContent(
     allowedAttributes,
     provenance,
     currentEntityId,
+    includeAttributeValues,
   );
   reportUnknownChildren(context, record, new Set(), currentEntityId);
 }
@@ -768,6 +792,7 @@ function parseItems(
           provenance,
           "price",
           currentEntityId,
+          0,
         )
       : null;
     const stats = xmlChildren(record, "stat")
@@ -860,6 +885,7 @@ function parseRecipes(
               provenance,
               "recipe amount",
               currentEntityId,
+              1,
             ),
           };
         })
@@ -870,7 +896,14 @@ function parseRecipes(
     const recipe: Recipe = {
       ...baseEntity("recipe", name, "", provenance),
       tool: childAttribute(record, "tool", "tag") ?? "unknown",
-      hidden: booleanAttribute(record, "hidden"),
+      hidden: booleanAttribute(
+        record,
+        "hidden",
+        context,
+        provenance,
+        "recipe hidden",
+        currentEntityId,
+      ),
       skillLevel: Math.max(
         0,
         ...outputRecords.map((output) =>
@@ -881,6 +914,7 @@ function parseRecipes(
             provenance,
             "skill",
             currentEntityId,
+            0,
           ),
         ),
       ),
@@ -1203,7 +1237,14 @@ function parseEncrustments(
         provenance,
       ),
       tool,
-      hidden: booleanAttribute(record, "hidden"),
+      hidden: booleanAttribute(
+        record,
+        "hidden",
+        context,
+        provenance,
+        "encrustment hidden",
+        currentEntityId,
+      ),
       skillLevel,
       inputs,
       slots,
@@ -1387,6 +1428,12 @@ function parseSkills(
   for (const record of collectElements(context.parsed.document, "skill")) {
     const name = xmlAttribute(record, "name");
     if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "A <skill> is missing its required name attribute.",
+        source: context.parsed.locateElement("skill"),
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
@@ -1407,7 +1454,14 @@ function parseSkills(
           currentEntityId,
           1,
         ),
-        always: booleanAttribute(loadout, "always"),
+        always: booleanAttribute(
+          loadout,
+          "always",
+          context,
+          provenance,
+          "skill loadout always",
+          currentEntityId,
+        ),
       };
     });
     const skill: Skill = {
@@ -1449,7 +1503,30 @@ function parseSkills(
   for (const record of collectElements(context.parsed.document, "ability")) {
     const name = xmlAttribute(record, "name");
     const skillReference = xmlAttribute(record, "skill");
-    if (!name || !skillReference) {
+    if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "An <ability> is missing its required name attribute.",
+        source: context.parsed.locateElement("ability"),
+      });
+      continue;
+    }
+    if (!skillReference) {
+      const provenance = provenanceFor(
+        context,
+        "ability",
+        name,
+        xmlAttribute(record, "id"),
+      );
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_required_reference",
+        message: `Ability ${name} is missing its required skill reference.`,
+        source: provenance,
+        entityId: entityId("ability", name),
+        details: { field: "skill" },
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
@@ -1492,7 +1569,14 @@ function parseSkills(
         currentEntityId,
         0,
       ),
-      startSkill: booleanAttribute(record, "startSkill"),
+      startSkill: booleanAttribute(
+        record,
+        "startSkill",
+        context,
+        provenance,
+        "ability start skill",
+        currentEntityId,
+      ),
       modifiers,
       sourceFlags: parseSourceFlags(record),
       recoveryBuffAmounts: parseAbilityNumericMetadata(
@@ -1937,6 +2021,12 @@ function parseSpells(
   for (const record of collectElements(context.parsed.document, "spell")) {
     const name = xmlAttribute(record, "name");
     if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "A <spell> is missing its required name attribute.",
+        source: context.parsed.locateElement("spell"),
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
@@ -1944,6 +2034,15 @@ function parseSpells(
     const currentEntityId = entityId("spell", name);
     const effects = xmlChildren(record, "effect")
       .map((effect) => {
+        reportUnknownLeafContent(
+          context,
+          effect,
+          "effect",
+          new Set(["type", "spell", "stat", "amount"]),
+          provenance,
+          currentEntityId,
+          true,
+        );
         const spellName = xmlAttribute(effect, "spell");
         const statName = xmlAttribute(effect, "stat");
         const amountText = xmlAttribute(effect, "amount");
@@ -2011,6 +2110,12 @@ function parseMonsters(
   )) {
     const name = xmlAttribute(record, "name");
     if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "A <monster> is missing its required name attribute.",
+        source: context.parsed.locateElement("monster"),
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
@@ -2445,7 +2550,14 @@ function parseMonsters(
       taxonomy: xmlAttribute(record, "taxa") ?? "",
       level: normalizedLevel,
       depth: sourceLevel === undefined ? null : normalizedLevel + 1,
-      special: booleanAttribute(record, "special"),
+      special: booleanAttribute(
+        record,
+        "special",
+        context,
+        provenance,
+        "monster special",
+        currentEntityId,
+      ),
       iconPath: normalizeAssetPath(
         childAttribute(record, "idleSprite", "down"),
         context,
@@ -2833,6 +2945,12 @@ function parseStats(
   for (const record of collectElements(context.parsed.document, "stat")) {
     const name = xmlAttribute(record, "name");
     if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "A <stat> is missing its required name attribute.",
+        source: context.parsed.locateElement("stat"),
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
@@ -2858,13 +2976,27 @@ function parseTemplates(
   for (const record of collectElements(context.parsed.document, "template")) {
     const name = xmlAttribute(record, "name");
     if (!name) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "missing_entity_name",
+        message: "A <template> is missing its required name attribute.",
+        source: context.parsed.locateElement("template"),
+      });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, "template", name, originalId);
+    const currentEntityId = entityId("template", name);
     const template: Template = {
       ...baseEntity("template", name, "", provenance),
-      affectsPlayer: booleanAttribute(record, "affectsPlayer"),
+      affectsPlayer: booleanAttribute(
+        record,
+        "affectsPlayer",
+        context,
+        provenance,
+        "template affects player",
+        currentEntityId,
+      ),
       rows: xmlChildren(record, "row")
         .map((row) => xmlAttribute(row, "text") ?? "")
         .filter(Boolean),

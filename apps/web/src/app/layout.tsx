@@ -52,7 +52,7 @@ export default function RootLayout({
               </span>
             </div>
           </header>
-          <main id="main-content" className="site-main">
+          <main id="main-content" className="site-main" tabIndex={-1}>
             {children}
           </main>
           <footer className="site-footer">

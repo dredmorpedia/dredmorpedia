@@ -352,6 +352,9 @@ describe("synthetic dataset import", () => {
     <requirements mp="12" savvyBonus="0.25" mincost="4" future="kept as a diagnostic">
       <futureChild />
     </requirements>
+    <effect type="stat" stat="Savvy" amount="12junk" scaling="1.5">
+      <futureEffectChild />
+    </effect>
   </spell>
   <spell name="Invalid Mana Cost" type="self">
     <requirements mp="-1" savvyBonus="invalid" mincost="-2" />
@@ -407,13 +410,27 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(3);
+    ).toHaveLength(4);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           code: "unknown_attribute",
           entityId: "spell:complete mana cost",
           details: { element: "requirements", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:complete mana cost",
+          details: {
+            element: "effect",
+            attribute: "scaling",
+            value: "1.5",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:complete mana cost",
+          details: { element: "futureEffectChild" },
         }),
         expect.objectContaining({
           code: "unknown_element",
@@ -896,7 +913,8 @@ describe("synthetic dataset import", () => {
   <monster name="AI Not Supplied"><ai aggressiveness="1" span="4" futureflag="synthetic" /></monster>
   <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /><sight cone="270" modifier="1.25" futureSight="synthetic"><futureSightChild /></sight></monster>
   <monster name="AI Enabled"><ai invisible="1" chicken="1" cancharm="1" canparalyze="1" stealgold="1" stealPercentage="50" /><sight cone="-1" modifier="not-a-number" /></monster>
-  <monster name="AI Invalid"><ai invisible="invalid" chicken="yes" cancharm="2" canparalyze="TRUE" stealgold="" /></monster>
+  <monster name="AI Invalid" special="yes"><ai invisible="invalid" chicken="yes" cancharm="2" canparalyze="TRUE" stealgold="" /></monster>
+  <monster special="1" />
 </monsters>`,
     );
     const aiManifestPath = path.join(temporaryRoot, "manifest.json");
@@ -1021,7 +1039,13 @@ describe("synthetic dataset import", () => {
           diagnostic.code === "invalid_boolean" &&
           diagnostic.entityId === "monster:ai invalid",
       ),
-    ).toHaveLength(5);
+    ).toHaveLength(6);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        severity: "error",
+        code: "missing_entity_name",
+      }),
+    );
     expect(
       result.diagnostics.filter(
         (diagnostic) =>
