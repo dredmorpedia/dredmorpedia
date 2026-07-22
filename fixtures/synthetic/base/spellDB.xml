@@ -2,11 +2,13 @@
 <spells>
   <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg">
     <description text="Starts a synthetic effect chain with a dangling reference." />
+    <requirements mp="12" savvyBonus="0.25" mincost="4" />
     <effect type="trigger" spell="Clockwork Echo" />
     <effect type="trigger" spell="Missing Echo" />
   </spell>
   <spell id="clockwork-echo" name="Clockwork Echo" type="self" icon="assets/synthetic.svg">
     <description text="Continues the synthetic effect chain and closes its deliberate cycle." />
+    <requirements shield="1" />
     <effect type="stat" stat="Savvy" amount="1" />
     <effect type="trigger" spell="Clockwork Spark" />
   </spell>

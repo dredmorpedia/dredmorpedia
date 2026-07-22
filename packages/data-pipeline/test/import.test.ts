@@ -337,6 +337,105 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("normalizes loss-aware spell mana costs and diagnoses unsupported requirements", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-mana-costs-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Mana Cost" type="self">
+    <requirements mp="12" savvyBonus="0.25" mincost="4" future="kept as a diagnostic">
+      <futureChild />
+    </requirements>
+  </spell>
+  <spell name="Invalid Mana Cost" type="self">
+    <requirements mp="-1" savvyBonus="invalid" mincost="-2" />
+  </spell>
+  <spell name="Multiple Mana Costs" type="self">
+    <requirements mp="8" />
+    <requirements mp="6" savvybonus="0.1" mincost="3" />
+  </spell>
+  <spell name="Unsupported Requirement" type="self">
+    <requirements shield="1" />
+  </spell>
+</spellDB>`,
+    );
+    const manaManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      manaManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-mana-cost-test",
+        sources: [
+          {
+            id: "spell-mana-source",
+            label: "Spell Mana Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: manaManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete Mana Cost")?.manaCosts).toEqual([
+      { base: 12, savvyReduction: 0.25, minimum: 4 },
+    ]);
+    expect(spells.get("Invalid Mana Cost")?.manaCosts).toEqual([
+      { base: null, savvyReduction: null, minimum: null },
+    ]);
+    expect(spells.get("Multiple Mana Costs")?.manaCosts).toEqual([
+      { base: 8, savvyReduction: null, minimum: null },
+      { base: 6, savvyReduction: 0.1, minimum: 3 },
+    ]);
+    expect(spells.get("Unsupported Requirement")?.manaCosts).toEqual([]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(3);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:complete mana cost",
+          details: { element: "requirements", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:complete mana cost",
+          details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unsupported_spell_requirement",
+          entityId: "spell:unsupported requirement",
+          details: { element: "requirements" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "requirements",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes encrustment outcomes and diagnoses invalid fields", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-encrustment-outcomes-"),
@@ -953,6 +1052,12 @@ describe("synthetic dataset import", () => {
       (monster) => monster.name === "Training Diggle",
     );
     const template = result.artifact.entities.templates[0];
+    const clockworkSpark = result.artifact.entities.spells.find(
+      (spell) => spell.name === "Clockwork Spark",
+    );
+    const clockworkEcho = result.artifact.entities.spells.find(
+      (spell) => spell.name === "Clockwork Echo",
+    );
     const diagnosticCodes = result.diagnostics.map(
       (diagnostic) => diagnostic.code,
     );
@@ -972,6 +1077,16 @@ describe("synthetic dataset import", () => {
       rows: [".@.", "@#@", ".@."],
       slug: "small-cross",
     });
+    expect(clockworkSpark?.manaCosts).toEqual([
+      { base: 12, savvyReduction: 0.25, minimum: 4 },
+    ]);
+    expect(clockworkEcho?.manaCosts).toEqual([]);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unsupported_spell_requirement",
+        entityId: "spell:clockwork echo",
+      }),
+    );
     expect(result.artifact.schemaVersion).toBe(3);
     expect(result.artifact.datasetVersion).toBe("1.0.0");
     expect(result.artifact.sources).toEqual(

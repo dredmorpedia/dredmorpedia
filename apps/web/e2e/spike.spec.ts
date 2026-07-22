@@ -263,6 +263,19 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page.getByRole("heading", { level: 1, name: "Clockwork Spark" }),
   ).toBeVisible();
 
+  const manaCost = page.getByRole("region", { name: "Mana cost" });
+  await expect(
+    manaCost.getByText("12 − (0.25 × Savvy), minimum 4"),
+  ).toBeVisible();
+  await expect(
+    manaCost.getByText("0.25 × Savvy", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    manaCost.getByText(
+      "These are source parameters. Final in-game rounding is not inferred.",
+    ),
+  ).toBeVisible();
+
   const effects = page.getByRole("region", { name: "Effects", exact: true });
   await expect(
     effects.getByRole("link", { name: "Clockwork Echo" }),
@@ -291,6 +304,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page
       .getByRole("region", { name: "Referenced by" })
       .getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Mana cost" })
+      .getByText("No normalized mana requirement."),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "A spell requirement without a mana cost remains unsupported.",
+    ),
   ).toBeVisible();
 });
 

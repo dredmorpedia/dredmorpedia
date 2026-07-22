@@ -239,10 +239,17 @@ export interface SpellEffect {
   amount?: number;
 }
 
+export interface SpellManaCost {
+  base: number | null;
+  savvyReduction: number | null;
+  minimum: number | null;
+}
+
 export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
+  manaCosts: SpellManaCost[];
   effects: SpellEffect[];
 }
 

@@ -32,6 +32,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     diagnosticIds: [],
     spellType: "target",
     iconPath: null,
+    manaCosts: [],
     effects,
   };
 }

@@ -23,6 +23,7 @@ import {
   type Recipe,
   type Skill,
   type Spell,
+  type SpellManaCost,
   type SpellTrigger,
   type SourceFlag,
   type StatModifier,
@@ -488,6 +489,39 @@ function numberValue(
     details: { field, value },
   });
   return fallback;
+}
+
+function optionalNumberValue(
+  value: string | undefined,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+  minimum?: number,
+  maximum?: number,
+): number | null {
+  if (value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (
+    Number.isFinite(parsed) &&
+    (minimum === undefined || parsed >= minimum) &&
+    (maximum === undefined || parsed <= maximum)
+  ) {
+    return parsed;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_number",
+    message: `Expected ${minimum === undefined ? "a finite number" : maximum === undefined ? `a number greater than or equal to ${minimum}` : `a number from ${minimum} to ${maximum}`} for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
 }
 
 function provenanceFor(
@@ -1458,6 +1492,66 @@ function parseSkills(
   }
 }
 
+function parseSpellManaCosts(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellManaCost[] {
+  return xmlChildren(record, "requirements").flatMap((requirements) => {
+    const baseText = xmlAttribute(requirements, "mp");
+    if (baseText === undefined) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unsupported_spell_requirement",
+        message: "A spell requirement without a mana cost remains unsupported.",
+        source: provenance,
+        entityId: currentEntityId,
+        details: { element: "requirements" },
+      });
+      return [];
+    }
+
+    reportUnknownLeafContent(
+      context,
+      requirements,
+      "requirements",
+      new Set(["mp", "savvyBonus", "savvybonus", "mincost"]),
+      provenance,
+      currentEntityId,
+    );
+    return [
+      {
+        base: optionalNumberValue(
+          baseText,
+          context,
+          provenance,
+          "spell mana base cost",
+          currentEntityId,
+          0,
+        ),
+        savvyReduction: optionalNumberValue(
+          xmlAttribute(requirements, "savvyBonus") ??
+            xmlAttribute(requirements, "savvybonus"),
+          context,
+          provenance,
+          "spell mana Savvy reduction",
+          currentEntityId,
+          0,
+        ),
+        minimum: optionalNumberValue(
+          xmlAttribute(requirements, "mincost"),
+          context,
+          provenance,
+          "spell minimum mana cost",
+          currentEntityId,
+          0,
+        ),
+      },
+    ];
+  });
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -1510,12 +1604,18 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
+      manaCosts: parseSpellManaCosts(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       effects,
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "effect"]),
+      new Set(["description", "effect", "requirements"]),
       currentEntityId,
     );
     addCandidate(result.spells, spell, context.source.precedence);

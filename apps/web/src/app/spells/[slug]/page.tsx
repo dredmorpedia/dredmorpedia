@@ -28,6 +28,25 @@ function signedValue(value: number): string {
   return value > 0 ? `+${value}` : String(value);
 }
 
+const sourceNumber = new Intl.NumberFormat("en", {
+  maximumFractionDigits: 4,
+});
+
+function manaCostFormula({
+  base,
+  savvyReduction,
+  minimum,
+}: {
+  base: number | null;
+  savvyReduction: number | null;
+  minimum: number | null;
+}): string {
+  if (base === null) {
+    return "Base cost unavailable";
+  }
+  return `${sourceNumber.format(base)}${savvyReduction === null ? "" : ` − (${sourceNumber.format(savvyReduction)} × Savvy)`}${minimum === null ? "" : `, minimum ${sourceNumber.format(minimum)}`}`;
+}
+
 const monsterBacklinkLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
   {
     "on-hit": "On-hit spell",
@@ -152,17 +171,75 @@ export default async function SpellPage({
         </div>
         <dl className="price-block">
           <div>
-            <dt>Direct effects</dt>
-            <dd>{spell.effects.length}</dd>
+            <dt>Mana declarations</dt>
+            <dd>{spell.manaCosts.length}</dd>
           </div>
           <div>
-            <dt>Referenced by</dt>
-            <dd>{backlinkCount}</dd>
+            <dt>Direct effects</dt>
+            <dd>{spell.effects.length}</dd>
           </div>
         </dl>
       </header>
 
       <div className="detail-grid">
+        <section className="detail-card" aria-labelledby="mana-cost-heading">
+          <h2 id="mana-cost-heading" className="section-title-sm">
+            Mana cost
+          </h2>
+          {spell.manaCosts.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.manaCosts.map((manaCost, manaCostIndex) => (
+                  <li key={manaCostIndex}>
+                    <div className="trigger-summary">
+                      <span className="relationship-title">Source formula</span>
+                      <strong>{manaCostFormula(manaCost)}</strong>
+                      <small className="trigger-resolution">
+                        Base cost minus the declared Savvy scaling, bounded by
+                        the declared minimum when present.
+                      </small>
+                    </div>
+                    <dl className="trigger-facts">
+                      <div>
+                        <dt>Base</dt>
+                        <dd>
+                          {manaCost.base === null
+                            ? "Unavailable"
+                            : sourceNumber.format(manaCost.base)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Savvy reduction</dt>
+                        <dd>
+                          {manaCost.savvyReduction === null
+                            ? "Not specified"
+                            : `${sourceNumber.format(manaCost.savvyReduction)} × Savvy`}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Minimum</dt>
+                        <dd>
+                          {manaCost.minimum === null
+                            ? "Not specified"
+                            : sourceNumber.format(manaCost.minimum)}
+                        </dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                These are source parameters. Final in-game rounding is not
+                inferred.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
         <section className="detail-card" aria-labelledby="effects-heading">
           <h2 id="effects-heading" className="section-title-sm">
             Effects

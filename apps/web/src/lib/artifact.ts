@@ -480,6 +480,28 @@ function hasValidSpells(value: unknown): boolean {
       spell.diagnosticIds.every(
         (diagnosticId: unknown) => typeof diagnosticId === "string",
       ) &&
+      "manaCosts" in spell &&
+      Array.isArray(spell.manaCosts) &&
+      spell.manaCosts.every(
+        (manaCost: unknown) =>
+          manaCost !== null &&
+          typeof manaCost === "object" &&
+          "base" in manaCost &&
+          (manaCost.base === null ||
+            (typeof manaCost.base === "number" &&
+              Number.isFinite(manaCost.base) &&
+              manaCost.base >= 0)) &&
+          "savvyReduction" in manaCost &&
+          (manaCost.savvyReduction === null ||
+            (typeof manaCost.savvyReduction === "number" &&
+              Number.isFinite(manaCost.savvyReduction) &&
+              manaCost.savvyReduction >= 0)) &&
+          "minimum" in manaCost &&
+          (manaCost.minimum === null ||
+            (typeof manaCost.minimum === "number" &&
+              Number.isFinite(manaCost.minimum) &&
+              manaCost.minimum >= 0)),
+      ) &&
       "effects" in spell &&
       Array.isArray(spell.effects) &&
       spell.effects.every(
