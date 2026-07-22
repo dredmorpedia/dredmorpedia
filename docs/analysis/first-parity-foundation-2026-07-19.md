@@ -49,7 +49,7 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Read-only official verification
 
-The canonical `1.1.5 beta_preview` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,698 warnings, and 71 info records.
+The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,698 warnings, and 71 info records.
 
 - Normalized artifact: 4,495,051 bytes.
 - Search artifact: 1,252,239 bytes uncompressed.
@@ -69,7 +69,7 @@ Six monsters declare dig metadata: chance and ambush chance span 5% through 40%,
 
 The earlier 274 hooks remain: 223 aware-casting hooks and 51 on-hit hooks, including the observed `<onHit>` casing. The exact on-hit denominators span 1, 2, 3, 4, 5, 6, 10, 15, and 20; effective cast chances span 3% through 80%. Of those hooks, 271 resolve and three retain genuine dangling spell names, with at most 16 hooks on one monster. Fifty-six direct drops normalize across 15 monsters, with at most 12 on one monster and chances from 1% through 100%: all 49 named item drops resolve, while six `artifact` and one `zorkmids` type-driven drops remain explicit without fabricated item links.
 
-All 249 former sound/sprite diagnostics are now typed presentation metadata: 60 sound declarations preserve 242 symbolic cue IDs; animation declarations comprise 54 attack, 52 hit, 52 death, 27 cast, 2 beam, 1 morph, and 1 dig record with 519 validated sprite references. No measured official monster child element remains unsupported, and the only monster diagnostics are the three genuine dangling spell references. The web page reports cue/animation coverage without displaying the detailed references, and child declarations remain local rather than inheriting. Independently verified derived-stat formulas are the next monster parity work.
+All 249 former sound/sprite diagnostics are now typed presentation metadata: 60 sound declarations preserve 242 symbolic cue IDs; animation declarations comprise 54 attack, 52 hit, 52 death, 27 cast, 2 beam, 1 morph, and 1 dig record with 519 validated sprite references. No measured official monster child element remains unsupported, and the only monster diagnostics are the three genuine dangling spell references. The web page reports cue/animation coverage without displaying the detailed references, and child declarations remain local rather than inheriting. A separately evidenced pure domain calculation now derives the six primary attributes and adds effective primary bonuses. Across all 183 monsters, eight carry 12 such modifiers; totals span 0–154 Burliness, 0–190 Sagacity, 0–140 Nimbleness, 0–173 Caddishness, 0–223 Stubbornness, and 0–209 Savvy. Life, Mana, secondary-stat, and damage formulas remain unavailable because the researched sources conflict; the evidence matrix is recorded in `monster-derived-stat-evidence-2026-07-22.md`.
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.
 

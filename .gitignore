@@ -25,6 +25,8 @@ test-results/
 # Portable handoff artifacts belong outside the repository
 /*.bundle
 /dredmorpedia-transfer-*.zip
+/MANIFEST.txt
+/RESTORE.md
 
 # Local imports and generated artifacts; publication requires an explicit policy decision
 /data/raw/

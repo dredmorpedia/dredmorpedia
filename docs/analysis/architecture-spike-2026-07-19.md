@@ -33,7 +33,7 @@ These numbers characterize only the tiny synthetic fixture and must not be used 
 
 ## Read-only official dataset result
 
-The owner identified the canonical measurement baseline as Dungeons of Dredmor `1.1.5 beta_preview`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed. The local absolute installation path is deliberately not recorded.
+The owner identified the canonical measurement baseline as Dungeons of Dredmor `1.1.5 public_beta`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed. The local absolute installation path is deliberately not recorded.
 
 - Official encyclopedia databases: 22 files, 1,287,424 bytes total. All parsed without XML errors.
 - Deterministic input checksums: 1,390 database and resolved-asset entries.

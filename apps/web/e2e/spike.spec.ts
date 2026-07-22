@@ -404,7 +404,35 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(profile.getByText("Experience value")).toBeVisible();
   await expect(profile.getByText("10", { exact: true })).toBeVisible();
   await expect(
-    profile.getByText(/derived combat totals are not calculated/i),
+    profile.getByText(/disputed secondary combat totals remain unavailable/i),
+  ).toBeVisible();
+
+  const primaryAttributes = page.getByRole("region", {
+    name: "Verified primary attributes",
+  });
+  await expect(
+    primaryAttributes.getByText("Burliness").locator("..").getByText("4"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes.getByText("Sagacity").locator("..").getByText("2"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes
+      .getByText("Nimbleness")
+      .locator("..")
+      .getByText("3 (2 + 1)"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes.getByText("Caddishness").locator("..").getByText("4"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes.getByText("Stubbornness").locator("..").getByText("4"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes.getByText("Savvy").locator("..").getByText("2"),
+  ).toBeVisible();
+  await expect(
+    primaryAttributes.getByText(/available sources conflict/i),
   ).toBeVisible();
 
   const aiMetadata = page.getByRole("region", { name: "AI source metadata" });

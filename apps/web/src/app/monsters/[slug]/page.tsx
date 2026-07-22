@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  calculateMonsterPrimaryAttributes,
   entityRouteSlugs,
   matchesEntityRoute,
   type MonsterSpellTriggerKind,
@@ -144,6 +145,10 @@ export default async function MonsterPage({
     : monster.depth === null
       ? "Unknown dungeon depth"
       : `Dungeon level ${monster.depth}`;
+  const primaryAttributes = calculateMonsterPrimaryAttributes(
+    monster.archetypeLevels,
+    monster.modifiers,
+  );
 
   return (
     <article className="detail-page">
@@ -215,8 +220,39 @@ export default async function MonsterPage({
             </div>
           </dl>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            These are normalized source values. Derived combat totals are not
-            calculated until their formulas are independently verified.
+            These are normalized source values. Verified primary attributes are
+            calculated separately below; disputed secondary combat totals remain
+            unavailable.
+          </p>
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="primary-attributes-heading"
+        >
+          <h2 id="primary-attributes-heading" className="section-title-sm">
+            Verified primary attributes
+          </h2>
+          <dl className="stat-list">
+            {primaryAttributes.map((attribute) => (
+              <div key={attribute.key}>
+                <dt>{attribute.label}</dt>
+                <dd>
+                  {attribute.total}
+                  {attribute.modifier === 0
+                    ? null
+                    : ` (${attribute.base} ${
+                        attribute.modifier > 0 ? "+" : "−"
+                      } ${Math.abs(attribute.modifier)})`}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Each value applies the verified fighter, rogue, and wizard
+            coefficients, then adds any effective inherited source bonus. Life,
+            Mana, and secondary combat formulas are not shown because the
+            available sources conflict.
           </p>
         </section>
 

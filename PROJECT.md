@@ -63,7 +63,7 @@ The initial canonical source scope is the base game plus all three official expa
 
 ## Canonical source baseline
 
-The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 beta_preview`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed.
+The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with the base game and all three official expansions installed.
 
 ## Open product decisions
 
