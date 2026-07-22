@@ -157,6 +157,18 @@ export default async function SpellPage({
     abilityBacklinks.length +
     monsterBacklinks.length;
   const isAlias = slug !== spell.slug;
+  const presentationDeclarations = [
+    ...spell.animations.map((metadata, index) => ({
+      kind: "Animation",
+      index,
+      metadata,
+    })),
+    ...spell.impacts.map((metadata, index) => ({
+      kind: "Impact",
+      index,
+      metadata,
+    })),
+  ] as const;
 
   return (
     <article className="detail-page">
@@ -198,6 +210,10 @@ export default async function SpellPage({
           <div>
             <dt>Animation declarations</dt>
             <dd>{spell.animations.length}</dd>
+          </div>
+          <div>
+            <dt>Impact declarations</dt>
+            <dd>{spell.impacts.length}</dd>
           </div>
           <div>
             <dt>Direct effects</dt>
@@ -282,19 +298,19 @@ export default async function SpellPage({
           <h2 id="presentation-heading" className="section-title-sm">
             Presentation
           </h2>
-          {spell.animations.length > 0 ? (
+          {presentationDeclarations.length > 0 ? (
             <>
               <ul className="trigger-list">
-                {spell.animations.map((animation, animationIndex) => (
-                  <li key={animationIndex}>
+                {presentationDeclarations.map(({ kind, index, metadata }) => (
+                  <li key={`${kind}-${index}`}>
                     <div className="trigger-summary">
                       <span className="relationship-title">
-                        Animation declaration {animationIndex + 1}
+                        {kind} declaration {index + 1}
                       </span>
                       <strong>
-                        {animation.frameCount === null
+                        {metadata.frameCount === null
                           ? "Frame count not specified"
-                          : `${animation.frameCount} source frames`}
+                          : `${metadata.frameCount} source frames`}
                       </strong>
                       <small className="trigger-resolution">
                         Local engine presentation metadata
@@ -304,7 +320,7 @@ export default async function SpellPage({
                       <div>
                         <dt>Sprite reference</dt>
                         <dd>
-                          {animation.spritePath === null
+                          {metadata.spritePath === null
                             ? "Not supplied"
                             : "Supplied"}
                         </dd>
@@ -312,7 +328,7 @@ export default async function SpellPage({
                       <div>
                         <dt>Sound cue</dt>
                         <dd>
-                          {animation.soundEffect === null
+                          {metadata.soundEffect === null
                             ? "Not supplied"
                             : "Supplied"}
                         </dd>
@@ -320,33 +336,33 @@ export default async function SpellPage({
                       <div>
                         <dt>Source frame rate</dt>
                         <dd>
-                          {animation.frameRate === null
+                          {metadata.frameRate === null
                             ? "Not specified"
-                            : sourceNumber.format(animation.frameRate)}
+                            : sourceNumber.format(metadata.frameRate)}
                         </dd>
                       </div>
                       <div>
                         <dt>First frame</dt>
                         <dd>
-                          {animation.firstFrame === null
+                          {metadata.firstFrame === null
                             ? "Not specified"
-                            : sourceNumber.format(animation.firstFrame)}
+                            : sourceNumber.format(metadata.firstFrame)}
                         </dd>
                       </div>
                       <div>
                         <dt>Centered effect</dt>
                         <dd>
-                          {animation.centered === null
+                          {metadata.centered === null
                             ? "Not specified"
-                            : yesNo(animation.centered)}
+                            : yesNo(metadata.centered)}
                         </dd>
                       </div>
                       <div>
                         <dt>Synchronized</dt>
                         <dd>
-                          {animation.synchronized === null
+                          {metadata.synchronized === null
                             ? "Not specified"
-                            : yesNo(animation.synchronized)}
+                            : yesNo(metadata.synchronized)}
                         </dd>
                       </div>
                     </dl>
@@ -361,7 +377,7 @@ export default async function SpellPage({
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized animation declaration.
+              No normalized animation or impact declaration.
             </p>
           )}
         </section>

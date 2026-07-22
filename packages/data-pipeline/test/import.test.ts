@@ -453,7 +453,7 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
-  it("normalizes spell animation metadata and diagnoses malformed declarations", () => {
+  it("normalizes spell animation and impact metadata and diagnoses malformed declarations", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-animations-"),
     );
@@ -467,10 +467,13 @@ describe("synthetic dataset import", () => {
   <spell name="Complete Animation" type="target">
     <anim sprite="sprites/sfx/complete/complete" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="complete cue" />
     <anim sprite="sprites\\sfx\\alias\\alias" num="4" first="2" centereffect="0" />
+    <impact sprite="sprites/sfx/impact/impact" frames="5" framerate="70" firstframe="0" centereffect="0" sync="1" sfx="impact cue" />
   </spell>
   <spell name="Invalid Animation" type="self">
     <anim sprite="../outside" frames="-1" framerate="1.5" firstframe="bad" centerEffect="maybe" sync="2" future="retained"><futureChild /></anim>
     <anim />
+    <impact sprite="C:\\outside" frames="-2" framerate="2.5" firstframe="bad" centerEffect="maybe" sync="2" futureImpact="retained"><futureImpactChild /></impact>
+    <impact />
   </spell>
 </spellDB>`,
     );
@@ -541,16 +544,47 @@ describe("synthetic dataset import", () => {
         soundEffect: null,
       },
     ]);
+    expect(spells.get("Complete Animation")?.impacts).toEqual([
+      {
+        spritePath: "sprites/sfx/impact/impact",
+        frameCount: 5,
+        frameRate: 70,
+        firstFrame: 0,
+        centered: false,
+        synchronized: true,
+        soundEffect: "impact cue",
+      },
+    ]);
+    expect(spells.get("Invalid Animation")?.impacts).toEqual([
+      {
+        spritePath: null,
+        frameCount: null,
+        frameRate: null,
+        firstFrame: null,
+        centered: null,
+        synchronized: null,
+        soundEffect: null,
+      },
+      {
+        spritePath: null,
+        frameCount: null,
+        frameRate: null,
+        firstFrame: null,
+        centered: null,
+        synchronized: null,
+        soundEffect: null,
+      },
+    ]);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(3);
+    ).toHaveLength(6);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
       ),
-    ).toHaveLength(2);
+    ).toHaveLength(4);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -560,9 +594,20 @@ describe("synthetic dataset import", () => {
           details: { assetPath: "../outside" },
         }),
         expect.objectContaining({
+          severity: "error",
+          code: "unsafe_asset_path",
+          entityId: "spell:invalid animation",
+          details: { assetPath: "C:/outside" },
+        }),
+        expect.objectContaining({
           code: "missing_spell_animation_sprite",
           entityId: "spell:invalid animation",
           details: { animationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_impact_sprite",
+          entityId: "spell:invalid animation",
+          details: { impactIndex: 1 },
         }),
         expect.objectContaining({
           code: "unknown_attribute",
@@ -578,13 +623,28 @@ describe("synthetic dataset import", () => {
           entityId: "spell:invalid animation",
           details: { element: "futureChild" },
         }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid animation",
+          details: {
+            element: "impact",
+            attribute: "futureImpact",
+            value: "retained",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid animation",
+          details: { element: "futureImpactChild" },
+        }),
       ]),
     );
     expect(
       result.diagnostics.some(
         (diagnostic) =>
           diagnostic.code === "unknown_element" &&
-          diagnostic.details?.element === "anim",
+          (diagnostic.details?.element === "anim" ||
+            diagnostic.details?.element === "impact"),
       ),
     ).toBe(false);
   });
@@ -1474,6 +1534,17 @@ describe("synthetic dataset import", () => {
         soundEffect: "clockwork_animation_audio_cue",
       },
     ]);
+    expect(clockworkSpark?.impacts).toEqual([
+      {
+        spritePath: "sprites/sfx/synthetic-impact/synthetic-impact",
+        frameCount: 5,
+        frameRate: 70,
+        firstFrame: 0,
+        centered: false,
+        synchronized: true,
+        soundEffect: "clockwork_impact_audio_cue",
+      },
+    ]);
     expect(clockworkSpark?.buffs).toEqual([
       expect.objectContaining({
         timerMode: 1,
@@ -1518,6 +1589,7 @@ describe("synthetic dataset import", () => {
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
     expect(clockworkEcho?.animations).toEqual([]);
+    expect(clockworkEcho?.impacts).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({

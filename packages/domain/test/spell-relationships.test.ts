@@ -35,6 +35,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     iconPath: null,
     manaCosts: [],
     animations: [],
+    impacts: [],
     buffs: [],
     effects,
   };

@@ -122,6 +122,28 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/frameRate/);
   });
 
+  it("rejects malformed spell impact metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { impacts: { frameCount: number | null }[] }[];
+      };
+    };
+    const impact = typedArtifact.entities.spells
+      .flatMap((spell) => spell.impacts)
+      .at(0);
+    if (!impact) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell impact metadata.",
+      );
+    }
+    impact.frameCount = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/frameCount/);
+  });
+
   it("rejects a checksummed search file not derived from the artifact", async () => {
     const search = readJson("search.json") as {
       documents: { text: string }[];

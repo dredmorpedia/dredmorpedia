@@ -296,19 +296,34 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
 
   const presentation = page.getByRole("region", { name: "Presentation" });
+  const animationDeclaration = presentation
+    .getByRole("listitem")
+    .filter({ hasText: "Animation declaration 1" });
+  const impactDeclaration = presentation
+    .getByRole("listitem")
+    .filter({ hasText: "Impact declaration 1" });
   await expect(presentation.getByText("6 source frames")).toBeVisible();
   await expect(
-    presentation.getByText("Sprite reference", { exact: true }),
+    animationDeclaration.getByText("Sprite reference", { exact: true }),
   ).toBeVisible();
   await expect(
-    presentation.getByText("Sound cue", { exact: true }),
-  ).toBeVisible();
-  await expect(presentation.getByText("80", { exact: true })).toBeVisible();
-  await expect(
-    presentation.getByText("Centered effect", { exact: true }),
+    animationDeclaration.getByText("Sound cue", { exact: true }),
   ).toBeVisible();
   await expect(
-    presentation.getByText("Synchronized", { exact: true }),
+    animationDeclaration.getByText("80", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    animationDeclaration.getByText("Centered effect", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    animationDeclaration.getByText("Synchronized", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    impactDeclaration.getByText("Impact declaration 1", { exact: true }),
+  ).toBeVisible();
+  await expect(impactDeclaration.getByText("5 source frames")).toBeVisible();
+  await expect(
+    impactDeclaration.getByText("70", { exact: true }),
   ).toBeVisible();
   await expect(
     presentation.getByText(
@@ -319,6 +334,10 @@ test("navigates spell details and stops recursive effect cycles", async ({
     "sprites/sfx/synthetic/synthetic",
   );
   await expect(presentation).not.toContainText("clockwork_animation_audio_cue");
+  await expect(presentation).not.toContainText(
+    "sprites/sfx/synthetic-impact/synthetic-impact",
+  );
+  await expect(presentation).not.toContainText("clockwork_impact_audio_cue");
 
   const buffs = page.getByRole("region", { name: "Buffs" });
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
@@ -401,7 +420,7 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page
       .getByRole("region", { name: "Presentation" })
-      .getByText("No normalized animation declaration."),
+      .getByText("No normalized animation or impact declaration."),
   ).toBeVisible();
   await expect(
     page

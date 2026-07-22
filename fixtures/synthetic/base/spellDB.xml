@@ -4,6 +4,7 @@
     <description text="Starts a synthetic effect chain with a dangling reference." />
     <requirements mp="12" savvyBonus="0.25" mincost="4" />
     <anim sprite="sprites/sfx/synthetic/synthetic" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="clockwork_animation_audio_cue" />
+    <impact sprite="sprites/sfx/synthetic-impact/synthetic-impact" frames="5" framerate="70" firstframe="0" centerEffect="0" sync="1" sfx="clockwork_impact_audio_cue" />
     <buff icon="assets/synthetic.svg" smallicon="assets/synthetic.svg" useTimer="1" time="8" manaUpkeep="3" brittle="2" attacks="4" removable="1" self="1" resistable="0" bad="0" stackable="1" allowstacking="1" stacksize="3" tag="clockwork">
       <damagebuff crushing="2" voltaic="-1" />
       <resistbuff toxic="3" />

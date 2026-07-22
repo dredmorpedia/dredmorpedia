@@ -2,6 +2,8 @@
 
 Date: 2026-07-22
 
+Later note: the subsequent spell-impact slice added the sibling `<impact>` presentation shape. Current diagnostic totals and impact measurements are recorded in [`spell-impact-evidence-2026-07-22.md`](spell-impact-evidence-2026-07-22.md).
+
 This note records the evidence and boundary for normalizing root-level spell `<anim>` declarations from the canonical read-only `1.1.5 public_beta` base-plus-three-expansion source. Official XML, spell names, sprite prefixes, sound cue IDs, and generated official artifacts remain ignored and non-public.
 
 ## Source shape and contract
@@ -22,7 +24,7 @@ The active dataset contains 951 spells and 661 animation declarations across 661
 - centered-effect flags are 282 enabled, 176 disabled, and 203 absent;
 - synchronization flags are 15 enabled, 0 disabled, and 646 absent.
 
-Two deterministic imports were byte-identical and completed with no errors, 3,948 warnings, and 71 informational duplicate decisions. Supporting `<anim>` removed 666 former `unknown_element` diagnostics across active and overridden records. The current compatibility backlog is 3,914 item/spell constructs: 1,510 item and 2,404 spell diagnostics. Fifteen non-mana or extra-attribute spell-requirement diagnostics and 19 dangling references remain tracked separately.
+At completion of this slice, two deterministic imports were byte-identical and completed with no errors, 3,948 warnings, and 71 informational duplicate decisions. Supporting `<anim>` removed 666 former `unknown_element` diagnostics across active and overridden records. The compatibility backlog at that point was 3,914 item/spell constructs: 1,510 item and 2,404 spell diagnostics. Fifteen non-mana or extra-attribute spell-requirement diagnostics and 19 dangling references remained tracked separately.
 
 ## Presentation and publication boundary
 
