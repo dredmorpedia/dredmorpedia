@@ -12,6 +12,11 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
+import {
+  signedStatModifierValue,
+  statModifierLabel,
+} from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -26,6 +31,10 @@ function titleCase(value: string): string {
 
 function signedValue(value: number): string {
   return value > 0 ? `+${value}` : String(value);
+}
+
+function yesNo(value: boolean): string {
+  return value ? "Yes" : "No";
 }
 
 const sourceNumber = new Intl.NumberFormat("en", {
@@ -178,6 +187,10 @@ export default async function SpellPage({
             <dt>Direct effects</dt>
             <dd>{spell.effects.length}</dd>
           </div>
+          <div>
+            <dt>Buff declarations</dt>
+            <dd>{spell.buffs.length}</dd>
+          </div>
         </dl>
       </header>
 
@@ -236,6 +249,173 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="buffs-heading">
+          <h2 id="buffs-heading" className="section-title-sm">
+            Buffs
+          </h2>
+          {spell.buffs.length > 0 ? (
+            <ul className="trigger-list">
+              {spell.buffs.map((buff, buffIndex) => (
+                <li key={buffIndex}>
+                  <div className="trigger-summary">
+                    <span className="relationship-title">
+                      Buff declaration {buffIndex + 1}
+                    </span>
+                    <strong>
+                      {buff.duration === null
+                        ? "No duration parameter"
+                        : `${buff.duration} turn duration`}
+                    </strong>
+                    <small className="trigger-resolution">
+                      Source parameters are preserved without inferring stacking
+                      or trigger behavior.
+                    </small>
+                  </div>
+                  <dl className="trigger-facts">
+                    {buff.timerMode !== null ? (
+                      <div>
+                        <dt>Timer mode</dt>
+                        <dd>{buff.timerMode}</dd>
+                      </div>
+                    ) : null}
+                    {buff.duration !== null ? (
+                      <div>
+                        <dt>Duration</dt>
+                        <dd>{buff.duration} turns</dd>
+                      </div>
+                    ) : null}
+                    {buff.manaUpkeep !== null ? (
+                      <div>
+                        <dt>Mana upkeep</dt>
+                        <dd>1 mana every {buff.manaUpkeep} turns</dd>
+                      </div>
+                    ) : null}
+                    {buff.currencyUpkeep !== null ? (
+                      <div>
+                        <dt>Zorkmid upkeep</dt>
+                        <dd>{buff.currencyUpkeep} (source parameter)</dd>
+                      </div>
+                    ) : null}
+                    {buff.hitLimit !== null ? (
+                      <div>
+                        <dt>Hit limit</dt>
+                        <dd>{buff.hitLimit} hits</dd>
+                      </div>
+                    ) : null}
+                    {buff.attackLimit !== null ? (
+                      <div>
+                        <dt>Attack limit</dt>
+                        <dd>{buff.attackLimit} attacks</dd>
+                      </div>
+                    ) : null}
+                    {buff.removable !== null ? (
+                      <div>
+                        <dt>Removable</dt>
+                        <dd>{yesNo(buff.removable)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.affectsSelf !== null ? (
+                      <div>
+                        <dt>Affects self</dt>
+                        <dd>{yesNo(buff.affectsSelf)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.resistable !== null ? (
+                      <div>
+                        <dt>Resistable</dt>
+                        <dd>{yesNo(buff.resistable)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.detrimental !== null ? (
+                      <div>
+                        <dt>Detrimental</dt>
+                        <dd>{yesNo(buff.detrimental)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.stackable !== null ? (
+                      <div>
+                        <dt>Stackable</dt>
+                        <dd>{yesNo(buff.stackable)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.allowStacking !== null ? (
+                      <div>
+                        <dt>Allow stacking</dt>
+                        <dd>{yesNo(buff.allowStacking)}</dd>
+                      </div>
+                    ) : null}
+                    {buff.stackLimit !== null ? (
+                      <div>
+                        <dt>Stack limit</dt>
+                        <dd>{buff.stackLimit}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                  {buff.modifiers.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-modifiers-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-modifiers-heading`}
+                        className="relationship-title"
+                      >
+                        Direct modifiers
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.modifiers.map((modifier, modifierIndex) => (
+                          <div
+                            key={`${modifier.kind}:${modifier.sourceKey}:${modifierIndex}`}
+                          >
+                            <dt>{statModifierLabel(modifier)}</dt>
+                            <dd>{signedStatModifierValue(modifier.amount)}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {buff.modifiers.some(
+                        (modifier) =>
+                          modifier.kind === "primary" ||
+                          modifier.kind === "secondary",
+                      ) ? (
+                        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                          Primary and secondary modifiers retain their numeric
+                          game stat IDs until an approved standalone
+                          stat-definition source is selected.
+                        </p>
+                      ) : null}
+                    </section>
+                  ) : null}
+                  {buff.sourceFlags.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-metadata-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-metadata-heading`}
+                        className="relationship-title"
+                      >
+                        Additional source metadata
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.sourceFlags.map((flag) => (
+                          <div key={`${flag.sourceKey}:${flag.value}`}>
+                            <dt>{sourceFlagLabel(flag)}</dt>
+                            <dd>{sourceFlagValue(flag)}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized buff declaration.
             </p>
           )}
         </section>

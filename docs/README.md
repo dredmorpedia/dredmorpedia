@@ -9,6 +9,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`analysis/architecture-spike-2026-07-19.md`](analysis/architecture-spike-2026-07-19.md) — implemented synthetic-spike evidence, measurements, checks, and remaining validation gates.
 - [`analysis/first-parity-foundation-2026-07-19.md`](analysis/first-parity-foundation-2026-07-19.md) — split-artifact, search, stat-route, accessibility, and read-only official validation evidence.
 - [`analysis/spell-mana-cost-evidence-2026-07-22.md`](analysis/spell-mana-cost-evidence-2026-07-22.md) — legacy semantics, canonical shape measurements, compatibility aliases, and explicit mana-formula limits.
+- [`analysis/spell-buff-evidence-2026-07-22.md`](analysis/spell-buff-evidence-2026-07-22.md) — legacy buff behavior, canonical source-shape measurements, signed modifier coverage, and explicit nested-mechanic limits.
 - [`architecture/modernization-proposal.md`](architecture/modernization-proposal.md) — recommended target architecture, stack, alternatives, and feature opportunities.
 - [`data-and-assets-policy.md`](data-and-assets-policy.md) — mandatory safety and publication boundary for local game files, generated data, mods, and assets.
 - [`handoff/new-pc-and-codex.md`](handoff/new-pc-and-codex.md) — machine-transfer procedure, current repository state, agreed decisions, and the next task for a context-free Codex session.

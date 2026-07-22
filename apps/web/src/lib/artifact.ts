@@ -447,6 +447,59 @@ function hasValidEncrustmentInstabilityEffects(value: unknown): boolean {
   );
 }
 
+function hasValidNullableNonNegativeInteger(value: unknown): boolean {
+  return (
+    value === null ||
+    (typeof value === "number" && Number.isInteger(value) && value >= 0)
+  );
+}
+
+function hasValidNullableBoolean(value: unknown): boolean {
+  return value === null || typeof value === "boolean";
+}
+
+function hasValidSpellBuff(buff: unknown): boolean {
+  return (
+    buff !== null &&
+    typeof buff === "object" &&
+    "iconPath" in buff &&
+    (buff.iconPath === null || typeof buff.iconPath === "string") &&
+    "smallIconPath" in buff &&
+    (buff.smallIconPath === null || typeof buff.smallIconPath === "string") &&
+    "timerMode" in buff &&
+    hasValidNullableNonNegativeInteger(buff.timerMode) &&
+    "duration" in buff &&
+    hasValidNullableNonNegativeInteger(buff.duration) &&
+    "manaUpkeep" in buff &&
+    hasValidNullableNonNegativeInteger(buff.manaUpkeep) &&
+    "currencyUpkeep" in buff &&
+    hasValidNullableNonNegativeInteger(buff.currencyUpkeep) &&
+    "hitLimit" in buff &&
+    hasValidNullableNonNegativeInteger(buff.hitLimit) &&
+    "attackLimit" in buff &&
+    hasValidNullableNonNegativeInteger(buff.attackLimit) &&
+    "removable" in buff &&
+    hasValidNullableBoolean(buff.removable) &&
+    "affectsSelf" in buff &&
+    hasValidNullableBoolean(buff.affectsSelf) &&
+    "resistable" in buff &&
+    hasValidNullableBoolean(buff.resistable) &&
+    "detrimental" in buff &&
+    hasValidNullableBoolean(buff.detrimental) &&
+    "stackable" in buff &&
+    hasValidNullableBoolean(buff.stackable) &&
+    "allowStacking" in buff &&
+    hasValidNullableBoolean(buff.allowStacking) &&
+    "stackLimit" in buff &&
+    hasValidNullableNonNegativeInteger(buff.stackLimit) &&
+    "sourceFlags" in buff &&
+    hasValidSourceFlags(buff.sourceFlags) &&
+    "modifiers" in buff &&
+    Array.isArray(buff.modifiers) &&
+    buff.modifiers.every(hasValidStatModifier)
+  );
+}
+
 function hasValidSpells(value: unknown): boolean {
   if (
     value === null ||
@@ -502,6 +555,9 @@ function hasValidSpells(value: unknown): boolean {
               Number.isFinite(manaCost.minimum) &&
               manaCost.minimum >= 0)),
       ) &&
+      "buffs" in spell &&
+      Array.isArray(spell.buffs) &&
+      spell.buffs.every(hasValidSpellBuff) &&
       "effects" in spell &&
       Array.isArray(spell.effects) &&
       spell.effects.every(

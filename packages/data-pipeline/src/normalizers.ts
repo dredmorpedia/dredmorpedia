@@ -23,6 +23,7 @@ import {
   type Recipe,
   type Skill,
   type Spell,
+  type SpellBuff,
   type SpellManaCost,
   type SpellTrigger,
   type SourceFlag,
@@ -455,6 +456,39 @@ function integerValue(
     details: { field, value },
   });
   return fallback;
+}
+
+function optionalIntegerValue(
+  value: string | undefined,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+  minimum?: number,
+  maximum?: number,
+): number | null {
+  if (value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  if (
+    Number.isInteger(parsed) &&
+    (minimum === undefined || parsed >= minimum) &&
+    (maximum === undefined || parsed <= maximum)
+  ) {
+    return parsed;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_number",
+    message: `Expected ${minimum === undefined ? "an integer" : maximum === undefined ? `an integer greater than or equal to ${minimum}` : `an integer from ${minimum} to ${maximum}`} for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
 }
 
 function numberValue(
@@ -921,9 +955,15 @@ function parseStatModifiers(
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-  ownerLabel: "ability" | "encrustment" | "monster",
+  ownerLabel: "ability" | "encrustment" | "monster" | "spell_buff",
 ): StatModifier[] {
   const modifiers: StatModifier[] = [];
+  const ownerDescription =
+    ownerLabel === "spell_buff" ? "spell buff" : ownerLabel;
+  const ownerArticle =
+    ownerDescription === "ability" || ownerDescription === "encrustment"
+      ? "An"
+      : "A";
   const addAttributeModifiers = (
     childName: "damagebuff" | "resistbuff" | "damage" | "resistances",
     kind: "damage" | "resistance",
@@ -938,7 +978,7 @@ function parseStatModifiers(
           context.diagnostics.push({
             severity: "warning",
             code: `unknown_${ownerLabel}_modifier`,
-            message: `Unsupported ${kind} modifier key: ${sourceKey}.`,
+            message: `Unsupported ${ownerDescription} ${kind} modifier key: ${sourceKey}.`,
             source: provenance,
             entityId: currentEntityId,
             details: { modifierKind: kind, sourceKey },
@@ -953,7 +993,7 @@ function parseStatModifiers(
             0,
             context,
             provenance,
-            `${ownerLabel} ${kind}:${sourceKey}`,
+            `${ownerDescription} ${kind}:${sourceKey}`,
             currentEntityId,
           ),
         });
@@ -979,7 +1019,7 @@ function parseStatModifiers(
         context.diagnostics.push({
           severity: "warning",
           code: `missing_${ownerLabel}_modifier_key`,
-          message: `An ${ownerLabel} ${kind} modifier is missing its source stat ID.`,
+          message: `${ownerArticle} ${ownerDescription} ${kind} modifier is missing its source stat ID.`,
           source: provenance,
           entityId: currentEntityId,
           details: { modifierKind: kind },
@@ -994,7 +1034,7 @@ function parseStatModifiers(
           0,
           context,
           provenance,
-          `${ownerLabel} ${kind}:${sourceKey}`,
+          `${ownerDescription} ${kind}:${sourceKey}`,
           currentEntityId,
         ),
       });
@@ -1552,6 +1592,210 @@ function parseSpellManaCosts(
   });
 }
 
+const spellBuffSourceFlagAttributes = [
+  "affectsCorpses",
+  "destroyonmove",
+  "digglegod",
+  "insufficientFunds",
+  "requiresShield",
+  "tag",
+] as const;
+
+const spellBuffAttributes = new Set([
+  "icon",
+  "smallicon",
+  "useTimer",
+  "usetimer",
+  "time",
+  "manaUpkeep",
+  "manaupkeep",
+  "zorkmidUpkeep",
+  "brittle",
+  "attacks",
+  "removable",
+  "self",
+  "resistable",
+  "bad",
+  "stackable",
+  "allowstacking",
+  "allowStacking",
+  "stacksize",
+  ...spellBuffSourceFlagAttributes,
+]);
+
+const spellBuffModifierElementNames = new Set([
+  "damagebuff",
+  "resistbuff",
+  "primarybuff",
+  "secondarybuff",
+]);
+
+function parseSpellBuffs(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellBuff[] {
+  return xmlChildren(record, "buff").map((buff, buffIndex) => {
+    const modifierElementNames = matchingStatModifierElementNames(buff).filter(
+      (elementName) =>
+        spellBuffModifierElementNames.has(elementName.toLocaleLowerCase("en")),
+    );
+
+    reportUnknownAttributes(
+      context,
+      buff,
+      "buff",
+      spellBuffAttributes,
+      provenance,
+      currentEntityId,
+    );
+    reportUnknownChildren(
+      context,
+      buff,
+      new Set(modifierElementNames),
+      currentEntityId,
+    );
+    for (const elementName of modifierElementNames) {
+      const normalizedName = elementName.toLocaleLowerCase("en");
+      for (const modifier of xmlChildren(buff, elementName)) {
+        if (
+          normalizedName === "primarybuff" ||
+          normalizedName === "secondarybuff"
+        ) {
+          reportUnknownLeafContent(
+            context,
+            modifier,
+            elementName,
+            new Set(["id", "amount"]),
+            provenance,
+            currentEntityId,
+          );
+        } else {
+          reportUnknownChildren(context, modifier, new Set(), currentEntityId);
+        }
+      }
+    }
+
+    const optionalBuffInteger = (
+      attribute: string,
+      field: string,
+    ): number | null =>
+      optionalIntegerValue(
+        xmlAttribute(buff, attribute),
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} ${field}`,
+        currentEntityId,
+        0,
+      );
+
+    return {
+      iconPath: normalizeAssetPath(
+        xmlAttribute(buff, "icon"),
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      smallIconPath: normalizeAssetPath(
+        xmlAttribute(buff, "smallicon"),
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      timerMode: optionalIntegerValue(
+        xmlAttribute(buff, "useTimer") ?? xmlAttribute(buff, "usetimer"),
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} timer mode`,
+        currentEntityId,
+        0,
+      ),
+      duration: optionalBuffInteger("time", "duration"),
+      manaUpkeep: optionalIntegerValue(
+        xmlAttribute(buff, "manaUpkeep") ?? xmlAttribute(buff, "manaupkeep"),
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} mana upkeep`,
+        currentEntityId,
+        0,
+      ),
+      currencyUpkeep: optionalBuffInteger("zorkmidUpkeep", "zorkmid upkeep"),
+      hitLimit: optionalBuffInteger("brittle", "hit limit"),
+      attackLimit: optionalBuffInteger("attacks", "attack limit"),
+      removable: optionalBooleanAttribute(
+        buff,
+        "removable",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} removable flag`,
+        currentEntityId,
+      ),
+      affectsSelf: optionalBooleanAttribute(
+        buff,
+        "self",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} self flag`,
+        currentEntityId,
+      ),
+      resistable: optionalBooleanAttribute(
+        buff,
+        "resistable",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} resistable flag`,
+        currentEntityId,
+      ),
+      detrimental: optionalBooleanAttribute(
+        buff,
+        "bad",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} detrimental flag`,
+        currentEntityId,
+      ),
+      stackable: optionalBooleanAttribute(
+        buff,
+        "stackable",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} stackable flag`,
+        currentEntityId,
+      ),
+      allowStacking: optionalBooleanAttribute(
+        buff,
+        xmlAttribute(buff, "allowstacking") === undefined &&
+          xmlAttribute(buff, "allowStacking") !== undefined
+          ? "allowStacking"
+          : "allowstacking",
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} allow-stacking flag`,
+        currentEntityId,
+      ),
+      stackLimit: optionalBuffInteger("stacksize", "stack limit"),
+      sourceFlags: spellBuffSourceFlagAttributes
+        .flatMap((sourceKey) => {
+          const value = xmlAttribute(buff, sourceKey);
+          return value === undefined ? [] : [{ sourceKey, value }];
+        })
+        .sort(
+          (left, right) =>
+            left.sourceKey.localeCompare(right.sourceKey, "en") ||
+            left.value.localeCompare(right.value, "en"),
+        ),
+      modifiers: parseStatModifiers(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        "spell_buff",
+      ),
+    };
+  });
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -1610,12 +1854,13 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
+      buffs: parseSpellBuffs(record, context, provenance, currentEntityId),
       effects,
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "effect", "requirements"]),
+      new Set(["description", "effect", "requirements", "buff"]),
       currentEntityId,
     );
     addCandidate(result.spells, spell, context.source.precedence);

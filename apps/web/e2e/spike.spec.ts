@@ -276,6 +276,22 @@ test("navigates spell details and stops recursive effect cycles", async ({
     ),
   ).toBeVisible();
 
+  const buffs = page.getByRole("region", { name: "Buffs" });
+  await expect(buffs.getByText("8 turn duration")).toBeVisible();
+  await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
+  await expect(buffs.getByText("2 hits")).toBeVisible();
+  await expect(buffs.getByText("4 attacks")).toBeVisible();
+  await expect(buffs.getByText("Crushing damage")).toBeVisible();
+  await expect(buffs.getByText("+2", { exact: true })).toBeVisible();
+  await expect(buffs.getByText("Voltaic damage")).toBeVisible();
+  await expect(buffs.getByText("-1", { exact: true })).toBeVisible();
+  await expect(buffs.getByText("Toxic resistance")).toBeVisible();
+  await expect(buffs.getByText("Primary attribute 2")).toBeVisible();
+  await expect(buffs.getByText("Secondary stat 6")).toBeVisible();
+  await expect(
+    buffs.getByText(/without inferring stacking or trigger behavior/),
+  ).toBeVisible();
+
   const effects = page.getByRole("region", { name: "Effects", exact: true });
   await expect(
     effects.getByRole("link", { name: "Clockwork Echo" }),
@@ -309,6 +325,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page
       .getByRole("region", { name: "Mana cost" })
       .getByText("No normalized mana requirement."),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Buffs" })
+      .getByText("No normalized buff declaration."),
   ).toBeVisible();
   await expect(
     page.getByText(

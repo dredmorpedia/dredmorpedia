@@ -436,6 +436,162 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes spell buff source parameters and signed modifiers", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buffs-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Buff" type="self">
+    <buff useTimer="2" time="12" manaUpkeep="3" zorkmidUpkeep="4" brittle="5" attacks="6" removable="1" self="0" resistable="0" bad="1" stackable="1" allowstacking="0" stacksize="7" affectsCorpses="0" tag="measured">
+      <damageBuff crushing="1.5" />
+      <resistBuff toxic="-2" />
+      <primaryBuff id="2" amount="3" />
+      <secondarybuff id="6" amount="-4" />
+    </buff>
+    <buff usetimer="1" time="1" manaupkeep="2" allowStacking="1" />
+  </spell>
+  <spell name="Invalid Buff" type="self">
+    <buff useTimer="-1" time="1.5" manaUpkeep="bad" removable="maybe" self="2" resistable="yes" bad="no" stackable="sometimes" allowstacking="perhaps" stacksize="-2" future="diagnosed">
+      <damagebuff impossible="2"><futureChild /></damagebuff>
+      <primarybuff amount="1" future="diagnosed" />
+      <sightbuff amount="3" />
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const buffManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      buffManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-test",
+        sources: [
+          {
+            id: "spell-buff-source",
+            label: "Spell Buff Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: buffManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete Buff")?.buffs).toEqual([
+      {
+        iconPath: null,
+        smallIconPath: null,
+        timerMode: 2,
+        duration: 12,
+        manaUpkeep: 3,
+        currencyUpkeep: 4,
+        hitLimit: 5,
+        attackLimit: 6,
+        removable: true,
+        affectsSelf: false,
+        resistable: false,
+        detrimental: true,
+        stackable: true,
+        allowStacking: false,
+        stackLimit: 7,
+        sourceFlags: [
+          { sourceKey: "affectsCorpses", value: "0" },
+          { sourceKey: "tag", value: "measured" },
+        ],
+        modifiers: [
+          { kind: "damage", sourceKey: "crushing", amount: 1.5 },
+          { kind: "resistance", sourceKey: "toxic", amount: -2 },
+          { kind: "primary", sourceKey: "2", amount: 3 },
+          { kind: "secondary", sourceKey: "6", amount: -4 },
+        ],
+      },
+      expect.objectContaining({
+        timerMode: 1,
+        duration: 1,
+        manaUpkeep: 2,
+        allowStacking: true,
+        modifiers: [],
+      }),
+    ]);
+    expect(spells.get("Invalid Buff")?.buffs).toEqual([
+      expect.objectContaining({
+        timerMode: null,
+        duration: null,
+        manaUpkeep: null,
+        removable: null,
+        affectsSelf: null,
+        resistable: null,
+        detrimental: null,
+        stackable: null,
+        allowStacking: null,
+        stackLimit: null,
+        modifiers: [],
+      }),
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(4);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_boolean",
+      ),
+    ).toHaveLength(6);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: { element: "buff", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_spell_buff_modifier",
+          entityId: "spell:invalid buff",
+          details: { modifierKind: "damage", sourceKey: "impossible" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_modifier_key",
+          entityId: "spell:invalid buff",
+          details: { modifierKind: "primary" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "sightbuff" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "futureChild" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete buff" &&
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes encrustment outcomes and diagnoses invalid fields", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-encrustment-outcomes-"),
@@ -1080,7 +1236,32 @@ describe("synthetic dataset import", () => {
     expect(clockworkSpark?.manaCosts).toEqual([
       { base: 12, savvyReduction: 0.25, minimum: 4 },
     ]);
+    expect(clockworkSpark?.buffs).toEqual([
+      expect.objectContaining({
+        timerMode: 1,
+        duration: 8,
+        manaUpkeep: 3,
+        hitLimit: 2,
+        attackLimit: 4,
+        removable: true,
+        affectsSelf: true,
+        resistable: false,
+        detrimental: false,
+        stackable: true,
+        allowStacking: true,
+        stackLimit: 3,
+        sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
+        modifiers: [
+          { kind: "damage", sourceKey: "crushing", amount: 2 },
+          { kind: "damage", sourceKey: "voltaic", amount: -1 },
+          { kind: "resistance", sourceKey: "toxic", amount: 3 },
+          { kind: "primary", sourceKey: "2", amount: 1 },
+          { kind: "secondary", sourceKey: "6", amount: 5 },
+        ],
+      }),
+    ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
+    expect(clockworkEcho?.buffs).toEqual([]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
         code: "unsupported_spell_requirement",

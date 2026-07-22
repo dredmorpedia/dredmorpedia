@@ -245,11 +245,32 @@ export interface SpellManaCost {
   minimum: number | null;
 }
 
+export interface SpellBuff {
+  iconPath: string | null;
+  smallIconPath: string | null;
+  timerMode: number | null;
+  duration: number | null;
+  manaUpkeep: number | null;
+  currencyUpkeep: number | null;
+  hitLimit: number | null;
+  attackLimit: number | null;
+  removable: boolean | null;
+  affectsSelf: boolean | null;
+  resistable: boolean | null;
+  detrimental: boolean | null;
+  stackable: boolean | null;
+  allowStacking: boolean | null;
+  stackLimit: number | null;
+  sourceFlags: SourceFlag[];
+  modifiers: StatModifier[];
+}
+
 export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
   manaCosts: SpellManaCost[];
+  buffs: SpellBuff[];
   effects: SpellEffect[];
 }
 

@@ -3,6 +3,12 @@
   <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg">
     <description text="Starts a synthetic effect chain with a dangling reference." />
     <requirements mp="12" savvyBonus="0.25" mincost="4" />
+    <buff icon="assets/synthetic.svg" smallicon="assets/synthetic.svg" useTimer="1" time="8" manaUpkeep="3" brittle="2" attacks="4" removable="1" self="1" resistable="0" bad="0" stackable="1" allowstacking="1" stacksize="3" tag="clockwork">
+      <damagebuff crushing="2" voltaic="-1" />
+      <resistbuff toxic="3" />
+      <primaryBuff id="2" amount="1" />
+      <secondarybuff id="6" amount="5" />
+    </buff>
     <effect type="trigger" spell="Clockwork Echo" />
     <effect type="trigger" spell="Missing Echo" />
   </spell>
