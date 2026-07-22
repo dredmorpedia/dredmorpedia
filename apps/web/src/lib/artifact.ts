@@ -6,6 +6,7 @@ import {
   isValidTemplateRows,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
+  spellBuffEventHookKinds,
   statModifierKinds,
   type DatasetArtifact,
   type Diagnostic,
@@ -16,19 +17,25 @@ const itemTriggerKindSet: ReadonlySet<string> = new Set(itemTriggerKinds);
 const monsterSpellTriggerKindSet: ReadonlySet<string> = new Set(
   monsterSpellTriggerKinds,
 );
+const spellBuffEventHookKindSet: ReadonlySet<string> = new Set(
+  spellBuffEventHookKinds,
+);
 const statModifierKindSet: ReadonlySet<string> = new Set(statModifierKinds);
 
 function generatedFile(name: string): string {
   const explicitRoot = process.env.DREDMORPEDIA_ARTIFACT_DIRECTORY;
-  const candidates = [
-    ...(explicitRoot ? [path.resolve(explicitRoot, name)] : []),
-    path.resolve(process.cwd(), "../../data/generated/spike", name),
-    path.resolve(process.cwd(), "data/generated/spike", name),
-  ];
+  const candidates = explicitRoot
+    ? [path.resolve(explicitRoot, name)]
+    : [
+        path.resolve(process.cwd(), "../../data/generated/spike", name),
+        path.resolve(process.cwd(), "data/generated/spike", name),
+      ];
   const match = candidates.find(existsSync);
   if (!match) {
     throw new Error(
-      `Generated ${name} is missing. Run \"pnpm generate\" from the repository root.`,
+      explicitRoot
+        ? `Generated ${name} is missing from the configured artifact directory. Regenerate that dataset or correct DREDMORPEDIA_ARTIFACT_DIRECTORY.`
+        : `Generated ${name} is missing. Run \"pnpm generate\" from the repository root.`,
     );
   }
   return match;
@@ -458,6 +465,25 @@ function hasValidNullableBoolean(value: unknown): boolean {
   return value === null || typeof value === "boolean";
 }
 
+function hasValidSpellBuffEventHook(hook: unknown): boolean {
+  return (
+    hook !== null &&
+    typeof hook === "object" &&
+    "kind" in hook &&
+    typeof hook.kind === "string" &&
+    spellBuffEventHookKindSet.has(hook.kind) &&
+    "spellKey" in hook &&
+    typeof hook.spellKey === "string" &&
+    "spellName" in hook &&
+    typeof hook.spellName === "string" &&
+    (!("spellId" in hook) || typeof hook.spellId === "string") &&
+    "chance" in hook &&
+    hasValidNullableInteger(hook.chance, 100) &&
+    "sourceFlags" in hook &&
+    hasValidSourceFlags(hook.sourceFlags)
+  );
+}
+
 function hasValidSpellBuff(buff: unknown): boolean {
   return (
     buff !== null &&
@@ -496,7 +522,10 @@ function hasValidSpellBuff(buff: unknown): boolean {
     hasValidSourceFlags(buff.sourceFlags) &&
     "modifiers" in buff &&
     Array.isArray(buff.modifiers) &&
-    buff.modifiers.every(hasValidStatModifier)
+    buff.modifiers.every(hasValidStatModifier) &&
+    "eventHooks" in buff &&
+    Array.isArray(buff.eventHooks) &&
+    buff.eventHooks.every(hasValidSpellBuffEventHook)
   );
 }
 

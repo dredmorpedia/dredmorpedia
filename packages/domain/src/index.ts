@@ -16,6 +16,7 @@ export {
   entityKinds,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
+  spellBuffEventHookKinds,
   statModifierKinds,
 } from "./types";
 export type * from "./types";

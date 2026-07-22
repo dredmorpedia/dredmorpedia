@@ -245,6 +245,19 @@ export interface SpellManaCost {
   minimum: number | null;
 }
 
+export const spellBuffEventHookKinds = ["target-hit", "player-hit"] as const;
+
+export type SpellBuffEventHookKind = (typeof spellBuffEventHookKinds)[number];
+
+export interface SpellBuffEventHook {
+  kind: SpellBuffEventHookKind;
+  spellKey: string;
+  spellName: string;
+  spellId?: string;
+  chance: number | null;
+  sourceFlags: SourceFlag[];
+}
+
 export interface SpellBuff {
   iconPath: string | null;
   smallIconPath: string | null;
@@ -263,6 +276,7 @@ export interface SpellBuff {
   stackLimit: number | null;
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
+  eventHooks: SpellBuffEventHook[];
 }
 
 export interface Spell extends NormalizedEntityBase {

@@ -24,6 +24,7 @@ import {
   type Skill,
   type Spell,
   type SpellBuff,
+  type SpellBuffEventHook,
   type SpellManaCost,
   type SpellTrigger,
   type SourceFlag,
@@ -1630,6 +1631,64 @@ const spellBuffModifierElementNames = new Set([
   "secondarybuff",
 ]);
 
+const spellBuffEventHookSpecs = [
+  { childName: "targetHitEffectBuff", kind: "target-hit" },
+  { childName: "playerHitEffectBuff", kind: "player-hit" },
+] as const;
+
+function parseSpellBuffEventHooks(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffEventHook[] {
+  return spellBuffEventHookSpecs.flatMap(({ childName, kind }) =>
+    xmlChildren(buff, childName).flatMap((hook, hookIndex) => {
+      reportUnknownLeafContent(
+        context,
+        hook,
+        childName,
+        new Set(["name", "percentage", "after"]),
+        provenance,
+        currentEntityId,
+      );
+      const chance = optionalIntegerValue(
+        xmlAttribute(hook, "percentage"),
+        context,
+        provenance,
+        `spell buff ${buffIndex + 1} ${kind} hook ${hookIndex + 1} chance`,
+        currentEntityId,
+        0,
+        100,
+      );
+      const spellName = xmlAttribute(hook, "name");
+      if (!spellName) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_spell_buff_hook_target",
+          message: `Spell buff ${buffIndex + 1} ${kind} hook ${hookIndex + 1} is missing its spell reference.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { buffIndex, hookIndex, hookKind: kind },
+        });
+        return [];
+      }
+      const after = xmlAttribute(hook, "after");
+      return [
+        {
+          kind,
+          spellKey: canonicalKey(spellName),
+          spellName,
+          chance,
+          sourceFlags:
+            after === undefined ? [] : [{ sourceKey: "after", value: after }],
+        },
+      ];
+    }),
+  );
+}
+
 function parseSpellBuffs(
   record: XmlRecord,
   context: NormalizationContext,
@@ -1653,7 +1712,10 @@ function parseSpellBuffs(
     reportUnknownChildren(
       context,
       buff,
-      new Set(modifierElementNames),
+      new Set([
+        ...modifierElementNames,
+        ...spellBuffEventHookSpecs.map(({ childName }) => childName),
+      ]),
       currentEntityId,
     );
     for (const elementName of modifierElementNames) {
@@ -1791,6 +1853,13 @@ function parseSpellBuffs(
         provenance,
         currentEntityId,
         "spell_buff",
+      ),
+      eventHooks: parseSpellBuffEventHooks(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
       ),
     };
   });

@@ -4,6 +4,7 @@ import {
   canonicalKey,
   entityId,
   slugify,
+  spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
   type Spell,
@@ -44,6 +45,45 @@ function reference(target: Spell): Spell["effects"][number] {
     spellKey: target.canonicalKey,
     spellName: target.name,
     spellId: target.id,
+  };
+}
+
+function buffEventHookReference(
+  target: Spell,
+  kind: "target-hit" | "player-hit",
+): Spell["buffs"][number]["eventHooks"][number] {
+  return {
+    kind,
+    spellKey: target.canonicalKey,
+    spellName: target.name,
+    spellId: target.id,
+    chance: 50,
+    sourceFlags: [],
+  };
+}
+
+function buff(
+  eventHooks: Spell["buffs"][number]["eventHooks"],
+): Spell["buffs"][number] {
+  return {
+    iconPath: null,
+    smallIconPath: null,
+    timerMode: null,
+    duration: null,
+    manaUpkeep: null,
+    currencyUpkeep: null,
+    hitLimit: null,
+    attackLimit: null,
+    removable: null,
+    affectsSelf: null,
+    resistable: null,
+    detrimental: null,
+    stackable: null,
+    allowStacking: null,
+    stackLimit: null,
+    sourceFlags: [],
+    modifiers: [],
+    eventHooks,
   };
 }
 
@@ -137,6 +177,41 @@ describe("spell effect relationships", () => {
       ["Earlier", 0],
       ["Earlier", 2],
       ["Later", 0],
+    ]);
+  });
+
+  it("returns buff event-hook backlinks with their buff and hook positions", () => {
+    const target = spell("Target");
+    const later = spell("Later");
+    const earlier = spell("Earlier");
+    later.buffs = [buff([buffEventHookReference(target, "player-hit")])];
+    earlier.buffs = [
+      buff([
+        buffEventHookReference(target, "target-hit"),
+        {
+          kind: "player-hit",
+          spellKey: "missing",
+          spellName: "Missing",
+          chance: null,
+          sourceFlags: [],
+        },
+      ]),
+      buff([buffEventHookReference(target, "player-hit")]),
+    ];
+
+    expect(
+      spellBuffEventHookBacklinks([target, later, earlier], target.id).map(
+        (backlink) => [
+          backlink.spell.name,
+          backlink.buffIndex,
+          backlink.hookIndex,
+          backlink.hook.kind,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, 0, "target-hit"],
+      ["Earlier", 1, 0, "player-hit"],
+      ["Later", 0, 0, "player-hit"],
     ]);
   });
 });

@@ -453,6 +453,8 @@ describe("synthetic dataset import", () => {
       <resistBuff toxic="-2" />
       <primaryBuff id="2" amount="3" />
       <secondarybuff id="6" amount="-4" />
+      <targetHitEffectBuff percentage="75" name="Invalid Buff" after="1" />
+      <playerHitEffectBuff percentage="25" name="Missing Hook Spell" />
     </buff>
     <buff usetimer="1" time="1" manaupkeep="2" allowStacking="1" />
   </spell>
@@ -461,6 +463,8 @@ describe("synthetic dataset import", () => {
       <damagebuff impossible="2"><futureChild /></damagebuff>
       <primarybuff amount="1" future="diagnosed" />
       <sightbuff amount="3" />
+      <targetHitEffectBuff percentage="101" name="Complete Buff" future="diagnosed"><futureChild /></targetHitEffectBuff>
+      <playerHitEffectBuff percentage="bad" future="diagnosed" />
     </buff>
   </spell>
 </spellDB>`,
@@ -519,6 +523,23 @@ describe("synthetic dataset import", () => {
           { kind: "primary", sourceKey: "2", amount: 3 },
           { kind: "secondary", sourceKey: "6", amount: -4 },
         ],
+        eventHooks: [
+          {
+            kind: "target-hit",
+            spellKey: "invalid buff",
+            spellName: "Invalid Buff",
+            spellId: "spell:invalid buff",
+            chance: 75,
+            sourceFlags: [{ sourceKey: "after", value: "1" }],
+          },
+          {
+            kind: "player-hit",
+            spellKey: "missing hook spell",
+            spellName: "Missing Hook Spell",
+            chance: 25,
+            sourceFlags: [],
+          },
+        ],
       },
       expect.objectContaining({
         timerMode: 1,
@@ -541,13 +562,23 @@ describe("synthetic dataset import", () => {
         allowStacking: null,
         stackLimit: null,
         modifiers: [],
+        eventHooks: [
+          {
+            kind: "target-hit",
+            spellKey: "complete buff",
+            spellName: "Complete Buff",
+            spellId: "spell:complete buff",
+            chance: null,
+            sourceFlags: [],
+          },
+        ],
       }),
     ]);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(4);
+    ).toHaveLength(6);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
@@ -574,6 +605,24 @@ describe("synthetic dataset import", () => {
           code: "unknown_element",
           entityId: "spell:invalid buff",
           details: { element: "sightbuff" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: {
+            element: "targetHitEffectBuff",
+            attribute: "future",
+          },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_hook_target",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, hookIndex: 0, hookKind: "player-hit" },
+        }),
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "spell:complete buff",
+          details: { targetKind: "spell", reference: "Missing Hook Spell" },
         }),
         expect.objectContaining({
           code: "unknown_element",
@@ -1258,6 +1307,23 @@ describe("synthetic dataset import", () => {
           { kind: "primary", sourceKey: "2", amount: 1 },
           { kind: "secondary", sourceKey: "6", amount: 5 },
         ],
+        eventHooks: [
+          {
+            kind: "target-hit",
+            spellKey: "clockwork echo",
+            spellName: "Clockwork Echo",
+            spellId: "spell:clockwork echo",
+            chance: 40,
+            sourceFlags: [{ sourceKey: "after", value: "1" }],
+          },
+          {
+            kind: "player-hit",
+            spellKey: "missing buff echo",
+            spellName: "Missing Buff Echo",
+            chance: 25,
+            sourceFlags: [],
+          },
+        ],
       }),
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
@@ -1792,6 +1858,13 @@ describe("synthetic dataset import", () => {
         (diagnostic) => diagnostic.code === "missing_asset",
       ),
     ).toHaveLength(1);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "spell:clockwork spark",
+        details: { targetKind: "spell", reference: "Missing Buff Echo" },
+      }),
+    );
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
         code: "dangling_reference",

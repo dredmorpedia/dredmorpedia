@@ -21,7 +21,7 @@ Read these files before making a substantial change:
 - The base game and three expansion data directories inside `legacy/` intentionally contain only `mod.xml`; proprietary XML and assets are not committed.
 - Ten historical mods and many of their assets are committed.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and independently authored fixtures under `fixtures/synthetic`.
-- Generated artifacts live under gitignored `data/generated/`; dataset schema 3 separates normalized entities from search schema 1 and carries versioned source/patch provenance. Source-manifest schema 2 can declare a version-scoped route registry that pins canonical slugs and historical aliases. The web application consumes generated artifacts for static item, stat, recipe, encrustment, spell, skill, ability, and monster routes with deterministic crafting, encrusting, loadout, spell, monster-family, and monster-drop backlinks, signed modifiers, dodge hooks, monster core profiles, spell hooks, direct named/type-driven drops, and explicitly uninterpreted source metadata; it must never parse raw XML.
+- Generated artifacts live under gitignored `data/generated/`; dataset schema 3 separates normalized entities from search schema 1 and carries versioned source/patch provenance. Source-manifest schema 2 can declare a version-scoped route registry that pins canonical slugs and historical aliases. The web application consumes generated artifacts for static item, stat, recipe, encrustment, spell, skill, ability, and monster routes with deterministic crafting, encrusting, loadout, spell, buff-event, monster-family, and monster-drop backlinks, signed modifiers, dodge hooks, monster core profiles, spell hooks, direct named/type-driven drops, and explicitly uninterpreted source metadata; it must never parse raw XML.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
 - ADR 0001 and ADR 0002 are technically validated but remain proposed until the publication-policy gate is complete. ADR 0003's split artifact/query path is implemented but its user-facing budgets remain open. Evidence is recorded under `docs/analysis/`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
@@ -66,7 +66,10 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 
 - `pnpm install --frozen-lockfile` — install the pinned workspace.
 - `pnpm generate:check` — regenerate the synthetic artifact twice and prove byte-identical output.
-- `pnpm dev` — generate data and start the web application on `http://localhost:3001/`.
+- `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic artifact and start the web application on `http://localhost:3001/`.
+- `pnpm dev:official` — regenerate the ignored official artifact from `data/raw/local-official-manifest.json` and start the same local application against it.
+- `pnpm generate:official:check` — deterministically regenerate the ignored official artifact without starting the web application.
+- `pnpm build:official` — deterministically regenerate the ignored official artifact and verify the full local static export.
 - `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
 - `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.
 - `pnpm audit:legacy` — repeatable preserved-application audit.

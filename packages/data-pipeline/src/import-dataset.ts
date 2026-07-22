@@ -339,6 +339,17 @@ function linkSpells(
   const statAliases = aliasesFor(stats);
   return spells.map((spell) => ({
     ...spell,
+    buffs: spell.buffs.map((buff) => ({
+      ...buff,
+      eventHooks: buff.eventHooks.map((hook) => {
+        const target = spellAliases.get(hook.spellKey);
+        if (target) {
+          return { ...hook, spellId: target.id };
+        }
+        diagnostics.push(danglingDiagnostic(spell, "spell", hook.spellName));
+        return hook;
+      }),
+    })),
     effects: spell.effects.map((effect) => {
       const linkedEffect = { ...effect };
       if (effect.spellKey) {

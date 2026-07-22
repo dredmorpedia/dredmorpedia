@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import {
   entityRouteSlugs,
   matchesEntityRoute,
+  spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
   type MonsterSpellTriggerKind,
+  type SpellBuffEventHookKind,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
@@ -66,6 +68,11 @@ const monsterBacklinkLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
     charge: "Charge spell",
   };
 
+const buffEventHookLabels: Readonly<Record<SpellBuffEventHookKind, string>> = {
+  "target-hit": "When you hit in melee",
+  "player-hit": "When you are hit in melee",
+};
+
 export function generateStaticParams() {
   return loadArtifact().entities.spells.flatMap((spell) =>
     entityRouteSlugs(spell).map((slug) => ({ slug })),
@@ -122,6 +129,10 @@ export default async function SpellPage({
     artifact.entities.spells,
     spell.id,
   );
+  const buffHookBacklinks = spellBuffEventHookBacklinks(
+    artifact.entities.spells,
+    spell.id,
+  );
   const itemBacklinks = artifact.entities.items.flatMap((item) =>
     item.triggers.flatMap((trigger, triggerIndex) =>
       trigger.spellId === spell.id ? [{ item, trigger, triggerIndex }] : [],
@@ -140,6 +151,7 @@ export default async function SpellPage({
   );
   const backlinkCount =
     spellBacklinks.length +
+    buffHookBacklinks.length +
     itemBacklinks.length +
     instabilityBacklinks.length +
     abilityBacklinks.length +
@@ -190,6 +202,15 @@ export default async function SpellPage({
           <div>
             <dt>Buff declarations</dt>
             <dd>{spell.buffs.length}</dd>
+          </div>
+          <div>
+            <dt>Buff event hooks</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.eventHooks.length,
+                0,
+              )}
+            </dd>
           </div>
         </dl>
       </header>
@@ -387,6 +408,79 @@ export default async function SpellPage({
                           stat-definition source is selected.
                         </p>
                       ) : null}
+                    </section>
+                  ) : null}
+                  {buff.eventHooks.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-hooks-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-hooks-heading`}
+                        className="relationship-title"
+                      >
+                        Event hooks
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.eventHooks.map((hook, hookIndex) => {
+                          const targetSpell = hook.spellId
+                            ? spellsById.get(hook.spellId)
+                            : undefined;
+                          return (
+                            <div
+                              key={`${hook.kind}:${hook.spellKey}:${hookIndex}`}
+                            >
+                              <dt>
+                                <span className="block">
+                                  {buffEventHookLabels[hook.kind]}
+                                </span>
+                                {targetSpell ? (
+                                  <Link
+                                    className="entity-link font-semibold"
+                                    href={`/spells/${targetSpell.slug}`}
+                                  >
+                                    {targetSpell.name}
+                                  </Link>
+                                ) : (
+                                  <strong>{hook.spellName}</strong>
+                                )}
+                                <small
+                                  className={
+                                    targetSpell
+                                      ? "trigger-resolution block"
+                                      : "trigger-resolution trigger-resolution-unresolved block"
+                                  }
+                                >
+                                  {targetSpell
+                                    ? "Resolved spell target"
+                                    : "Unresolved spell target"}
+                                </small>
+                              </dt>
+                              <dd>
+                                <span className="block">
+                                  {hook.chance === null
+                                    ? "Chance not specified"
+                                    : `${hook.chance}% chance`}
+                                </span>
+                                {hook.sourceFlags.map((flag) => (
+                                  <small
+                                    className="trigger-resolution block"
+                                    key={`${flag.sourceKey}:${flag.value}`}
+                                  >
+                                    {sourceFlagLabel(flag)}:{" "}
+                                    {sourceFlagValue(flag)}
+                                  </small>
+                                ))}
+                              </dd>
+                            </div>
+                          );
+                        })}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        Conditions and percentages are source declarations. The
+                        additional after flag is retained without inferring
+                        engine timing.
+                      </p>
                     </section>
                   ) : null}
                   {buff.sourceFlags.length > 0 ? (
@@ -596,6 +690,31 @@ export default async function SpellPage({
                           {backlink.spell.name}
                         </Link>
                         <span>{titleCase(backlink.effect.type)} effect</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {buffHookBacklinks.length > 0 ? (
+                <section aria-labelledby="buff-hook-backlinks-heading">
+                  <h3
+                    id="buff-hook-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Spell buff event hooks
+                  </h3>
+                  <ul className="relation-list">
+                    {buffHookBacklinks.map((backlink) => (
+                      <li
+                        key={`${backlink.spell.id}:${backlink.buffIndex}:${backlink.hookIndex}`}
+                      >
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${backlink.spell.slug}`}
+                        >
+                          {backlink.spell.name}
+                        </Link>
+                        <span>{buffEventHookLabels[backlink.hook.kind]}</span>
                       </li>
                     ))}
                   </ul>

@@ -288,6 +288,19 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(buffs.getByText("Toxic resistance")).toBeVisible();
   await expect(buffs.getByText("Primary attribute 2")).toBeVisible();
   await expect(buffs.getByText("Secondary stat 6")).toBeVisible();
+  const buffEventHooks = buffs.getByRole("region", { name: "Event hooks" });
+  await expect(
+    buffEventHooks.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(buffEventHooks.getByText("When you hit in melee")).toBeVisible();
+  await expect(buffEventHooks.getByText("40% chance")).toBeVisible();
+  await expect(buffEventHooks.getByText("After: Enabled")).toBeVisible();
+  await expect(
+    buffEventHooks.getByText("Missing Buff Echo", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    buffEventHooks.getByText("Unresolved spell target"),
+  ).toBeVisible();
   await expect(
     buffs.getByText(/without inferring stacking or trigger behavior/),
   ).toBeVisible();
@@ -319,6 +332,13 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })
+      .getByRole("region", { name: "Spell effects" })
+      .getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Referenced by" })
+      .getByRole("region", { name: "Spell buff event hooks" })
       .getByRole("link", { name: "Clockwork Spark" }),
   ).toBeVisible();
   await expect(

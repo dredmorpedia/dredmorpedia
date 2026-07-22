@@ -54,7 +54,7 @@ pnpm generate:check
 pnpm dev
 ```
 
-The modern application is then available at `http://localhost:3001/`.
+The modern application is then available at `http://localhost:3001/` using the legal synthetic fixture. If the ignored local official manifest is configured, run `pnpm dev:official` to regenerate and serve the read-only official dataset instead. `pnpm dev:synthetic` switches explicitly back to fixture data. Optional direct web commands can use an ignored `apps/web/.env.local` copied from `apps/web/.env.example`; canonical root commands select their artifact explicitly and do not require an environment file.
 
 Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
 

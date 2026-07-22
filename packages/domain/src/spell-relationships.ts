@@ -1,4 +1,4 @@
-import type { Spell, SpellEffect } from "./types";
+import type { Spell, SpellBuffEventHook, SpellEffect } from "./types";
 
 export interface SpellEffectChainStep {
   sourceSpell: Spell;
@@ -14,6 +14,13 @@ export interface SpellEffectBacklink {
   spell: Spell;
   effect: SpellEffect;
   effectIndex: number;
+}
+
+export interface SpellBuffEventHookBacklink {
+  spell: Spell;
+  buffIndex: number;
+  hook: SpellBuffEventHook;
+  hookIndex: number;
 }
 
 export function spellEffectChain(
@@ -83,5 +90,28 @@ export function spellEffectBacklinks(
         left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
         left.spell.id.localeCompare(right.spell.id, "en") ||
         left.effectIndex - right.effectIndex,
+    );
+}
+
+export function spellBuffEventHookBacklinks(
+  spells: readonly Spell[],
+  targetSpellId: string,
+): SpellBuffEventHookBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.buffs.flatMap((buff, buffIndex) =>
+        buff.eventHooks.flatMap((hook, hookIndex) =>
+          hook.spellId === targetSpellId
+            ? [{ spell, buffIndex, hook, hookIndex }]
+            : [],
+        ),
+      ),
+    )
+    .sort(
+      (left, right) =>
+        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
+        left.spell.id.localeCompare(right.spell.id, "en") ||
+        left.buffIndex - right.buffIndex ||
+        left.hookIndex - right.hookIndex,
     );
 }
