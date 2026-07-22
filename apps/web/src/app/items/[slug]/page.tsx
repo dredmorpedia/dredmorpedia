@@ -14,6 +14,10 @@ import {
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
+import {
+  signedStatModifierValue,
+  statModifierLabel,
+} from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -139,29 +143,71 @@ export default async function ItemPage({
           <h2 id="stats-heading" className="section-title-sm">
             Stats
           </h2>
-          {item.stats.length > 0 ? (
-            <dl className="stat-list">
-              {item.stats.map((stat) => (
-                <div key={stat.statKey}>
-                  <dt>
-                    {stat.statId && statsById.get(stat.statId) ? (
-                      <Link
-                        className="entity-link"
-                        href={`/stats/${statsById.get(stat.statId)?.slug}`}
+          {item.stats.length > 0 || item.modifiers.length > 0 ? (
+            <div className="relationship-groups">
+              {item.stats.length > 0 ? (
+                <section aria-labelledby="named-stats-heading">
+                  <h3 id="named-stats-heading" className="relationship-title">
+                    Named stats
+                  </h3>
+                  <dl className="stat-list">
+                    {item.stats.map((stat) => (
+                      <div key={stat.statKey}>
+                        <dt>
+                          {stat.statId && statsById.get(stat.statId) ? (
+                            <Link
+                              className="entity-link"
+                              href={`/stats/${statsById.get(stat.statId)?.slug}`}
+                            >
+                              {stat.statName}
+                            </Link>
+                          ) : (
+                            stat.statName
+                          )}
+                        </dt>
+                        <dd>
+                          {stat.amount > 0 ? `+${stat.amount}` : stat.amount}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ) : null}
+              {item.modifiers.length > 0 ? (
+                <section aria-labelledby="item-modifiers-heading">
+                  <h3
+                    id="item-modifiers-heading"
+                    className="relationship-title"
+                  >
+                    Direct modifiers
+                  </h3>
+                  <dl className="stat-list">
+                    {item.modifiers.map((modifier, index) => (
+                      <div
+                        key={`${modifier.kind}:${modifier.sourceKey}:${index}`}
                       >
-                        {stat.statName}
-                      </Link>
-                    ) : (
-                      stat.statName
-                    )}
-                  </dt>
-                  <dd>{stat.amount > 0 ? `+${stat.amount}` : stat.amount}</dd>
-                </div>
-              ))}
-            </dl>
+                        <dt>{statModifierLabel(modifier)}</dt>
+                        <dd>{signedStatModifierValue(modifier.amount)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {item.modifiers.some(
+                    (modifier) =>
+                      modifier.kind === "primary" ||
+                      modifier.kind === "secondary",
+                  ) ? (
+                    <p className="supporting-note">
+                      Primary and secondary modifiers retain their numeric game
+                      stat IDs because this dataset has no approved standalone
+                      definitions for them.
+                    </p>
+                  ) : null}
+                </section>
+              ) : null}
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized stat values.
+              No normalized stat values or direct modifiers.
             </p>
           )}
         </section>

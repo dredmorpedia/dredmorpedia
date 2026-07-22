@@ -3,6 +3,7 @@ import type {
   EntityKind,
   NormalizedEntity,
   SearchDocument,
+  StatModifier,
 } from "./types";
 
 const routeSegments: Record<NormalizedEntity["kind"], string> = {
@@ -41,17 +42,34 @@ function categoryFor(entity: NormalizedEntity): string | null {
   return null;
 }
 
+export function statModifierSearchKey(modifier: StatModifier): string {
+  return `modifier:${modifier.kind}:${modifier.sourceKey}`;
+}
+
 export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
   const category = categoryFor(entity);
   const statKeys =
     entity.kind === "item"
-      ? [...new Set(entity.stats.map((stat) => stat.statKey))].sort(
-          (left, right) => left.localeCompare(right, "en"),
-        )
+      ? [
+          ...new Set([
+            ...entity.stats.map((stat) => stat.statKey),
+            ...entity.modifiers.map(statModifierSearchKey),
+          ]),
+        ].sort((left, right) => left.localeCompare(right, "en"))
       : [];
   const statText =
     entity.kind === "item"
-      ? entity.stats.flatMap((stat) => [stat.statName, String(stat.amount)])
+      ? [
+          ...entity.stats.flatMap((stat) => [
+            stat.statName,
+            String(stat.amount),
+          ]),
+          ...entity.modifiers.flatMap((modifier) => [
+            modifier.kind,
+            modifier.sourceKey,
+            String(modifier.amount),
+          ]),
+        ]
       : [];
   const searchableParts = [
     entity.name,

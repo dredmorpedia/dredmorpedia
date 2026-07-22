@@ -144,6 +144,7 @@ const itemSchema = z
         })
         .strict(),
     ),
+    modifiers: z.array(statModifierSchema),
     triggers: z.array(spellTriggerSchema),
   })
   .strict();

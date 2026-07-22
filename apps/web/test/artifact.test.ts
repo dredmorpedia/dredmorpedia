@@ -144,6 +144,26 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/frameCount/);
   });
 
+  it("rejects malformed item modifier metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { modifiers: { amount: number }[] }[];
+      };
+    };
+    const modifier = typedArtifact.entities.items
+      .flatMap((item) => item.modifiers)
+      .at(0);
+    if (!modifier) {
+      throw new Error("Synthetic artifact unexpectedly has no item modifier.");
+    }
+    modifier.amount = Number.POSITIVE_INFINITY;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/modifiers/);
+  });
+
   it("rejects a checksummed search file not derived from the artifact", async () => {
     const search = readJson("search.json") as {
       documents: { text: string }[];

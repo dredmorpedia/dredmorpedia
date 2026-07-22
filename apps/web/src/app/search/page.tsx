@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { statModifierSearchKey } from "@dredmorpedia/domain";
+
 import { SearchExplorer } from "@/components/search-explorer";
 import { loadArtifact, loadSearchArtifact } from "@/lib/artifact";
+import { statModifierLabel } from "@/lib/stat-modifiers";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -32,6 +35,12 @@ export default function SearchPage() {
   for (const item of artifact.entities.items) {
     for (const stat of item.stats) {
       statLabels.set(stat.statKey, stat.statName);
+    }
+    for (const modifier of item.modifiers) {
+      statLabels.set(
+        statModifierSearchKey(modifier),
+        statModifierLabel(modifier),
+      );
     }
   }
   const stats = [...statLabels]

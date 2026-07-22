@@ -872,6 +872,78 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes item modifiers and diagnoses invalid fields", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-modifiers-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Modifier Validation" type="weapon" level="2">
+    <weapon crushing="2.5" voltaic="invalid" />
+    <damageBuff slashing="-1" impossible="3" />
+    <resistBuff toxic="3" />
+    <primaryBuff amount="1" />
+    <secondaryBuff id="6" amount="invalid" />
+  </item>
+</items>`,
+    );
+    const modifierManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      modifierManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-modifier-test",
+        sources: [
+          {
+            id: "modifier-source",
+            label: "Modifier Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: modifierManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.entities.items[0]).toMatchObject({
+      modifiers: [
+        { kind: "damage", sourceKey: "crushing", amount: 2.5 },
+        { kind: "damage", sourceKey: "slashing", amount: -1 },
+        { kind: "damage", sourceKey: "voltaic", amount: 0 },
+        { kind: "resistance", sourceKey: "toxic", amount: 3 },
+        { kind: "secondary", sourceKey: "6", amount: 0 },
+      ],
+    });
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(
+      expect.arrayContaining([
+        "invalid_number",
+        "unknown_item_modifier",
+        "missing_item_modifier_key",
+        "partially_supported_element",
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          ["damagebuff", "resistbuff", "primarybuff", "secondarybuff"].includes(
+            String(diagnostic.details?.element).toLocaleLowerCase(),
+          ),
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes encrustment outcomes and diagnoses invalid fields", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-encrustment-outcomes-"),
@@ -1591,6 +1663,13 @@ describe("synthetic dataset import", () => {
     expect(clockworkEcho?.animations).toEqual([]);
     expect(clockworkEcho?.impacts).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);
+    expect(blade?.modifiers).toEqual([
+      { kind: "damage", sourceKey: "crushing", amount: 4 },
+      { kind: "damage", sourceKey: "voltaic", amount: -1 },
+      { kind: "resistance", sourceKey: "toxic", amount: 3 },
+      { kind: "primary", sourceKey: "2", amount: 1 },
+      { kind: "secondary", sourceKey: "6", amount: 5 },
+    ]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
         code: "unsupported_spell_requirement",
@@ -1617,7 +1696,14 @@ describe("synthetic dataset import", () => {
       result.search.documents.find(
         (document) => document.id === "item:clockwork blade",
       )?.statKeys,
-    ).toEqual(["melee power"]);
+    ).toEqual([
+      "melee power",
+      "modifier:damage:crushing",
+      "modifier:damage:voltaic",
+      "modifier:primary:2",
+      "modifier:resistance:toxic",
+      "modifier:secondary:6",
+    ]);
     expect(
       result.search.documents.find(
         (document) => document.id === "monster:armored training diggle",

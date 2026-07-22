@@ -845,12 +845,23 @@ function parseItems(
         currentEntityId,
       ),
       stats,
+      modifiers: parseItemStatModifiers(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       triggers: parseItemTriggers(record, context, provenance, currentEntityId),
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "price", "stat"]),
+      new Set([
+        "description",
+        "price",
+        "stat",
+        ...matchingStatModifierElementNames(record),
+      ]),
       currentEntityId,
       partiallySupportedItemChildren,
     );
@@ -995,13 +1006,15 @@ function parseStatModifiers(
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-  ownerLabel: "ability" | "encrustment" | "monster" | "spell_buff",
+  ownerLabel: "ability" | "encrustment" | "item" | "monster" | "spell_buff",
 ): StatModifier[] {
   const modifiers: StatModifier[] = [];
   const ownerDescription =
     ownerLabel === "spell_buff" ? "spell buff" : ownerLabel;
   const ownerArticle =
-    ownerDescription === "ability" || ownerDescription === "encrustment"
+    ownerDescription === "ability" ||
+    ownerDescription === "encrustment" ||
+    ownerDescription === "item"
       ? "An"
       : "A";
   const addAttributeModifiers = (
@@ -1110,6 +1123,52 @@ function parseStatModifiers(
   }
 
   return normalizedModifiers.sort(
+    (left, right) =>
+      statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
+      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      left.amount - right.amount,
+  );
+}
+
+function parseItemStatModifiers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): StatModifier[] {
+  const modifiers = parseStatModifiers(
+    record,
+    context,
+    provenance,
+    currentEntityId,
+    "item",
+  );
+
+  for (const weapon of xmlChildren(record, "weapon")) {
+    for (const [attribute, value] of Object.entries(weapon)) {
+      if (!attribute.startsWith("@") || typeof value !== "string") {
+        continue;
+      }
+      const sourceKey = attribute.slice(1);
+      if (!statModifierDamageKeys.has(sourceKey)) {
+        continue;
+      }
+      modifiers.push({
+        kind: "damage",
+        sourceKey,
+        amount: numberValue(
+          value,
+          0,
+          context,
+          provenance,
+          `item weapon damage:${sourceKey}`,
+          currentEntityId,
+        ),
+      });
+    }
+  }
+
+  return modifiers.sort(
     (left, right) =>
       statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
       left.sourceKey.localeCompare(right.sourceKey, "en") ||

@@ -60,6 +60,21 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(page.getByText("Source version")).toBeVisible();
   await expect(page.getByText("Quality")).toBeVisible();
   await expect(page.getByText("3", { exact: true })).toBeVisible();
+  const itemStats = page.getByRole("region", { name: "Stats", exact: true });
+  const itemModifiers = itemStats.getByRole("region", {
+    name: "Direct modifiers",
+    exact: true,
+  });
+  await expect(itemModifiers.getByText("Crushing damage")).toBeVisible();
+  await expect(itemModifiers.getByText("+4", { exact: true })).toBeVisible();
+  await expect(itemModifiers.getByText("Voltaic damage")).toBeVisible();
+  await expect(itemModifiers.getByText("-1", { exact: true })).toBeVisible();
+  await expect(itemModifiers.getByText("Toxic resistance")).toBeVisible();
+  await expect(itemModifiers.getByText("Primary attribute 2")).toBeVisible();
+  await expect(itemModifiers.getByText("Secondary stat 6")).toBeVisible();
+  await expect(
+    itemModifiers.getByText(/retain their numeric game stat IDs/),
+  ).toBeVisible();
   await expect(
     page.getByText("Reviewed patch: synthetic-clockwork-blade-value"),
   ).toBeVisible();
@@ -97,6 +112,18 @@ test("searches reference entities with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+
+  const stat = page.getByRole("combobox", { name: "Stat" });
+  await stat.focus();
+  await stat.press("Enter");
+  await page
+    .getByRole("option", { name: "Crushing damage", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/stat=modifier%3Adamage%3Acrushing/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
 });
 
 test("finds and renders a targeting template with a keyboard flow", async ({

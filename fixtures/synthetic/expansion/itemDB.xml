@@ -4,6 +4,10 @@
     <description text="The higher-precedence synthetic expansion variant." />
     <price amount="155" />
     <stat name="Melee Power" amount="6" />
-    <weapon hit="Clockwork Spark" />
+    <weapon hit="Clockwork Spark" crushing="4" />
+    <damagebuff voltaic="-1" />
+    <resistbuff toxic="3" />
+    <primarybuff id="2" amount="1" />
+    <secondarybuff id="6" amount="5" />
   </item>
 </items>

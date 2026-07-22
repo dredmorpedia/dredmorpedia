@@ -117,6 +117,7 @@ export interface Item extends NormalizedEntityBase {
   quality: number;
   iconPath: string | null;
   stats: ItemStatValue[];
+  modifiers: StatModifier[];
   triggers: ItemTrigger[];
 }
 
