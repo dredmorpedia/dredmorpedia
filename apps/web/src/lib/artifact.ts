@@ -292,6 +292,19 @@ const spellSchema = z
         })
         .strict(),
     ),
+    animations: z.array(
+      z
+        .object({
+          spritePath: z.string().nullable(),
+          frameCount: nullableNonnegativeInteger,
+          frameRate: nullableNonnegativeInteger,
+          firstFrame: nullableNonnegativeInteger,
+          centered: z.boolean().nullable(),
+          synchronized: z.boolean().nullable(),
+          soundEffect: z.string().nullable(),
+        })
+        .strict(),
+    ),
     buffs: z.array(spellBuffSchema),
     effects: z.array(spellEffectSchema),
   })

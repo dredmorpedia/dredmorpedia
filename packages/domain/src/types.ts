@@ -245,6 +245,16 @@ export interface SpellManaCost {
   minimum: number | null;
 }
 
+export interface SpellAnimationMetadata {
+  spritePath: string | null;
+  frameCount: number | null;
+  frameRate: number | null;
+  firstFrame: number | null;
+  centered: boolean | null;
+  synchronized: boolean | null;
+  soundEffect: string | null;
+}
+
 export const spellBuffEventHookKinds = ["target-hit", "player-hit"] as const;
 
 export type SpellBuffEventHookKind = (typeof spellBuffEventHookKinds)[number];
@@ -289,6 +299,7 @@ export interface Spell extends NormalizedEntityBase {
   spellType: string;
   iconPath: string | null;
   manaCosts: SpellManaCost[];
+  animations: SpellAnimationMetadata[];
   buffs: SpellBuff[];
   effects: SpellEffect[];
 }

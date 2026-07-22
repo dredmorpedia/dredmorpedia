@@ -295,6 +295,31 @@ test("navigates spell details and stops recursive effect cycles", async ({
     ),
   ).toBeVisible();
 
+  const presentation = page.getByRole("region", { name: "Presentation" });
+  await expect(presentation.getByText("6 source frames")).toBeVisible();
+  await expect(
+    presentation.getByText("Sprite reference", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    presentation.getByText("Sound cue", { exact: true }),
+  ).toBeVisible();
+  await expect(presentation.getByText("80", { exact: true })).toBeVisible();
+  await expect(
+    presentation.getByText("Centered effect", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    presentation.getByText("Synchronized", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    presentation.getByText(
+      /detailed sprite paths and sound cue ids remain hidden/i,
+    ),
+  ).toBeVisible();
+  await expect(presentation).not.toContainText(
+    "sprites/sfx/synthetic/synthetic",
+  );
+  await expect(presentation).not.toContainText("clockwork_animation_audio_cue");
+
   const buffs = page.getByRole("region", { name: "Buffs" });
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
@@ -372,6 +397,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page
       .getByRole("region", { name: "Mana cost" })
       .getByText("No normalized mana requirement."),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Presentation" })
+      .getByText("No normalized animation declaration."),
   ).toBeVisible();
   await expect(
     page

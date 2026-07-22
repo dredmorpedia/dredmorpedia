@@ -196,6 +196,10 @@ export default async function SpellPage({
             <dd>{spell.manaCosts.length}</dd>
           </div>
           <div>
+            <dt>Animation declarations</dt>
+            <dd>{spell.animations.length}</dd>
+          </div>
+          <div>
             <dt>Direct effects</dt>
             <dd>{spell.effects.length}</dd>
           </div>
@@ -270,6 +274,94 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="presentation-heading">
+          <h2 id="presentation-heading" className="section-title-sm">
+            Presentation
+          </h2>
+          {spell.animations.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.animations.map((animation, animationIndex) => (
+                  <li key={animationIndex}>
+                    <div className="trigger-summary">
+                      <span className="relationship-title">
+                        Animation declaration {animationIndex + 1}
+                      </span>
+                      <strong>
+                        {animation.frameCount === null
+                          ? "Frame count not specified"
+                          : `${animation.frameCount} source frames`}
+                      </strong>
+                      <small className="trigger-resolution">
+                        Local engine presentation metadata
+                      </small>
+                    </div>
+                    <dl className="trigger-facts">
+                      <div>
+                        <dt>Sprite reference</dt>
+                        <dd>
+                          {animation.spritePath === null
+                            ? "Not supplied"
+                            : "Supplied"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Sound cue</dt>
+                        <dd>
+                          {animation.soundEffect === null
+                            ? "Not supplied"
+                            : "Supplied"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Source frame rate</dt>
+                        <dd>
+                          {animation.frameRate === null
+                            ? "Not specified"
+                            : sourceNumber.format(animation.frameRate)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>First frame</dt>
+                        <dd>
+                          {animation.firstFrame === null
+                            ? "Not specified"
+                            : sourceNumber.format(animation.firstFrame)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Centered effect</dt>
+                        <dd>
+                          {animation.centered === null
+                            ? "Not specified"
+                            : yesNo(animation.centered)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Synchronized</dt>
+                        <dd>
+                          {animation.synchronized === null
+                            ? "Not specified"
+                            : yesNo(animation.synchronized)}
+                        </dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Numeric and boolean values are source declarations, not timing
+                formulas. Detailed sprite paths and sound cue IDs remain hidden
+                while the asset publication boundary is unresolved.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized animation declaration.
             </p>
           )}
         </section>

@@ -23,6 +23,7 @@ import {
   type Recipe,
   type Skill,
   type Spell,
+  type SpellAnimationMetadata,
   type SpellBuff,
   type SpellBuffEventHook,
   type SpellBuffSightModifier,
@@ -38,6 +39,7 @@ import {
 
 import type { DatabaseKind, SourceDefinition } from "./manifest";
 import {
+  assertSafeRelativePath,
   PathBoundaryError,
   resolveExistingWithin,
   toPosixPath,
@@ -1679,6 +1681,151 @@ function parseSpellManaCosts(
   });
 }
 
+const spellAnimationAttributes = new Set([
+  "sprite",
+  "frames",
+  "num",
+  "framerate",
+  "firstframe",
+  "first",
+  "centerEffect",
+  "centereffect",
+  "sync",
+  "sfx",
+]);
+
+function normalizeAssetReference(
+  value: string | undefined,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.replaceAll("\\", "/").replace(/^\.\//, "");
+  try {
+    assertSafeRelativePath(normalized);
+    return normalized;
+  } catch (error) {
+    if (!(error instanceof PathBoundaryError)) {
+      throw error;
+    }
+    context.diagnostics.push({
+      severity: "error",
+      code: "unsafe_asset_path",
+      message: error.message,
+      source: provenance,
+      entityId: currentEntityId,
+      details: { assetPath: normalized },
+    });
+    return null;
+  }
+}
+
+function spellAnimationRecords(record: XmlRecord): XmlRecord[] {
+  const value = record.anim;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellAnimations(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellAnimationMetadata[] {
+  return spellAnimationRecords(record).map((animation, animationIndex) => {
+    reportUnknownLeafContent(
+      context,
+      animation,
+      "anim",
+      spellAnimationAttributes,
+      provenance,
+      currentEntityId,
+      true,
+    );
+
+    const spritePath = normalizeAssetReference(
+      xmlAttribute(animation, "sprite"),
+      context,
+      provenance,
+      currentEntityId,
+    );
+    if (!xmlAttribute(animation, "sprite")) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_animation_sprite",
+        message: `Spell animation ${animationIndex + 1} is missing its sprite reference.`,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { animationIndex },
+      });
+    }
+
+    const optionalAnimationInteger = (
+      value: string | undefined,
+      field: string,
+    ): number | null =>
+      optionalIntegerValue(
+        value,
+        context,
+        provenance,
+        `spell animation ${animationIndex + 1} ${field}`,
+        currentEntityId,
+        0,
+      );
+    const centerAttribute =
+      xmlAttribute(animation, "centerEffect") === undefined &&
+      xmlAttribute(animation, "centereffect") !== undefined
+        ? "centereffect"
+        : "centerEffect";
+
+    return {
+      spritePath,
+      frameCount: optionalAnimationInteger(
+        xmlAttribute(animation, "frames") ?? xmlAttribute(animation, "num"),
+        "frame count",
+      ),
+      frameRate: optionalAnimationInteger(
+        xmlAttribute(animation, "framerate"),
+        "frame rate",
+      ),
+      firstFrame: optionalAnimationInteger(
+        xmlAttribute(animation, "firstframe") ??
+          xmlAttribute(animation, "first"),
+        "first frame",
+      ),
+      centered: optionalBooleanAttribute(
+        animation,
+        centerAttribute,
+        context,
+        provenance,
+        `spell animation ${animationIndex + 1} centered flag`,
+        currentEntityId,
+      ),
+      synchronized: optionalBooleanAttribute(
+        animation,
+        "sync",
+        context,
+        provenance,
+        `spell animation ${animationIndex + 1} synchronized flag`,
+        currentEntityId,
+      ),
+      soundEffect: xmlAttribute(animation, "sfx") || null,
+    };
+  });
+}
+
 const spellBuffSourceFlagAttributes = [
   "affectsCorpses",
   "destroyonmove",
@@ -2087,13 +2234,19 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
+      animations: parseSpellAnimations(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       buffs: parseSpellBuffs(record, context, provenance, currentEntityId),
       effects,
     };
     reportUnknownChildren(
       context,
       record,
-      new Set(["description", "effect", "requirements", "buff"]),
+      new Set(["description", "effect", "requirements", "anim", "buff"]),
       currentEntityId,
     );
     addCandidate(result.spells, spell, context.source.precedence);

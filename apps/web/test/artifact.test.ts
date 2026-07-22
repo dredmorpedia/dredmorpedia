@@ -100,6 +100,28 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/entities\.recipes/);
   });
 
+  it("rejects malformed spell animation metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { animations: { frameRate: number | null }[] }[];
+      };
+    };
+    const animation = typedArtifact.entities.spells
+      .flatMap((spell) => spell.animations)
+      .at(0);
+    if (!animation) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell animation metadata.",
+      );
+    }
+    animation.frameRate = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/frameRate/);
+  });
+
   it("rejects a checksummed search file not derived from the artifact", async () => {
     const search = readJson("search.json") as {
       documents: { text: string }[];

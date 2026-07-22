@@ -453,6 +453,142 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes spell animation metadata and diagnoses malformed declarations", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-animations-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Animation" type="target">
+    <anim sprite="sprites/sfx/complete/complete" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="complete cue" />
+    <anim sprite="sprites\\sfx\\alias\\alias" num="4" first="2" centereffect="0" />
+  </spell>
+  <spell name="Invalid Animation" type="self">
+    <anim sprite="../outside" frames="-1" framerate="1.5" firstframe="bad" centerEffect="maybe" sync="2" future="retained"><futureChild /></anim>
+    <anim />
+  </spell>
+</spellDB>`,
+    );
+    const animationManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      animationManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-animation-test",
+        sources: [
+          {
+            id: "spell-animation-source",
+            label: "Spell Animation Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: animationManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete Animation")?.animations).toEqual([
+      {
+        spritePath: "sprites/sfx/complete/complete",
+        frameCount: 6,
+        frameRate: 80,
+        firstFrame: 1,
+        centered: true,
+        synchronized: false,
+        soundEffect: "complete cue",
+      },
+      {
+        spritePath: "sprites/sfx/alias/alias",
+        frameCount: 4,
+        frameRate: null,
+        firstFrame: 2,
+        centered: false,
+        synchronized: null,
+        soundEffect: null,
+      },
+    ]);
+    expect(spells.get("Invalid Animation")?.animations).toEqual([
+      {
+        spritePath: null,
+        frameCount: null,
+        frameRate: null,
+        firstFrame: null,
+        centered: null,
+        synchronized: null,
+        soundEffect: null,
+      },
+      {
+        spritePath: null,
+        frameCount: null,
+        frameRate: null,
+        firstFrame: null,
+        centered: null,
+        synchronized: null,
+        soundEffect: null,
+      },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(3);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_boolean",
+      ),
+    ).toHaveLength(2);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "error",
+          code: "unsafe_asset_path",
+          entityId: "spell:invalid animation",
+          details: { assetPath: "../outside" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_animation_sprite",
+          entityId: "spell:invalid animation",
+          details: { animationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid animation",
+          details: {
+            element: "anim",
+            attribute: "future",
+            value: "retained",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid animation",
+          details: { element: "futureChild" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "anim",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes spell buff source parameters and signed modifiers", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-buffs-"),
@@ -1327,6 +1463,17 @@ describe("synthetic dataset import", () => {
     expect(clockworkSpark?.manaCosts).toEqual([
       { base: 12, savvyReduction: 0.25, minimum: 4 },
     ]);
+    expect(clockworkSpark?.animations).toEqual([
+      {
+        spritePath: "sprites/sfx/synthetic/synthetic",
+        frameCount: 6,
+        frameRate: 80,
+        firstFrame: 1,
+        centered: true,
+        synchronized: false,
+        soundEffect: "clockwork_animation_audio_cue",
+      },
+    ]);
     expect(clockworkSpark?.buffs).toEqual([
       expect.objectContaining({
         timerMode: 1,
@@ -1370,6 +1517,7 @@ describe("synthetic dataset import", () => {
       }),
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
+    expect(clockworkEcho?.animations).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
