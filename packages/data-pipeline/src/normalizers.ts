@@ -388,10 +388,31 @@ function booleanAttribute(record: XmlRecord, name: string): boolean {
 function optionalBooleanAttribute(
   record: XmlRecord,
   name: string,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
 ): boolean | null {
-  return xmlAttribute(record, name) === undefined
-    ? null
-    : booleanAttribute(record, name);
+  const value = xmlAttribute(record, name);
+  if (value === undefined) {
+    return null;
+  }
+  if (value === "1" || value === "true") {
+    return true;
+  }
+  if (value === "0" || value === "false") {
+    return false;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_boolean",
+    message: `Expected 0, 1, false, or true for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
 }
 
 function integerValue(
@@ -612,6 +633,25 @@ function reportUnknownAttributes(
       details: { element: elementName, attribute },
     });
   }
+}
+
+function reportUnknownLeafContent(
+  context: NormalizationContext,
+  record: XmlRecord,
+  elementName: string,
+  allowedAttributes: ReadonlySet<string>,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): void {
+  reportUnknownAttributes(
+    context,
+    record,
+    elementName,
+    allowedAttributes,
+    provenance,
+    currentEntityId,
+  );
+  reportUnknownChildren(context, record, new Set(), currentEntityId);
 }
 
 function addCandidate<
@@ -1490,7 +1530,7 @@ function parseMonsters(
       ? xmlAttribute(sight, "modifier")
       : undefined;
     if (sight) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         sight,
         "sight",
@@ -1532,7 +1572,7 @@ function parseMonsters(
       if (!presentationRecord) {
         return null;
       }
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         presentationRecord,
         elementName,
@@ -1548,7 +1588,7 @@ function parseMonsters(
       };
     };
     if (soundEffects) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         soundEffects,
         "sfx",
@@ -1562,7 +1602,7 @@ function parseMonsters(
       [castSprite, "castSpellSprite"],
     ] as const) {
       if (presentationRecord) {
-        reportUnknownAttributes(
+        reportUnknownLeafContent(
           context,
           presentationRecord,
           elementName,
@@ -1573,7 +1613,7 @@ function parseMonsters(
       }
     }
     if (morphSprites) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         morphSprites,
         "morphsprites",
@@ -1590,7 +1630,7 @@ function parseMonsters(
       );
     }
     if (digSprites) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         digSprites,
         "digSprites",
@@ -1620,7 +1660,7 @@ function parseMonsters(
           );
     };
     if (dig) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         dig,
         "dig",
@@ -1637,7 +1677,7 @@ function parseMonsters(
       );
     }
     if (dash) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         dash,
         "dash",
@@ -1654,7 +1694,7 @@ function parseMonsters(
       );
     }
     if (charge) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         charge,
         "charge",
@@ -1672,7 +1712,7 @@ function parseMonsters(
       );
     }
     for (const onDeath of onDeathRecords) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         onDeath,
         "ondeath",
@@ -1719,7 +1759,7 @@ function parseMonsters(
         xmlAttribute(ai, "stealPercentage"))
       : undefined;
     if (ai) {
-      reportUnknownAttributes(
+      reportUnknownLeafContent(
         context,
         ai,
         "ai",
@@ -1976,19 +2016,58 @@ function parseMonsters(
         invisible:
           invisibleText === undefined
             ? null
-            : booleanAttribute(ai!, "invisible"),
+            : optionalBooleanAttribute(
+                ai!,
+                "invisible",
+                context,
+                provenance,
+                "monster AI invisible flag",
+                currentEntityId,
+              ),
         chicken:
-          chickenText === undefined ? null : booleanAttribute(ai!, "chicken"),
+          chickenText === undefined
+            ? null
+            : optionalBooleanAttribute(
+                ai!,
+                "chicken",
+                context,
+                provenance,
+                "monster AI chicken flag",
+                currentEntityId,
+              ),
         canCharm:
-          canCharmText === undefined ? null : booleanAttribute(ai!, "cancharm"),
+          canCharmText === undefined
+            ? null
+            : optionalBooleanAttribute(
+                ai!,
+                "cancharm",
+                context,
+                provenance,
+                "monster AI charm flag",
+                currentEntityId,
+              ),
         canParalyze:
           canParalyzeText === undefined
             ? null
-            : booleanAttribute(ai!, "canparalyze"),
+            : optionalBooleanAttribute(
+                ai!,
+                "canparalyze",
+                context,
+                provenance,
+                "monster AI paralyze flag",
+                currentEntityId,
+              ),
         stealGold:
           stealGoldText === undefined
             ? null
-            : booleanAttribute(ai!, "stealgold"),
+            : optionalBooleanAttribute(
+                ai!,
+                "stealgold",
+                context,
+                provenance,
+                "monster AI steal-gold flag",
+                currentEntityId,
+              ),
         stealPercentage:
           stealPercentageText === undefined
             ? null
@@ -2080,7 +2159,14 @@ function parseMonsters(
                 "mindistance",
                 "monster dash minimum distance",
               ),
-              interruptible: optionalBooleanAttribute(dash, "interruptable"),
+              interruptible: optionalBooleanAttribute(
+                dash,
+                "interruptable",
+                context,
+                provenance,
+                "monster dash interruptible flag",
+                currentEntityId,
+              ),
             }
           : null,
         charge: charge
@@ -2096,9 +2182,30 @@ function parseMonsters(
                 "turns",
                 "monster charge turns",
               ),
-              interruptible: optionalBooleanAttribute(charge, "interruptable"),
-              blocksAction: optionalBooleanAttribute(charge, "blockaction"),
-              targetsSelf: optionalBooleanAttribute(charge, "targetself"),
+              interruptible: optionalBooleanAttribute(
+                charge,
+                "interruptable",
+                context,
+                provenance,
+                "monster charge interruptible flag",
+                currentEntityId,
+              ),
+              blocksAction: optionalBooleanAttribute(
+                charge,
+                "blockaction",
+                context,
+                provenance,
+                "monster charge blocks-action flag",
+                currentEntityId,
+              ),
+              targetsSelf: optionalBooleanAttribute(
+                charge,
+                "targetself",
+                context,
+                provenance,
+                "monster charge targets-self flag",
+                currentEntityId,
+              ),
             }
           : null,
       },

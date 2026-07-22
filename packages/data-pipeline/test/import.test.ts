@@ -481,8 +481,9 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <monsters>
   <monster name="AI Not Supplied"><ai aggressiveness="1" span="4" futureflag="synthetic" /></monster>
-  <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /><sight cone="270" modifier="1.25" futureSight="synthetic" /></monster>
+  <monster name="AI Disabled"><ai invisible="0" chicken="0" cancharm="0" canparalyze="0" stealgold="0" stealpercentage="0" /><sight cone="270" modifier="1.25" futureSight="synthetic"><futureSightChild /></sight></monster>
   <monster name="AI Enabled"><ai invisible="1" chicken="1" cancharm="1" canparalyze="1" stealgold="1" stealPercentage="50" /><sight cone="-1" modifier="not-a-number" /></monster>
+  <monster name="AI Invalid"><ai invisible="invalid" chicken="yes" cancharm="2" canparalyze="TRUE" stealgold="" /></monster>
 </monsters>`,
     );
     const aiManifestPath = path.join(temporaryRoot, "manifest.json");
@@ -548,6 +549,22 @@ describe("synthetic dataset import", () => {
         },
       ],
       [
+        "AI Invalid",
+        {
+          ai: {
+            aggressiveness: null,
+            span: null,
+            invisible: null,
+            chicken: null,
+            canCharm: null,
+            canParalyze: null,
+            stealGold: null,
+            stealPercentage: null,
+          },
+          sight: { cone: null, modifier: null },
+        },
+      ],
+      [
         "AI Not Supplied",
         {
           ai: {
@@ -578,6 +595,20 @@ describe("synthetic dataset import", () => {
         details: { element: "sight", attribute: "futureSight" },
       }),
     );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unknown_element",
+        entityId: "monster:ai disabled",
+        details: { element: "futureSightChild" },
+      }),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "invalid_boolean" &&
+          diagnostic.entityId === "monster:ai invalid",
+      ),
+    ).toHaveLength(5);
     expect(
       result.diagnostics.filter(
         (diagnostic) =>
@@ -599,15 +630,16 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <monsters>
   <monster name="Behavior Supplied">
-    <dig percent="40" ambushpercent="25" blockedpercent="100" minturns="2" maxTurns="5" mindistance="3" futureDig="synthetic" />
-    <dash chance="75" speed="3" mindistance="2" interruptable="1" hitspell="Known Behavior Spell" missspell="Missing Behavior Spell" futureDash="synthetic" />
-    <charge chance="15" range="5" turns="3" interruptable="0" blockaction="1" targetself="0" spell="Known Behavior Spell" futureCharge="synthetic" />
-    <ondeath percent="45" spell="Known Behavior Spell" futureDeath="synthetic" />
+    <dig percent="40" ambushpercent="25" blockedpercent="100" minturns="2" maxTurns="5" mindistance="3" futureDig="synthetic"><futureDigChild /></dig>
+    <dash chance="75" speed="3" mindistance="2" interruptable="1" hitspell="Known Behavior Spell" missspell="Missing Behavior Spell" futureDash="synthetic"><futureDashChild /></dash>
+    <charge chance="15" range="5" turns="3" interruptable="0" blockaction="1" targetself="0" spell="Known Behavior Spell" futureCharge="synthetic"><futureChargeChild /></charge>
+    <ondeath percent="45" spell="Known Behavior Spell" futureDeath="synthetic"><futureDeathChild /></ondeath>
+    <sfx attack="behavior_attack"><futurePresentationChild /></sfx>
   </monster>
   <monster name="Behavior Invalid">
     <dig percent="-1" ambushpercent="101" blockedpercent="-1" minturns="1.5" maxTurns="bad" mindistance="-3" />
-    <dash chance="101" speed="-1" mindistance="bad" interruptable="0" hitspell="Known Behavior Spell" missspell="Known Behavior Spell" />
-    <charge chance="-1" range="-1" turns="bad" interruptable="1" blockaction="0" targetself="1" spell="Known Behavior Spell" />
+    <dash chance="101" speed="-1" mindistance="bad" interruptable="invalid" hitspell="Known Behavior Spell" missspell="Known Behavior Spell" />
+    <charge chance="-1" range="-1" turns="bad" interruptable="2" blockaction="yes" targetself="TRUE" spell="Known Behavior Spell" />
     <ondeath percent="101" spell="Known Behavior Spell" />
   </monster>
   <monster name="Behavior Absent" />
@@ -688,21 +720,31 @@ describe("synthetic dataset import", () => {
         chance: 0,
         speed: 0,
         minimumDistance: 0,
-        interruptible: false,
+        interruptible: null,
       },
       charge: {
         chance: 0,
         range: 0,
         turns: 0,
-        interruptible: true,
-        blocksAction: false,
-        targetsSelf: true,
+        interruptible: null,
+        blocksAction: null,
+        targetsSelf: null,
       },
     });
     expect(monsters.get("Behavior Absent")?.movement).toEqual({
       dig: null,
       dash: null,
       charge: null,
+    });
+    expect(
+      monsters.get("Behavior Supplied")?.presentation.soundEffects,
+    ).toEqual({
+      attack: "behavior_attack",
+      death: null,
+      hit: null,
+      spell: null,
+      digIn: null,
+      digOut: null,
     });
     expect(monsters.get("Behavior Supplied")?.triggers).toMatchObject([
       {
@@ -733,6 +775,13 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "monster:behavior invalid",
       ),
     ).toHaveLength(13);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "invalid_boolean" &&
+          diagnostic.entityId === "monster:behavior invalid",
+      ),
+    ).toHaveLength(4);
     for (const [element, attribute] of [
       ["dig", "futureDig"],
       ["dash", "futureDash"],
@@ -744,6 +793,21 @@ describe("synthetic dataset import", () => {
           code: "unknown_attribute",
           entityId: "monster:behavior supplied",
           details: { element, attribute },
+        }),
+      );
+    }
+    for (const element of [
+      "futureDigChild",
+      "futureDashChild",
+      "futureChargeChild",
+      "futureDeathChild",
+      "futurePresentationChild",
+    ]) {
+      expect(result.diagnostics).toContainEqual(
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "monster:behavior supplied",
+          details: { element },
         }),
       );
     }

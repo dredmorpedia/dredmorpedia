@@ -535,6 +535,7 @@ test("shows inherited monster stats and navigates its family", async ({
   await expect(
     presentationMetadata.getByText(/do not inherit from a parent monster/i),
   ).toBeVisible();
+  await expect(presentationMetadata).not.toContainText("assets/synthetic.svg");
 
   const bonuses = page.getByRole("region", { name: "Stat bonuses" });
   await expect(bonuses.getByText("Crushing damage")).toBeVisible();
