@@ -299,6 +299,51 @@ export interface MonsterMovementMetadata {
   charge: MonsterChargeMetadata | null;
 }
 
+export interface MonsterSoundEffectMetadata {
+  attack: string | null;
+  death: string | null;
+  hit: string | null;
+  spell: string | null;
+  digIn: string | null;
+  digOut: string | null;
+}
+
+export interface MonsterDirectionalSpriteMetadata {
+  down: string | null;
+  left: string | null;
+  right: string | null;
+  up: string | null;
+}
+
+export interface MonsterNamedSpriteMetadata {
+  name: string | null;
+}
+
+export interface MonsterMorphSpriteMetadata {
+  drink: string | null;
+  eat: string | null;
+  femaleLevelUp: string | null;
+  maleLevelUp: string | null;
+  longIdle: string | null;
+  vanish: string | null;
+}
+
+export interface MonsterDigSpriteMetadata {
+  down: string | null;
+  up: string | null;
+}
+
+export interface MonsterPresentationMetadata {
+  soundEffects: MonsterSoundEffectMetadata | null;
+  attack: MonsterDirectionalSpriteMetadata | null;
+  hit: MonsterDirectionalSpriteMetadata | null;
+  death: MonsterNamedSpriteMetadata | null;
+  cast: MonsterNamedSpriteMetadata | null;
+  beam: MonsterDirectionalSpriteMetadata | null;
+  morph: MonsterMorphSpriteMetadata | null;
+  dig: MonsterDigSpriteMetadata | null;
+}
+
 export const monsterSpellTriggerKinds = [
   "on-hit",
   "cast-when-aware",
@@ -352,6 +397,7 @@ export interface Monster extends NormalizedEntityBase {
   ai: MonsterAiMetadata;
   sight: MonsterSightMetadata;
   movement: MonsterMovementMetadata;
+  presentation: MonsterPresentationMetadata;
   experienceValue: number | null;
   modifiers: StatModifier[];
   spellChance: number | null;

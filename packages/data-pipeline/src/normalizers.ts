@@ -1503,6 +1503,102 @@ function parseMonsters(
     const dash = xmlChildren(record, "dash")[0];
     const charge = xmlChildren(record, "charge")[0];
     const onDeathRecords = xmlChildren(record, "ondeath");
+    const soundEffects = xmlChildren(record, "sfx")[0];
+    const attackSprite = xmlChildren(record, "attackSprite")[0];
+    const hitSprite = xmlChildren(record, "hitSprite")[0];
+    const deathSprite = xmlChildren(record, "dieSprite")[0];
+    const castSprite = xmlChildren(record, "castSpellSprite")[0];
+    const beamSprite = xmlChildren(record, "beamSprite")[0];
+    const morphSprites = xmlChildren(record, "morphsprites")[0];
+    const digSprites = xmlChildren(record, "digSprites")[0];
+    const normalizePresentationAsset = (
+      presentationRecord: XmlRecord,
+      attribute: string,
+    ) =>
+      normalizeAssetPath(
+        xmlAttribute(presentationRecord, attribute),
+        context,
+        provenance,
+        currentEntityId,
+      );
+    const sourceReference = (
+      presentationRecord: XmlRecord,
+      attribute: string,
+    ) => xmlAttribute(presentationRecord, attribute) || null;
+    const directionalSprite = (
+      presentationRecord: XmlRecord | undefined,
+      elementName: string,
+    ) => {
+      if (!presentationRecord) {
+        return null;
+      }
+      reportUnknownAttributes(
+        context,
+        presentationRecord,
+        elementName,
+        new Set(["down", "left", "right", "up"]),
+        provenance,
+        currentEntityId,
+      );
+      return {
+        down: normalizePresentationAsset(presentationRecord, "down"),
+        left: normalizePresentationAsset(presentationRecord, "left"),
+        right: normalizePresentationAsset(presentationRecord, "right"),
+        up: normalizePresentationAsset(presentationRecord, "up"),
+      };
+    };
+    if (soundEffects) {
+      reportUnknownAttributes(
+        context,
+        soundEffects,
+        "sfx",
+        new Set(["attack", "die", "hit", "spell", "dig_in", "dig_out"]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    for (const [presentationRecord, elementName] of [
+      [deathSprite, "dieSprite"],
+      [castSprite, "castSpellSprite"],
+    ] as const) {
+      if (presentationRecord) {
+        reportUnknownAttributes(
+          context,
+          presentationRecord,
+          elementName,
+          new Set(["name"]),
+          provenance,
+          currentEntityId,
+        );
+      }
+    }
+    if (morphSprites) {
+      reportUnknownAttributes(
+        context,
+        morphSprites,
+        "morphsprites",
+        new Set([
+          "drinkSprite",
+          "eatSprite",
+          "levelupfSprite",
+          "levelupmSprite",
+          "longidleSprite",
+          "vanishSprite",
+        ]),
+        provenance,
+        currentEntityId,
+      );
+    }
+    if (digSprites) {
+      reportUnknownAttributes(
+        context,
+        digSprites,
+        "digSprites",
+        new Set(["downSprite", "upSprite"]),
+        provenance,
+        currentEntityId,
+      );
+    }
     const optionalMovementInteger = (
       behavior: XmlRecord,
       attribute: string,
@@ -2006,6 +2102,52 @@ function parseMonsters(
             }
           : null,
       },
+      presentation: {
+        soundEffects: soundEffects
+          ? {
+              attack: sourceReference(soundEffects, "attack"),
+              death: sourceReference(soundEffects, "die"),
+              hit: sourceReference(soundEffects, "hit"),
+              spell: sourceReference(soundEffects, "spell"),
+              digIn: sourceReference(soundEffects, "dig_in"),
+              digOut: sourceReference(soundEffects, "dig_out"),
+            }
+          : null,
+        attack: directionalSprite(attackSprite, "attackSprite"),
+        hit: directionalSprite(hitSprite, "hitSprite"),
+        death: deathSprite
+          ? { name: normalizePresentationAsset(deathSprite, "name") }
+          : null,
+        cast: castSprite
+          ? { name: normalizePresentationAsset(castSprite, "name") }
+          : null,
+        beam: directionalSprite(beamSprite, "beamSprite"),
+        morph: morphSprites
+          ? {
+              drink: normalizePresentationAsset(morphSprites, "drinkSprite"),
+              eat: normalizePresentationAsset(morphSprites, "eatSprite"),
+              femaleLevelUp: normalizePresentationAsset(
+                morphSprites,
+                "levelupfSprite",
+              ),
+              maleLevelUp: normalizePresentationAsset(
+                morphSprites,
+                "levelupmSprite",
+              ),
+              longIdle: normalizePresentationAsset(
+                morphSprites,
+                "longidleSprite",
+              ),
+              vanish: normalizePresentationAsset(morphSprites, "vanishSprite"),
+            }
+          : null,
+        dig: digSprites
+          ? {
+              down: normalizePresentationAsset(digSprites, "downSprite"),
+              up: normalizePresentationAsset(digSprites, "upSprite"),
+            }
+          : null,
+      },
       experienceValue:
         !stats || xmlAttribute(stats, "xpValue") === undefined
           ? null
@@ -2057,6 +2199,14 @@ function parseMonsters(
         "dash",
         "charge",
         "ondeath",
+        "sfx",
+        "attackSprite",
+        "hitSprite",
+        "dieSprite",
+        "castSpellSprite",
+        "beamSprite",
+        "morphsprites",
+        "digSprites",
       ]),
       currentEntityId,
     );

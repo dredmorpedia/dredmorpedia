@@ -55,6 +55,32 @@ function monster(name: string, inheritsKey?: string): Monster {
           dash: null,
           charge: null,
         },
+    presentation: inheritsKey
+      ? {
+          soundEffects: null,
+          attack: null,
+          hit: null,
+          death: null,
+          cast: null,
+          beam: null,
+          morph: null,
+          dig: null,
+        }
+      : {
+          soundEffects: null,
+          attack: {
+            down: "assets/synthetic.svg",
+            left: null,
+            right: null,
+            up: null,
+          },
+          hit: null,
+          death: null,
+          cast: null,
+          beam: null,
+          morph: null,
+          dig: null,
+        },
     experienceValue: 10,
     modifiers: inheritsKey
       ? [{ kind: "damage", sourceKey: "crushing", amount: 3 }]
@@ -129,6 +155,16 @@ describe("monster inheritance", () => {
       dig: null,
       dash: null,
       charge: null,
+    });
+    expect(resolvedChild?.presentation).toEqual({
+      soundEffects: null,
+      attack: null,
+      hit: null,
+      death: null,
+      cast: null,
+      beam: null,
+      morph: null,
+      dig: null,
     });
     expect(resolvedChild?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 3 },

@@ -511,6 +511,31 @@ test("shows inherited monster stats and navigates its family", async ({
     movementMetadata.getByText(/no complete movement behavior is inferred/i),
   ).toBeVisible();
 
+  const presentationMetadata = page.getByRole("region", {
+    name: "Presentation source coverage",
+  });
+  await expect(
+    presentationMetadata.getByText(
+      "attack, death, hit, spell, dig in, dig out",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    presentationMetadata.getByText("4 references supplied", { exact: true }),
+  ).toHaveCount(3);
+  await expect(
+    presentationMetadata.getByText("1 reference supplied", { exact: true }),
+  ).toHaveCount(2);
+  await expect(
+    presentationMetadata.getByText("6 references supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    presentationMetadata.getByText("2 references supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    presentationMetadata.getByText(/do not inherit from a parent monster/i),
+  ).toBeVisible();
+
   const bonuses = page.getByRole("region", { name: "Stat bonuses" });
   await expect(bonuses.getByText("Crushing damage")).toBeVisible();
   await expect(bonuses.getByText("+3", { exact: true })).toBeVisible();
@@ -618,6 +643,11 @@ test("shows inherited monster stats and navigates its family", async ({
       .getByRole("region", { name: "Movement source metadata" })
       .getByText("Not supplied", { exact: true }),
   ).toHaveCount(3);
+  await expect(
+    page
+      .getByRole("region", { name: "Presentation source coverage" })
+      .getByText("Not supplied", { exact: true }),
+  ).toHaveCount(8);
   const parentDrops = page.getByRole("region", { name: "Drops on defeat" });
   await expect(
     parentDrops.getByRole("link", { name: "Brass Ingot" }),

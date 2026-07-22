@@ -1091,6 +1091,48 @@ describe("synthetic dataset import", () => {
           targetsSelf: false,
         },
       },
+      presentation: {
+        soundEffects: {
+          attack: "assets/synthetic.svg",
+          death: "assets/synthetic.svg",
+          hit: "assets/synthetic.svg",
+          spell: "assets/synthetic.svg",
+          digIn: "assets/synthetic.svg",
+          digOut: "assets/synthetic.svg",
+        },
+        attack: {
+          down: "assets/synthetic.svg",
+          left: "assets/synthetic.svg",
+          right: "assets/synthetic.svg",
+          up: "assets/synthetic.svg",
+        },
+        hit: {
+          down: "assets/synthetic.svg",
+          left: "assets/synthetic.svg",
+          right: "assets/synthetic.svg",
+          up: "assets/synthetic.svg",
+        },
+        death: { name: "assets/synthetic.svg" },
+        cast: { name: "assets/synthetic.svg" },
+        beam: {
+          down: "assets/synthetic.svg",
+          left: "assets/synthetic.svg",
+          right: "assets/synthetic.svg",
+          up: "assets/synthetic.svg",
+        },
+        morph: {
+          drink: "assets/synthetic.svg",
+          eat: "assets/synthetic.svg",
+          femaleLevelUp: "assets/synthetic.svg",
+          maleLevelUp: "assets/synthetic.svg",
+          longIdle: "assets/synthetic.svg",
+          vanish: "assets/synthetic.svg",
+        },
+        dig: {
+          down: "assets/synthetic.svg",
+          up: "assets/synthetic.svg",
+        },
+      },
       experienceValue: 10,
       modifiers: [
         { kind: "damage", sourceKey: "crushing", amount: 3 },
@@ -1169,6 +1211,16 @@ describe("synthetic dataset import", () => {
       },
       sight: { cone: null, modifier: null },
       movement: { dig: null, dash: null, charge: null },
+      presentation: {
+        soundEffects: null,
+        attack: null,
+        hit: null,
+        death: null,
+        cast: null,
+        beam: null,
+        morph: null,
+        dig: null,
+      },
       spellChance: 20,
       triggers: [
         {

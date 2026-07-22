@@ -194,6 +194,78 @@ function hasValidMonsterMovementMetadata(value: unknown): boolean {
   );
 }
 
+function hasValidNullableStringRecord(
+  value: unknown,
+  keys: readonly string[],
+): boolean {
+  if (value === null) {
+    return true;
+  }
+  if (typeof value !== "object") {
+    return false;
+  }
+  const record = value as Record<string, unknown>;
+  return keys.every(
+    (key) =>
+      key in record &&
+      (record[key] === null || typeof record[key] === "string"),
+  );
+}
+
+function hasValidMonsterPresentationMetadata(value: unknown): boolean {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+  const presentation = value as Record<string, unknown>;
+  return (
+    "soundEffects" in presentation &&
+    hasValidNullableStringRecord(presentation.soundEffects, [
+      "attack",
+      "death",
+      "hit",
+      "spell",
+      "digIn",
+      "digOut",
+    ]) &&
+    "attack" in presentation &&
+    hasValidNullableStringRecord(presentation.attack, [
+      "down",
+      "left",
+      "right",
+      "up",
+    ]) &&
+    "hit" in presentation &&
+    hasValidNullableStringRecord(presentation.hit, [
+      "down",
+      "left",
+      "right",
+      "up",
+    ]) &&
+    "death" in presentation &&
+    hasValidNullableStringRecord(presentation.death, ["name"]) &&
+    "cast" in presentation &&
+    hasValidNullableStringRecord(presentation.cast, ["name"]) &&
+    "beam" in presentation &&
+    hasValidNullableStringRecord(presentation.beam, [
+      "down",
+      "left",
+      "right",
+      "up",
+    ]) &&
+    "morph" in presentation &&
+    hasValidNullableStringRecord(presentation.morph, [
+      "drink",
+      "eat",
+      "femaleLevelUp",
+      "maleLevelUp",
+      "longIdle",
+      "vanish",
+    ]) &&
+    "dig" in presentation &&
+    hasValidNullableStringRecord(presentation.dig, ["down", "up"])
+  );
+}
+
 function hasValidSourceFlags(value: unknown): boolean {
   return (
     Array.isArray(value) &&
@@ -614,6 +686,8 @@ function hasValidMonsters(value: unknown): boolean {
       }) &&
       "movement" in monster &&
       hasValidMonsterMovementMetadata(monster.movement) &&
+      "presentation" in monster &&
+      hasValidMonsterPresentationMetadata(monster.presentation) &&
       "experienceValue" in monster &&
       (monster.experienceValue === null ||
         (typeof monster.experienceValue === "number" &&

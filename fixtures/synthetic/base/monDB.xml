@@ -24,6 +24,14 @@
       <dash chance="75" speed="3" mindistance="2" interruptable="1" hitspell="Clockwork Spark" missspell="Missing Dash Spell" />
       <charge chance="15" range="5" turns="3" interruptable="0" blockaction="1" targetself="0" spell="Clockwork Echo" />
       <ondeath percent="45" spell="Clockwork Spark" />
+      <sfx attack="assets/synthetic.svg" die="assets/synthetic.svg" hit="assets/synthetic.svg" spell="assets/synthetic.svg" dig_in="assets/synthetic.svg" dig_out="assets/synthetic.svg" />
+      <attackSprite down="assets/synthetic.svg" left="assets/synthetic.svg" right="assets/synthetic.svg" up="assets/synthetic.svg" />
+      <hitSprite down="assets/synthetic.svg" left="assets/synthetic.svg" right="assets/synthetic.svg" up="assets/synthetic.svg" />
+      <dieSprite name="assets/synthetic.svg" />
+      <castSpellSprite name="assets/synthetic.svg" />
+      <beamSprite down="assets/synthetic.svg" left="assets/synthetic.svg" right="assets/synthetic.svg" up="assets/synthetic.svg" />
+      <morphsprites drinkSprite="assets/synthetic.svg" eatSprite="assets/synthetic.svg" levelupfSprite="assets/synthetic.svg" levelupmSprite="assets/synthetic.svg" longidleSprite="assets/synthetic.svg" vanishSprite="assets/synthetic.svg" />
+      <digSprites downSprite="assets/synthetic.svg" upSprite="assets/synthetic.svg" />
       <spell name="Clockwork Echo" />
       <onhit spell="Missing Monster Spell" onechancein="3" />
       <drop name="Clockwork Blade" percent="40" />

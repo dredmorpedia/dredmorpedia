@@ -27,6 +27,46 @@ function sourceFlagLabel(value: boolean | null): string {
   return value === null ? "Not supplied" : value ? "Enabled" : "Disabled";
 }
 
+function presentationReferenceLabel(value: object | null): string {
+  if (value === null) {
+    return "Not supplied";
+  }
+  const count = Object.values(value).filter(
+    (reference) => typeof reference === "string",
+  ).length;
+  return count === 0
+    ? "Declared without recognized references"
+    : `${count} ${count === 1 ? "reference" : "references"} supplied`;
+}
+
+function soundEffectCoverageLabel(
+  soundEffects: {
+    attack: string | null;
+    death: string | null;
+    hit: string | null;
+    spell: string | null;
+    digIn: string | null;
+    digOut: string | null;
+  } | null,
+): string {
+  if (soundEffects === null) {
+    return "Not supplied";
+  }
+  const labels = [
+    ["attack", soundEffects.attack],
+    ["death", soundEffects.death],
+    ["hit", soundEffects.hit],
+    ["spell", soundEffects.spell],
+    ["dig in", soundEffects.digIn],
+    ["dig out", soundEffects.digOut],
+  ]
+    .filter((entry): entry is [string, string] => typeof entry[1] === "string")
+    .map(([label]) => label);
+  return labels.length > 0
+    ? labels.join(", ")
+    : "Declared without recognized references";
+}
+
 const monsterTriggerLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
   {
     "on-hit": "When its attack hits",
@@ -414,6 +454,53 @@ export default async function MonsterPage({
             These local declarations are shown as source metadata. They do not
             inherit from a parent monster, and no complete movement behavior is
             inferred from them.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="presentation-heading">
+          <h2 id="presentation-heading" className="section-title-sm">
+            Presentation source coverage
+          </h2>
+          <dl className="provenance-list">
+            <div>
+              <dt>Sound effects</dt>
+              <dd>
+                {soundEffectCoverageLabel(monster.presentation.soundEffects)}
+              </dd>
+            </div>
+            <div>
+              <dt>Attack animation</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.attack)}</dd>
+            </div>
+            <div>
+              <dt>Hit animation</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.hit)}</dd>
+            </div>
+            <div>
+              <dt>Death animation</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.death)}</dd>
+            </div>
+            <div>
+              <dt>Spell-cast animation</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.cast)}</dd>
+            </div>
+            <div>
+              <dt>Beam animation</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.beam)}</dd>
+            </div>
+            <div>
+              <dt>Morph animations</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.morph)}</dd>
+            </div>
+            <div>
+              <dt>Dig animations</dt>
+              <dd>{presentationReferenceLabel(monster.presentation.dig)}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These local declarations do not inherit from a parent monster. Raw
+            engine asset references are summarized rather than rendered while
+            the asset publication policy remains unresolved.
           </p>
         </section>
 
