@@ -1,6 +1,25 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+test("shows a dataset-neutral 404 for an unavailable route", async ({
+  page,
+}) => {
+  const response = await page.goto("/spells/not-in-active-dataset/");
+  expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "That record is not in this dataset.",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("It may belong to a different data source."),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Search this dataset" }),
+  ).toBeVisible();
+});
+
 test("filters items and exposes a static detail route", async ({ page }) => {
   await page.goto("/");
   await expect(
@@ -817,6 +836,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/monsters/armored-training-diggle/",
     "/stats/melee-power/",
     "/templates/small-cross/",
+    "/spells/not-in-active-dataset/",
   ]) {
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

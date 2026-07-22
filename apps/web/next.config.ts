@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 function normalizedBasePath(value: string | undefined): string {
   if (!value || value === "/") {
@@ -9,12 +10,12 @@ function normalizedBasePath(value: string | undefined): string {
 
 const basePath = normalizedBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
-const nextConfig: NextConfig = {
-  output: "export",
-  trailingSlash: true,
-  basePath,
-  images: { unoptimized: true },
-  transpilePackages: ["@dredmorpedia/domain"],
-};
-
-export default nextConfig;
+export default function nextConfig(phase: string): NextConfig {
+  return {
+    output: phase === PHASE_DEVELOPMENT_SERVER ? undefined : "export",
+    trailingSlash: true,
+    basePath,
+    images: { unoptimized: true },
+    transpilePackages: ["@dredmorpedia/domain"],
+  };
+}

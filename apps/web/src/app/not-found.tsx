@@ -5,13 +5,17 @@ export default function NotFound() {
     <section className="empty-state mx-auto max-w-xl">
       <p className="eyebrow">404</p>
       <h1 className="mt-2 text-3xl font-bold">
-        That synthetic record does not exist.
+        That record is not in this dataset.
       </h1>
       <p className="mt-3">
-        Return to the item explorer and choose a generated route.
+        It may belong to a different data source. Choose a generated route for
+        the active dataset instead.
       </p>
-      <Link href="/" className="entity-link mt-5 inline-block font-semibold">
-        Back to item explorer
+      <Link
+        href="/search/"
+        className="entity-link mt-5 inline-block font-semibold"
+      >
+        Search this dataset
       </Link>
     </section>
   );
