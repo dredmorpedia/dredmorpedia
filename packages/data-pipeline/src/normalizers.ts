@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import {
   canonicalKey,
   entityId,
+  itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   slugify,
@@ -243,12 +244,7 @@ const monsterSpellTriggerKindRanks = new Map(
   monsterSpellTriggerKinds.map((kind, index) => [kind, index]),
 );
 
-const partiallySupportedItemChildren = new Set([
-  "armour",
-  "effect",
-  "trap",
-  "weapon",
-]);
+const partiallySupportedItemChildren = new Set(["armour", "effect", "weapon"]);
 
 function parseItemRecoveries(
   record: XmlRecord,
@@ -356,6 +352,75 @@ function parseItemChargeRanges(
       return { minimum: null, maximum: null };
     }
     return { minimum, maximum };
+  });
+}
+
+function parseItemTraps(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): Item["traps"] {
+  return xmlChildren(record, "trap").map((trap) => {
+    reportUnknownLeafContent(
+      context,
+      trap,
+      "trap",
+      new Set([
+        "casts",
+        "level",
+        "origin",
+        "originFacing",
+        "originMount",
+        "targetIsCaster",
+        "trigger",
+      ]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+    const activationValue = xmlAttribute(trap, "trigger");
+    const activation = itemTrapActivationModes.find(
+      (mode) => mode === activationValue,
+    );
+    if (activationValue !== undefined && activation === undefined) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_item_trap_activation",
+        message: `Expected always or once for item trap activation; used an unavailable value instead.`,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { value: activationValue },
+      });
+    }
+
+    return {
+      activation: activation ?? null,
+      level: optionalIntegerValue(
+        xmlAttribute(trap, "level"),
+        context,
+        provenance,
+        "item trap level",
+        currentEntityId,
+        0,
+      ),
+      targetsCaster: optionalBooleanAttribute(
+        trap,
+        "targetIsCaster",
+        context,
+        provenance,
+        "item trap targets-caster flag",
+        currentEntityId,
+      ),
+      originPath: normalizeAssetPath(
+        xmlAttribute(trap, "origin"),
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      originMount: xmlAttribute(trap, "originMount") ?? null,
+      originFacing: xmlAttribute(trap, "originFacing") ?? null,
+    };
   });
 }
 
@@ -563,13 +628,7 @@ function parseItemTriggers(
       ["effect"],
     );
   }
-  addTriggers(
-    xmlChildren(record, "trap").filter(
-      (child) => xmlAttribute(child, "casts") !== undefined,
-    ),
-    "stepped-on",
-    ["casts"],
-  );
+  addTriggers(xmlChildren(record, "trap"), "stepped-on", ["casts"]);
   addTriggers(xmlChildren(record, "wand"), "zapped", ["spell"]);
   const potions = xmlChildren(record, "potion");
   for (const potion of potions) {
@@ -1062,6 +1121,7 @@ function parseItems(
       })
       .filter((stat): stat is NonNullable<typeof stat> => stat !== null)
       .sort((left, right) => left.statKey.localeCompare(right.statKey, "en"));
+    const traps = parseItemTraps(record, context, provenance, currentEntityId);
 
     const item: Item = {
       ...baseEntity(
@@ -1072,15 +1132,18 @@ function parseItems(
       ),
       category: itemCategory(record),
       price,
-      quality: integerValue(
-        itemQualityAttribute(record),
-        0,
-        context,
-        provenance,
-        "item quality",
-        currentEntityId,
-        0,
-      ),
+      quality:
+        traps.length > 0
+          ? (traps[0]?.level ?? 0)
+          : integerValue(
+              itemQualityAttribute(record),
+              0,
+              context,
+              provenance,
+              "item quality",
+              currentEntityId,
+              0,
+            ),
       artifacts: parseItemArtifacts(
         record,
         context,
@@ -1099,6 +1162,7 @@ function parseItems(
         provenance,
         currentEntityId,
       ),
+      traps,
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "iconFile"),
         context,
@@ -1122,6 +1186,7 @@ function parseItems(
         "food",
         "mushroom",
         "potion",
+        "trap",
         "wand",
         ...(Object.hasOwn(record, "mushroom") ? ["casts"] : []),
         "description",

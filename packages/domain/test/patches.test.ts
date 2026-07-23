@@ -39,6 +39,7 @@ function item(): Item {
     artifacts: [],
     recoveries: [],
     chargeRanges: [],
+    traps: [],
     iconPath: null,
     stats: [],
     modifiers: [],

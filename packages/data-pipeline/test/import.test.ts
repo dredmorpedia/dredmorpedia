@@ -670,6 +670,128 @@ describe("synthetic dataset import", () => {
     ).toEqual([]);
   });
 
+  it("normalizes loss-aware trap behavior and validates trap leaves", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-trap-metadata-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    mkdirSync(path.join(sourceRoot, "assets"));
+    writeFileSync(path.join(sourceRoot, "assets", "trap.svg"), "<svg />");
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Complete Trap"><trap trigger="once" casts="Trap Effect" level="5" targetIsCaster="1" origin="assets/trap.svg" originMount="wall" originFacing="south" /></item>
+  <item name="Always Trap"><trap trigger="always" casts="Persistent Effect" level="2" /></item>
+  <item name="Disabled Target Trap"><trap trigger="once" casts="Disabled Target Effect" level="1" targetIsCaster="0" /></item>
+  <item name="Invalid Trap"><trap trigger="later" casts="Invalid Effect" level="-1" targetIsCaster="maybe" origin="../outside.svg" future="diagnosed"><future /></trap></item>
+  <item name="Missing Cast"><trap trigger="once" level="3" /></item>
+</items>`,
+    );
+    const manifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-trap-metadata-test",
+        sources: [
+          {
+            id: "item-trap-source",
+            label: "Item Trap Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const items = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(items.get("Complete Trap")?.traps).toEqual([
+      {
+        activation: "once",
+        level: 5,
+        targetsCaster: true,
+        originPath: "assets/trap.svg",
+        originMount: "wall",
+        originFacing: "south",
+      },
+    ]);
+    expect(items.get("Complete Trap")?.quality).toBe(5);
+    expect(items.get("Complete Trap")?.triggers).toEqual([
+      expect.objectContaining({
+        kind: "stepped-on",
+        spellName: "Trap Effect",
+      }),
+    ]);
+    expect(items.get("Always Trap")?.traps).toEqual([
+      {
+        activation: "always",
+        level: 2,
+        targetsCaster: null,
+        originPath: null,
+        originMount: null,
+        originFacing: null,
+      },
+    ]);
+    expect(items.get("Disabled Target Trap")?.traps[0]?.targetsCaster).toBe(
+      false,
+    );
+    expect(items.get("Invalid Trap")?.traps).toEqual([
+      {
+        activation: null,
+        level: null,
+        targetsCaster: null,
+        originPath: null,
+        originMount: null,
+        originFacing: null,
+      },
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "invalid_item_trap_activation" }),
+        expect.objectContaining({
+          code: "invalid_number",
+          details: expect.objectContaining({ field: "item trap level" }),
+        }),
+        expect.objectContaining({ code: "invalid_boolean" }),
+        expect.objectContaining({ code: "unsafe_asset_path" }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          details: expect.objectContaining({
+            element: "trap",
+            attribute: "future",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          details: { element: "future" },
+        }),
+        expect.objectContaining({
+          code: "missing_trigger_spell",
+          entityId: "item:missing cast",
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.details?.element === "trap",
+      ),
+    ).toEqual([]);
+  });
+
   it("derives semantic item categories from source shapes", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-categories-"),
@@ -2243,6 +2365,16 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Wand +1")?.chargeRanges).toEqual([
       { minimum: 2, maximum: 4 },
     ]);
+    expect(itemByName.get("Training Trap")?.traps).toEqual([
+      {
+        activation: "once",
+        level: 5,
+        targetsCaster: true,
+        originPath: "assets/synthetic.svg",
+        originMount: "wall",
+        originFacing: "south",
+      },
+    ]);
     expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
       expect.objectContaining({
         kind: "quaffed",
@@ -2740,13 +2872,14 @@ describe("synthetic dataset import", () => {
         },
       }),
     );
-    expect(result.diagnostics).toContainEqual(
-      expect.objectContaining({
-        code: "partially_supported_element",
-        entityId: "item:training trap",
-        details: { element: "trap" },
-      }),
-    );
+    expect(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.entityId === "item:training trap" &&
+          diagnostic.details?.element === "trap",
+      ),
+    ).toBeUndefined();
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({
         code: "dangling_reference",

@@ -44,7 +44,15 @@
   <item id="training-trap" name="Training Trap" type="trap" iconFile="assets/synthetic.svg">
     <description text="A synthetic trap used to verify trap quality levels." />
     <price amount="30" />
-    <trap level="5" casts="Synthetic Spark" />
+    <trap
+      level="5"
+      casts="Synthetic Spark"
+      trigger="once"
+      targetIsCaster="1"
+      origin="assets/synthetic.svg"
+      originMount="wall"
+      originFacing="south"
+    />
   </item>
   <item id="training-wand-plus" name="Training Wand +1" type="wand" iconFile="assets/synthetic.svg">
     <description text="A route-collision fixture using a symbolic suffix." />

@@ -319,7 +319,29 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
     page.getByText(
       "Supported fields from <trap> were normalized, but other content remains unmodeled.",
     ),
+  ).toHaveCount(0);
+  const trapUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    trapUse.getByRole("heading", { name: "Trap behavior" }),
   ).toBeVisible();
+  await expect(trapUse.getByText("Once", { exact: true })).toBeVisible();
+  await expect(trapUse.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(trapUse.getByText("Referenced", { exact: true })).toBeVisible();
+  await expect(trapUse.getByText("wall", { exact: true })).toBeVisible();
+  await expect(trapUse.getByText("south", { exact: true })).toBeVisible();
+  await expect(
+    trapUse.getByText(/exact runtime behavior is not inferred/),
+  ).toBeVisible();
+  expect(await page.locator("body").textContent()).not.toContain(
+    "assets/synthetic.svg",
+  );
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test("shows item recovery and wand charge source values", async ({ page }) => {
@@ -363,7 +385,7 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
   await expect(
     page
       .getByRole("region", { name: "Use metadata" })
-      .getByText("No normalized recovery or charge metadata."),
+      .getByText("No normalized recovery, charge, or trap metadata."),
   ).toBeVisible();
 });
 

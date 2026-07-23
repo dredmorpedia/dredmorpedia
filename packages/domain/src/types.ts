@@ -89,6 +89,19 @@ export interface ItemChargeRange {
   maximum: number | null;
 }
 
+export const itemTrapActivationModes = ["always", "once"] as const;
+
+export type ItemTrapActivationMode = (typeof itemTrapActivationModes)[number];
+
+export interface ItemTrapMetadata {
+  activation: ItemTrapActivationMode | null;
+  level: number | null;
+  targetsCaster: boolean | null;
+  originPath: string | null;
+  originMount: string | null;
+  originFacing: string | null;
+}
+
 export const itemTriggerKinds = [
   "stepped-on",
   "zapped",
@@ -138,6 +151,7 @@ export interface Item extends NormalizedEntityBase {
   artifacts: ItemArtifactMetadata[];
   recoveries: ItemRecovery[];
   chargeRanges: ItemChargeRange[];
+  traps: ItemTrapMetadata[];
   iconPath: string | null;
   stats: ItemStatValue[];
   modifiers: StatModifier[];

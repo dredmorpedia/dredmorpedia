@@ -31,10 +31,10 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 45,130 bytes.
-- Search artifact: 8,399 bytes for 19 documents.
-- Diagnostics remain the intentional 1 error and 20 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, monster-spell, monster-item, and skill-loadout targets remain explicit.
-- Domain/pipeline tests: 69 passed, plus 11 web artifact-boundary tests.
+- Normalized artifact: 52,397 bytes.
+- Search artifact: 9,671 bytes for 22 documents.
+- Diagnostics remain the intentional 1 error and 19 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, monster-spell, monster-item, and skill-loadout targets remain explicit.
+- Domain/pipeline tests: 70 passed, plus 12 web artifact-boundary tests.
 - Browser tests: 24 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell/monster, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
@@ -42,6 +42,7 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 - Direct item artifact declarations preserve loss-aware quality metadata in deterministic order. The canonical dataset contains 108 valid declarations, removing all 108 former unsupported `<artifact>` diagnostics without inferring artifact-generation or corruption behavior.
 - All 77 canonical direct item hit/kill triggers resolve, including three formerly ignored lowercase aliases. Exact `after` metadata is retained without timing inference, and all 74 associated compatibility diagnostics are removed.
 - Item use metadata preserves 49 canonical Life/Mana recovery declarations, 25 exact `meat=1` source flags, and 21 valid wand charge ranges. All 64 related food/booze/wand/potion/mushroom spell triggers resolve. Fully validating those leaves removes 120 former compatibility diagnostics without inferring recovery timing, charge consumption, or flag behavior.
+- Item trap metadata preserves activation, level, caster-targeting, and safe placement-source declarations while retaining stepped-on spell links. The canonical dataset contains 54 complete active trap declarations and resolved links; fully validating the leaf removes all 54 former trap diagnostics without inferring reset, targeting, or placement behavior.
 - Synthetic item-modifier coverage includes fixed weapon damage plus signed damage, resistance, primary, and secondary declarations. Focused importer tests cover measured casing aliases and malformed values/keys; the item page separates named stats from direct modifiers; and a keyboard search flow filters by the generated `Crushing damage` facet.
 - Monster drop/item backlinks and the initial aggressiveness/span/invisible AI source metadata passed their separate code review on 2026-07-21. Named and type-driven drops are an exclusive domain union backed by the same runtime guard used at the web artifact boundary; adversarial partial, mixed, invalid-type, and out-of-range records are rejected. All boolean AI metadata distinguishes enabled, explicitly disabled, and absent source values without inferring behavior.
 - Monster sight, movement, and presentation metadata passed separate code review on 2026-07-22. Invalid supplied loss-aware boolean tokens emit `invalid_boolean` and remain unavailable instead of becoming disabled, unexpected nested content in leaf metadata elements emits `unknown_element`, and browser coverage asserts that raw engine references remain absent from the presentation summary.
@@ -54,11 +55,11 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Read-only official verification
 
-The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,976 warnings, and 71 info records.
+The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,922 warnings, and 71 info records.
 
-- Normalized artifact: 5,437,706 bytes.
+- Normalized artifact: 5,462,796 bytes.
 - Search artifact: 1,344,780 bytes uncompressed.
-- Diagnostics: 1,622,131 bytes.
+- Diagnostics: 1,596,122 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - The earlier 1,000-query local CPU benchmark over the 2,710-document pre-encrustment artifact measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency; the user-facing search route still filters its payload to items and stats.
 - The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, 951 spell, and 183 monster pages plus registered/source-ID aliases, prerendered 2,824 static pages.

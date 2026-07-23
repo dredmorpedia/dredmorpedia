@@ -36,6 +36,7 @@ function routeItem(name: string, originalId: string): Item {
     artifacts: [],
     recoveries: [],
     chargeRanges: [],
+    traps: [],
     iconPath: null,
     stats: [],
     modifiers: [],

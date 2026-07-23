@@ -8,6 +8,7 @@ import {
   entityKinds,
   isValidTemplateRows,
   itemRecoveryResources,
+  itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   spellBuffEventHookKinds,
@@ -164,6 +165,18 @@ const itemSchema = z
         .strict(),
     ),
     chargeRanges: z.array(itemChargeRangeSchema),
+    traps: z.array(
+      z
+        .object({
+          activation: z.enum(itemTrapActivationModes).nullable(),
+          level: nullableNonnegativeInteger,
+          targetsCaster: z.boolean().nullable(),
+          originPath: z.string().nullable(),
+          originMount: z.string().nullable(),
+          originFacing: z.string().nullable(),
+        })
+        .strict(),
+    ),
     iconPath: z.string().nullable(),
     stats: z.array(
       z

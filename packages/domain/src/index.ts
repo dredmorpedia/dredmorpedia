@@ -16,6 +16,7 @@ export {
   encrustmentModifierKinds,
   entityKinds,
   itemRecoveryResources,
+  itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   spellBuffEventHookKinds,

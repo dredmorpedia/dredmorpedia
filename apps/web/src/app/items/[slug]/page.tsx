@@ -154,7 +154,9 @@ export default async function ItemPage({
           <h2 id="item-use-heading" className="section-title-sm">
             Use metadata
           </h2>
-          {item.recoveries.length > 0 || item.chargeRanges.length > 0 ? (
+          {item.recoveries.length > 0 ||
+          item.chargeRanges.length > 0 ||
+          item.traps.length > 0 ? (
             <div className="relationship-groups">
               {item.recoveries.length > 0 ? (
                 <section aria-labelledby="item-recovery-heading">
@@ -206,14 +208,82 @@ export default async function ItemPage({
                   </div>
                 </section>
               ) : null}
-              <p className="supporting-note">
-                These are direct source values; recovery timing and charge-use
-                behavior are not inferred.
-              </p>
+              {item.traps.length > 0 ? (
+                <section aria-labelledby="item-traps-heading">
+                  <h3 id="item-traps-heading" className="relationship-title">
+                    Trap behavior
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.traps.map((trap, index) => (
+                      <div key={index}>
+                        {item.traps.length > 1 ? (
+                          <p className="supporting-note">
+                            Declaration {index + 1}
+                          </p>
+                        ) : null}
+                        <dl className="stat-list">
+                          <div>
+                            <dt>Activation</dt>
+                            <dd>
+                              {trap.activation === null
+                                ? "Unavailable"
+                                : trap.activation === "once"
+                                  ? "Once"
+                                  : "Always"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Trap level</dt>
+                            <dd>{trap.level ?? "Unavailable"}</dd>
+                          </div>
+                          <div>
+                            <dt>Targets caster</dt>
+                            <dd>
+                              {trap.targetsCaster === null
+                                ? "Not supplied"
+                                : trap.targetsCaster
+                                  ? "Yes"
+                                  : "No"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Origin sprite</dt>
+                            <dd>
+                              {trap.originPath ? "Referenced" : "Not supplied"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Origin mount</dt>
+                            <dd>{trap.originMount ?? "Not supplied"}</dd>
+                          </div>
+                          <div>
+                            <dt>Origin facing</dt>
+                            <dd>{trap.originFacing ?? "Not supplied"}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+              {item.recoveries.length > 0 || item.chargeRanges.length > 0 ? (
+                <p className="supporting-note">
+                  These are direct source values; recovery timing and charge-use
+                  behavior are not inferred.
+                </p>
+              ) : null}
+              {item.traps.length > 0 ? (
+                <p className="supporting-note">
+                  Activation, targeting, and placement are direct source
+                  declarations; exact runtime behavior is not inferred. Raw
+                  origin asset paths are not shown while publication policy
+                  remains unresolved.
+                </p>
+              ) : null}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized recovery or charge metadata.
+              No normalized recovery, charge, or trap metadata.
             </p>
           )}
         </section>

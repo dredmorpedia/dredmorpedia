@@ -77,7 +77,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(10);
     expect(loadSearchArtifact().documents).toHaveLength(22);
-    expect(loadDiagnostics()).toHaveLength(25);
+    expect(loadDiagnostics()).toHaveLength(24);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -231,6 +231,28 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/minimum must not exceed maximum/);
+  });
+
+  it("rejects malformed item trap metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { traps: { targetsCaster: unknown }[] }[];
+      };
+    };
+    const trap = typedArtifact.entities.items
+      .flatMap((item) => item.traps)
+      .at(0);
+    if (!trap) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item trap metadata.",
+      );
+    }
+    trap.targetsCaster = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/traps/);
   });
 
   it("rejects malformed spell-trigger source flags", async () => {

@@ -39,6 +39,7 @@ function candidate(
       artifacts: [],
       recoveries: [],
       chargeRanges: [],
+      traps: [],
       iconPath: null,
       stats: [],
       modifiers: [],
