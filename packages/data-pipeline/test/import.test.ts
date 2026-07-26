@@ -84,6 +84,87 @@ describe("synthetic dataset import", () => {
     expect(serialized.manifest).not.toContain(temporaryRoot);
   });
 
+  it("reports diagnostics at the declaring record and direct child", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-diagnostic-locations-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      [
+        "<items>",
+        '  <item name="First Item" type="material">',
+        "    <mystery />",
+        "  </item>",
+        '  <item name="Second Item" type="material">',
+        "    <wrapper>",
+        "      <mystery />",
+        "    </wrapper>",
+        "    <mystery />",
+        "  </item>",
+        '  <item type="material" />',
+        "</items>",
+      ].join("\r\n"),
+    );
+    const locationManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      locationManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "diagnostic-location-test",
+        sources: [
+          {
+            id: "fixture",
+            label: "Fixture",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: locationManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(
+      result.artifact.entities.items.map((item) => ({
+        id: item.id,
+        line: item.provenance.line,
+        column: item.provenance.column,
+      })),
+    ).toEqual([
+      { id: "item:first item", line: 2, column: 3 },
+      { id: "item:second item", line: 5, column: 3 },
+    ]);
+    expect(
+      result.diagnostics
+        .filter(
+          (diagnostic) =>
+            diagnostic.code === "unknown_element" &&
+            diagnostic.details?.element === "mystery",
+        )
+        .map((diagnostic) => ({
+          entityId: diagnostic.entityId,
+          line: diagnostic.source?.line,
+          column: diagnostic.source?.column,
+        })),
+    ).toEqual([
+      { entityId: "item:first item", line: 3, column: 5 },
+      { entityId: "item:second item", line: 9, column: 5 },
+    ]);
+    expect(
+      result.diagnostics.find(
+        (diagnostic) => diagnostic.code === "missing_entity_name",
+      )?.source,
+    ).toMatchObject({ line: 11, column: 3 });
+  });
+
   it("rejects a patch with stale dataset scope without partially changing data", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-stale-patch-"),

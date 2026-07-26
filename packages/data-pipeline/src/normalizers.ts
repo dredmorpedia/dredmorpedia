@@ -883,12 +883,12 @@ function optionalNumberValue(
 
 function provenanceFor(
   context: NormalizationContext,
-  tag: string,
+  record: XmlRecord,
   name: string,
   originalId?: string,
 ): EntityProvenance {
   return {
-    ...context.parsed.locateElement(tag, name, originalId),
+    ...context.parsed.locateRecord(record),
     originalName: name,
     ...(originalId ? { originalId } : {}),
   };
@@ -990,7 +990,7 @@ function reportUnknownChildren(
       message: partiallySupported
         ? `Supported fields from <${key}> were normalized, but other content remains unmodeled.`
         : `Unsupported <${key}> element was preserved only as a diagnostic.`,
-      source: context.parsed.locateElement(key),
+      source: context.parsed.locateChildElement(record, key),
       entityId: currentEntityId,
       details: { element: key },
     });
@@ -1080,13 +1080,13 @@ function parseItems(
         severity: "error",
         code: "missing_entity_name",
         message: "An <item> is missing its required name attribute.",
-        source: context.parsed.locateElement("item"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
 
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "item", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("item", name);
     const priceText = childAttribute(record, "price", "amount");
     const price = priceText
@@ -1213,7 +1213,7 @@ function parseRecipes(
       : "Unnamed Recipe";
     const name = xmlAttribute(record, "name") ?? fallbackName;
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "craft", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("recipe", name);
     const references = (children: XmlRecord[]) =>
       children
@@ -1600,13 +1600,13 @@ function parseEncrustments(
         severity: "error",
         code: "missing_entity_name",
         message: "An <encrust> is missing its required name attribute.",
-        source: context.parsed.locateElement("encrust"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
 
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "encrust", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("encrustment", name);
     const inputRecords = xmlChildren(record, "input");
     const inputs = inputRecords
@@ -1732,12 +1732,12 @@ function parseEncrustments(
         severity: "warning",
         code: "missing_instability_effect_name",
         message: "An unstable encrustment effect is missing its name.",
-        source: context.parsed.locateElement("unstableEffect"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
 
-    const provenance = provenanceFor(context, "unstableEffect", name);
+    const provenance = provenanceFor(context, record, name);
     const spellName = xmlAttribute(record, "spell");
     if (!spellName) {
       context.diagnostics.push({
@@ -1862,12 +1862,12 @@ function parseSkills(
         severity: "error",
         code: "missing_entity_name",
         message: "A <skill> is missing its required name attribute.",
-        source: context.parsed.locateElement("skill"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "skill", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("skill", name);
     const loadouts = xmlChildren(record, "loadout").map((loadout) => {
       const itemName = xmlAttribute(loadout, "subtype");
@@ -1938,14 +1938,14 @@ function parseSkills(
         severity: "error",
         code: "missing_entity_name",
         message: "An <ability> is missing its required name attribute.",
-        source: context.parsed.locateElement("ability"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     if (!skillReference) {
       const provenance = provenanceFor(
         context,
-        "ability",
+        record,
         name,
         xmlAttribute(record, "id"),
       );
@@ -1960,7 +1960,7 @@ function parseSkills(
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "ability", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("ability", name);
     const triggers = parseDirectSpellTriggers(
       record,
@@ -2644,12 +2644,12 @@ function parseSpells(
         severity: "error",
         code: "missing_entity_name",
         message: "A <spell> is missing its required name attribute.",
-        source: context.parsed.locateElement("spell"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "spell", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("spell", name);
     const effects = xmlChildren(record, "effect")
       .map((effect) => {
@@ -2747,12 +2747,12 @@ function parseMonsters(
         severity: "error",
         code: "missing_entity_name",
         message: "A <monster> is missing its required name attribute.",
-        source: context.parsed.locateElement("monster"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "monster", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("monster", name);
     const sourceLevel = xmlAttribute(record, "level");
     const normalizedLevel = integerValue(
@@ -3582,12 +3582,12 @@ function parseStats(
         severity: "error",
         code: "missing_entity_name",
         message: "A <stat> is missing its required name attribute.",
-        source: context.parsed.locateElement("stat"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "stat", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const stat: Stat = {
       ...baseEntity(
         "stat",
@@ -3613,12 +3613,12 @@ function parseTemplates(
         severity: "error",
         code: "missing_entity_name",
         message: "A <template> is missing its required name attribute.",
-        source: context.parsed.locateElement("template"),
+        source: context.parsed.locateRecord(record),
       });
       continue;
     }
     const originalId = xmlAttribute(record, "id");
-    const provenance = provenanceFor(context, "template", name, originalId);
+    const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("template", name);
     const template: Template = {
       ...baseEntity("template", name, "", provenance),
