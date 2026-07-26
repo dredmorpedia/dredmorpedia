@@ -15,7 +15,7 @@ const patchValueSchema = z.union([
   z.array(z.string()),
 ]);
 
-const operationSchema = z.object({
+const operationSchema = z.strictObject({
   entityKind: z.enum(entityKinds),
   canonicalKey: z.string().min(1),
   field: z.string().min(1),
@@ -23,19 +23,21 @@ const operationSchema = z.object({
   value: patchValueSchema,
 });
 
+const patchScopeSchema = z.strictObject({
+  datasetId: z.string().min(1),
+  datasetVersion: z.string().min(1),
+  sourceId: z.string().min(1),
+  sourceVersion: z.string().min(1),
+});
+
 const patchFileSchema = z
-  .object({
+  .strictObject({
     schemaVersion: z.literal(1),
     id: z
       .string()
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use a lowercase kebab-case ID."),
     reason: z.string().min(1),
-    appliesTo: z.object({
-      datasetId: z.string().min(1),
-      datasetVersion: z.string().min(1),
-      sourceId: z.string().min(1),
-      sourceVersion: z.string().min(1),
-    }),
+    appliesTo: patchScopeSchema,
     operations: z.array(operationSchema).min(1),
   })
   .superRefine((definition, context) => {

@@ -15,12 +15,12 @@ export const databaseKinds = [
   "stats",
 ] as const;
 
-const databaseFileSchema = z.object({
+const databaseFileSchema = z.strictObject({
   kind: z.enum(databaseKinds),
   path: z.string().min(1),
 });
 
-const sourceV1Schema = z.object({
+const sourceV1Schema = z.strictObject({
   id: z.string().min(1),
   label: z.string().min(1),
   kind: z.enum(["base", "expansion", "mod", "fixture"]),
@@ -29,11 +29,12 @@ const sourceV1Schema = z.object({
   files: z.array(databaseFileSchema).min(1),
 });
 
-const sourceV2Schema = sourceV1Schema.extend({
+const sourceV2Schema = z.strictObject({
+  ...sourceV1Schema.shape,
   version: z.string().min(1),
 });
 
-const patchReferenceSchema = z.object({
+const patchReferenceSchema = z.strictObject({
   order: z.number().int(),
   path: z.string().min(1),
 });
@@ -71,7 +72,7 @@ function validateUniqueEntries(
 }
 
 const manifestV1Schema = z
-  .object({
+  .strictObject({
     schemaVersion: z.literal(1),
     datasetId: z.string().min(1),
     sources: z.array(sourceV1Schema).min(1),
@@ -79,7 +80,7 @@ const manifestV1Schema = z
   .superRefine(validateUniqueEntries);
 
 const manifestV2Schema = z
-  .object({
+  .strictObject({
     schemaVersion: z.literal(2),
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
@@ -89,7 +90,10 @@ const manifestV2Schema = z
   })
   .superRefine(validateUniqueEntries);
 
-const manifestInputSchema = z.union([manifestV1Schema, manifestV2Schema]);
+const manifestInputSchema = z.discriminatedUnion("schemaVersion", [
+  manifestV1Schema,
+  manifestV2Schema,
+]);
 
 export type DatabaseKind = (typeof databaseKinds)[number];
 export type PatchReference = z.infer<typeof patchReferenceSchema>;

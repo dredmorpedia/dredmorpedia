@@ -31,6 +31,8 @@ A source manifest without `routeRegistry` remains valid for local/import compati
 
 Schema version `1` manifests remain readable as a local migration aid. They produce `unversioned` dataset/source provenance and cannot declare patches or a route registry. New or edited manifests must use version `2`.
 
+Manifest, patch, and route-registry objects are closed at every nesting level. Unknown fields are rejected with their object path instead of being silently removed, so a misspelled key cannot produce a valid but unintended import. Additive input changes must be introduced as explicit optional fields under the applicable versioning policy or through a new schema version.
+
 ## Patch files
 
 Patch file schema version `1` contains:

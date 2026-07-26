@@ -10,18 +10,18 @@ import {
 } from "@dredmorpedia/domain";
 import { z } from "zod";
 
-const entityIdTargetSchema = z.object({
+const entityIdTargetSchema = z.strictObject({
   type: z.literal("entity-id"),
   entityId: z.string().min(1),
 });
 
-const sourceIdTargetSchema = z.object({
+const sourceIdTargetSchema = z.strictObject({
   type: z.literal("source-id"),
   sourceId: z.string().min(1),
   originalId: z.string().min(1),
 });
 
-const routeEntrySchema = z.object({
+const routeEntrySchema = z.strictObject({
   entityKind: z.enum(entityKinds),
   target: z.discriminatedUnion("type", [
     entityIdTargetSchema,
@@ -32,7 +32,7 @@ const routeEntrySchema = z.object({
 });
 
 const routeRegistrySchema = z
-  .object({
+  .strictObject({
     schemaVersion: z.literal(1),
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
