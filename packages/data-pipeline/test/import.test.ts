@@ -193,6 +193,83 @@ describe("synthetic dataset import", () => {
     ).toThrow(/Duplicate patch id/);
   });
 
+  it("rejects a schema-invalid patch value without publishing invalid data", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-invalid-patch-value-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    const patchRoot = path.join(temporaryRoot, "patches");
+    mkdirSync(sourceRoot);
+    mkdirSync(patchRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      '<?xml version="1.0"?><items><item name="Patch Value Guard" type="material"><price amount="42" /></item></items>',
+    );
+    writeFileSync(
+      path.join(patchRoot, "invalid-price.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        id: "invalid-price",
+        reason:
+          "A negative item price violates the normalized artifact contract.",
+        appliesTo: {
+          datasetId: "patch-value-guard-test",
+          datasetVersion: "1.0.0",
+          sourceId: "patch-value-guard-source",
+          sourceVersion: "1.0.0",
+        },
+        operations: [
+          {
+            entityKind: "item",
+            canonicalKey: "patch value guard",
+            field: "price",
+            expectedValue: 42,
+            value: -1,
+          },
+        ],
+      }),
+    );
+    const guardedManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      guardedManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "patch-value-guard-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "patch-value-guard-source",
+            label: "Patch Value Guard Source",
+            kind: "fixture",
+            version: "1.0.0",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+        patches: [{ order: 0, path: "patches/invalid-price.json" }],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: guardedManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.entities.items[0]).toMatchObject({
+      price: 42,
+      appliedPatches: [],
+    });
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        code: "patch_value_invalid",
+        entityId: "item:patch value guard",
+      }),
+    ]);
+  });
+
   it("rejects a stale route registry atomically", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-stale-routes-"),

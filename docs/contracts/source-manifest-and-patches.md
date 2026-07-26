@@ -41,7 +41,7 @@ Patch file schema version `1` contains:
 
 The expected value is a stale-input guard, not optional documentation. A patch is applied atomically only when its dataset/source scope, targets, fields, value types, and every expected value match. Otherwise none of its operations are applied and the importer emits source-located error diagnostics.
 
-Patchable fields deliberately exclude identity, names, routes, raw provenance, diagnostic IDs, override history, and relationship objects. The initial allowlist covers normalized scalar fields and selected string arrays that can be safely relinked after patching. Extending the allowlist requires a matching type validator and tests.
+Patchable fields deliberately exclude identity, names, routes, raw provenance, diagnostic IDs, override history, relationship objects, and derived compatibility arrays such as skill `loadoutItemKeys` and ability `spellKeys`. The initial allowlist covers normalized scalar fields and non-derived string arrays whose complete artifact invariants can be checked before application. Extending the allowlist requires a matching full-contract validator, relinking behavior where applicable, and tests.
 
 ## Provenance and diagnostics
 

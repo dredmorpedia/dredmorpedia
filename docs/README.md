@@ -18,6 +18,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`architecture/modernization-proposal.md`](architecture/modernization-proposal.md) — recommended target architecture, stack, alternatives, and feature opportunities.
 - [`data-and-assets-policy.md`](data-and-assets-policy.md) — mandatory safety and publication boundary for local game files, generated data, mods, and assets.
 - [`handoff/new-pc-and-codex.md`](handoff/new-pc-and-codex.md) — machine-transfer procedure, current repository state, agreed decisions, and the next task for a context-free Codex session.
+- [`handoff/ai-agent-conversation-resume.md`](handoff/ai-agent-conversation-resume.md) — concise fresh-conversation checkpoint, working method, validation sequence, current backlog, and next-task guidance for an AI agent.
 - [`roadmap.md`](roadmap.md) — phased delivery plan and exit criteria.
 - [`decisions/`](decisions/) — architecture decision records (ADRs), including owner-approved directions that still need technical or policy validation.
 - [`contracts/generated-artifacts.md`](contracts/generated-artifacts.md) — versioned normalized/search/diagnostic artifact contract and evolution rules.

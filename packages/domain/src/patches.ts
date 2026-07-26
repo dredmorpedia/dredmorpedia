@@ -6,6 +6,7 @@ import type {
   NormalizedEntity,
   PatchValue,
 } from "./types";
+import { isValidTemplateRows } from "./template-grid";
 
 export interface EntityPatchOperation {
   entityKind: EntityKind;
@@ -63,16 +64,19 @@ type ValueValidator = (value: unknown) => value is PatchValue;
 
 const isString: ValueValidator = (value): value is string =>
   typeof value === "string";
-const isNumber: ValueValidator = (value): value is number =>
-  typeof value === "number" && Number.isFinite(value);
+const isInteger = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value);
 const isNonNegativeInteger = (value: unknown): value is number =>
   typeof value === "number" && Number.isInteger(value) && value >= 0;
-const isNullableNumber: ValueValidator = (value): value is number | null =>
-  value === null || isNumber(value);
+const isNullableNonNegativeInteger: ValueValidator = (
+  value,
+): value is number | null => value === null || isNonNegativeInteger(value);
 const isBoolean: ValueValidator = (value): value is boolean =>
   typeof value === "boolean";
 const isStringArray: ValueValidator = (value): value is string[] =>
   Array.isArray(value) && value.every((entry) => typeof entry === "string");
+const isTemplateRows: ValueValidator = (value): value is string[] =>
+  isValidTemplateRows(value);
 
 const patchableFields: Record<
   EntityKind,
@@ -81,14 +85,14 @@ const patchableFields: Record<
   item: {
     description: isString,
     category: isString,
-    price: isNullableNumber,
+    price: isNullableNonNegativeInteger,
     quality: isNonNegativeInteger,
   },
   recipe: {
     description: isString,
     tool: isString,
     hidden: isBoolean,
-    skillLevel: isNumber,
+    skillLevel: isNonNegativeInteger,
   },
   encrustment: {
     description: isString,
@@ -96,17 +100,15 @@ const patchableFields: Record<
     hidden: isBoolean,
     skillLevel: isNonNegativeInteger,
     slots: isStringArray,
-    instability: isNumber,
+    instability: isInteger,
   },
   skill: {
     description: isString,
     archetype: isString,
-    loadoutItemKeys: isStringArray,
   },
   ability: {
     description: isString,
     skillKey: isString,
-    spellKeys: isStringArray,
   },
   spell: {
     description: isString,
@@ -115,7 +117,7 @@ const patchableFields: Record<
   monster: {
     description: isString,
     taxonomy: isString,
-    level: isNumber,
+    level: isNonNegativeInteger,
     inheritsKey: isString,
     inheritsName: isString,
   },
@@ -126,7 +128,7 @@ const patchableFields: Record<
   template: {
     description: isString,
     affectsPlayer: isBoolean,
-    rows: isStringArray,
+    rows: isTemplateRows,
   },
 };
 

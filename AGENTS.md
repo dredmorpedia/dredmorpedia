@@ -14,6 +14,7 @@ Read these files before making a substantial change:
 4. `docs/roadmap.md`
 5. Relevant records in `docs/decisions/`
 6. `docs/handoff/new-pc-and-codex.md` when resuming on a new machine or in a context-free Codex task
+7. `docs/handoff/ai-agent-conversation-resume.md` when resuming ongoing incremental work in a fresh conversation
 
 ## Current repository state
 
