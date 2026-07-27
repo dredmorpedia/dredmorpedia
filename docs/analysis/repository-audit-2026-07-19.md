@@ -2,9 +2,46 @@
 
 Date: 2026-07-19
 Scope: commit `68ee565` on `master`, before modernization documentation was added
-Status: baseline evidence for the rebuild
+Status: baseline evidence for the rebuild; current resolution summary added 2026-07-27
 
 > Repository update: commit `ed71652` subsequently relocated all 1,450 tracked baseline files into `legacy/` as exact renames with no content changes. Measurements and observations below describe commit `68ee565`; paths should now be read relative to `legacy/` unless historical root placement is the subject.
+
+> Modernization update: the original audit remains intentionally commit-specific rather than being rewritten as if the modern workspace existed in 2026-07-19. The current implementation status and remaining work are summarized below. Use `docs/handoff/ai-agent-conversation-resume.md` for the latest operational checkpoint.
+
+## Modern rebuild status as of 2026-07-27
+
+The audit's main architectural recommendations have been implemented. The modern workspace is split into `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked tests use independently authored fixtures under `fixtures/synthetic`; and the preserved application remains under `legacy/` as a behavioral reference.
+
+| Baseline finding | Current implementation | Status |
+| --- | --- | --- |
+| Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; public-data policy remains open |
+| Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and an optional published-route registry are deterministic domain/pipeline contracts. | Resolved for generation; published route/version lifecycle remains to be decided |
+| Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 96 unit/artifact tests, and 26 desktop/mobile Playwright tests are established. | Resolved |
+| Fixed-width, all-DOM rendering was inaccessible and did not scale | Static routes cover all nine entity kinds; the local canonical export currently produces 2,824 pages. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for covered routes; broader browse/navigation remains |
+| Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,767 canonical documents. `/search/` exposes every kind, caps rendering at 50 results, supports structured URL filters, and locally buffers text so asynchronous URL updates cannot lose typing. | Core reach resolved; no-JavaScript discovery, broader stat facets, and ADR 0003 budgets remain |
+| Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates paths against real source roots, emits strict normalized schemas, and React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
+| Useful legacy content rules needed verified parity rather than a blind port | Static details and deterministic relationships now cover items, recipes, encrustments, skills, abilities, spells, monsters, stats, and templates. Verified slices preserve provenance and explicitly withhold unsupported behavior/formulas. | In progress |
+| Code, mod, official-data, and asset redistribution rights were unclear | The interim data/asset policy keeps official/generated derivatives ignored and blocks public official-content deployment. | Open owner/policy gate |
+| Nominal PWA and obsolete deployment instructions overstated capability | The modern build targets reproducible static export. Offline installability remains deliberately deferred until artifact sizing and release policy are settled. | Static build resolved; PWA intentionally deferred |
+
+Current validation and search evidence are recorded in:
+
+- [`codebase-and-parity-review-2026-07-23.md`](codebase-and-parity-review-2026-07-23.md);
+- [`all-entity-search-evidence-2026-07-27.md`](all-entity-search-evidence-2026-07-27.md); and
+- [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
+
+### Remaining work carried forward from the audit
+
+The following audit concerns are still actionable:
+
+1. **Publication and licensing:** decide whether normalized official data and art may be hosted, establish inherited code/mod/asset licensing and attribution, and then formally accept or revise ADRs 0001 and 0002.
+2. **Content parity:** the current canonical measurement retains 555 item compatibility diagnostics, 2,335 unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 19 dangling references. Each supported family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+3. **Discovery:** add useful static browse/index navigation for non-item kinds and a meaningful no-JavaScript discovery path. Search now reaches every kind, but it remains a client-interactive island.
+4. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
+5. **Versioned release routes:** before publishing multiple game datasets or adding a version switcher, decide how route registries are carried across dataset versions and when they become mandatory for already-published URLs.
+6. **Formula/source decisions:** approve a stat-definition source absent from the canonical build and resolve or intentionally exclude disputed monster Life, Mana, secondary-stat, and damage formulas.
+7. **Release hardening:** complete static-hosting policy, sitemap/robots/canonical behavior, dependency/update policy, performance budgets, dataset health reporting, and rollback procedures.
 
 ## Executive assessment
 
@@ -55,7 +92,7 @@ Most repository bytes are historical mod packages and art/source assets. Several
 | Items | Categorizes and renders equipment, food, booze, traps, wands, potions, mushrooms, gems, reagents, and fallbacks | Parses prices, quality, stats, triggers, icons, and crafting links |
 | Crafts | Groups recipes by tool | Handles hidden recipes, inputs, outputs, quantity, and skill requirement |
 | Encrusts | Groups encrusting recipes by tool | Similar parser/render path to crafts; no committed encrust database is present |
-| Skills | Groups skills by warrior/rogue/wizard archetype and renders abilities | Parses loadouts, ability stats, and referenced spells; the source still has a `TODO` for a formal link pass |
+| Skills | Groups skills by warrior/rogue/wizard archetype and renders abilities | The legacy source left a formal link pass as a `TODO`; the modern domain/pipeline now links skill progression, loadouts, ability modifiers, and referenced spells deterministically |
 | Spells | Categorizes by initial character and renders effects | Encodes a large set of effect types, triggers, targets, recursion, buffs, mines, summons, item effects, and stat scaling |
 | Monsters | Groups normal monsters by depth plus special monsters | Supports inheritance, level-derived stats, spells, drops, taxonomy, and palette tinting |
 | Stats | Lists hard-coded damage, resistance, primary, and secondary definitions | Also supplies parsing maps and level formulas used by other modules |
@@ -198,6 +235,8 @@ Before a public rebuild ships, the owner should determine what code and content 
 - Inline HTML construction with ambiguous escaping.
 
 ## Prioritized risk register
+
+This table records the 2026-07-19 baseline priorities. The current resolution crosswalk near the top of this document supersedes it for planning.
 
 | Priority | Risk | Consequence | Required response |
 | --- | --- | --- | --- |
