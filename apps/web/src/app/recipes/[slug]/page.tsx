@@ -122,9 +122,9 @@ export default async function RecipePage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Recipes</span>
+        <Link href="/browse/recipes/1/">Recipes</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{recipe.name}</span>
       </nav>

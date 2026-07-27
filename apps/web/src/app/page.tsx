@@ -103,9 +103,9 @@ export default function HomePage() {
           </div>
           <Link
             className="entity-link text-sm font-semibold"
-            href="/search/?kind=item"
+            href="/browse/items/1/"
           >
-            Browse and filter all items →
+            Browse all items →
           </Link>
         </div>
 

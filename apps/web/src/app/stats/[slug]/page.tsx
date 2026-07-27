@@ -61,7 +61,9 @@ export default async function StatPage({
     return (
       <article className="detail-page">
         <nav aria-label="Breadcrumb" className="breadcrumb">
-          <Link href="/search?kind=stat">Stats</Link>
+          <Link href="/browse/">Browse</Link>
+          <span aria-hidden="true">/</span>
+          <Link href="/browse/stats/1/">Stats</Link>
           <span aria-hidden="true">/</span>
           <span aria-current="page">Unavailable</span>
         </nav>
@@ -95,7 +97,9 @@ export default async function StatPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/search?kind=stat">Stats</Link>
+        <Link href="/browse/">Browse</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/browse/stats/1/">Stats</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{stat.name}</span>
       </nav>

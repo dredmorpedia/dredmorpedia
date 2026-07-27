@@ -80,9 +80,9 @@ export default async function SkillPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Skills</span>
+        <Link href="/browse/skills/1/">Skills</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{skill.name}</span>
       </nav>

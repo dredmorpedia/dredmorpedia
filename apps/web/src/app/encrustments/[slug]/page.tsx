@@ -137,9 +137,9 @@ export default async function EncrustmentPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Encrustments</span>
+        <Link href="/browse/encrustments/1/">Encrustments</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{encrustment.name}</span>
       </nav>

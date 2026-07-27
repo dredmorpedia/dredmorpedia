@@ -173,9 +173,9 @@ export default async function SpellPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Spells</span>
+        <Link href="/browse/spells/1/">Spells</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{spell.name}</span>
       </nav>

@@ -11,12 +11,14 @@ export default function NotFound() {
         It may belong to a different data source. Choose a generated route for
         the active dataset instead.
       </p>
-      <Link
-        href="/search/"
-        className="entity-link mt-5 inline-block font-semibold"
-      >
-        Search this dataset
-      </Link>
+      <div className="mt-5 flex flex-wrap gap-4 font-semibold">
+        <Link href="/browse/" className="entity-link">
+          Browse this dataset
+        </Link>
+        <Link href="/search/" className="entity-link">
+          Search this dataset
+        </Link>
+      </div>
     </section>
   );
 }

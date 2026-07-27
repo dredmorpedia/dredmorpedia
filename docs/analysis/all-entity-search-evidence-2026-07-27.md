@@ -43,8 +43,9 @@ publication of the ignored official artifact.
 - Results remain capped at 50 and use the existing deterministic domain ranking.
 - The stat facet remains an item-stat facet because broader ability/spell stat
   search needs its own evidenced domain contract.
-- The search payload remains client-interactive. Static browse indexes and a
-  useful no-JavaScript discovery surface remain separate product work.
+- The search payload remains client-interactive. The separate static browse and
+  no-JavaScript discovery work is now complete and recorded in
+  [`static-browse-evidence-2026-07-27.md`](static-browse-evidence-2026-07-27.md).
 - ADR 0003's transfer, parsing, interaction, and relevance acceptance budgets
   remain open.
 

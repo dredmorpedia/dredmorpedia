@@ -98,7 +98,9 @@ export default async function ItemPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/browse/items/1/">Items</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{item.name}</span>
       </nav>

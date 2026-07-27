@@ -67,7 +67,9 @@ export default async function TemplatePage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/search?kind=template">Templates</Link>
+        <Link href="/browse/">Browse</Link>
+        <span aria-hidden="true">/</span>
+        <Link href="/browse/templates/1/">Targeting templates</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{template.name}</span>
       </nav>

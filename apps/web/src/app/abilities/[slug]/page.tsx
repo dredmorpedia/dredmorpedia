@@ -71,15 +71,9 @@ export default async function AbilityPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Skills</span>
-        <span aria-hidden="true">/</span>
-        {skill ? (
-          <Link href={`/skills/${skill.slug}`}>{skill.name}</Link>
-        ) : (
-          <span>Unknown skill</span>
-        )}
+        <Link href="/browse/abilities/1/">Abilities</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{ability.name}</span>
       </nav>

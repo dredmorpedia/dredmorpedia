@@ -153,9 +153,9 @@ export default async function MonsterPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/">Items</Link>
+        <Link href="/browse/">Browse</Link>
         <span aria-hidden="true">/</span>
-        <span>Monsters</span>
+        <Link href="/browse/monsters/1/">Monsters</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{monster.name}</span>
       </nav>

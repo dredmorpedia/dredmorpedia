@@ -20,6 +20,58 @@ test("shows a dataset-neutral 404 for an unavailable route", async ({
   ).toBeVisible();
 });
 
+test.describe("static browse without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("discovers every record kind and opens a detail page", async ({
+    page,
+  }) => {
+    await page.goto("/browse/");
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Browse every corner of Dredmorpedia.",
+      }),
+    ).toBeVisible();
+    await expect(page.locator(".browse-kind-card")).toHaveCount(9);
+
+    const spells = page.getByRole("link", { name: "Spells", exact: true });
+    await spells.focus();
+    await expect(spells).toBeFocused();
+    await spells.press("Enter");
+
+    await expect(page).toHaveURL(/\/browse\/spells\/1\/$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Spells" }),
+    ).toBeVisible();
+    await expect(page.getByText("Showing 1–2 of 2 records")).toBeVisible();
+    expect(
+      await page.locator(".browse-result-card").count(),
+    ).toBeLessThanOrEqual(100);
+
+    const spell = page.getByRole("link", { name: "Clockwork Echo" });
+    await spell.focus();
+    await expect(spell).toBeFocused();
+    await spell.press("Enter");
+    await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Breadcrumb" })
+        .getByRole("link", { name: "Spells" }),
+    ).toHaveAttribute("href", "/browse/spells/1/");
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+  });
+});
+
 test("previews a bounded catalogue and exposes a static detail route", async ({
   page,
 }) => {
@@ -1020,6 +1072,8 @@ test("representative pages have no automatically detectable accessibility violat
 }) => {
   for (const route of [
     "/",
+    "/browse/",
+    "/browse/spells/1/",
     "/search/",
     "/items/clockwork-blade/",
     "/items/clockwork-blade-plus/",

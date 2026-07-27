@@ -44,7 +44,7 @@ export default function RootLayout({
             </Link>
             <div className="header-actions">
               <nav aria-label="Primary navigation" className="primary-nav">
-                <Link href="/">Items</Link>
+                <Link href="/browse/">Browse</Link>
                 <Link href="/search">Search</Link>
               </nav>
               <span className="status-badge">
