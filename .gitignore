@@ -6,6 +6,9 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Tool-owned auxiliary checkouts
+.claude/worktrees/
+
 # Local configuration and secrets
 .env
 .env.*

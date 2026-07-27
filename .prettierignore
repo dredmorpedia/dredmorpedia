@@ -6,6 +6,7 @@ out/
 coverage/
 playwright-report/
 test-results/
+.claude/worktrees/
 docs/analysis/repository-audit-2026-07-19.md
 docs/architecture/modernization-proposal.md
 docs/handoff/new-pc-and-codex.md
