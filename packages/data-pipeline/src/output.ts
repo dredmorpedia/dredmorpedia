@@ -23,6 +23,10 @@ export interface SerializedOutputs {
   manifest: string;
 }
 
+export interface WriteOutputOptions {
+  failOnErrorDiagnostics?: boolean;
+}
+
 function writeAtomically(targetPath: string, contents: string): void {
   const temporaryPath = `${targetPath}.${process.pid}.${randomUUID()}.tmp`;
   try {
@@ -92,7 +96,15 @@ export function serializeOutputs(
 export function writeOutputs(
   result: ImportDatasetResult,
   outputDirectory: string,
+  options: WriteOutputOptions = {},
 ): SerializedOutputs {
+  const errorCount = result.artifact.diagnostics.error;
+  if (options.failOnErrorDiagnostics && errorCount > 0) {
+    throw new Error(
+      `Refusing to publish generated output with ${errorCount} error ${errorCount === 1 ? "diagnostic" : "diagnostics"}.`,
+    );
+  }
+
   const resolvedOutput = resolveRealTarget(outputDirectory);
   for (const sourceRoot of result.sourceRoots) {
     const resolvedSourceRoot = resolveRealTarget(sourceRoot);

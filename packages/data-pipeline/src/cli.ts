@@ -22,6 +22,7 @@ const outputDirectory = path.resolve(
   argumentValue("--output") ?? "data/generated/spike",
 );
 const verifyDeterminism = process.argv.includes("--check");
+const failOnErrorDiagnostics = process.argv.includes("--fail-on-errors");
 
 const first = importDataset({ manifestPath, repositoryRoot });
 const firstOutputs = serializeOutputs(first);
@@ -41,7 +42,9 @@ if (verifyDeterminism) {
   }
 }
 
-const outputs = writeOutputs(first, outputDirectory);
+const outputs = writeOutputs(first, outputDirectory, {
+  failOnErrorDiagnostics,
+});
 const counts = first.artifact.diagnostics;
 process.stdout.write(
   [

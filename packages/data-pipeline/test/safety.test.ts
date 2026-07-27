@@ -1,6 +1,8 @@
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -74,6 +76,74 @@ describe("input safety", () => {
       expect(() =>
         writeOutputs(result, path.join(sourceJunction, "generated")),
       ).toThrow(/overlaps source root/);
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves the last published output when the zero-error gate fails", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-zero-error-output-"),
+    );
+    try {
+      const sourceRoot = path.join(repositoryRoot, "source");
+      const outputRoot = path.join(repositoryRoot, "generated");
+      mkdirSync(sourceRoot);
+      const sourcePath = path.join(sourceRoot, "itemDB.xml");
+      writeFileSync(
+        sourcePath,
+        '<items><item name="Valid Item" type="material" /></items>',
+      );
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          schemaVersion: 1,
+          datasetId: "zero-error-output-test",
+          sources: [
+            {
+              id: "fixture",
+              label: "Fixture",
+              kind: "fixture",
+              precedence: 0,
+              root: "source",
+              files: [{ kind: "items", path: "itemDB.xml" }],
+            },
+          ],
+        }),
+      );
+
+      const validResult = importDataset({ manifestPath, repositoryRoot });
+      expect(validResult.artifact.diagnostics.error).toBe(0);
+      writeOutputs(validResult, outputRoot, {
+        failOnErrorDiagnostics: true,
+      });
+      const publishedOutputs = [
+        "artifact.json",
+        "search.json",
+        "diagnostics.json",
+        "manifest.json",
+      ].map(
+        (file) =>
+          [file, readFileSync(path.join(outputRoot, file), "utf8")] as const,
+      );
+
+      writeFileSync(sourcePath, "<items><item></items>");
+      const invalidResult = importDataset({ manifestPath, repositoryRoot });
+      expect(invalidResult.artifact.diagnostics.error).toBe(1);
+      expect(() =>
+        writeOutputs(invalidResult, outputRoot, {
+          failOnErrorDiagnostics: true,
+        }),
+      ).toThrow(
+        "Refusing to publish generated output with 1 error diagnostic.",
+      );
+      expect(existsSync(path.join(outputRoot, "manifest.json"))).toBe(true);
+      for (const [file, contents] of publishedOutputs) {
+        expect(readFileSync(path.join(outputRoot, file), "utf8")).toBe(
+          contents,
+        );
+      }
     } finally {
       rmSync(repositoryRoot, { recursive: true, force: true });
     }

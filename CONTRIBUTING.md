@@ -37,7 +37,7 @@ pnpm generate:official:check
 pnpm build:official
 ```
 
-`pnpm dev:official` regenerates `data/generated/official-local/` before starting, so it does not silently serve a stale local artifact. The deterministic generate/check command does the same import twice without starting the app, while the build command additionally verifies the full static export. Official inputs and generated output remain ignored and non-public.
+`pnpm dev:official` regenerates `data/generated/official-local/` before starting, so it does not silently serve a stale local artifact. The deterministic generate/check command does the same import twice without starting the app, while the build command additionally verifies the full static export. All three official commands enable the pipeline's `--fail-on-errors` gate: an import with any error diagnostic exits unsuccessfully before replacing the last published output set. Synthetic commands do not enable the gate because their legal fixture deliberately exercises one invalid XML input. Official inputs and generated output remain ignored and non-public.
 
 The root development, build, and browser-test commands set `DREDMORPEDIA_ARTIFACT_DIRECTORY` only for their web subprocess and explicitly select synthetic or official output. For optional direct commands inside `apps/web`, copy `apps/web/.env.example` to the ignored `apps/web/.env.local` and uncomment its artifact-directory setting. Relative values there resolve from `apps/web`; point only to generated output, never to the game installation. A configured path is strict: missing files fail with an actionable error instead of falling back to synthetic data.
 

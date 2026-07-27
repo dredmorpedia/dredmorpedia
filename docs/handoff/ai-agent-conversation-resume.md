@@ -104,7 +104,7 @@ Remaining item element diagnostics are:
 - 8 `toolkit`; and
 - 2 `macguffin`.
 
-The repository-wide review is being addressed in priority order. Patch overlays now enforce the complete normalized field invariants for prices, skill levels, monster levels, encrustment instability, and template grids; derived `loadoutItemKeys` and `spellKeys` compatibility arrays are no longer patchable. XML provenance and diagnostics use parser-captured record offsets, while unsupported direct children use a parent-bounded scanner so repeated and empty tags resolve to the declaring record rather than the first same-named tag in a file. Source manifests, patch definitions, and route registries now reject unknown fields at every object level rather than silently stripping misspelled configuration. The immediate next hardening task is an opt-in zero-error gate for official generation, followed by hermetic local checks.
+The repository-wide review is being addressed in priority order. Patch overlays now enforce the complete normalized field invariants for prices, skill levels, monster levels, encrustment instability, and template grids; derived `loadoutItemKeys` and `spellKeys` compatibility arrays are no longer patchable. XML provenance and diagnostics use parser-captured record offsets, while unsupported direct children use a parent-bounded scanner so repeated and empty tags resolve to the declaring record rather than the first same-named tag in a file. Source manifests, patch definitions, and route registries reject unknown fields at every object level rather than silently stripping misspelled configuration. Output publication has an opt-in zero-error gate enabled by every official-data command; a failing import leaves the previous output set untouched. The immediate next hardening task is hermetic local checks.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. A small `gem`, `toolkit`, or `macguffin` slice may be appropriate if its official and legacy shapes form a coherent user-visible contract. Do not combine unrelated families merely to reduce the count. Weapon/armour work is larger and should be split by independently evidenced semantics rather than blanket-marking the root element supported.
 
@@ -118,6 +118,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The zero-error publication gate passes repository lint and type checking plus all 96 unit/artifact tests, including byte-for-byte preservation of an existing four-file output set after a failing import. A direct CLI failure-path check exits nonzero and creates no output directory for the intentionally invalid synthetic fixture. Deterministic canonical generation succeeds with the gate enabled, ordinary synthetic generation still publishes its deliberate error diagnostic, and the synthetic 30-page static export succeeds.
 
 The strict-input-schema hardening passes repository lint and type checking plus all 95 unit/artifact tests, including root and nested unknown-field coverage for source manifests, patch definitions, and both route-registry target shapes. Synthetic and canonical imports remain compatible and byte-identical across repeated generation, and the synthetic 30-page static export succeeds.
 
