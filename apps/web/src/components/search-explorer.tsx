@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  entityKinds,
   itemCategoryLabel,
   querySearchDocuments,
   type EntityKind,
@@ -8,7 +9,7 @@ import {
 } from "@dredmorpedia/domain";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useMemo } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +32,27 @@ interface SearchExplorerProps {
   stats: FilterOption[];
 }
 
+const kindLabels: Record<EntityKind, string> = {
+  item: "Items",
+  recipe: "Recipes",
+  encrustment: "Encrustments",
+  skill: "Skills",
+  ability: "Abilities",
+  spell: "Spells",
+  monster: "Monsters",
+  stat: "Stats",
+  template: "Templates",
+};
+
 const kindOptions: FilterOption[] = [
-  { value: "all", label: "Items, stats, and templates" },
-  { value: "item", label: "Items" },
-  { value: "stat", label: "Stats" },
-  { value: "template", label: "Templates" },
+  { value: "all", label: "All record types" },
+  ...entityKinds.map((kind) => ({
+    value: kind,
+    label: kindLabels[kind],
+  })),
 ];
+
+const searchQueryDebounceMilliseconds = 250;
 
 function FilterSelect({
   label,
@@ -80,7 +96,43 @@ export function SearchExplorer({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const query = searchParams.get("q") ?? "";
+  const serializedSearchParams = searchParams.toString();
+  const queryParam = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(queryParam);
+  const latestQuery = useRef(query);
+  const submittedQuery = useRef<string | null>(null);
+  useEffect(() => {
+    latestQuery.current = query;
+  }, [query]);
+  useEffect(() => {
+    if (submittedQuery.current === queryParam) {
+      submittedQuery.current = null;
+      return;
+    }
+    if (latestQuery.current !== queryParam) {
+      submittedQuery.current = null;
+      setQuery(queryParam);
+    }
+  }, [queryParam]);
+  useEffect(() => {
+    if (query === queryParam) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      const next = new URLSearchParams(serializedSearchParams);
+      if (query.length === 0) {
+        next.delete("q");
+      } else {
+        next.set("q", query);
+      }
+      const suffix = next.size > 0 ? `?${next.toString()}` : "";
+      submittedQuery.current = query;
+      startTransition(() =>
+        router.replace(`${pathname}${suffix}`, { scroll: false }),
+      );
+    }, searchQueryDebounceMilliseconds);
+    return () => window.clearTimeout(timeout);
+  }, [pathname, query, queryParam, router, serializedSearchParams]);
   const requestedKind = searchParams.get("kind") ?? "all";
   const kind = kindOptions.some((option) => option.value === requestedKind)
     ? requestedKind
@@ -122,30 +174,43 @@ export function SearchExplorer({
   const visibleResults = allResults.slice(0, 50);
 
   const updateFilter = (key: string, value: string) => {
-    const next = new URLSearchParams(searchParams.toString());
+    const next = new URLSearchParams(serializedSearchParams);
     if (value.length === 0 || value === "all") {
       next.delete(key);
     } else {
       next.set(key, value);
     }
+    if (query.length === 0) {
+      next.delete("q");
+    } else {
+      next.set("q", query);
+    }
     const suffix = next.size > 0 ? `?${next.toString()}` : "";
+    if (query !== queryParam) {
+      submittedQuery.current = query;
+    }
     startTransition(() =>
       router.replace(`${pathname}${suffix}`, { scroll: false }),
     );
   };
 
-  const reset = () => startTransition(() => router.replace(pathname));
+  const reset = () => {
+    submittedQuery.current = "";
+    setQuery("");
+    startTransition(() => router.replace(pathname));
+  };
 
   return (
     <section aria-labelledby="search-heading" className="space-y-5">
       <div>
         <p className="eyebrow">Shareable structured lookup</p>
         <h1 id="search-heading" className="section-title">
-          Search items, stats, and templates
+          Search every record type
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Text and structured filters are applied by deterministic domain logic.
-          The current URL preserves the active query.
+          Search items, recipes, encrustments, skills, abilities, spells,
+          monsters, stats, and targeting templates. Deterministic filters keep
+          the settled query shareable in the URL.
         </p>
       </div>
 
@@ -158,7 +223,7 @@ export function SearchExplorer({
             id="global-search"
             type="search"
             value={query}
-            onChange={(event) => updateFilter("q", event.currentTarget.value)}
+            onChange={(event) => setQuery(event.currentTarget.value)}
             placeholder="Try “melee power”"
             className="search-input"
           />

@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Pushed checkpoint before the current review-hardening work: `246a599` (`Add item trap metadata`). Always verify with `git log` rather than assuming this remains HEAD.
+- Pushed checkpoint before the current all-entity search work: `47801cc` (`Add codebase and parity review record (#1)`). Always verify with `git log` rather than assuming this remains HEAD.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -72,7 +72,7 @@ Before handoff, run `git diff --check`, confirm no local installation/user paths
 
 ## Implemented product/data coverage
 
-The rebuild currently has deterministic static routes and search for items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. It includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal.
+The rebuild currently has deterministic static routes and structured search across items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. Search keeps typed input local while debouncing shareable URL updates so an older navigation cannot overwrite newer characters. It includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal.
 
 Important completed item slices include:
 
@@ -92,9 +92,9 @@ Other completed areas include spell mana/buff/presentation/effect relationships,
 After the trap slice, the canonical import reports:
 
 - 0 errors, 2,922 warnings, and 71 informational duplicate decisions;
-- 2,888 unsupported/partially-supported item/spell constructs: 555 item and 2,333 spell diagnostics;
+- 2,890 unsupported/partially-supported item/spell constructs: 555 item and 2,335 spell diagnostics;
 - 19 dangling references tracked separately; and
-- 15 spell requirement/extra-attribute diagnostics tracked separately.
+- 13 spell requirement diagnostics tracked separately.
 
 Remaining item element diagnostics are:
 
@@ -104,7 +104,7 @@ Remaining item element diagnostics are:
 - 8 `toolkit`; and
 - 2 `macguffin`.
 
-The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The next implementation task should return to the measured parity backlog after remeasurement.
+The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The all-entity search slice then removed the web-only allow-list that hid 1,969 already-generated official records and made query typing resilient to asynchronous URL updates. The next implementation task should return to the measured parity backlog after remeasurement.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. A small `gem`, `toolkit`, or `macguffin` slice may be appropriate if its official and legacy shapes form a coherent user-visible contract. Do not combine unrelated families merely to reduce the count. Weapon/armour work is larger and should be split by independently evidenced semantics rather than blanket-marking the root element supported.
 
@@ -118,6 +118,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The all-entity search slice exposes every generated kind through one exhaustive entity-type filter and preserves immediate sequential input while debouncing the shareable URL. `pnpm.cmd check` passes formatting, lint, type checking, all 96 unit/artifact tests, deterministic synthetic generation, and the 30-page static export. All 26 desktop/mobile Playwright tests pass, including character-by-character spell search, keyboard navigation, and the representative axe sweep. `pnpm.cmd build:official` passes deterministic zero-error generation and the complete 2,824-page local static export with all 2,767 search documents. Evidence and remaining boundaries are recorded in `docs/analysis/all-entity-search-evidence-2026-07-27.md`.
 
 The hermetic-local-check hardening makes the auxiliary `.claude/worktrees/` boundary repository-owned instead of relying on a machine-private `.git/info/exclude`. The aggregate `pnpm.cmd check` now validates only this checkout and passes formatting, lint, type checking, all 96 unit/artifact tests, deterministic synthetic generation, and the 30-page static export.
 

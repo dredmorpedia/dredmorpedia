@@ -144,6 +144,33 @@ test("searches reference entities with shareable structured filters", async ({
   ).toBeVisible();
 });
 
+test("searches every record kind without losing sequential input", async ({
+  page,
+}) => {
+  await page.goto("/search/");
+  const type = page.getByRole("combobox", { name: "Entity type" });
+  await type.focus();
+  await type.press("Enter");
+  await page
+    .getByRole("option", { name: "Spells", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/kind=spell/);
+
+  const search = page.getByRole("searchbox", { name: "Search terms" });
+  await search.pressSequentially("Clockwork Echo", { delay: 25 });
+  await expect(search).toHaveValue("Clockwork Echo");
+  await expect(page).toHaveURL(/q=Clockwork(?:\+|%20)Echo/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+
+  const result = page.getByRole("link", { name: "Clockwork Echo" });
+  await expect(result).toBeVisible();
+  await result.click();
+  await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
+  ).toBeVisible();
+});
+
 test("finds and renders a targeting template with a keyboard flow", async ({
   page,
 }) => {

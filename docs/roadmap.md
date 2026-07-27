@@ -108,6 +108,8 @@ Progress through 2026-07-23: a synthetic-backed search route, item/stat detail l
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
+Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. Static per-kind browse indexes, a useful no-JavaScript discovery surface, broader non-item stat facets, and ADR 0003's user-facing performance/relevance budgets remain open.
+
 ## Phase 4 — Legacy parity
 
 Implement in dependency order rather than old-tab order:

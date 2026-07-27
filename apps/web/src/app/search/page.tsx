@@ -10,7 +10,7 @@ import { statModifierLabel } from "@/lib/stat-modifiers";
 export const metadata: Metadata = {
   title: "Search",
   description:
-    "Search Dredmorpedia items, stats, and targeting templates with structured filters.",
+    "Search every Dredmorpedia record type with shareable structured filters.",
 };
 
 export default function SearchPage() {
@@ -46,13 +46,6 @@ export default function SearchPage() {
   const stats = [...statLabels]
     .sort((left, right) => left[1].localeCompare(right[1], "en"))
     .map(([value, label]) => ({ value, label }));
-  const documents = search.documents.filter(
-    (document) =>
-      document.kind === "item" ||
-      document.kind === "stat" ||
-      document.kind === "template",
-  );
-
   return (
     <Suspense
       fallback={
@@ -61,7 +54,11 @@ export default function SearchPage() {
         </div>
       }
     >
-      <SearchExplorer documents={documents} sources={sources} stats={stats} />
+      <SearchExplorer
+        documents={search.documents}
+        sources={sources}
+        stats={stats}
+      />
     </Suspense>
   );
 }
