@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type { Monster } from "./types";
 
 const modifierKindRanks: Readonly<
@@ -36,7 +37,7 @@ function inheritModifiers(
   return [...inherited.values()].sort(
     (left, right) =>
       modifierKindRanks[left.kind] - modifierKindRanks[right.kind] ||
-      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      compareCodeUnits(left.sourceKey, right.sourceKey) ||
       left.amount - right.amount,
   );
 }
@@ -148,12 +149,12 @@ export function applyMonsterInheritance(
     monsters: [...monsters]
       .map((monster) => resolve(monster, []))
       .sort((left, right) =>
-        left.canonicalKey.localeCompare(right.canonicalKey, "en"),
+        compareCodeUnits(left.canonicalKey, right.canonicalKey),
       ),
     issues: issues.sort(
       (left, right) =>
-        left.monsterId.localeCompare(right.monsterId, "en") ||
-        left.parentKey.localeCompare(right.parentKey, "en"),
+        compareCodeUnits(left.monsterId, right.monsterId) ||
+        compareCodeUnits(left.parentKey, right.parentKey),
     ),
   };
 }

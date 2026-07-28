@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import {
+  compareCodeUnits,
   entityKinds,
   slugify,
   type EntityCollections,
@@ -257,10 +258,10 @@ export function resolveRouteRegistry(
   }
   return {
     reservations: reservations.sort((left, right) =>
-      left.entityId.localeCompare(right.entityId, "en"),
+      compareCodeUnits(left.entityId, right.entityId),
     ),
     applications: applications.sort((left, right) =>
-      left.entityId.localeCompare(right.entityId, "en"),
+      compareCodeUnits(left.entityId, right.entityId),
     ),
     issues: [],
   };

@@ -1,4 +1,5 @@
 import { canonicalKey } from "./identity";
+import { compareCodeUnits } from "./ordering";
 import type { Encrustment, Item, ItemToolkitMetadata, Recipe } from "./types";
 
 export interface ToolkitItemRelationship {
@@ -24,8 +25,8 @@ export function itemToolkitRecipeRelationships(
     .filter((recipe) => tags.has(canonicalKey(recipe.tool)))
     .sort(
       (left, right) =>
-        left.canonicalKey.localeCompare(right.canonicalKey, "en") ||
-        left.id.localeCompare(right.id, "en"),
+        compareCodeUnits(left.canonicalKey, right.canonicalKey) ||
+        compareCodeUnits(left.id, right.id),
     );
 }
 
@@ -38,8 +39,8 @@ export function itemToolkitEncrustmentRelationships(
     .filter((encrustment) => tags.has(canonicalKey(encrustment.tool)))
     .sort(
       (left, right) =>
-        left.canonicalKey.localeCompare(right.canonicalKey, "en") ||
-        left.id.localeCompare(right.id, "en"),
+        compareCodeUnits(left.canonicalKey, right.canonicalKey) ||
+        compareCodeUnits(left.id, right.id),
     );
 }
 
@@ -61,8 +62,8 @@ export function toolkitItemsForTag(
     })
     .sort(
       (left, right) =>
-        left.item.canonicalKey.localeCompare(right.item.canonicalKey, "en") ||
-        left.item.id.localeCompare(right.item.id, "en") ||
+        compareCodeUnits(left.item.canonicalKey, right.item.canonicalKey) ||
+        compareCodeUnits(left.item.id, right.item.id) ||
         left.declarationIndex - right.declarationIndex,
     );
 }

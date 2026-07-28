@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type {
   AppliedPatch,
   AppliedPatchChange,
@@ -196,15 +197,15 @@ export function applyEntityPatch(
     .map((operation, operationIndex) => ({ operation, operationIndex }))
     .sort(
       (left, right) =>
-        left.operation.entityKind.localeCompare(
+        compareCodeUnits(
+          left.operation.entityKind,
           right.operation.entityKind,
-          "en",
         ) ||
-        left.operation.canonicalKey.localeCompare(
+        compareCodeUnits(
+          left.operation.canonicalKey,
           right.operation.canonicalKey,
-          "en",
         ) ||
-        left.operation.field.localeCompare(right.operation.field, "en") ||
+        compareCodeUnits(left.operation.field, right.operation.field) ||
         left.operationIndex - right.operationIndex,
     );
   const issues: PatchIssue[] = [];
@@ -312,7 +313,7 @@ export function applyEntityPatch(
   const patchedById = new Map<string, NormalizedEntity>();
   const applications: PatchApplication[] = [];
   for (const [entityId, group] of [...validated].sort(([left], [right]) =>
-    left.localeCompare(right, "en"),
+    compareCodeUnits(left, right),
   )) {
     const changes: AppliedPatchChange[] = group.operations.map((operation) => ({
       field: operation.field,

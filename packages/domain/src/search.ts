@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type {
   DatasetArtifact,
   EntityKind,
@@ -55,7 +56,7 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
             ...entity.stats.map((stat) => stat.statKey),
             ...entity.modifiers.map(statModifierSearchKey),
           ]),
-        ].sort((left, right) => left.localeCompare(right, "en"))
+        ].sort((left, right) => compareCodeUnits(left, right))
       : [];
   const statText =
     entity.kind === "item"
@@ -131,9 +132,9 @@ export function createSearchDocuments(
     .map((entity) => createSearchDocument(entity))
     .sort(
       (left, right) =>
-        left.kind.localeCompare(right.kind, "en") ||
-        left.name.localeCompare(right.name, "en") ||
-        left.id.localeCompare(right.id, "en"),
+        compareCodeUnits(left.kind, right.kind) ||
+        compareCodeUnits(left.name, right.name) ||
+        compareCodeUnits(left.id, right.id),
     );
 }
 
@@ -214,9 +215,9 @@ export function querySearchDocuments(
   results.sort(
     (left, right) =>
       right.score - left.score ||
-      left.document.kind.localeCompare(right.document.kind, "en") ||
-      left.document.name.localeCompare(right.document.name, "en") ||
-      left.document.id.localeCompare(right.document.id, "en"),
+      compareCodeUnits(left.document.kind, right.document.kind) ||
+      compareCodeUnits(left.document.name, right.document.name) ||
+      compareCodeUnits(left.document.id, right.document.id),
   );
 
   return query.limit === undefined ? results : results.slice(0, query.limit);

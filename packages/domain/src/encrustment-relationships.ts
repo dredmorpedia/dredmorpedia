@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type { Encrustment } from "./types";
 
 export interface ItemEncrustmentRelationship {
@@ -21,9 +22,9 @@ export function itemEncrustmentRelationships(
     .filter((relationship) => relationship.inputAmount > 0)
     .sort(
       (left, right) =>
-        left.encrustment.canonicalKey.localeCompare(
+        compareCodeUnits(
+          left.encrustment.canonicalKey,
           right.encrustment.canonicalKey,
-          "en",
-        ) || left.encrustment.id.localeCompare(right.encrustment.id, "en"),
+        ) || compareCodeUnits(left.encrustment.id, right.encrustment.id),
     );
 }

@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type {
   AppliedOverride,
   EntityProvenance,
@@ -37,7 +38,7 @@ function comparable(value: unknown): string {
 
   if (value !== null && typeof value === "object") {
     return `{${Object.entries(value)
-      .sort(([left], [right]) => left.localeCompare(right, "en"))
+      .sort(([left], [right]) => compareCodeUnits(left, right))
       .map(([key, entry]) => `${JSON.stringify(key)}:${comparable(entry)}`)
       .join(",")}}`;
   }
@@ -58,7 +59,7 @@ function changedFields(
         comparable(previous[key as keyof NormalizedEntity]) !==
         comparable(replacement[key as keyof NormalizedEntity]),
     )
-    .sort((left, right) => left.localeCompare(right, "en"));
+    .sort((left, right) => compareCodeUnits(left, right));
 }
 
 export function resolveEntityCandidates<T extends NormalizedEntity>(
@@ -66,15 +67,15 @@ export function resolveEntityCandidates<T extends NormalizedEntity>(
 ): ResolutionResult<T> {
   const sorted = [...candidates].sort((left, right) => {
     return (
-      left.entity.canonicalKey.localeCompare(right.entity.canonicalKey, "en") ||
+      compareCodeUnits(left.entity.canonicalKey, right.entity.canonicalKey) ||
       left.precedence - right.precedence ||
-      left.entity.provenance.sourceId.localeCompare(
+      compareCodeUnits(
+        left.entity.provenance.sourceId,
         right.entity.provenance.sourceId,
-        "en",
       ) ||
-      left.entity.provenance.file.localeCompare(
+      compareCodeUnits(
+        left.entity.provenance.file,
         right.entity.provenance.file,
-        "en",
       ) ||
       left.entity.provenance.line - right.entity.provenance.line
     );
@@ -120,7 +121,7 @@ export function resolveEntityCandidates<T extends NormalizedEntity>(
 
   return {
     active: [...active.values()].sort((left, right) =>
-      left.canonicalKey.localeCompare(right.canonicalKey, "en"),
+      compareCodeUnits(left.canonicalKey, right.canonicalKey),
     ),
     collisions,
   };

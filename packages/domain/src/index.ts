@@ -6,6 +6,7 @@ export * from "./item-categories";
 export * from "./monster-drops";
 export * from "./monster-derived-stats";
 export * from "./monster-relationships";
+export * from "./ordering";
 export * from "./patches";
 export * from "./recipe-relationships";
 export * from "./resolution";

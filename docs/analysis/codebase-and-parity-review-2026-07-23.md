@@ -16,7 +16,7 @@ The generated-search comparator now ends on entity ID, closing finding 3 without
 
 The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
 
-The two medium findings remain open: route ownership across insertion/deletion and dataset-version changes requires an explicit registry lifecycle decision, while output-critical ordering remains ICU-dependent. The optional web/artifact/path hardening and minor UI cleanup described below also remain available future work.
+Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. The optional web/artifact/path hardening and minor UI cleanup described below also remain available future work.
 
 ## Priority findings
 
@@ -30,13 +30,15 @@ Mitigation exists but is weak. The route registry pins owners via reservations (
 
 Coverage: the hazard is untested. `identity.test.ts` covers order-independence for a fixed set and the reservation-pinning path, but no test adds or removes a colliding entity and asserts that pre-existing slugs are unchanged.
 
-### 2. Output ordering depends on ICU-version collation, and `--check` cannot detect divergence — MEDIUM, plausible cross-platform
+### 2. Output ordering depends on ICU-version collation, and `--check` cannot detect divergence — RESOLVED 2026-07-28 (originally MEDIUM)
 
 Output-critical ordering uses `localeCompare(value, "en")` in roughly fifty sites (`serialization.ts:12`, `resolution.ts:69-79`, `identity.ts:87-88`, `search.ts:117-118`, and the relationship/patch comparators). Passing an explicit `"en"` locale is a real safeguard against host-locale drift, but `localeCompare` collation is defined by the ICU/CLDR version bundled with Node, not by the locale tag. Official same-version Node binaries collate identically across Windows and Linux, so same-version CI is safe; divergence is plausible when a distro `system-icu` Node build runs in CI or a Node major bump changes CLDR. Any such change can reorder data-derived strings (entity names, `sourceKey`s, slugs, alias arrays) and change artifact bytes.
 
 The determinism guard cannot catch this. `--check` in `packages/data-pipeline/src/cli.ts:26-42` imports twice **in one process** and compares the in-memory serialized strings, so it shares one V8 build and one bundled ICU. It does re-read every input from disk, so it exercises torn-file and stale-content issues, but it is structurally blind to cross-process and cross-platform ordering differences.
 
 Suggested direction: use code-unit comparison (`a < b ? -1 : a > b ? 1 : 0`) for output-critical key ordering, which is ICU-independent, and/or re-exec the CLI in a fresh process for `--check` while pinning or asserting the ICU version in CI.
+
+Resolution: `packages/domain/src/ordering.ts` now owns the fixed UTF-16 code-unit comparator. All 94 former `localeCompare(value, "en")` call sites in the domain and pipeline use it, including stable serialization, resolution, routes, diagnostics, normalized collections, relationships, and search output. Focused tests cover comparator and serialization behavior; the two remaining locale-aware comparisons are web presentation ordering and do not enter persisted artifacts. The full synthetic and official deterministic checks pass, and the current official artifact bytes are unchanged. Evidence is recorded in [`icu-independent-output-ordering-evidence-2026-07-28.md`](icu-independent-output-ordering-evidence-2026-07-28.md).
 
 ### 3. `createSearchDocuments` omits the `id` tiebreaker used everywhere else — LOW to MEDIUM, trivial fix
 
@@ -116,6 +118,7 @@ Independent of the blocked owner decisions and safe to implement as small vertic
 1. **Completed 2026-07-28:** append the `id` tiebreaker to `createSearchDocuments` and add a regression test (finding 3).
 2. Add a slug-stability test that inserts and removes a colliding entity and asserts pre-existing slugs are unchanged, then decide whether the route registry should be mandatory and whether a `datasetVersion` mismatch should void reservations silently (finding 1).
 3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
-4. Optional hardening: code-unit comparison for output-critical ordering (finding 2), Zod charset regexes at the web boundary, and completing the non-total comparators (finding 4).
+4. **Completed 2026-07-28:** use code-unit comparison for every output-critical domain and pipeline order (finding 2).
+5. Optional hardening: add Zod charset regexes at the web boundary and complete the non-total comparators (finding 4).
 
 Blocked on owner decisions (restated for continuity, tracked in `docs/handoff/new-pc-and-codex.md` and `PROJECT.md`): publication rights for normalized official data and art; the inherited-code/mod/asset license policy; an approved source for stat definitions absent from the canonical build; and the treatment of disputed monster Life/Mana/secondary/damage formulas. Do not resolve these by assumption.

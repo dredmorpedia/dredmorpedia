@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type { Monster, MonsterDrop } from "./types";
 
 export interface ItemMonsterDropRelationship {
@@ -18,11 +19,11 @@ export function itemMonsterDropRelationships(
     )
     .sort(
       (left, right) =>
-        left.monster.canonicalKey.localeCompare(
+        compareCodeUnits(
+          left.monster.canonicalKey,
           right.monster.canonicalKey,
-          "en",
         ) ||
-        left.monster.id.localeCompare(right.monster.id, "en") ||
+        compareCodeUnits(left.monster.id, right.monster.id) ||
         left.dropIndex - right.dropIndex,
     );
 }

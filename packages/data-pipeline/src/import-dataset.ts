@@ -6,6 +6,7 @@ import {
   applyEntityPatch,
   applyMonsterInheritance,
   canonicalKey,
+  compareCodeUnits,
   createSearchDocuments,
   resolveEntityCandidates,
   skillAbilityRelationships,
@@ -76,12 +77,12 @@ function compareDiagnostics(
   right: DiagnosticDraft,
 ): number {
   return (
-    (left.source?.file ?? "").localeCompare(right.source?.file ?? "", "en") ||
+    compareCodeUnits(left.source?.file ?? "", right.source?.file ?? "") ||
     (left.source?.line ?? 0) - (right.source?.line ?? 0) ||
     (left.source?.column ?? 0) - (right.source?.column ?? 0) ||
-    left.code.localeCompare(right.code, "en") ||
-    (left.entityId ?? "").localeCompare(right.entityId ?? "", "en") ||
-    left.message.localeCompare(right.message, "en")
+    compareCodeUnits(left.code, right.code) ||
+    compareCodeUnits(left.entityId ?? "", right.entityId ?? "") ||
+    compareCodeUnits(left.message, right.message)
   );
 }
 
@@ -235,13 +236,10 @@ function linkEncrustmentInstabilityEffects(
   return [...effects]
     .sort(
       (left, right) =>
-        canonicalKey(left.name).localeCompare(canonicalKey(right.name), "en") ||
-        left.spellKey.localeCompare(right.spellKey, "en") ||
-        left.provenance.sourceId.localeCompare(
-          right.provenance.sourceId,
-          "en",
-        ) ||
-        left.provenance.file.localeCompare(right.provenance.file, "en") ||
+        compareCodeUnits(canonicalKey(left.name), canonicalKey(right.name)) ||
+        compareCodeUnits(left.spellKey, right.spellKey) ||
+        compareCodeUnits(left.provenance.sourceId, right.provenance.sourceId) ||
+        compareCodeUnits(left.provenance.file, right.provenance.file) ||
         left.provenance.line - right.provenance.line,
     )
     .map((effect) => {
@@ -525,7 +523,7 @@ function attachDiagnosticIds(
   const attach = <T extends NormalizedEntity>(entity: T): T => ({
     ...entity,
     diagnosticIds: (idsByEntity.get(entity.id) ?? []).sort((left, right) =>
-      left.localeCompare(right, "en"),
+      compareCodeUnits(left, right),
     ),
   });
   return {
@@ -854,8 +852,7 @@ export function importDataset(
 
   const sortedSources = [...loaded.manifest.sources].sort(
     (left, right) =>
-      left.precedence - right.precedence ||
-      left.id.localeCompare(right.id, "en"),
+      left.precedence - right.precedence || compareCodeUnits(left.id, right.id),
   );
 
   const resolvedSources = sortedSources.map((source) => {
@@ -873,7 +870,7 @@ export function importDataset(
   const patches = [...loaded.manifest.patches]
     .sort(
       (left, right) =>
-        left.order - right.order || left.path.localeCompare(right.path, "en"),
+        left.order - right.order || compareCodeUnits(left.path, right.path),
     )
     .map((patchReference) => {
       const absolutePath = resolveExistingWithin(
@@ -918,8 +915,8 @@ export function importDataset(
       }));
     const files = [...source.files].sort(
       (left, right) =>
-        left.path.localeCompare(right.path, "en") ||
-        left.kind.localeCompare(right.kind, "en"),
+        compareCodeUnits(left.path, right.path) ||
+        compareCodeUnits(left.kind, right.kind),
     );
 
     for (const file of files) {
@@ -1008,7 +1005,7 @@ export function importDataset(
       file,
       sha256: sha256(readFileSync(absolutePath)),
     }))
-    .sort((left, right) => left.file.localeCompare(right.file, "en"));
+    .sort((left, right) => compareCodeUnits(left.file, right.file));
 
   return {
     artifact,
@@ -1017,7 +1014,7 @@ export function importDataset(
     inputs,
     sourceManifest: loaded.manifestDisplayPath,
     sourceRoots: [...new Set(sourceRoots)].sort((left, right) =>
-      left.localeCompare(right, "en"),
+      compareCodeUnits(left, right),
     ),
   };
 }

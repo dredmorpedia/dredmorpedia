@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type {
   Item,
   Spell,
@@ -121,8 +122,8 @@ export function spellEffectBacklinks(
     )
     .sort(
       (left, right) =>
-        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
-        left.spell.id.localeCompare(right.spell.id, "en") ||
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex,
     );
 }
@@ -143,8 +144,8 @@ export function spellBuffEventHookBacklinks(
     )
     .sort(
       (left, right) =>
-        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
-        left.spell.id.localeCompare(right.spell.id, "en") ||
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
         left.buffIndex - right.buffIndex ||
         left.hookIndex - right.hookIndex,
     );
@@ -166,8 +167,8 @@ export function spellEffectOptionSpellBacklinks(
     )
     .sort(
       (left, right) =>
-        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
-        left.spell.id.localeCompare(right.spell.id, "en") ||
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex ||
         left.optionIndex - right.optionIndex,
     );
@@ -189,8 +190,8 @@ export function spellEffectOptionItemBacklinks(
     )
     .sort(
       (left, right) =>
-        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
-        left.spell.id.localeCompare(right.spell.id, "en") ||
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex ||
         left.optionIndex - right.optionIndex,
     );
@@ -227,9 +228,9 @@ export function spellEffectConditionBacklinks(
     )
     .sort(
       (left, right) =>
-        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
-        left.spell.id.localeCompare(right.spell.id, "en") ||
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex ||
-        left.kind.localeCompare(right.kind, "en"),
+        compareCodeUnits(left.kind, right.kind),
     );
 }

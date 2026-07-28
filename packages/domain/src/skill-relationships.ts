@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type { Ability, Skill, SkillLoadout } from "./types";
 
 export interface SkillAbilityRelationship {
@@ -20,8 +21,8 @@ export function skillAbilityRelationships(
       (left, right) =>
         Number(right.startSkill) - Number(left.startSkill) ||
         left.level - right.level ||
-        left.canonicalKey.localeCompare(right.canonicalKey, "en") ||
-        left.id.localeCompare(right.id, "en"),
+        compareCodeUnits(left.canonicalKey, right.canonicalKey) ||
+        compareCodeUnits(left.id, right.id),
     )
     .map((ability) => ({ ability }));
 }
@@ -38,8 +39,8 @@ export function itemSkillLoadoutRelationships(
     )
     .sort(
       (left, right) =>
-        left.skill.canonicalKey.localeCompare(right.skill.canonicalKey, "en") ||
-        left.skill.id.localeCompare(right.skill.id, "en") ||
+        compareCodeUnits(left.skill.canonicalKey, right.skill.canonicalKey) ||
+        compareCodeUnits(left.skill.id, right.skill.id) ||
         left.loadoutIndex - right.loadoutIndex,
     );
 }

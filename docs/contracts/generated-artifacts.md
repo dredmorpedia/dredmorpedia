@@ -98,7 +98,7 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 
 - Dataset IDs must match across normalized, search, and manifest artifacts.
 - `search.json.datasetSchemaVersion` must equal `artifact.json.schemaVersion`.
-- Inputs, entities, diagnostics, search documents, and manifest entries use deterministic ordering.
+- Inputs, entities, diagnostics, search documents, manifest entries, and serialized object keys use the shared UTF-16 code-unit comparator for deterministic ordering independent of host ICU/CLDR data. Locale-aware sorting is presentation-only.
 - Canonical route slugs are unique within an entity kind, and an alias never resolves to more than one canonical entity of that kind.
 - Identical inputs and generator code must produce byte-identical files.
 - Writes use collision-resistant temporary names and per-file atomic replacement, publish the manifest last, and are refused when the real output path overlaps an input source root in either direction. Junctions and symbolic links do not bypass the boundary.

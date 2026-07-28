@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 
+import { compareCodeUnits } from "@dredmorpedia/domain";
+
 function sortForSerialization(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(sortForSerialization);
@@ -9,7 +11,7 @@ function sortForSerialization(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value)
         .filter(([, entry]) => entry !== undefined)
-        .sort(([left], [right]) => left.localeCompare(right, "en"))
+        .sort(([left], [right]) => compareCodeUnits(left, right))
         .map(([key, entry]) => [key, sortForSerialization(entry)]),
     );
   }

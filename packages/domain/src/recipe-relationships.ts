@@ -1,3 +1,4 @@
+import { compareCodeUnits } from "./ordering";
 import type { Recipe } from "./types";
 
 export interface ItemRecipeRelationship {
@@ -33,9 +34,7 @@ export function itemRecipeRelationships(
     )
     .sort(
       (left, right) =>
-        left.recipe.canonicalKey.localeCompare(
-          right.recipe.canonicalKey,
-          "en",
-        ) || left.recipe.id.localeCompare(right.recipe.id, "en"),
+        compareCodeUnits(left.recipe.canonicalKey, right.recipe.canonicalKey) ||
+        compareCodeUnits(left.recipe.id, right.recipe.id),
     );
 }

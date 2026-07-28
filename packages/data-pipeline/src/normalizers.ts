@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 
 import {
   canonicalKey,
+  compareCodeUnits,
   damageSourceKeys,
   entityId,
   itemTrapActivationModes,
@@ -1050,24 +1051,20 @@ function compareSpellTriggers(left: SpellTrigger, right: SpellTrigger): number {
   return (
     (itemTriggerKindRanks.get(left.kind) ?? 0) -
       (itemTriggerKindRanks.get(right.kind) ?? 0) ||
-    left.spellKey.localeCompare(right.spellKey, "en") ||
+    compareCodeUnits(left.spellKey, right.spellKey) ||
     (left.chance ?? -1) - (right.chance ?? -1) ||
     left.delay - right.delay ||
     left.duration - right.duration ||
     Number(left.unresistable) - Number(right.unresistable) ||
-    (left.monsterTaxonomy ?? "").localeCompare(
-      right.monsterTaxonomy ?? "",
-      "en",
-    ) ||
-    left.sourceFlags
-      .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
-      .join("\u0000")
-      .localeCompare(
-        right.sourceFlags
-          .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
-          .join("\u0000"),
-        "en",
-      )
+    compareCodeUnits(left.monsterTaxonomy ?? "", right.monsterTaxonomy ?? "") ||
+    compareCodeUnits(
+      left.sourceFlags
+        .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
+        .join("\u0000"),
+      right.sourceFlags
+        .map((flag) => `${flag.sourceKey}\u0000${flag.value}`)
+        .join("\u0000"),
+    )
   );
 }
 
@@ -1519,7 +1516,7 @@ function reportUnknownChildren(
   partiallySupportedChildren: ReadonlySet<string> = new Set(),
 ): void {
   for (const key of Object.keys(record).sort((left, right) =>
-    left.localeCompare(right, "en"),
+    compareCodeUnits(left, right),
   )) {
     if (key.startsWith("@") || allowedChildren.has(key)) {
       continue;
@@ -1551,7 +1548,7 @@ function reportUnknownAttributes(
   includeValue = false,
 ): void {
   for (const key of Object.keys(record).sort((left, right) =>
-    left.localeCompare(right, "en"),
+    compareCodeUnits(left, right),
   )) {
     if (!key.startsWith("@")) {
       continue;
@@ -1664,7 +1661,7 @@ function parseItems(
         };
       })
       .filter((stat): stat is NonNullable<typeof stat> => stat !== null)
-      .sort((left, right) => left.statKey.localeCompare(right.statKey, "en"));
+      .sort((left, right) => compareCodeUnits(left.statKey, right.statKey));
     const traps = parseItemTraps(record, context, provenance, currentEntityId);
     const armourDeclarations = parseItemArmourDeclarations(
       record,
@@ -2021,7 +2018,7 @@ function parseStatModifiers(
   return normalizedModifiers.sort(
     (left, right) =>
       statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
-      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      compareCodeUnits(left.sourceKey, right.sourceKey) ||
       left.amount - right.amount,
   );
 }
@@ -2067,7 +2064,7 @@ function parseItemStatModifiers(
   return modifiers.sort(
     (left, right) =>
       statModifierKindRanks[left.kind] - statModifierKindRanks[right.kind] ||
-      left.sourceKey.localeCompare(right.sourceKey, "en") ||
+      compareCodeUnits(left.sourceKey, right.sourceKey) ||
       left.amount - right.amount,
   );
 }
@@ -2147,7 +2144,7 @@ function parseEncrustmentPowers(
     .filter((power): power is EncrustmentPower => power !== null)
     .sort(
       (left, right) =>
-        left.name.localeCompare(right.name, "en") ||
+        compareCodeUnits(left.name, right.name) ||
         (left.chance ?? -1) - (right.chance ?? -1),
     );
 }
@@ -2217,7 +2214,7 @@ function parseEncrustments(
           .filter((value): value is string => Boolean(value))
           .map(canonicalKey),
       ),
-    ].sort((left, right) => left.localeCompare(right, "en"));
+    ].sort((left, right) => compareCodeUnits(left, right));
     const tool =
       childAttribute(record, "tool", "tag") ??
       xmlAttribute(record, "tool") ??
@@ -2333,8 +2330,8 @@ function parseSourceFlags(record: XmlRecord): SourceFlag[] {
     )
     .sort(
       (left, right) =>
-        left.sourceKey.localeCompare(right.sourceKey, "en") ||
-        left.value.localeCompare(right.value, "en"),
+        compareCodeUnits(left.sourceKey, right.sourceKey) ||
+        compareCodeUnits(left.value, right.value),
     );
 }
 
@@ -2374,7 +2371,7 @@ function parseSkillProgressionTags(
     })
     .sort(
       (left, right) =>
-        left.level - right.level || left.name.localeCompare(right.name, "en"),
+        left.level - right.level || compareCodeUnits(left.name, right.name),
     );
 }
 
@@ -2474,7 +2471,7 @@ function parseSkills(
       loadouts,
       loadoutItemKeys: loadouts
         .flatMap((loadout) => (loadout.itemKey ? [loadout.itemKey] : []))
-        .sort((left, right) => left.localeCompare(right, "en")),
+        .sort((left, right) => compareCodeUnits(left, right)),
       sourceFlags: parseSourceFlags(record),
       progressionTags: parseSkillProgressionTags(
         record,
@@ -2591,7 +2588,7 @@ function parseSkills(
       triggers,
       spellKeys: triggers
         .map((trigger) => trigger.spellKey)
-        .sort((left, right) => left.localeCompare(right, "en")),
+        .sort((left, right) => compareCodeUnits(left, right)),
       spellIds: [],
     };
     reportUnknownChildren(
@@ -3424,8 +3421,8 @@ function parseSpellBuffs(
         })
         .sort(
           (left, right) =>
-            left.sourceKey.localeCompare(right.sourceKey, "en") ||
-            left.value.localeCompare(right.value, "en"),
+            compareCodeUnits(left.sourceKey, right.sourceKey) ||
+            compareCodeUnits(left.value, right.value),
         ),
       modifiers: parseStatModifiers(
         buff,
@@ -4183,7 +4180,7 @@ function parseSpells(
           ),
         };
       })
-      .sort((left, right) => left.type.localeCompare(right.type, "en"));
+      .sort((left, right) => compareCodeUnits(left.type, right.type));
     const spell: Spell = {
       ...baseEntity(
         "spell",
@@ -4639,7 +4636,7 @@ function parseMonsters(
       (left, right) =>
         (monsterSpellTriggerKindRanks.get(left.kind) ?? 0) -
           (monsterSpellTriggerKindRanks.get(right.kind) ?? 0) ||
-        left.spellKey.localeCompare(right.spellKey, "en") ||
+        compareCodeUnits(left.spellKey, right.spellKey) ||
         (left.oneChanceIn ?? -1) - (right.oneChanceIn ?? -1),
     );
     const drops: MonsterDrop[] = [];
