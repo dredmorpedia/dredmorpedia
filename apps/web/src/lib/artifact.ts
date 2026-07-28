@@ -172,6 +172,31 @@ const itemSchema = z
         })
         .strict(),
     ),
+    macguffinDeclarations: z.array(
+      z
+        .object({
+          spellKey: z.string().min(1).nullable(),
+          spellName: z.string().min(1).nullable(),
+          spellId: z.string().min(1).optional(),
+          itemClassName: z.string().min(1).nullable(),
+          consumable: z.boolean().nullable(),
+        })
+        .strict()
+        .refine(
+          ({ spellKey, spellName }) =>
+            (spellKey === null) === (spellName === null),
+          {
+            message:
+              "spellKey and spellName must both be supplied or both be null",
+          },
+        )
+        .refine(
+          ({ spellKey, spellId }) => spellId === undefined || spellKey !== null,
+          {
+            message: "spellId requires a supplied spell reference",
+          },
+        ),
+    ),
     recoveries: z.array(
       z
         .object({

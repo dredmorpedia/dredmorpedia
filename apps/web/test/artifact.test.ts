@@ -75,8 +75,8 @@ describe("generated artifact loading", () => {
     const { loadArtifact, loadDiagnostics, loadSearchArtifact } =
       await import("../src/lib/artifact");
 
-    expect(loadArtifact().entities.items).toHaveLength(11);
-    expect(loadSearchArtifact().documents).toHaveLength(23);
+    expect(loadArtifact().entities.items).toHaveLength(12);
+    expect(loadSearchArtifact().documents).toHaveLength(24);
     expect(loadDiagnostics()).toHaveLength(21);
   });
 
@@ -228,6 +228,28 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/weaponDeclarations/);
+  });
+
+  it("rejects malformed item macguffin metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { macguffinDeclarations: { consumable: unknown }[] }[];
+      };
+    };
+    const declaration = typedArtifact.entities.items
+      .flatMap((item) => item.macguffinDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item macguffin metadata.",
+      );
+    }
+    declaration.consumable = "0";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/macguffinDeclarations/);
   });
 
   it("rejects malformed item recovery metadata", async () => {

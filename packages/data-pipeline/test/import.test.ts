@@ -733,6 +733,164 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes and links loss-aware macguffin declarations", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-macguffins-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Classified Macguffin"><macguffin spell="Known Macguffin Spell" item_class_name="Synthetic Curiosity" /></item>
+  <item name="Reusable Macguffin"><macguffin spell="Known Macguffin Spell" consumable="0" /></item>
+  <item name="Consumable Macguffin"><macguffin spell="Known Macguffin Spell" consumable="true" /></item>
+  <item name="Missing Spell Macguffin"><macguffin item_class_name="Incomplete Curiosity" /></item>
+  <item name="Unresolved Macguffin"><macguffin spell="Missing Macguffin Spell" /></item>
+  <item name="Invalid Macguffin"><macguffin spell="Known Macguffin Spell" item_class_name="" consumable="sometimes" /></item>
+  <item name="Repeated Macguffin"><macguffin spell="Known Macguffin Spell" /><macguffin spell="Missing Macguffin Spell" consumable="1" /></item>
+  <item name="Extended Macguffin"><macguffin spell="Known Macguffin Spell" future="kept"><future /></macguffin></item>
+  <item name="Text Macguffin"><macguffin>unexpected</macguffin></item>
+</items>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spells>
+  <spell name="Known Macguffin Spell" type="self" />
+</spells>`,
+    );
+    const macguffinManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      macguffinManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-macguffin-test",
+        sources: [
+          {
+            id: "macguffin-source",
+            label: "Macguffin Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "items", path: "itemDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: macguffinManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const itemByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(
+      itemByName.get("Classified Macguffin")?.macguffinDeclarations,
+    ).toEqual([
+      {
+        spellKey: "known macguffin spell",
+        spellName: "Known Macguffin Spell",
+        spellId: "spell:known macguffin spell",
+        itemClassName: "Synthetic Curiosity",
+        consumable: null,
+      },
+    ]);
+    expect(itemByName.get("Reusable Macguffin")?.macguffinDeclarations).toEqual(
+      [expect.objectContaining({ consumable: false })],
+    );
+    expect(
+      itemByName.get("Consumable Macguffin")?.macguffinDeclarations,
+    ).toEqual([expect.objectContaining({ consumable: true })]);
+    expect(
+      itemByName.get("Missing Spell Macguffin")?.macguffinDeclarations,
+    ).toEqual([
+      {
+        spellKey: null,
+        spellName: null,
+        itemClassName: "Incomplete Curiosity",
+        consumable: null,
+      },
+    ]);
+    expect(
+      itemByName.get("Unresolved Macguffin")?.macguffinDeclarations,
+    ).toEqual([
+      {
+        spellKey: "missing macguffin spell",
+        spellName: "Missing Macguffin Spell",
+        itemClassName: null,
+        consumable: null,
+      },
+    ]);
+    expect(itemByName.get("Invalid Macguffin")?.macguffinDeclarations).toEqual([
+      expect.objectContaining({
+        itemClassName: null,
+        consumable: null,
+      }),
+    ]);
+    expect(
+      itemByName.get("Repeated Macguffin")?.macguffinDeclarations,
+    ).toHaveLength(2);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_item_macguffin_spell",
+          entityId: "item:missing spell macguffin",
+        }),
+        expect.objectContaining({
+          code: "invalid_item_macguffin_class_name",
+          entityId: "item:invalid macguffin",
+        }),
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "item:invalid macguffin",
+        }),
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "item:unresolved macguffin",
+          details: {
+            targetKind: "spell",
+            reference: "Missing Macguffin Spell",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:extended macguffin",
+          details: {
+            element: "macguffin",
+            attribute: "future",
+            value: "kept",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:extended macguffin",
+          details: { element: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:text macguffin",
+          details: { element: "macguffin" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.entityId === "item:classified macguffin" &&
+          diagnostic.details?.element === "macguffin",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes loss-aware item artifact declarations", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-artifacts-"),
@@ -2577,7 +2735,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(11);
+    expect(result.artifact.entities.items).toHaveLength(12);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
@@ -2686,7 +2844,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(23);
+    expect(result.search.documents).toHaveLength(24);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -2817,6 +2975,20 @@ describe("synthetic dataset import", () => {
         originFacing: "south",
       },
     ]);
+    expect(itemByName.get("Training Relic")?.macguffinDeclarations).toEqual([
+      {
+        spellKey: "clockwork echo",
+        spellName: "Clockwork Echo",
+        spellId: "spell:clockwork echo",
+        itemClassName: "Training Curiosity",
+        consumable: false,
+      },
+    ]);
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "item:training relic",
+      )?.text,
+    ).toContain("clockwork echo training curiosity");
     expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
       expect.objectContaining({
         kind: "quaffed",

@@ -90,6 +90,12 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
           ]),
         ]
       : []),
+    ...(entity.kind === "item"
+      ? entity.macguffinDeclarations.flatMap((declaration) => [
+          declaration.spellName ?? "",
+          declaration.itemClassName ?? "",
+        ])
+      : []),
     ...statText,
   ];
 

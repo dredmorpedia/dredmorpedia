@@ -86,7 +86,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Item preview" }),
   ).toBeVisible();
-  await expect(page.getByText("Showing 11 of 11 items")).toBeVisible();
+  await expect(page.getByText("Showing 12 of 12 items")).toBeVisible();
   expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
@@ -514,9 +514,55 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
     page
       .getByRole("region", { name: "Use metadata" })
       .getByText(
-        "No normalized weapon, armour, recovery, charge, or trap metadata.",
+        "No normalized weapon, armour, macguffin, recovery, charge, or trap metadata.",
       ),
   ).toBeVisible();
+});
+
+test("shows linked macguffin source metadata without inferring behavior", async ({
+  page,
+}) => {
+  await page.goto("/items/training-relic/");
+  const useMetadata = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    useMetadata.getByRole("heading", { name: "Macguffin declarations" }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("Resolved", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("Training Curiosity", { exact: true }),
+  ).toBeVisible();
+  await expect(useMetadata.getByText("No", { exact: true })).toBeVisible();
+  await expect(
+    useMetadata.getByText(
+      /whether the item is actually consumed are not inferred/i,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Unsupported <macguffin> element was preserved only as a diagnostic.",
+    ),
+  ).toHaveCount(0);
+
+  await useMetadata.getByRole("link", { name: "Clockwork Echo" }).click();
+  await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+  const backlinks = page.getByRole("region", { name: "Referenced by" });
+  await expect(
+    backlinks
+      .getByRole("region", { name: "Item macguffins" })
+      .getByRole("link", { name: "Training Relic" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test("navigates spell details and stops recursive effect cycles", async ({
@@ -1130,6 +1176,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/clockwork-blade-plus/",
     "/items/clockwork-sword/",
     "/items/training-cuirass/",
+    "/items/training-relic/",
     "/items/training-ration/",
     "/items/training-trap/",
     "/items/training-wand-1/",

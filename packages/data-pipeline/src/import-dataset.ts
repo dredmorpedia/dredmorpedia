@@ -163,6 +163,19 @@ function linkItems(
       }
       return { ...trigger, spellId: spell.id };
     }),
+    macguffinDeclarations: item.macguffinDeclarations.map((declaration) => {
+      if (declaration.spellKey === null || declaration.spellName === null) {
+        return declaration;
+      }
+      const spell = spellAliases.get(declaration.spellKey);
+      if (!spell) {
+        diagnostics.push(
+          danglingDiagnostic(item, "spell", declaration.spellName),
+        );
+        return declaration;
+      }
+      return { ...declaration, spellId: spell.id };
+    }),
   }));
 }
 

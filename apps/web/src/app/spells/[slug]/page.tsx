@@ -138,6 +138,13 @@ export default async function SpellPage({
       trigger.spellId === spell.id ? [{ item, trigger, triggerIndex }] : [],
     ),
   );
+  const macguffinBacklinks = artifact.entities.items.flatMap((item) =>
+    item.macguffinDeclarations.flatMap((declaration, declarationIndex) =>
+      declaration.spellId === spell.id
+        ? [{ item, declaration, declarationIndex }]
+        : [],
+    ),
+  );
   const instabilityBacklinks = artifact.encrustmentInstabilityEffects.filter(
     (effect) => effect.spellId === spell.id,
   );
@@ -153,6 +160,7 @@ export default async function SpellPage({
     spellBacklinks.length +
     buffHookBacklinks.length +
     itemBacklinks.length +
+    macguffinBacklinks.length +
     instabilityBacklinks.length +
     abilityBacklinks.length +
     monsterBacklinks.length;
@@ -877,6 +885,34 @@ export default async function SpellPage({
                         <span>{titleCase(trigger.kind)}</span>
                       </li>
                     ))}
+                  </ul>
+                </section>
+              ) : null}
+              {macguffinBacklinks.length > 0 ? (
+                <section aria-labelledby="macguffin-backlinks-heading">
+                  <h3
+                    id="macguffin-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Item macguffins
+                  </h3>
+                  <ul className="relation-list">
+                    {macguffinBacklinks.map(
+                      ({ item, declaration, declarationIndex }) => (
+                        <li key={`${item.id}:${declarationIndex}`}>
+                          <Link
+                            className="entity-link font-semibold"
+                            href={`/items/${item.slug}`}
+                          >
+                            {item.name}
+                          </Link>
+                          <span>
+                            {declaration.itemClassName ??
+                              "Direct macguffin spell reference"}
+                          </span>
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </section>
               ) : null}

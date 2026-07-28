@@ -39,6 +39,7 @@ function candidate(
       artifacts: [],
       armourDeclarations: [],
       weaponDeclarations: [],
+      macguffinDeclarations: [],
       recoveries: [],
       chargeRanges: [],
       traps: [],

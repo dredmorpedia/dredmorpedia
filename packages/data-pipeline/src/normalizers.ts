@@ -17,6 +17,7 @@ import {
   type Item,
   type ItemArmourMetadata,
   type ItemArtifactMetadata,
+  type ItemMacguffinMetadata,
   type ItemTrigger,
   type ItemTriggerKind,
   type ItemWeaponMetadata,
@@ -410,6 +411,85 @@ function parseItemWeaponDeclarations(
         xmlAttribute(weapon, "thrown"),
         context,
         provenance,
+        currentEntityId,
+      ),
+    };
+  });
+}
+
+function parseItemMacguffinDeclarations(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemMacguffinMetadata[] {
+  const rawDeclarations = Object.hasOwn(record, "macguffin")
+    ? Array.isArray(record.macguffin)
+      ? record.macguffin
+      : [record.macguffin]
+    : [];
+
+  return rawDeclarations.map((rawDeclaration, declarationIndex) => {
+    const declaration = isXmlRecord(rawDeclaration) ? rawDeclaration : {};
+    if (
+      !isXmlRecord(rawDeclaration) &&
+      (typeof rawDeclaration !== "string" || rawDeclaration.trim() !== "")
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unknown_element",
+        message:
+          "Unsupported text content inside <macguffin> was preserved only as a diagnostic.",
+        source: context.parsed.locateChildElement(record, "macguffin"),
+        entityId: currentEntityId,
+        details: { element: "macguffin" },
+      });
+    }
+
+    reportUnknownLeafContent(
+      context,
+      declaration,
+      "macguffin",
+      new Set(["consumable", "item_class_name", "spell"]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+
+    const rawSpellName = xmlAttribute(declaration, "spell");
+    const spellName = rawSpellName?.trim() ? rawSpellName : null;
+    if (spellName === null) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_item_macguffin_spell",
+        message: `Macguffin declaration ${declarationIndex + 1} has no spell reference.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    const rawItemClassName = xmlAttribute(declaration, "item_class_name");
+    const itemClassName = rawItemClassName?.trim() ? rawItemClassName : null;
+    if (rawItemClassName !== undefined && itemClassName === null) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_item_macguffin_class_name",
+        message: `Macguffin declaration ${declarationIndex + 1} has an empty item class name.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    return {
+      spellKey: spellName === null ? null : canonicalKey(spellName),
+      spellName,
+      itemClassName,
+      consumable: optionalBooleanAttribute(
+        declaration,
+        "consumable",
+        context,
+        provenance,
+        `item macguffin declaration ${declarationIndex + 1} consumable flag`,
         currentEntityId,
       ),
     };
@@ -1304,6 +1384,12 @@ function parseItems(
       provenance,
       currentEntityId,
     );
+    const macguffinDeclarations = parseItemMacguffinDeclarations(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     validateItemGemMarkers(record, context, provenance, currentEntityId);
 
     const item: Item = {
@@ -1337,6 +1423,7 @@ function parseItems(
       ),
       armourDeclarations,
       weaponDeclarations,
+      macguffinDeclarations,
       recoveries: parseItemRecoveries(
         record,
         context,
@@ -1373,6 +1460,7 @@ function parseItems(
         "armour",
         "food",
         "gem",
+        "macguffin",
         "mushroom",
         "potion",
         "trap",

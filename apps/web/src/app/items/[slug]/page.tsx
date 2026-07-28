@@ -158,6 +158,7 @@ export default async function ItemPage({
           </h2>
           {item.weaponDeclarations.length > 0 ||
           item.armourDeclarations.length > 0 ||
+          item.macguffinDeclarations.length > 0 ||
           item.recoveries.length > 0 ||
           item.chargeRanges.length > 0 ||
           item.traps.length > 0 ? (
@@ -238,6 +239,79 @@ export default async function ItemPage({
                   <p className="supporting-note">
                     These are direct equipment declarations. Random-stat
                     selection and equipment formulas are not inferred.
+                  </p>
+                </section>
+              ) : null}
+              {item.macguffinDeclarations.length > 0 ? (
+                <section aria-labelledby="item-macguffin-heading">
+                  <h3
+                    id="item-macguffin-heading"
+                    className="relationship-title"
+                  >
+                    Macguffin declarations
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.macguffinDeclarations.map((declaration, index) => {
+                      const spell = declaration.spellId
+                        ? spellsById.get(declaration.spellId)
+                        : undefined;
+                      return (
+                        <div key={index}>
+                          {item.macguffinDeclarations.length > 1 ? (
+                            <p className="supporting-note">
+                              Declaration {index + 1}
+                            </p>
+                          ) : null}
+                          <dl className="stat-list">
+                            <div>
+                              <dt>Spell reference</dt>
+                              <dd>
+                                {spell ? (
+                                  <Link
+                                    className="entity-link font-semibold"
+                                    href={`/spells/${spell.slug}`}
+                                  >
+                                    {spell.name}
+                                  </Link>
+                                ) : (
+                                  (declaration.spellName ?? "Not supplied")
+                                )}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Reference status</dt>
+                              <dd>
+                                {spell
+                                  ? "Resolved"
+                                  : declaration.spellName
+                                    ? "Unresolved"
+                                    : "Not supplied"}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Item class name</dt>
+                              <dd>
+                                {declaration.itemClassName ?? "Not supplied"}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Consumable source flag</dt>
+                              <dd>
+                                {declaration.consumable === null
+                                  ? "Not supplied"
+                                  : declaration.consumable
+                                    ? "Yes"
+                                    : "No"}
+                              </dd>
+                            </div>
+                          </dl>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="supporting-note">
+                    These are direct source declarations. Activation, targeting,
+                    and whether the item is actually consumed are not inferred.
                   </p>
                 </section>
               ) : null}
@@ -366,7 +440,8 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized weapon, armour, recovery, charge, or trap metadata.
+              No normalized weapon, armour, macguffin, recovery, charge, or trap
+              metadata.
             </p>
           )}
         </section>

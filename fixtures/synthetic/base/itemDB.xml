@@ -68,4 +68,9 @@
     <description text="A route-collision fixture using a numeric suffix." />
     <price amount="22" />
   </item>
+  <item id="training-relic" name="Training Relic" special="1" iconFile="assets/synthetic.svg">
+    <description text="A synthetic quest object with direct, deliberately uninterpreted source metadata." />
+    <price amount="1" />
+    <macguffin spell="Clockwork Echo" item_class_name="Training Curiosity" consumable="0" />
+  </item>
 </items>

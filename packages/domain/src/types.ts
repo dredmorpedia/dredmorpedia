@@ -85,6 +85,14 @@ export interface ItemWeaponMetadata {
   thrownPath: string | null;
 }
 
+export interface ItemMacguffinMetadata {
+  spellKey: string | null;
+  spellName: string | null;
+  spellId?: string;
+  itemClassName: string | null;
+  consumable: boolean | null;
+}
+
 export const itemRecoveryResources = ["life", "mana"] as const;
 
 export type ItemRecoveryResource = (typeof itemRecoveryResources)[number];
@@ -162,6 +170,7 @@ export interface Item extends NormalizedEntityBase {
   artifacts: ItemArtifactMetadata[];
   armourDeclarations: ItemArmourMetadata[];
   weaponDeclarations: ItemWeaponMetadata[];
+  macguffinDeclarations: ItemMacguffinMetadata[];
   recoveries: ItemRecovery[];
   chargeRanges: ItemChargeRange[];
   traps: ItemTrapMetadata[];
