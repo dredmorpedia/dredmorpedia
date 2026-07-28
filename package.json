@@ -8,6 +8,7 @@
     "node": ">=24.11.0 <25"
   },
   "scripts": {
+    "audit:dependencies": "pnpm audit --prod --audit-level=high",
     "audit:legacy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1",
     "build": "pnpm run generate:check && node scripts/run-web-with-artifact.mjs build spike",
     "build:official": "pnpm run generate:official:check && node scripts/run-web-with-artifact.mjs build official-local",
@@ -29,7 +30,7 @@
   "devDependencies": {
     "@types/node": "26.1.1",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.2.12",
     "prettier": "3.9.5",
     "shadcn": "4.13.1",
     "typescript": "6.0.3",

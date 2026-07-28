@@ -996,9 +996,10 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("Yes", { exact: true }),
   ).toBeVisible();
   await expect(
-    forbiddenConditionEffect.getByRole("link", {
-      name: "Clockwork Spark",
-    }),
+    forbiddenConditionEffect
+      .getByText("Forbidden buff", { exact: true })
+      .locator("..")
+      .getByRole("link", { name: "Clockwork Spark" }),
   ).toBeVisible();
   await expect(
     page.getByText(

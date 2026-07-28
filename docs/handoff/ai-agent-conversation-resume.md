@@ -53,6 +53,7 @@ The preferred implementation size is the smallest slice that removes a defensibl
 Use the root commands documented in `AGENTS.md`:
 
 - `pnpm.cmd generate:check` — deterministic legal synthetic generation.
+- `pnpm.cmd audit:dependencies` — fail on high-severity production dependency advisories using the live registry database.
 - `pnpm.cmd check` — formatting, lint, types, unit/artifact tests, deterministic generation, and synthetic static build.
 - `pnpm.cmd test:e2e` — desktop/mobile interaction, responsive, keyboard, and axe coverage.
 - `pnpm.cmd generate:official:check` — optional deterministic read-only canonical import.

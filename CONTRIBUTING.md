@@ -14,9 +14,18 @@ Use Node.js 24 LTS; the exact development version is pinned in `.node-version`. 
 corepack enable
 corepack prepare pnpm@11.15.0 --activate
 pnpm install --frozen-lockfile
+pnpm audit:dependencies
 pnpm generate:check
 pnpm check
 ```
+
+`pnpm audit:dependencies` checks the production dependency graph against the
+current registry advisory database and fails on high-severity findings. It
+requires registry access and also runs in the scheduled dependency-audit
+workflow; ordinary pull-request CI remains deterministic when the advisory
+service is temporarily unavailable. Narrow root overrides keep Next.js
+transitive dependencies on patched releases when its declared ranges cannot
+select them; remove an override once an upgraded direct dependency does so.
 
 `pnpm check` runs formatting, linting, strict type checks, unit/integration tests, deterministic artifact generation, and the production static build. Browser checks are separate because they require a downloaded test browser:
 

@@ -80,6 +80,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm build:official` — deterministically regenerate the ignored official artifact with a zero-error publication gate and verify the full local static export.
 - `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
 - `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.
+- `pnpm audit:dependencies` — fail on high-severity production dependency advisories; the scheduled dependency-audit workflow runs the same gate.
 - `pnpm audit:legacy` — repeatable preserved-application audit.
 
 ## Session and machine handoff
