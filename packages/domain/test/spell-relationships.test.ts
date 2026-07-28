@@ -36,6 +36,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     manaCosts: [],
     animations: [],
     impacts: [],
+    aiHints: [],
     buffs: [],
     effects,
   };
@@ -85,6 +86,7 @@ function buff(
     stackLimit: null,
     descriptions: [],
     halos: [],
+    aiHints: [],
     sourceFlags: [],
     modifiers: [],
     sightModifiers: [],

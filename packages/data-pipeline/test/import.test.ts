@@ -2065,6 +2065,7 @@ describe("synthetic dataset import", () => {
           { text: "First measured buff description." },
           { text: "Second measured buff description." },
         ],
+        aiHints: [],
         halos: [
           {
             spritePath: "sprites/sfx/measured-halo/measured-halo",
@@ -2294,6 +2295,144 @@ describe("synthetic dataset import", () => {
         (diagnostic) =>
           diagnostic.entityId === "spell:complete buff" &&
           (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes ordered spell and buff AI hints without inferring behavior", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-ai-hints-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete AI Hints" type="target">
+    <ai hint="target" />
+    <ai hint="buff" />
+    <buff>
+      <ai hint="self" />
+    </buff>
+  </spell>
+  <spell name="Invalid AI Hints" type="self">
+    <ai />
+    <ai hint="  " />
+    <ai hint="ally" future="diagnosed">
+      <futureAiChild />
+    </ai>
+    <buff>
+      <ai hint="mine" future="diagnosed">unexpected text</ai>
+      <ai />
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const aiManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      aiManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-ai-hint-test",
+        sources: [
+          {
+            id: "spell-ai-hint-source",
+            label: "Spell AI Hint Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: aiManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete AI Hints")).toMatchObject({
+      aiHints: [{ hint: "target" }, { hint: "buff" }],
+      buffs: [expect.objectContaining({ aiHints: [{ hint: "self" }] })],
+    });
+    expect(spells.get("Invalid AI Hints")).toMatchObject({
+      aiHints: [{ hint: null }, { hint: null }, { hint: "ally" }],
+      buffs: [
+        expect.objectContaining({
+          aiHints: [{ hint: "mine" }, { hint: null }],
+        }),
+      ],
+    });
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "missing_spell_ai_hint",
+      ),
+    ).toHaveLength(3);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_ai_hint",
+          entityId: "spell:invalid ai hints",
+          details: { hintIndex: 0, scope: "spell" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_ai_hint",
+          entityId: "spell:invalid ai hints",
+          details: { hintIndex: 1, scope: "buff", buffIndex: 0 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid ai hints",
+          source: expect.objectContaining({ line: 13 }),
+          details: {
+            element: "ai",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid ai hints",
+          source: expect.objectContaining({ line: 17 }),
+          details: {
+            element: "ai",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid ai hints",
+          details: { element: "futureAiChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid ai hints",
+          details: { element: "#text" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.details?.element === "ai" &&
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete ai hints" &&
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "partially_supported_element"),
       ),
     ).toBe(false);

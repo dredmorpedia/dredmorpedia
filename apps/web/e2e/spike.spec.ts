@@ -728,6 +728,19 @@ test("navigates spell details and stops recursive effect cycles", async ({
   );
   await expect(presentation).not.toContainText("clockwork_impact_audio_cue");
 
+  const aiHints = page.getByRole("region", { name: "Engine AI hints" });
+  await expect(
+    aiHints.getByText("Spell declaration 1", { exact: true }),
+  ).toBeVisible();
+  await expect(aiHints.getByText("target", { exact: true })).toBeVisible();
+  await expect(
+    aiHints.getByText("Buff 1 declaration 1", { exact: true }),
+  ).toBeVisible();
+  await expect(aiHints.getByText("self", { exact: true })).toBeVisible();
+  await expect(
+    aiHints.getByText(/uninterpreted engine guidance tokens/i),
+  ).toBeVisible();
+
   const buffs = page.getByRole("region", { name: "Buffs" });
   await expect(
     buffs.getByRole("region", { name: "Buff description" }),

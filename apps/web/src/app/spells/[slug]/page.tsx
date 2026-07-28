@@ -177,6 +177,20 @@ export default async function SpellPage({
       metadata,
     })),
   ] as const;
+  const aiHintDeclarations = [
+    ...spell.aiHints.map((metadata, index) => ({
+      scope: "Spell",
+      index,
+      metadata,
+    })),
+    ...spell.buffs.flatMap((buff, buffIndex) =>
+      buff.aiHints.map((metadata, index) => ({
+        scope: `Buff ${buffIndex + 1}`,
+        index,
+        metadata,
+      })),
+    ),
+  ];
 
   return (
     <article className="detail-page">
@@ -248,6 +262,10 @@ export default async function SpellPage({
                 0,
               )}
             </dd>
+          </div>
+          <div>
+            <dt>AI hint declarations</dt>
+            <dd>{aiHintDeclarations.length}</dd>
           </div>
         </dl>
       </header>
@@ -395,6 +413,40 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized animation or impact declaration.
+            </p>
+          )}
+        </section>
+
+        <section className="detail-card" aria-labelledby="ai-hints-heading">
+          <h2 id="ai-hints-heading" className="section-title-sm">
+            Engine AI hints
+          </h2>
+          {aiHintDeclarations.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {aiHintDeclarations.map(({ scope, index, metadata }) => (
+                  <li key={`${scope}-${index}`}>
+                    <div className="trigger-summary">
+                      <span className="relationship-title">
+                        {scope} declaration {index + 1}
+                      </span>
+                      <strong>{metadata.hint ?? "Hint unavailable"}</strong>
+                      <small className="trigger-resolution">
+                        Exact source hint token
+                      </small>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                These are uninterpreted engine guidance tokens. They do not
+                establish targeting, eligibility, priorities, or runtime AI
+                behavior.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized engine AI hint.
             </p>
           )}
         </section>

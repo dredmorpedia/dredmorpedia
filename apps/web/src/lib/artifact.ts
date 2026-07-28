@@ -374,6 +374,15 @@ const spellEffectSchema = z
   })
   .strict();
 
+const spellAiHintSchema = z
+  .object({
+    hint: z
+      .string()
+      .refine((value) => value.trim().length > 0)
+      .nullable(),
+  })
+  .strict();
+
 const spellBuffSchema = z
   .object({
     iconPath: z.string().nullable(),
@@ -409,6 +418,7 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    aiHints: z.array(spellAiHintSchema),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),
     sightModifiers: z.array(z.object({ amount: nullableNumber }).strict()),
@@ -456,6 +466,7 @@ const spellSchema = z
     ),
     animations: z.array(spellFramePresentationSchema),
     impacts: z.array(spellFramePresentationSchema),
+    aiHints: z.array(spellAiHintSchema),
     buffs: z.array(spellBuffSchema),
     effects: z.array(spellEffectSchema),
   })

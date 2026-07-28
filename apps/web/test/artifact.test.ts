@@ -190,6 +190,28 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/halos/);
   });
 
+  it("rejects malformed spell AI hint metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { aiHints: { hint: string | null }[] }[];
+      };
+    };
+    const aiHint = typedArtifact.entities.spells
+      .flatMap((spell) => spell.aiHints)
+      .at(0);
+    if (!aiHint) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell AI hint metadata.",
+      );
+    }
+    aiHint.hint = "";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/aiHints/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

@@ -31,6 +31,7 @@ import {
   type Recipe,
   type Skill,
   type Spell,
+  type SpellAiHintMetadata,
   type SpellAnimationMetadata,
   type SpellBuff,
   type SpellBuffDescription,
@@ -2974,6 +2975,71 @@ const spellBuffHaloAttributes = new Set([
   "num",
 ]);
 
+function spellAiHintRecords(record: XmlRecord): XmlRecord[] {
+  const value = record.ai;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellAiHints(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  scope: { buffIndex?: number } = {},
+): SpellAiHintMetadata[] {
+  return spellAiHintRecords(record).map((aiHint, hintIndex) => {
+    const sourceLocation =
+      Object.keys(aiHint).length === 0
+        ? context.parsed.locateChildElement(record, "ai")
+        : context.parsed.locateRecord(aiHint);
+    const hintProvenance = {
+      ...provenance,
+      ...sourceLocation,
+    };
+    reportUnknownLeafContent(
+      context,
+      aiHint,
+      "ai",
+      new Set(["hint"]),
+      hintProvenance,
+      currentEntityId,
+      true,
+    );
+    const sourceHint = xmlAttribute(aiHint, "hint");
+    const hint =
+      sourceHint === undefined || sourceHint.trim() === "" ? null : sourceHint;
+    if (hint === null) {
+      const scopeLabel =
+        scope.buffIndex === undefined
+          ? "Spell"
+          : `Spell buff ${scope.buffIndex + 1}`;
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_ai_hint",
+        message: `${scopeLabel} AI declaration ${hintIndex + 1} is missing its hint.`,
+        source: hintProvenance,
+        entityId: currentEntityId,
+        details: {
+          hintIndex,
+          ...(scope.buffIndex === undefined
+            ? { scope: "spell" }
+            : { scope: "buff", buffIndex: scope.buffIndex }),
+        },
+      });
+    }
+    return { hint };
+  });
+}
+
 function spellBuffHaloRecords(buff: XmlRecord): XmlRecord[] {
   const value = buff.halo;
   const entries = Array.isArray(value) ? value : [value];
@@ -3221,6 +3287,7 @@ function parseSpellBuffs(
       buff,
       new Set([
         ...modifierElementNames,
+        "ai",
         "description",
         "halo",
         "sightbuff",
@@ -3361,6 +3428,9 @@ function parseSpellBuffs(
         currentEntityId,
         buffIndex,
       ),
+      aiHints: parseSpellAiHints(buff, context, provenance, currentEntityId, {
+        buffIndex,
+      }),
       sourceFlags: spellBuffSourceFlagAttributes
         .flatMap((sourceKey) => {
           const value = xmlAttribute(buff, sourceKey);
@@ -3476,6 +3546,7 @@ function parseSpells(
         currentEntityId,
       ),
       impacts: parseSpellImpacts(record, context, provenance, currentEntityId),
+      aiHints: parseSpellAiHints(record, context, provenance, currentEntityId),
       buffs: parseSpellBuffs(record, context, provenance, currentEntityId),
       effects,
     };
@@ -3488,6 +3559,7 @@ function parseSpells(
         "requirements",
         "anim",
         "impact",
+        "ai",
         "buff",
       ]),
       currentEntityId,

@@ -384,6 +384,10 @@ export interface SpellBuffHaloMetadata {
   centered: boolean | null;
 }
 
+export interface SpellAiHintMetadata {
+  hint: string | null;
+}
+
 export interface SpellBuff {
   iconPath: string | null;
   smallIconPath: string | null;
@@ -402,6 +406,7 @@ export interface SpellBuff {
   stackLimit: number | null;
   descriptions: SpellBuffDescription[];
   halos: SpellBuffHaloMetadata[];
+  aiHints: SpellAiHintMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
   sightModifiers: SpellBuffSightModifier[];
@@ -415,6 +420,7 @@ export interface Spell extends NormalizedEntityBase {
   manaCosts: SpellManaCost[];
   animations: SpellAnimationMetadata[];
   impacts: SpellImpactMetadata[];
+  aiHints: SpellAiHintMetadata[];
   buffs: SpellBuff[];
   effects: SpellEffect[];
 }
