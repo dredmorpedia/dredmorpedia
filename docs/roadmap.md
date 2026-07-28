@@ -81,6 +81,8 @@ Trust-boundary hardening through 2026-07-29 validates normalized asset values be
 
 The web artifact boundary now validates canonical/alias slug and search-URL shapes and independently rejects duplicate same-kind canonical-or-alias route ownership before static route generation. Checksummed-tampering regressions cover all four failure paths without changing valid generated output.
 
+Asset-reference hardening now rejects POSIX absolute, Windows absolute/drive-relative, and traversal values independently of the generator host. One web schema covers all item, skill/ability, spell, and monster presentation paths; all 3,708 non-null canonical references satisfy it.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

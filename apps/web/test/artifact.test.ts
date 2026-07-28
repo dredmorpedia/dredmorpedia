@@ -153,6 +153,46 @@ describe("generated artifact loading", () => {
     );
   });
 
+  it("rejects a traversing entity icon path", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: { items: { iconPath: string | null }[] };
+    };
+    const firstItem = artifact.entities.items[0];
+    if (!firstItem) {
+      throw new Error("Synthetic artifact unexpectedly has no items.");
+    }
+    firstItem.iconPath = "../outside.svg";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/entities\.items\.0\.iconPath/);
+  });
+
+  it("rejects a Windows drive-relative nested presentation path", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: {
+        monsters: {
+          presentation: {
+            attack: { down: string | null } | null;
+          };
+        }[];
+      };
+    };
+    const monster = artifact.entities.monsters.find(
+      (entry) => entry.presentation.attack?.down,
+    );
+    if (!monster?.presentation.attack) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no monster attack presentation.",
+      );
+    }
+    monster.presentation.attack.down = "C:outside.spr";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/presentation\.attack\.down/);
+  });
+
   it("rejects malformed spell animation metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

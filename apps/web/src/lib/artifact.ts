@@ -42,6 +42,19 @@ const entityUrlSchema = z
     /^\/[a-z]+\/[a-z0-9-]+$/,
     "must be an absolute entity path with a lowercase route and slug",
   );
+const safeRelativeAssetPathSchema = z
+  .string()
+  .min(1)
+  .refine(
+    (value) =>
+      !value.includes("\\") &&
+      !path.posix.isAbsolute(value) &&
+      !path.win32.isAbsolute(value) &&
+      !/^[A-Za-z]:/.test(value) &&
+      !value.split("/").some((segment) => segment === ".."),
+    "must be a slash-normalized, non-traversing relative asset path",
+  );
+const nullableAssetPathSchema = safeRelativeAssetPathSchema.nullable();
 
 const patchValueSchema = z.union([
   z.string(),
@@ -156,7 +169,7 @@ const itemToolkitBoundsSchema = z
 
 const itemToolkitControlSchema = z
   .object({
-    path: z.string().min(1).nullable(),
+    path: nullableAssetPathSchema,
     positionX: nullableNonnegativeInteger,
     positionY: nullableNonnegativeInteger,
   })
@@ -198,7 +211,7 @@ const itemSchema = z
       z
         .object({
           canTargetFloor: z.boolean().nullable(),
-          thrownPath: z.string().min(1).nullable(),
+          thrownPath: nullableAssetPathSchema,
         })
         .strict(),
     ),
@@ -233,9 +246,9 @@ const itemSchema = z
           tag: z.string().min(1).nullable(),
           numSlots: nullableNonnegativeInteger,
           soundCue: z.string().min(1).nullable(),
-          missingPath: z.string().min(1).nullable(),
-          presentPath: z.string().min(1).nullable(),
-          activePath: z.string().min(1).nullable(),
+          missingPath: nullableAssetPathSchema,
+          presentPath: nullableAssetPathSchema,
+          activePath: nullableAssetPathSchema,
           slotBounds: z.array(
             itemToolkitBoundsSchema.extend({
               slot: positiveInteger,
@@ -251,7 +264,7 @@ const itemSchema = z
               y: nullableNonnegativeInteger,
             })
             .strict(),
-          backgroundPath: z.string().min(1).nullable(),
+          backgroundPath: nullableAssetPathSchema,
         })
         .strict(),
     ),
@@ -271,13 +284,13 @@ const itemSchema = z
           activation: z.enum(itemTrapActivationModes).nullable(),
           level: nullableNonnegativeInteger,
           targetsCaster: z.boolean().nullable(),
-          originPath: z.string().nullable(),
+          originPath: nullableAssetPathSchema,
           originMount: z.string().nullable(),
           originFacing: z.string().nullable(),
         })
         .strict(),
     ),
-    iconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
     stats: z.array(
       z
         .object({
@@ -333,7 +346,7 @@ const skillSchema = z
     ...entityBaseShape,
     kind: z.literal("skill"),
     archetype: z.string(),
-    iconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
     loadouts: z.array(
       z
         .object({
@@ -361,7 +374,7 @@ const abilitySchema = z
     kind: z.literal("ability"),
     skillKey: z.string(),
     skillId: optionalString,
-    iconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
     level: nonnegativeInteger,
     startSkill: z.boolean(),
     modifiers: z.array(statModifierSchema),
@@ -514,8 +527,8 @@ const spellAiHintSchema = z
 
 const spellBuffSchema = z
   .object({
-    iconPath: z.string().nullable(),
-    smallIconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
+    smallIconPath: nullableAssetPathSchema,
     timerMode: nullableNonnegativeInteger,
     duration: nullableNonnegativeInteger,
     manaUpkeep: nullableNonnegativeInteger,
@@ -539,7 +552,7 @@ const spellBuffSchema = z
     halos: z.array(
       z
         .object({
-          spritePath: z.string().nullable(),
+          spritePath: nullableAssetPathSchema,
           frameCount: nullableNonnegativeInteger,
           frameRate: nullableNonnegativeInteger,
           firstFrame: nullableNonnegativeInteger,
@@ -568,7 +581,7 @@ const spellBuffSchema = z
 
 const spellFramePresentationSchema = z
   .object({
-    spritePath: z.string().nullable(),
+    spritePath: nullableAssetPathSchema,
     frameCount: nullableNonnegativeInteger,
     frameRate: nullableNonnegativeInteger,
     firstFrame: nullableNonnegativeInteger,
@@ -583,7 +596,7 @@ const spellSchema = z
     ...entityBaseShape,
     kind: z.literal("spell"),
     spellType: z.string(),
-    iconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
     manaCosts: z.array(
       z
         .object({
@@ -604,10 +617,10 @@ const spellSchema = z
 const nullableBoolean = z.boolean().nullable();
 const directionalSpriteSchema = z
   .object({
-    down: z.string().nullable(),
-    left: z.string().nullable(),
-    right: z.string().nullable(),
-    up: z.string().nullable(),
+    down: nullableAssetPathSchema,
+    left: nullableAssetPathSchema,
+    right: nullableAssetPathSchema,
+    up: nullableAssetPathSchema,
   })
   .strict();
 
@@ -619,7 +632,7 @@ const monsterSchema = z
     level: nonnegativeInteger,
     depth: nullableNonnegativeInteger,
     special: z.boolean(),
-    iconPath: z.string().nullable(),
+    iconPath: nullableAssetPathSchema,
     paletteName: z.string().nullable(),
     paletteTint: z.number().int().nullable(),
     archetypeLevels: z
@@ -697,22 +710,25 @@ const monsterSchema = z
           .nullable(),
         attack: directionalSpriteSchema.nullable(),
         hit: directionalSpriteSchema.nullable(),
-        death: z.object({ name: z.string().nullable() }).strict().nullable(),
-        cast: z.object({ name: z.string().nullable() }).strict().nullable(),
+        death: z.object({ name: nullableAssetPathSchema }).strict().nullable(),
+        cast: z.object({ name: nullableAssetPathSchema }).strict().nullable(),
         beam: directionalSpriteSchema.nullable(),
         morph: z
           .object({
-            drink: z.string().nullable(),
-            eat: z.string().nullable(),
-            femaleLevelUp: z.string().nullable(),
-            maleLevelUp: z.string().nullable(),
-            longIdle: z.string().nullable(),
-            vanish: z.string().nullable(),
+            drink: nullableAssetPathSchema,
+            eat: nullableAssetPathSchema,
+            femaleLevelUp: nullableAssetPathSchema,
+            maleLevelUp: nullableAssetPathSchema,
+            longIdle: nullableAssetPathSchema,
+            vanish: nullableAssetPathSchema,
           })
           .strict()
           .nullable(),
         dig: z
-          .object({ down: z.string().nullable(), up: z.string().nullable() })
+          .object({
+            down: nullableAssetPathSchema,
+            up: nullableAssetPathSchema,
+          })
           .strict()
           .nullable(),
       })

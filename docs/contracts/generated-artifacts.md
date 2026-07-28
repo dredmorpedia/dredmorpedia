@@ -100,11 +100,12 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 - `search.json.datasetSchemaVersion` must equal `artifact.json.schemaVersion`.
 - Inputs, entities, diagnostics, search documents, manifest entries, and serialized object keys use the shared UTF-16 code-unit comparator for deterministic ordering independent of host ICU/CLDR data. Locale-aware sorting is presentation-only.
 - Canonical route slugs are unique within an entity kind, and an alias never resolves to more than one canonical entity of that kind.
+- Serialized asset and presentation references are slash-normalized relative paths. POSIX/Windows absolute paths, Windows drive-relative paths, and `..` traversal are invalid; symbolic sound cue IDs are not path fields.
 - Identical inputs and generator code must produce byte-identical files.
 - Writes use collision-resistant temporary names and per-file atomic replacement, publish the manifest last, and are refused when the real output path overlaps an input source root in either direction. Junctions and symbolic links do not bypass the boundary.
 - Publication can opt into a zero-error diagnostic gate. The official-data commands always enable it and refuse to replace any output file when the import contains one or more error diagnostics. Synthetic generation leaves it disabled because the fixture intentionally covers an invalid XML input.
 - Consumers must read all files from the directory containing the selected manifest and verify every declared byte length and SHA-256 checksum before parsing an output. An interrupted or mixed publication is an error, not a partially usable dataset.
-- The web layer validates every required top-level, entity, search-document, provenance, and diagnostic field; checks dataset/search/diagnostic cross-file invariants; and fails its build on unsupported, incomplete, or stale artifacts rather than guessing at compatibility.
+- The web layer validates every required top-level, entity, search-document, provenance, and diagnostic field; enforces safe route and asset-reference shapes plus unique same-kind canonical/alias ownership; checks dataset/search/diagnostic cross-file invariants; and fails its build on unsupported, incomplete, or stale artifacts rather than guessing at compatibility.
 
 The source input, published-route registry, and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).
 

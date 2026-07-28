@@ -16,13 +16,15 @@ The generated-search comparator now ends on entity ID, closing finding 3 without
 
 The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
 
-Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. The optional web/artifact/path hardening and minor UI cleanup described below also remain available future work.
+Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. Minor UI cleanup and explicit documentation of the manifest trust anchor remain available low-severity work.
 
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).
+
+The presentation/reference path boundary is now also complete. Pipeline rejection of absolute, drive-relative, and traversal values is host-independent; every web artifact field that carries an asset reference uses one safe-relative-path schema; and all 3,708 non-null canonical references satisfy it. Focused importer and checksummed-tampering regressions cover drive-relative and traversal failures. Evidence is recorded in [`asset-reference-artifact-boundary-evidence-2026-07-29.md`](asset-reference-artifact-boundary-evidence-2026-07-29.md).
 
 ## Priority findings
 
@@ -68,7 +70,7 @@ No exploitable defect found. Defenses actively tried and confirmed sound:
 Hardening opportunities (none currently exploitable):
 
 - **Resolved 2026-07-29:** the Zod boundary previously typed `slug`, `slugAliases`, and search-document `url` as bare strings and the loader checked unique entity IDs without independently checking route ownership. Canonical and alias slugs now require the generated lowercase ASCII shape, search URLs require an absolute entity-route shape, and every canonical-or-alias slug must have exactly one owner within its entity kind.
-- Presentation/reference path fields such as `iconPath` remain bare nullable strings at the web boundary. The pipeline already validates them as safe relative paths and the web never uses them as `src`/`href`; a shared path-shape schema remains optional defense in depth.
+- **Resolved 2026-07-29:** presentation/reference fields such as `iconPath` were bare nullable strings at the web boundary. One safe-relative-path schema now covers every item, skill/ability, spell, and monster asset reference. Pipeline validation is host-independent, including Windows drive-relative values, and the ignored canonical artifact's 3,708 non-null references all satisfy the consumer boundary.
 - **Resolved 2026-07-29:** `normalizeAssetPath` previously performed its `..`/absolute rejection only inside the asset-root loop, so an empty `assetRoots` list would skip validation. It now validates unconditionally before root probing, with a focused empty-root parser regression.
 - An absolute `source.root` (`manifest.ts`) is accepted without a containment check, by design, to allow external game-install directories. This is safe only because the manifest is trusted operator configuration; a one-line comment noting the manifest as a trust anchor would document the assumption.
 
@@ -84,7 +86,7 @@ Findings:
 - On alias detail pages an `<h2>` precedes the page `<h1>` in DOM order — LOW. Axe's `heading-order` does not flag a decrease, so the sweep passes; a heading-navigation user reaches the alias note before the document title.
 - The first breadcrumb crumb and the header nav are always labeled "Items" and link to home, even on spell/monster/other pages — LOW (misleading label).
 - No `error.tsx`/`global-error.tsx` boundary — LOW. An uncaught client error in an island would blank the region with no fallback; risk is low given how little client JS ships.
-- `loadArtifact` asserts unique entity and search-document IDs but not unique slugs — LOW. Currently safe because tampering is caught by checksum and `allocateEntityRoutes` guarantees uniqueness, but there is no independent slug-uniqueness guard at the web boundary.
+- **Resolved 2026-07-29:** `loadArtifact` previously asserted unique entity and search-document IDs but not unique canonical/alias slugs. It now rejects same-kind canonical-or-alias ownership collisions independently after schema and checksum validation.
 - `titleCase` is duplicated across roughly five route files with subtle divergence (the monster copy filters empty segments; others do not) — LOW, cosmetic.
 
 ## Domain correctness

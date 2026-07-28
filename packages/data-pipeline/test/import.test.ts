@@ -1797,7 +1797,7 @@ describe("synthetic dataset import", () => {
   <spell name="Invalid Animation" type="self">
     <anim sprite="../outside" frames="-1" framerate="1.5" firstframe="bad" centerEffect="maybe" sync="2" future="retained"><futureChild /></anim>
     <anim />
-    <impact sprite="C:\\outside" frames="-2" framerate="2.5" firstframe="bad" centerEffect="maybe" sync="2" futureImpact="retained"><futureImpactChild /></impact>
+    <impact sprite="C:outside" frames="-2" framerate="2.5" firstframe="bad" centerEffect="maybe" sync="2" futureImpact="retained"><futureImpactChild /></impact>
     <impact />
   </spell>
 </spellDB>`,
@@ -1922,7 +1922,7 @@ describe("synthetic dataset import", () => {
           severity: "error",
           code: "unsafe_asset_path",
           entityId: "spell:invalid animation",
-          details: { assetPath: "C:/outside" },
+          details: { assetPath: "C:outside" },
         }),
         expect.objectContaining({
           code: "missing_spell_animation_sprite",

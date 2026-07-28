@@ -19,10 +19,13 @@ export function isPathWithin(root: string, target: string): boolean {
 }
 
 export function assertSafeRelativePath(value: string): void {
-  const segments = value.replaceAll("\\", "/").split("/");
+  const normalized = value.replaceAll("\\", "/");
+  const segments = normalized.split("/");
   if (
     value.length === 0 ||
-    path.isAbsolute(value) ||
+    path.posix.isAbsolute(normalized) ||
+    path.win32.isAbsolute(normalized) ||
+    /^[A-Za-z]:/.test(normalized) ||
     segments.some((segment) => segment === "..")
   ) {
     throw new PathBoundaryError(`Unsafe relative path: ${value}`);
