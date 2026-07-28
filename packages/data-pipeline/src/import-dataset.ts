@@ -27,6 +27,7 @@ import {
   type Skill,
   type SourceLocation,
   type Spell,
+  type SpellEffectBuffCondition,
   type Stat,
 } from "@dredmorpedia/domain";
 
@@ -352,6 +353,20 @@ function linkSpells(
   const spellAliases = aliasesFor(spells);
   const statAliases = aliasesFor(stats);
   const itemAliases = aliasesFor(items);
+  const linkBuffCondition = (
+    owner: Spell,
+    condition: SpellEffectBuffCondition,
+  ): SpellEffectBuffCondition => {
+    if (condition.spellKey === null || condition.spellName === null) {
+      return condition;
+    }
+    const target = spellAliases.get(condition.spellKey);
+    if (target) {
+      return { ...condition, spellId: target.id };
+    }
+    diagnostics.push(danglingDiagnostic(owner, "spell", condition.spellName));
+    return condition;
+  };
   return spells.map((spell) => ({
     ...spell,
     buffs: spell.buffs.map((buff) => ({
@@ -367,6 +382,14 @@ function linkSpells(
     })),
     effects: spell.effects.map((effect) => {
       const linkedEffect = { ...effect };
+      linkedEffect.conditions = {
+        ...effect.conditions,
+        requiredBuff: linkBuffCondition(spell, effect.conditions.requiredBuff),
+        forbiddenBuff: linkBuffCondition(
+          spell,
+          effect.conditions.forbiddenBuff,
+        ),
+      };
       if (effect.spellKey) {
         const target = spellAliases.get(effect.spellKey);
         if (target) {

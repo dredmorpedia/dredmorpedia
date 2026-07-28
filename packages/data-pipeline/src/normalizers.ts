@@ -3569,6 +3569,15 @@ const spellEffectControlAttributes = [
   "burn",
 ] as const;
 
+const spellEffectConditionAttributes = [
+  "requirebuff",
+  "requireBuff",
+  "requirebuffontrigger",
+  "requirebuffontriggername",
+  "requirebuffonnottrigger",
+  "requirebuffonnottriggername",
+] as const;
+
 function parseSpellEffectControls(
   effect: XmlRecord,
   effectIndex: number,
@@ -3691,6 +3700,158 @@ function parseSpellEffectControls(
   };
 }
 
+function emptySpellEffectBuffCondition(): SpellEffect["conditions"]["requiredBuff"] {
+  return {
+    enabled: null,
+    spellKey: null,
+    spellName: null,
+  };
+}
+
+function emptySpellEffectConditions(): SpellEffect["conditions"] {
+  return {
+    requiresSourceBuff: null,
+    requiredBuff: emptySpellEffectBuffCondition(),
+    forbiddenBuff: emptySpellEffectBuffCondition(),
+  };
+}
+
+function parseSpellEffectBuffCondition(
+  effect: XmlRecord,
+  effectIndex: number,
+  flagAttribute: string,
+  nameAttribute: string,
+  field: string,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["conditions"]["requiredBuff"] {
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  const flagValue = xmlAttribute(effect, flagAttribute);
+  const sourceName = xmlAttribute(effect, nameAttribute);
+  const spellName =
+    sourceName === undefined || sourceName.trim() === "" ? null : sourceName;
+
+  if (
+    (flagValue === undefined && sourceName !== undefined) ||
+    (flagValue !== undefined && sourceName === undefined)
+  ) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "incomplete_spell_effect_buff_condition",
+      message: `Spell effect ${effectIndex + 1} supplies only part of its ${field} source pair.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: {
+        effectIndex,
+        field,
+        flagAttribute,
+        nameAttribute,
+      },
+    });
+  }
+  if (sourceName !== undefined && spellName === null) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_buff_condition_target",
+      message: `Spell effect ${effectIndex + 1} supplies an empty ${field} spell name.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex, field, nameAttribute },
+    });
+  }
+
+  return {
+    enabled: optionalBooleanAttribute(
+      effect,
+      flagAttribute,
+      context,
+      effectProvenance,
+      `spell effect ${effectIndex + 1} ${field} flag`,
+      currentEntityId,
+    ),
+    spellKey: spellName === null ? null : canonicalKey(spellName),
+    spellName,
+  };
+}
+
+function parseSpellEffectConditions(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["conditions"] {
+  if (effectType !== "trigger" && effectType !== "dot") {
+    return emptySpellEffectConditions();
+  }
+
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  const lowerSourceBuffValue = xmlAttribute(effect, "requirebuff");
+  const camelSourceBuffValue = xmlAttribute(effect, "requireBuff");
+  if (
+    lowerSourceBuffValue !== undefined &&
+    camelSourceBuffValue !== undefined
+  ) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_effect_condition_aliases",
+      message: `Spell effect ${effectIndex + 1} supplies both supported source-buff requirement aliases; the canonical lowercase spelling was used.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: {
+        effectIndex,
+        field: "source-buff requirement",
+        canonicalAttribute: "requirebuff",
+        canonicalValue: lowerSourceBuffValue,
+        aliasAttribute: "requireBuff",
+        aliasValue: camelSourceBuffValue,
+      },
+    });
+  }
+  const sourceBuffAttribute =
+    lowerSourceBuffValue === undefined && camelSourceBuffValue !== undefined
+      ? "requireBuff"
+      : "requirebuff";
+  return {
+    requiresSourceBuff: optionalBooleanAttribute(
+      effect,
+      sourceBuffAttribute,
+      context,
+      effectProvenance,
+      `spell effect ${effectIndex + 1} source-buff requirement`,
+      currentEntityId,
+    ),
+    requiredBuff: parseSpellEffectBuffCondition(
+      effect,
+      effectIndex,
+      "requirebuffontrigger",
+      "requirebuffontriggername",
+      "required-buff-on-trigger",
+      context,
+      provenance,
+      currentEntityId,
+    ),
+    forbiddenBuff: parseSpellEffectBuffCondition(
+      effect,
+      effectIndex,
+      "requirebuffonnottrigger",
+      "requirebuffonnottriggername",
+      "forbidden-buff-on-trigger",
+      context,
+      provenance,
+      currentEntityId,
+    ),
+  };
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -3722,6 +3883,9 @@ function parseSpells(
             "stat",
             "amount",
             ...spellEffectControlAttributes,
+            ...(effectType === "trigger" || effectType === "dot"
+              ? spellEffectConditionAttributes
+              : []),
           ]),
           provenance,
           currentEntityId,
@@ -3761,6 +3925,14 @@ function parseSpells(
             : {}),
           controls: parseSpellEffectControls(
             effect,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
+          conditions: parseSpellEffectConditions(
+            effect,
+            effectType,
             effectIndex,
             context,
             provenance,

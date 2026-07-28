@@ -3,6 +3,7 @@ import type {
   Spell,
   SpellBuffEventHook,
   SpellEffect,
+  SpellEffectBuffCondition,
   SpellEffectItemOption,
   SpellEffectSpellOption,
 } from "./types";
@@ -44,6 +45,16 @@ export interface SpellEffectOptionItemBacklink {
   effectIndex: number;
   option: SpellEffectItemOption;
   optionIndex: number;
+}
+
+export type SpellEffectConditionKind = "required-buff" | "forbidden-buff";
+
+export interface SpellEffectConditionBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+  kind: SpellEffectConditionKind;
+  condition: SpellEffectBuffCondition;
 }
 
 export function spellEffectChain(
@@ -182,5 +193,43 @@ export function spellEffectOptionItemBacklinks(
         left.spell.id.localeCompare(right.spell.id, "en") ||
         left.effectIndex - right.effectIndex ||
         left.optionIndex - right.optionIndex,
+    );
+}
+
+export function spellEffectConditionBacklinks(
+  spells: readonly Spell[],
+  targetSpellId: string,
+): SpellEffectConditionBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) => {
+        const backlinks: SpellEffectConditionBacklink[] = [];
+        if (effect.conditions.requiredBuff.spellId === targetSpellId) {
+          backlinks.push({
+            spell,
+            effect,
+            effectIndex,
+            kind: "required-buff",
+            condition: effect.conditions.requiredBuff,
+          });
+        }
+        if (effect.conditions.forbiddenBuff.spellId === targetSpellId) {
+          backlinks.push({
+            spell,
+            effect,
+            effectIndex,
+            kind: "forbidden-buff",
+            condition: effect.conditions.forbiddenBuff,
+          });
+        }
+        return backlinks;
+      }),
+    )
+    .sort(
+      (left, right) =>
+        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
+        left.spell.id.localeCompare(right.spell.id, "en") ||
+        left.effectIndex - right.effectIndex ||
+        left.kind.localeCompare(right.kind, "en"),
     );
 }

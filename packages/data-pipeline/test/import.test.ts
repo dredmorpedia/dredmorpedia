@@ -2523,11 +2523,25 @@ describe("synthetic dataset import", () => {
       burnsTarget: null,
       taxonomy: null,
     };
+    const noConditions = {
+      requiresSourceBuff: null,
+      requiredBuff: {
+        enabled: null,
+        spellKey: null,
+        spellName: null,
+      },
+      forbiddenBuff: {
+        enabled: null,
+        spellKey: null,
+        spellName: null,
+      },
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
         controls: noControls,
+        conditions: noConditions,
         options: [
           {
             kind: "item",
@@ -2548,6 +2562,7 @@ describe("synthetic dataset import", () => {
       {
         type: "triggerfromlist",
         controls: noControls,
+        conditions: noConditions,
         options: [
           {
             kind: "spell",
@@ -2720,6 +2735,19 @@ describe("synthetic dataset import", () => {
           burnsTarget: true,
           taxonomy: "Construct",
         },
+        conditions: {
+          requiresSourceBuff: null,
+          requiredBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+          forbiddenBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+        },
         options: [],
       },
       {
@@ -2732,6 +2760,19 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           taxonomy: null,
+        },
+        conditions: {
+          requiresSourceBuff: null,
+          requiredBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+          forbiddenBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
         },
         options: [],
       },
@@ -2748,6 +2789,19 @@ describe("synthetic dataset import", () => {
           burnsTarget: null,
           taxonomy: null,
         },
+        conditions: {
+          requiresSourceBuff: null,
+          requiredBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+          forbiddenBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+        },
         options: [],
       },
       {
@@ -2760,6 +2814,19 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           taxonomy: null,
+        },
+        conditions: {
+          requiresSourceBuff: null,
+          requiredBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
+          forbiddenBuff: {
+            enabled: null,
+            spellKey: null,
+            spellName: null,
+          },
         },
         options: [],
       },
@@ -2808,6 +2875,209 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete controls" &&
           (diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "conflicting_spell_effect_control_aliases"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes loss-aware spell effect buff conditions and diagnoses malformed pairs", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-conditions-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Required Buff" type="self" />
+  <spell name="Forbidden Buff" type="self" />
+  <spell name="Complete Conditions" type="target">
+    <effect type="dot" spell="Required Buff" requirebuff="0" />
+    <effect type="dot" spell="Required Buff" requireBuff="1" />
+    <effect type="trigger" spell="Required Buff" requirebuffontrigger="1" requirebuffontriggername="Required Buff" />
+    <effect type="trigger" spell="Required Buff" requirebuffonnottrigger="0" requirebuffonnottriggername="Forbidden Buff" />
+  </spell>
+  <spell name="Invalid Conditions" type="target">
+    <effect type="trigger" requirebuff="maybe" requireBuff="1" requirebuffontrigger="1" requirebuffontriggername="  " />
+    <effect type="trigger" requirebuffonnottrigger="1" />
+    <effect type="trigger" requirebuffontriggername="Missing Buff" />
+    <effect type="damage" requirebuff="1" />
+  </spell>
+</spellDB>`,
+    );
+    const conditionManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      conditionManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-condition-test",
+        sources: [
+          {
+            id: "spell-effect-condition-source",
+            label: "Spell Effect Condition Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: conditionManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    const complete = spells.get("Complete Conditions");
+    const invalid = spells.get("Invalid Conditions");
+
+    expect(complete?.effects.map((effect) => effect.conditions)).toEqual([
+      {
+        requiresSourceBuff: false,
+        requiredBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+        forbiddenBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+      },
+      {
+        requiresSourceBuff: true,
+        requiredBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+        forbiddenBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+      },
+      {
+        requiresSourceBuff: null,
+        requiredBuff: {
+          enabled: true,
+          spellKey: "required buff",
+          spellName: "Required Buff",
+          spellId: "spell:required buff",
+        },
+        forbiddenBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+      },
+      {
+        requiresSourceBuff: null,
+        requiredBuff: {
+          enabled: null,
+          spellKey: null,
+          spellName: null,
+        },
+        forbiddenBuff: {
+          enabled: false,
+          spellKey: "forbidden buff",
+          spellName: "Forbidden Buff",
+          spellId: "spell:forbidden buff",
+        },
+      },
+    ]);
+    expect(invalid?.effects).toMatchObject([
+      {
+        type: "damage",
+        conditions: {
+          requiresSourceBuff: null,
+        },
+      },
+      {
+        type: "trigger",
+        conditions: {
+          requiresSourceBuff: null,
+          requiredBuff: {
+            enabled: true,
+            spellKey: null,
+            spellName: null,
+          },
+        },
+      },
+      {
+        type: "trigger",
+        conditions: {
+          forbiddenBuff: {
+            enabled: true,
+            spellKey: null,
+            spellName: null,
+          },
+        },
+      },
+      {
+        type: "trigger",
+        conditions: {
+          requiredBuff: {
+            enabled: null,
+            spellKey: "missing buff",
+            spellName: "Missing Buff",
+          },
+        },
+      },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "incomplete_spell_effect_buff_condition",
+      ),
+    ).toHaveLength(2);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "missing_spell_effect_buff_condition_target",
+      ),
+    ).toHaveLength(1);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "conflicting_spell_effect_condition_aliases",
+      ),
+    ).toHaveLength(1);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid conditions",
+          details: expect.objectContaining({ value: "maybe" }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid conditions",
+          details: {
+            element: "effect",
+            attribute: "requirebuff",
+            value: "1",
+          },
+        }),
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "spell:invalid conditions",
+          details: expect.objectContaining({ reference: "Missing Buff" }),
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete conditions" &&
+          (diagnostic.code === "unknown_attribute" ||
+            diagnostic.code === "incomplete_spell_effect_buff_condition" ||
+            diagnostic.code === "dangling_reference"),
       ),
     ).toBe(false);
   });
@@ -3638,6 +3908,39 @@ describe("synthetic dataset import", () => {
         Object.values(effect.controls).every((value) => value === null),
       ),
     ).toBe(true);
+    expect(
+      clockworkSpark?.effects.find(
+        (effect) => effect.spellKey === "clockwork echo",
+      )?.conditions,
+    ).toEqual({
+      requiresSourceBuff: null,
+      requiredBuff: {
+        enabled: true,
+        spellKey: "clockwork spark",
+        spellName: "Clockwork Spark",
+        spellId: "spell:clockwork spark",
+      },
+      forbiddenBuff: {
+        enabled: null,
+        spellKey: null,
+        spellName: null,
+      },
+    });
+    expect(
+      clockworkSpark?.effects.find(
+        (effect) => effect.spellKey === "missing echo",
+      )?.conditions.requiresSourceBuff,
+    ).toBe(true);
+    expect(
+      clockworkEcho?.effects.find(
+        (effect) => effect.spellKey === "clockwork spark",
+      )?.conditions.forbiddenBuff,
+    ).toEqual({
+      enabled: true,
+      spellKey: "clockwork spark",
+      spellName: "Clockwork Spark",
+      spellId: "spell:clockwork spark",
+    });
     expect(blade?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 4 },
       { kind: "damage", sourceKey: "voltaic", amount: -1 },

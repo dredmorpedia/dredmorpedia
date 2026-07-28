@@ -7,6 +7,7 @@ import {
   spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
+  spellEffectConditionBacklinks,
   spellEffectOptionItemBacklinks,
   spellEffectOptionSpellBacklinks,
   type Spell,
@@ -20,6 +21,20 @@ const noEffectControls: Spell["effects"][number]["controls"] = {
   resistable: null,
   burnsTarget: null,
   taxonomy: null,
+};
+
+const noEffectConditions: Spell["effects"][number]["conditions"] = {
+  requiresSourceBuff: null,
+  requiredBuff: {
+    enabled: null,
+    spellKey: null,
+    spellName: null,
+  },
+  forbiddenBuff: {
+    enabled: null,
+    spellKey: null,
+    spellName: null,
+  },
 };
 
 function spell(name: string, effects: Spell["effects"] = []): Spell {
@@ -61,6 +76,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellName: target.name,
     spellId: target.id,
     controls: noEffectControls,
+    conditions: noEffectConditions,
     options: [],
   };
 }
@@ -115,6 +131,7 @@ describe("spell effect relationships", () => {
       spellKey: "missing echo",
       spellName: "Missing Echo",
       controls: noEffectControls,
+      conditions: noEffectConditions,
       options: [],
     };
     const spellA = spell("Spell A");
@@ -192,6 +209,7 @@ describe("spell effect relationships", () => {
         type: "damage",
         amount: 2,
         controls: noEffectControls,
+        conditions: noEffectConditions,
         options: [],
       },
       reference(target),
@@ -249,6 +267,7 @@ describe("spell effect relationships", () => {
       {
         type: "triggerfromlist",
         controls: noEffectControls,
+        conditions: noEffectConditions,
         options: [
           {
             kind: "spell",
@@ -263,6 +282,7 @@ describe("spell effect relationships", () => {
       {
         type: "spawnitemfromlist",
         controls: noEffectControls,
+        conditions: noEffectConditions,
         options: [
           {
             kind: "item",
@@ -283,6 +303,7 @@ describe("spell effect relationships", () => {
       {
         type: "triggerfromlist",
         controls: noEffectControls,
+        conditions: noEffectConditions,
         options: [
           {
             kind: "spell",
@@ -319,6 +340,63 @@ describe("spell effect relationships", () => {
     ).toEqual([
       ["Earlier", 0, 0, null],
       ["Earlier", 0, 1, 2],
+    ]);
+  });
+
+  it("returns named buff-condition backlinks in deterministic source order", () => {
+    const target = spell("Target");
+    const later = spell("Later", [
+      {
+        type: "trigger",
+        controls: noEffectControls,
+        conditions: {
+          ...noEffectConditions,
+          requiredBuff: {
+            enabled: true,
+            spellKey: target.canonicalKey,
+            spellName: target.name,
+            spellId: target.id,
+          },
+        },
+        options: [],
+      },
+    ]);
+    const earlier = spell("Earlier", [
+      {
+        type: "trigger",
+        controls: noEffectControls,
+        conditions: {
+          ...noEffectConditions,
+          requiredBuff: {
+            enabled: true,
+            spellKey: target.canonicalKey,
+            spellName: target.name,
+            spellId: target.id,
+          },
+          forbiddenBuff: {
+            enabled: false,
+            spellKey: target.canonicalKey,
+            spellName: target.name,
+            spellId: target.id,
+          },
+        },
+        options: [],
+      },
+    ]);
+
+    expect(
+      spellEffectConditionBacklinks([target, later, earlier], target.id).map(
+        ({ spell: source, effectIndex, kind, condition }) => [
+          source.name,
+          effectIndex,
+          kind,
+          condition.enabled,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, "forbidden-buff", false],
+      ["Earlier", 0, "required-buff", true],
+      ["Later", 0, "required-buff", true],
     ]);
   });
 });

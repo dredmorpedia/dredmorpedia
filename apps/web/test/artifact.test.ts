@@ -265,6 +265,38 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/controls/);
   });
 
+  it("rejects malformed spell effect condition metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            conditions: {
+              requiredBuff: {
+                spellKey: string | null;
+                spellName: string | null;
+              };
+            };
+          }[];
+        }[];
+      };
+    };
+    const condition = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .map((effect) => effect.conditions.requiredBuff)
+      .find((entry) => entry.spellKey !== null);
+    if (!condition) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no named spell effect condition.",
+      );
+    }
+    condition.spellName = null;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/conditions/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

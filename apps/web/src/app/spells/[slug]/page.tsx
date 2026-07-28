@@ -8,6 +8,7 @@ import {
   spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
+  spellEffectConditionBacklinks,
   spellEffectOptionSpellBacklinks,
   type MonsterSpellTriggerKind,
   type SpellBuffEventHookKind,
@@ -151,6 +152,10 @@ export default async function SpellPage({
     artifact.entities.spells,
     spell.id,
   );
+  const conditionBacklinks = spellEffectConditionBacklinks(
+    artifact.entities.spells,
+    spell.id,
+  );
   const listOptionEffects = spell.effects
     .map((effect, effectIndex) => ({ effect, effectIndex }))
     .filter(({ effect }) => effect.options.length > 0);
@@ -185,6 +190,7 @@ export default async function SpellPage({
     spellBacklinks.length +
     buffHookBacklinks.length +
     optionSpellBacklinks.length +
+    conditionBacklinks.length +
     itemBacklinks.length +
     macguffinBacklinks.length +
     instabilityBacklinks.length +
@@ -851,8 +857,9 @@ export default async function SpellPage({
             Effects
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Direct source controls are shown without combining them into
-            targeting eligibility, resistance, ignition, or runtime probability
+            Direct source controls and buff conditions are shown without
+            combining them into targeting eligibility, buff-presence evaluation,
+            trigger timing, resistance, ignition, or runtime probability
             behavior.
           </p>
           {spell.effects.length > 0 ? (
@@ -875,6 +882,18 @@ export default async function SpellPage({
                   effect.controls.resistable !== null ||
                   effect.controls.burnsTarget !== null ||
                   effect.controls.taxonomy !== null;
+                const requiredBuff = effect.conditions.requiredBuff.spellId
+                  ? spellsById.get(effect.conditions.requiredBuff.spellId)
+                  : undefined;
+                const forbiddenBuff = effect.conditions.forbiddenBuff.spellId
+                  ? spellsById.get(effect.conditions.forbiddenBuff.spellId)
+                  : undefined;
+                const hasSourceConditions =
+                  effect.conditions.requiresSourceBuff !== null ||
+                  effect.conditions.requiredBuff.enabled !== null ||
+                  effect.conditions.requiredBuff.spellName !== null ||
+                  effect.conditions.forbiddenBuff.enabled !== null ||
+                  effect.conditions.forbiddenBuff.spellName !== null;
                 return (
                   <li key={`${effect.type}:${effectIndex}`}>
                     <div className="trigger-summary">
@@ -976,6 +995,68 @@ export default async function SpellPage({
                       {!hasSourceControls ? (
                         <div>
                           <dt>Source controls</dt>
+                          <dd>None declared</dd>
+                        </div>
+                      ) : null}
+                      {effect.conditions.requiresSourceBuff !== null ? (
+                        <div>
+                          <dt>Requires source buff</dt>
+                          <dd>{yesNo(effect.conditions.requiresSourceBuff)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.conditions.requiredBuff.enabled !== null ? (
+                        <div>
+                          <dt>Named buff required</dt>
+                          <dd>
+                            {yesNo(effect.conditions.requiredBuff.enabled)}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {effect.conditions.requiredBuff.spellName !== null ? (
+                        <div>
+                          <dt>Required buff</dt>
+                          <dd>
+                            {requiredBuff ? (
+                              <Link
+                                className="entity-link font-semibold"
+                                href={`/spells/${requiredBuff.slug}`}
+                              >
+                                {requiredBuff.name}
+                              </Link>
+                            ) : (
+                              `${effect.conditions.requiredBuff.spellName} (unresolved)`
+                            )}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {effect.conditions.forbiddenBuff.enabled !== null ? (
+                        <div>
+                          <dt>Named buff forbidden</dt>
+                          <dd>
+                            {yesNo(effect.conditions.forbiddenBuff.enabled)}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {effect.conditions.forbiddenBuff.spellName !== null ? (
+                        <div>
+                          <dt>Forbidden buff</dt>
+                          <dd>
+                            {forbiddenBuff ? (
+                              <Link
+                                className="entity-link font-semibold"
+                                href={`/spells/${forbiddenBuff.slug}`}
+                              >
+                                {forbiddenBuff.name}
+                              </Link>
+                            ) : (
+                              `${effect.conditions.forbiddenBuff.spellName} (unresolved)`
+                            )}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {!hasSourceConditions ? (
+                        <div>
+                          <dt>Source conditions</dt>
                           <dd>None declared</dd>
                         </div>
                       ) : null}
@@ -1192,6 +1273,40 @@ export default async function SpellPage({
                         <span>
                           {effectTypeLabel(backlink.effect.type)} option{" "}
                           {backlink.optionIndex + 1}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {conditionBacklinks.length > 0 ? (
+                <section aria-labelledby="condition-backlinks-heading">
+                  <h3
+                    id="condition-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Conditional effect references
+                  </h3>
+                  <ul className="relation-list">
+                    {conditionBacklinks.map((backlink) => (
+                      <li
+                        key={`${backlink.spell.id}:${backlink.effectIndex}:${backlink.kind}`}
+                      >
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${backlink.spell.slug}`}
+                        >
+                          {backlink.spell.name}
+                        </Link>
+                        <span>
+                          {backlink.kind === "required-buff"
+                            ? "Required named buff"
+                            : "Forbidden named buff"}
+                          {backlink.condition.enabled === null
+                            ? " (flag unavailable)"
+                            : backlink.condition.enabled
+                              ? ""
+                              : " (flag disabled)"}
                         </span>
                       </li>
                     ))}

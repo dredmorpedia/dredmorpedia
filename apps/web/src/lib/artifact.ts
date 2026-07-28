@@ -415,6 +415,30 @@ const spellEffectSpellOptionSchema = z
     }
   });
 
+const spellEffectBuffConditionSchema = z
+  .object({
+    enabled: z.boolean().nullable(),
+    spellKey: nullableNonblankString,
+    spellName: nullableNonblankString,
+    spellId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((condition, context) => {
+    if ((condition.spellKey === null) !== (condition.spellName === null)) {
+      context.addIssue({
+        code: "custom",
+        message: "Buff condition key and name must both be present or absent.",
+      });
+    }
+    if (condition.spellId !== undefined && condition.spellKey === null) {
+      context.addIssue({
+        code: "custom",
+        message: "A resolved buff condition must retain its source target.",
+        path: ["spellId"],
+      });
+    }
+  });
+
 const spellEffectSchema = z
   .object({
     type: z.string(),
@@ -434,6 +458,13 @@ const spellEffectSchema = z
         resistable: z.boolean().nullable(),
         burnsTarget: z.boolean().nullable(),
         taxonomy: nullableNonblankString,
+      })
+      .strict(),
+    conditions: z
+      .object({
+        requiresSourceBuff: z.boolean().nullable(),
+        requiredBuff: spellEffectBuffConditionSchema,
+        forbiddenBuff: spellEffectBuffConditionSchema,
       })
       .strict(),
     options: z.array(

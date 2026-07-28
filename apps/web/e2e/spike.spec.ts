@@ -855,6 +855,35 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("Construct", { exact: true }),
   ).toBeVisible();
   await expect(
+    controlledEffect
+      .getByText("Source conditions", { exact: true })
+      .locator("..")
+      .getByText("None declared", { exact: true }),
+  ).toBeVisible();
+  const requiredConditionEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Named buff required" })
+    .first();
+  await expect(
+    requiredConditionEffect
+      .getByText("Named buff required", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    requiredConditionEffect.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  const sourceBuffConditionEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Requires source buff" })
+    .first();
+  await expect(
+    sourceBuffConditionEffect
+      .getByText("Requires source buff", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
     effects.getByText(/without combining them into targeting eligibility/i),
   ).toBeVisible();
   await expect(
@@ -896,6 +925,21 @@ test("navigates spell details and stops recursive effect cycles", async ({
     backlinks.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
   await expect(backlinks.getByText("Synthetic Mishap")).toBeVisible();
+  const conditionBacklinks = backlinks.getByRole("region", {
+    name: "Conditional effect references",
+  });
+  await expect(
+    conditionBacklinks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    conditionBacklinks.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    conditionBacklinks.getByText("Required named buff"),
+  ).toBeVisible();
+  await expect(
+    conditionBacklinks.getByText("Forbidden named buff"),
+  ).toBeVisible();
 
   await effects.getByRole("link", { name: "Clockwork Echo" }).click();
   await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
@@ -939,6 +983,22 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page
       .getByRole("region", { name: "Effect list options" })
       .getByText("No normalized effect list options."),
+  ).toBeVisible();
+  const forbiddenConditionEffect = page
+    .getByRole("region", { name: "Effects", exact: true })
+    .getByRole("listitem")
+    .filter({ hasText: "Named buff forbidden" })
+    .first();
+  await expect(
+    forbiddenConditionEffect
+      .getByText("Named buff forbidden", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    forbiddenConditionEffect.getByRole("link", {
+      name: "Clockwork Spark",
+    }),
   ).toBeVisible();
   await expect(
     page.getByText(

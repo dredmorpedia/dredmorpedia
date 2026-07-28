@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest pushed checkpoint before the current spell-effect-control work: `b928f46` (`Model spell effect list options`). Always verify with `git log` rather than assuming this remains HEAD.
+- Latest pushed checkpoint before the current spell-effect-buff-condition work: `73a727f` (`Model spell effect controls`). Always verify with `git log` rather than assuming this remains HEAD.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -90,14 +90,14 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect chance/targeting/resistance/burn/taxonomy controls, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the spell-effect-control slice, the canonical import reports:
+After the spell-effect-buff-condition slice, the canonical import reports:
 
-- 0 errors, 1,395 warnings, and 71 informational duplicate decisions;
-- 1,359 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 1,265 warnings, and 71 informational duplicate decisions;
+- 1,229 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 

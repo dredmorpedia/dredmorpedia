@@ -335,6 +335,7 @@ export interface SpellEffect {
   statId?: string;
   amount?: number;
   controls: SpellEffectControls;
+  conditions: SpellEffectConditions;
   options: SpellEffectOption[];
 }
 
@@ -346,6 +347,19 @@ export interface SpellEffectControls {
   resistable: boolean | null;
   burnsTarget: boolean | null;
   taxonomy: string | null;
+}
+
+export interface SpellEffectBuffCondition {
+  enabled: boolean | null;
+  spellKey: string | null;
+  spellName: string | null;
+  spellId?: string;
+}
+
+export interface SpellEffectConditions {
+  requiresSourceBuff: boolean | null;
+  requiredBuff: SpellEffectBuffCondition;
+  forbiddenBuff: SpellEffectBuffCondition;
 }
 
 export interface SpellEffectItemOption {
