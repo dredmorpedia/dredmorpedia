@@ -10,6 +10,14 @@ This record captures a repository-wide review of the modern workspace (`apps/web
 
 The codebase is disciplined. No critical or high-severity defect was found. The strongest findings are two mediums (route-slug stability under dataset change; ICU-dependent output ordering). The remainder are low-severity hardening items or product-scope parity gaps, several of which are correctly blocked on unresolved owner decisions rather than on engineering. The determinism strategy, the XML security posture, and the web trust boundary are well engineered and should be preserved.
 
+## Resolution update as of 2026-07-28
+
+The generated-search comparator now ends on entity ID, closing finding 3 without changing the current official search order. Focused regressions also cover the four domain edges identified by the review: equal-precedence source resolution, an unavailable monster parent, three-level transitive inheritance, and a genuinely negative derived primary-attribute total.
+
+The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
+
+The two medium findings remain open: route ownership across insertion/deletion and dataset-version changes requires an explicit registry lifecycle decision, while output-critical ordering remains ICU-dependent. The optional web/artifact/path hardening and minor UI cleanup described below also remain available future work.
+
 ## Priority findings
 
 ### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
@@ -105,9 +113,9 @@ Legacy behaviors that are traps and should not be replicated: the Flash/Download
 
 Independent of the blocked owner decisions and safe to implement as small vertical slices (change plus test plus doc note):
 
-1. Append the `id` tiebreaker to `createSearchDocuments` and add a regression test (finding 3).
+1. **Completed 2026-07-28:** append the `id` tiebreaker to `createSearchDocuments` and add a regression test (finding 3).
 2. Add a slug-stability test that inserts and removes a colliding entity and asserts pre-existing slugs are unchanged, then decide whether the route registry should be mandatory and whether a `datasetVersion` mismatch should void reservations silently (finding 1).
-3. Widen the search kind allow-list to expose all entity kinds, and consider per-kind index routes plus nav (parity gap 1).
+3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
 4. Optional hardening: code-unit comparison for output-critical ordering (finding 2), Zod charset regexes at the web boundary, and completing the non-total comparators (finding 4).
 
 Blocked on owner decisions (restated for continuity, tracked in `docs/handoff/new-pc-and-codex.md` and `PROJECT.md`): publication rights for normalized official data and art; the inherited-code/mod/asset license policy; an approved source for stat definitions absent from the canonical build; and the treatment of disputed monster Life/Mana/secondary/damage formulas. Do not resolve these by assumption.

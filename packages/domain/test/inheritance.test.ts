@@ -218,6 +218,57 @@ describe("monster inheritance", () => {
     ]);
   });
 
+  it("keeps a monster local and reports an unavailable parent", () => {
+    const orphan = monster("Orphan", "missing parent");
+    orphan.description = "Orphan local";
+
+    const result = applyMonsterInheritance([orphan]);
+
+    expect(result.issues).toEqual([
+      {
+        type: "missing-parent",
+        monsterId: orphan.id,
+        parentKey: "missing parent",
+      },
+    ]);
+    expect(result.monsters[0]).toMatchObject({
+      id: orphan.id,
+      description: "Orphan local",
+      modifiers: [{ kind: "damage", sourceKey: "crushing", amount: 3 }],
+    });
+    expect(result.monsters[0]?.inheritsId).toBeUndefined();
+  });
+
+  it("resolves three inheritance levels without depending on input order", () => {
+    const grandparent = monster("Grandparent");
+    grandparent.description = "Grandparent description";
+    grandparent.modifiers = [
+      { kind: "resistance", sourceKey: "toxic", amount: 2 },
+    ];
+    const parent = monster("Parent", grandparent.canonicalKey);
+    parent.taxonomy = "Construct";
+    parent.modifiers = [{ kind: "damage", sourceKey: "crushing", amount: 3 }];
+    const child = monster("Child", parent.canonicalKey);
+    child.modifiers = [{ kind: "primary", sourceKey: "2", amount: -4 }];
+
+    const forward = applyMonsterInheritance([grandparent, parent, child]);
+    const reverse = applyMonsterInheritance([child, parent, grandparent]);
+
+    expect(forward).toEqual(reverse);
+    expect(
+      forward.monsters.find((entry) => entry.id === child.id),
+    ).toMatchObject({
+      description: "Grandparent description",
+      taxonomy: "Construct",
+      inheritsId: parent.id,
+      modifiers: [
+        { kind: "damage", sourceKey: "crushing", amount: 3 },
+        { kind: "resistance", sourceKey: "toxic", amount: 2 },
+        { kind: "primary", sourceKey: "2", amount: -4 },
+      ],
+    });
+  });
+
   it("keeps every member of an inheritance cycle local", () => {
     const alpha = monster("Alpha", "beta");
     const beta = monster("Beta", "gamma");

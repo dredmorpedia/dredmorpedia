@@ -69,4 +69,19 @@ describe("monster primary attribute calculations", () => {
       total: 0,
     });
   });
+
+  it("preserves a negative total instead of clamping it", () => {
+    const values = calculateMonsterPrimaryAttributes(
+      { fighter: 1, rogue: 0, wizard: 0 },
+      [{ kind: "primary", sourceKey: "2", amount: -3 }],
+    );
+
+    expect(values.find((value) => value.key === "nimbleness")).toEqual({
+      key: "nimbleness",
+      label: "Nimbleness",
+      base: 1,
+      modifier: -3,
+      total: -2,
+    });
+  });
 });

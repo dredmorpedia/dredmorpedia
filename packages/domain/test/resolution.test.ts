@@ -72,4 +72,24 @@ describe("source precedence", () => {
     ).toEqual(["synthetic-base", "synthetic-expansion"]);
     expect(forward.collisions[0]?.changedFields).toContain("price");
   });
+
+  it("breaks equal-precedence ties with stable source provenance", () => {
+    const alpha = candidate("synthetic-alpha", 10, 120);
+    const beta = candidate("synthetic-beta", 10, 155);
+
+    const forward = resolveEntityCandidates([alpha, beta]);
+    const reverse = resolveEntityCandidates([beta, alpha]);
+
+    expect(forward).toEqual(reverse);
+    expect(forward.active[0]?.price).toBe(155);
+    expect(
+      forward.active[0]?.variants.map((variant) => variant.sourceId),
+    ).toEqual(["synthetic-alpha", "synthetic-beta"]);
+    expect(forward.collisions).toMatchObject([
+      {
+        previous: { sourceId: "synthetic-alpha" },
+        replacement: { sourceId: "synthetic-beta" },
+      },
+    ]);
+  });
 });

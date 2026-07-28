@@ -1,6 +1,51 @@
 import { describe, expect, it } from "vitest";
 
-import { querySearchDocuments, type SearchDocument } from "../src/index";
+import {
+  createSearchDocuments,
+  querySearchDocuments,
+  type EntityCollections,
+  type SearchDocument,
+  type Stat,
+} from "../src/index";
+
+function searchStat(id: string, slug: string): Stat {
+  const provenance = {
+    sourceId: "synthetic-search",
+    file: "synthetic/statDB.xml",
+    line: 1,
+    column: 1,
+    originalName: "Shared Name",
+  };
+  return {
+    id,
+    kind: "stat",
+    canonicalKey: id,
+    slug,
+    slugAliases: [],
+    name: "Shared Name",
+    description: "",
+    group: "secondary",
+    provenance,
+    variants: [provenance],
+    appliedOverrides: [],
+    appliedPatches: [],
+    diagnosticIds: [],
+  };
+}
+
+function collections(stats: Stat[]): EntityCollections {
+  return {
+    items: [],
+    recipes: [],
+    encrustments: [],
+    skills: [],
+    abilities: [],
+    spells: [],
+    monsters: [],
+    stats,
+    templates: [],
+  };
+}
 
 const documents: SearchDocument[] = [
   {
@@ -50,6 +95,20 @@ const documents: SearchDocument[] = [
 ];
 
 describe("search queries", () => {
+  it("ends generated-document ordering with a stable entity-ID tiebreaker", () => {
+    const first = searchStat("stat:a", "shared-name-a");
+    const second = searchStat("stat:z", "shared-name-z");
+
+    expect(createSearchDocuments(collections([second, first]))).toEqual(
+      createSearchDocuments(collections([first, second])),
+    );
+    expect(
+      createSearchDocuments(collections([second, first])).map(
+        (document) => document.id,
+      ),
+    ).toEqual(["stat:a", "stat:z"]);
+  });
+
   it("ranks exact and prefix name matches ahead of description matches", () => {
     expect(
       querySearchDocuments(documents, { query: "melee power" }).map(

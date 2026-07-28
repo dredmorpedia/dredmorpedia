@@ -132,7 +132,8 @@ export function createSearchDocuments(
     .sort(
       (left, right) =>
         left.kind.localeCompare(right.kind, "en") ||
-        left.name.localeCompare(right.name, "en"),
+        left.name.localeCompare(right.name, "en") ||
+        left.id.localeCompare(right.id, "en"),
     );
 }
 
