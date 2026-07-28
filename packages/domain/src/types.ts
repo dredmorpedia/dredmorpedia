@@ -334,7 +334,18 @@ export interface SpellEffect {
   statName?: string;
   statId?: string;
   amount?: number;
+  controls: SpellEffectControls;
   options: SpellEffectOption[];
+}
+
+export interface SpellEffectControls {
+  chancePercent: number | null;
+  affectsCaster: boolean | null;
+  affectsSelf: boolean | null;
+  affectsCorpses: boolean | null;
+  resistable: boolean | null;
+  burnsTarget: boolean | null;
+  taxonomy: string | null;
 }
 
 export interface SpellEffectItemOption {

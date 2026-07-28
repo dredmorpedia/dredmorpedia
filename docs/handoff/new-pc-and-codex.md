@@ -21,7 +21,7 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- The current weapon-declaration work follows `5fdc3c6` (`Model armour declarations`). Use `git log` to confirm the latest live branch state.
+- The current spell-effect-control work follows `b928f46` (`Model spell effect list options`). Use `git log` to confirm the latest live branch state.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
@@ -84,7 +84,7 @@ Continue the first parity slice without assuming permission to publish official 
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-6. Treat the current 2,158 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
+6. Treat the current 1,359 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -139,6 +139,8 @@ Both canonical macguffin leaves now preserve ordered loss-aware spell, item-clas
 All eight canonical toolkit leaves now preserve ordered loss-aware crafting tags, slot counts, sound cues, safe presentation references, layout rectangles, controls, and close positions. Matching tags link toolkit items bidirectionally with all 374 recipes and 57 encrustments, while detailed cue IDs, raw references, and old game-interface coordinates remain hidden and do not control the modern UI. Strict importer and web schemas diagnose malformed or extended shapes. This removes the final eight item compatibility diagnostics and leaves 2,335 spell constructs. Evidence is recorded in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
 Spell buff descriptions, buff halos, and spell/buff AI hints are now strict ordered metadata families. Spell effect-list options subsequently preserve all 276 measured declarations under 45 typed list effects: 192 item options and 84 spell options. All spell options and 189 item declarations resolve; three item declarations remain visibly dangling. Reciprocal spell/item links are exposed without inferring selection or runtime behavior. This removes the 45 former nested `<option>` diagnostics and leaves 2,158 spell compatibility constructs, 13 separately tracked spell requirements, and 23 dangling references. Evidence is recorded in `docs/analysis/spell-effect-list-option-evidence-2026-07-28.md`.
+
+Direct spell-effect controls now preserve 795 active chance, caster/self/corpse, resistance, burn, and taxonomy values across 711 effects and 403 spells. Both measured chance and caster aliases normalize loss-aware; explicit false and 100-percent values are retained, malformed or simultaneous aliases remain diagnosed, and the UI does not combine the fields into targeting, resistance, ignition, or runtime probability behavior. This removes 799 source-candidate effect-attribute diagnostics and leaves 1,359 spell compatibility constructs, 13 separately tracked spell requirements, and 23 dangling references. Evidence is recorded in `docs/analysis/spell-effect-control-evidence-2026-07-28.md`.
 
 ## Spell relationship slice completed
 

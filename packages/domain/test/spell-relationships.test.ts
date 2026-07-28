@@ -12,6 +12,16 @@ import {
   type Spell,
 } from "../src/index";
 
+const noEffectControls: Spell["effects"][number]["controls"] = {
+  chancePercent: null,
+  affectsCaster: null,
+  affectsSelf: null,
+  affectsCorpses: null,
+  resistable: null,
+  burnsTarget: null,
+  taxonomy: null,
+};
+
 function spell(name: string, effects: Spell["effects"] = []): Spell {
   const provenance = {
     sourceId: "synthetic-spells",
@@ -50,6 +60,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellKey: target.canonicalKey,
     spellName: target.name,
     spellId: target.id,
+    controls: noEffectControls,
     options: [],
   };
 }
@@ -103,6 +114,7 @@ describe("spell effect relationships", () => {
       type: "trigger",
       spellKey: "missing echo",
       spellName: "Missing Echo",
+      controls: noEffectControls,
       options: [],
     };
     const spellA = spell("Spell A");
@@ -176,7 +188,12 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [reference(target)]);
     const earlier = spell("Earlier", [
       reference(target),
-      { type: "damage", amount: 2, options: [] },
+      {
+        type: "damage",
+        amount: 2,
+        controls: noEffectControls,
+        options: [],
+      },
       reference(target),
     ]);
 
@@ -231,6 +248,7 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [
       {
         type: "triggerfromlist",
+        controls: noEffectControls,
         options: [
           {
             kind: "spell",
@@ -244,6 +262,7 @@ describe("spell effect relationships", () => {
     const earlier = spell("Earlier", [
       {
         type: "spawnitemfromlist",
+        controls: noEffectControls,
         options: [
           {
             kind: "item",
@@ -263,6 +282,7 @@ describe("spell effect relationships", () => {
       },
       {
         type: "triggerfromlist",
+        controls: noEffectControls,
         options: [
           {
             kind: "spell",

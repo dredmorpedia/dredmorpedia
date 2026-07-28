@@ -850,8 +850,13 @@ export default async function SpellPage({
           <h2 id="effects-heading" className="section-title-sm">
             Effects
           </h2>
+          <p className="text-sm leading-6 text-muted-foreground">
+            Direct source controls are shown without combining them into
+            targeting eligibility, resistance, ignition, or runtime probability
+            behavior.
+          </p>
           {spell.effects.length > 0 ? (
-            <ul className="trigger-list">
+            <ul className="trigger-list mt-4">
               {spell.effects.map((effect, effectIndex) => {
                 const targetSpell = effect.spellId
                   ? spellsById.get(effect.spellId)
@@ -862,6 +867,14 @@ export default async function SpellPage({
                 const unresolved =
                   (effect.spellKey && !targetSpell) ||
                   (effect.statKey && !targetStat);
+                const hasSourceControls =
+                  effect.controls.chancePercent !== null ||
+                  effect.controls.affectsCaster !== null ||
+                  effect.controls.affectsSelf !== null ||
+                  effect.controls.affectsCorpses !== null ||
+                  effect.controls.resistable !== null ||
+                  effect.controls.burnsTarget !== null ||
+                  effect.controls.taxonomy !== null;
                 return (
                   <li key={`${effect.type}:${effectIndex}`}>
                     <div className="trigger-summary">
@@ -916,6 +929,54 @@ export default async function SpellPage({
                         <div>
                           <dt>Amount</dt>
                           <dd>{signedValue(effect.amount)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.chancePercent !== null ? (
+                        <div>
+                          <dt>Source chance</dt>
+                          <dd>{effect.controls.chancePercent}%</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.affectsCaster !== null ? (
+                        <div>
+                          <dt>Affects caster</dt>
+                          <dd>{yesNo(effect.controls.affectsCaster)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.affectsSelf !== null ? (
+                        <div>
+                          <dt>Self flag</dt>
+                          <dd>{yesNo(effect.controls.affectsSelf)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.affectsCorpses !== null ? (
+                        <div>
+                          <dt>Affects corpses</dt>
+                          <dd>{yesNo(effect.controls.affectsCorpses)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.resistable !== null ? (
+                        <div>
+                          <dt>Resistable</dt>
+                          <dd>{yesNo(effect.controls.resistable)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.burnsTarget !== null ? (
+                        <div>
+                          <dt>Burn flag</dt>
+                          <dd>{yesNo(effect.controls.burnsTarget)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.taxonomy !== null ? (
+                        <div>
+                          <dt>Taxonomy</dt>
+                          <dd>{effect.controls.taxonomy}</dd>
+                        </div>
+                      ) : null}
+                      {!hasSourceControls ? (
+                        <div>
+                          <dt>Source controls</dt>
+                          <dd>None declared</dd>
                         </div>
                       ) : null}
                     </dl>

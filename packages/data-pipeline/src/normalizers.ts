@@ -38,6 +38,7 @@ import {
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
   type SpellBuffSightModifier,
+  type SpellEffect,
   type SpellEffectOption,
   type SpellImpactMetadata,
   type SpellManaCost,
@@ -3556,6 +3557,140 @@ function parseSpellEffectOptions(
   });
 }
 
+const spellEffectControlAttributes = [
+  "percent",
+  "percentage",
+  "affectsCaster",
+  "affectscaster",
+  "self",
+  "affectsCorpses",
+  "resistable",
+  "taxa",
+  "burn",
+] as const;
+
+function parseSpellEffectControls(
+  effect: XmlRecord,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["controls"] {
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  const reportAliasConflict = (
+    canonicalAttribute: string,
+    aliasAttribute: string,
+    field: string,
+  ): void => {
+    const canonicalValue = xmlAttribute(effect, canonicalAttribute);
+    const aliasValue = xmlAttribute(effect, aliasAttribute);
+    if (canonicalValue === undefined || aliasValue === undefined) {
+      return;
+    }
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_effect_control_aliases",
+      message: `Spell effect ${effectIndex + 1} supplies both supported ${field} attribute aliases; the canonical casing was used.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: {
+        effectIndex,
+        field,
+        canonicalAttribute,
+        canonicalValue,
+        aliasAttribute,
+        aliasValue,
+      },
+    });
+  };
+  reportAliasConflict("percent", "percentage", "chance");
+  reportAliasConflict("affectsCaster", "affectscaster", "affects-caster flag");
+
+  const chanceAttribute =
+    xmlAttribute(effect, "percent") === undefined &&
+    xmlAttribute(effect, "percentage") !== undefined
+      ? "percentage"
+      : "percent";
+  const affectsCasterAttribute =
+    xmlAttribute(effect, "affectsCaster") === undefined &&
+    xmlAttribute(effect, "affectscaster") !== undefined
+      ? "affectscaster"
+      : "affectsCaster";
+  const chanceValue = xmlAttribute(effect, chanceAttribute);
+  let chancePercent: number | null = null;
+  if (chanceValue !== undefined) {
+    if (chanceValue.trim() === "") {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_number",
+        message: `Expected an integer from 0 to 100 for spell effect ${effectIndex + 1} chance; used an unavailable value instead.`,
+        source: effectProvenance,
+        entityId: currentEntityId,
+        details: {
+          field: `spell effect ${effectIndex + 1} chance`,
+          value: chanceValue,
+        },
+      });
+    } else {
+      chancePercent = optionalIntegerValue(
+        chanceValue,
+        context,
+        effectProvenance,
+        `spell effect ${effectIndex + 1} chance`,
+        currentEntityId,
+        0,
+        100,
+      );
+    }
+  }
+  const optionalControlFlag = (
+    attribute: string,
+    field: string,
+  ): boolean | null =>
+    optionalBooleanAttribute(
+      effect,
+      attribute,
+      context,
+      effectProvenance,
+      `spell effect ${effectIndex + 1} ${field}`,
+      currentEntityId,
+    );
+  const taxonomyValue = xmlAttribute(effect, "taxa");
+  const taxonomy =
+    taxonomyValue === undefined || taxonomyValue.trim() === ""
+      ? null
+      : taxonomyValue.trim();
+  if (taxonomyValue !== undefined && taxonomy === null) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_taxonomy",
+      message: `Spell effect ${effectIndex + 1} supplies an empty taxonomy control.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex },
+    });
+  }
+
+  return {
+    chancePercent,
+    affectsCaster: optionalControlFlag(
+      affectsCasterAttribute,
+      "affects-caster flag",
+    ),
+    affectsSelf: optionalControlFlag("self", "self flag"),
+    affectsCorpses: optionalControlFlag(
+      "affectsCorpses",
+      "affects-corpses flag",
+    ),
+    resistable: optionalControlFlag("resistable", "resistable flag"),
+    burnsTarget: optionalControlFlag("burn", "burn flag"),
+    taxonomy,
+  };
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -3581,7 +3716,13 @@ function parseSpells(
           context,
           effect,
           "effect",
-          new Set(["type", "spell", "stat", "amount"]),
+          new Set([
+            "type",
+            "spell",
+            "stat",
+            "amount",
+            ...spellEffectControlAttributes,
+          ]),
           provenance,
           currentEntityId,
           true,
@@ -3618,6 +3759,13 @@ function parseSpells(
                 ),
               }
             : {}),
+          controls: parseSpellEffectControls(
+            effect,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
           options: parseSpellEffectOptions(
             effect,
             effectType,

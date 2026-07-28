@@ -239,6 +239,32 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/options/);
   });
 
+  it("rejects malformed spell effect control metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            controls: { chancePercent: number | null };
+          }[];
+        }[];
+      };
+    };
+    const controlledEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.controls.chancePercent !== null);
+    if (!controlledEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect control metadata.",
+      );
+    }
+    controlledEffect.controls.chancePercent = 101;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/controls/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

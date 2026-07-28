@@ -2514,10 +2514,20 @@ describe("synthetic dataset import", () => {
     );
     const complete = spells.get("Complete Lists");
     const invalid = spells.get("Invalid Lists");
+    const noControls = {
+      chancePercent: null,
+      affectsCaster: null,
+      affectsSelf: null,
+      affectsCorpses: null,
+      resistable: null,
+      burnsTarget: null,
+      taxonomy: null,
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
+        controls: noControls,
         options: [
           {
             kind: "item",
@@ -2537,6 +2547,7 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "triggerfromlist",
+        controls: noControls,
         options: [
           {
             kind: "spell",
@@ -2645,6 +2656,158 @@ describe("synthetic dataset import", () => {
           (diagnostic.code === "unknown_element" ||
             diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes loss-aware spell effect controls and diagnoses malformed aliases", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-controls-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Controls" type="target">
+    <effect type="damage" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" />
+    <effect type="trigger" percentage="25" affectscaster="0" />
+  </spell>
+  <spell name="Invalid Controls" type="target">
+    <effect type="damage" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" future="diagnosed" />
+    <effect type="trigger" percent="" />
+  </spell>
+</spellDB>`,
+    );
+    const controlManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      controlManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-control-test",
+        sources: [
+          {
+            id: "spell-effect-control-source",
+            label: "Spell Effect Control Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: controlManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete Controls")?.effects).toEqual([
+      {
+        type: "damage",
+        controls: {
+          chancePercent: 35,
+          affectsCaster: true,
+          affectsSelf: false,
+          affectsCorpses: true,
+          resistable: false,
+          burnsTarget: true,
+          taxonomy: "Construct",
+        },
+        options: [],
+      },
+      {
+        type: "trigger",
+        controls: {
+          chancePercent: 25,
+          affectsCaster: false,
+          affectsSelf: null,
+          affectsCorpses: null,
+          resistable: null,
+          burnsTarget: null,
+          taxonomy: null,
+        },
+        options: [],
+      },
+    ]);
+    expect(spells.get("Invalid Controls")?.effects).toEqual([
+      {
+        type: "damage",
+        controls: {
+          chancePercent: null,
+          affectsCaster: null,
+          affectsSelf: null,
+          affectsCorpses: null,
+          resistable: null,
+          burnsTarget: null,
+          taxonomy: null,
+        },
+        options: [],
+      },
+      {
+        type: "trigger",
+        controls: {
+          chancePercent: null,
+          affectsCaster: null,
+          affectsSelf: null,
+          affectsCorpses: null,
+          resistable: null,
+          burnsTarget: null,
+          taxonomy: null,
+        },
+        options: [],
+      },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "conflicting_spell_effect_control_aliases",
+      ),
+    ).toHaveLength(2);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid controls" &&
+          diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(2);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid controls" &&
+          diagnostic.code === "invalid_boolean",
+      ),
+    ).toHaveLength(5);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_effect_taxonomy",
+          entityId: "spell:invalid controls",
+          details: { effectIndex: 0 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid controls",
+          details: {
+            element: "effect",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete controls" &&
+          (diagnostic.code === "unknown_attribute" ||
+            diagnostic.code === "conflicting_spell_effect_control_aliases"),
       ),
     ).toBe(false);
   });
@@ -3458,6 +3621,23 @@ describe("synthetic dataset import", () => {
     expect(clockworkEcho?.animations).toEqual([]);
     expect(clockworkEcho?.impacts).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);
+    expect(
+      clockworkSpark?.effects.find((effect) => effect.type === "damage")
+        ?.controls,
+    ).toEqual({
+      chancePercent: 40,
+      affectsCaster: true,
+      affectsSelf: false,
+      affectsCorpses: true,
+      resistable: false,
+      burnsTarget: true,
+      taxonomy: "Construct",
+    });
+    expect(
+      clockworkEcho?.effects.every((effect) =>
+        Object.values(effect.controls).every((value) => value === null),
+      ),
+    ).toBe(true);
     expect(blade?.modifiers).toEqual([
       { kind: "damage", sourceKey: "crushing", amount: 4 },
       { kind: "damage", sourceKey: "voltaic", amount: -1 },

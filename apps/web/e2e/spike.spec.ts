@@ -808,6 +808,58 @@ test("navigates spell details and stops recursive effect cycles", async ({
     effects.getByText("Missing Echo", { exact: true }),
   ).toBeVisible();
   await expect(effects.getByText("Unresolved spell target")).toBeVisible();
+  const controlledEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Damage effect" })
+    .first();
+  await expect(
+    controlledEffect
+      .getByText("Source chance", { exact: true })
+      .locator("..")
+      .getByText("40%", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Affects caster", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Self flag", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Affects corpses", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Resistable", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Burn flag", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Taxonomy", { exact: true })
+      .locator("..")
+      .getByText("Construct", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    effects.getByText(/without combining them into targeting eligibility/i),
+  ).toBeVisible();
+  await expect(
+    effects.getByText("None declared", { exact: true }).first(),
+  ).toBeVisible();
 
   const listOptions = page.getByRole("region", {
     name: "Effect list options",
