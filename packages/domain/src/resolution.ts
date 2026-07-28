@@ -77,7 +77,9 @@ export function resolveEntityCandidates<T extends NormalizedEntity>(
         left.entity.provenance.file,
         right.entity.provenance.file,
       ) ||
-      left.entity.provenance.line - right.entity.provenance.line
+      left.entity.provenance.line - right.entity.provenance.line ||
+      left.entity.provenance.column - right.entity.provenance.column ||
+      compareCodeUnits(comparable(left.entity), comparable(right.entity))
     );
   });
   const active = new Map<string, T>();

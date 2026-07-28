@@ -1,6 +1,6 @@
 # New PC and Codex handoff
 
-Updated: 2026-07-28
+Updated: 2026-07-29
 
 This is the durable handoff for moving Dredmorpedia to another computer or opening it in a new Codex task with no chat history. Canonical product and architecture documents remain authoritative; this guide summarizes the state needed to resume safely.
 
@@ -148,7 +148,7 @@ Direct trigger/damage-over-time buff conditions now preserve 16 active source-bu
 
 Direct spell-effect damage/scaling metadata now preserves 605 active damage declarations across 433 effects: 586 base amounts, 294 factor coefficients, and 19 factor-only declarations. It also preserves 15 amount factors, two floor factors, 23 primary source IDs, and 67 secondary source IDs across 106 effects. Strict type-specific normalization supports both measured primary-selector casing forms, preserves malformed declarations loss-aware, and does not combine the fields with undeclared defaults or infer final damage, healing, mana, spawn, resistance, armour, or rounding formulas. This removes 990 former effect-attribute diagnostics and leaves 239 spell compatibility constructs, 13 separately tracked spell requirements, and 23 dangling references. The full workspace passes 123 unit/artifact tests, all 34 desktop/mobile browser cases, byte-identical synthetic and official generation, the 43-page synthetic export, and the 2,857-page official local export. Evidence is recorded in `docs/analysis/spell-effect-damage-scaling-evidence-2026-07-28.md`.
 
-The review determinism/test-hardening checkpoints give generated search documents a total `(kind, name, id)` order; cover equal-precedence source resolution, missing monster parents, three-level inheritance, and genuinely negative derived primary totals; and replace all 94 domain/pipeline locale-collation calls with one fixed UTF-16 code-unit comparator. Locale-aware ordering remains only in web presentation. `pnpm.cmd check` passes all 131 unit/artifact tests and the 43-page synthetic export; deterministic official generation remains byte-identical with 763 items, 2,767 search documents, 0 errors, 275 warnings, and 71 informational decisions. Route-registry lifecycle policy is the review's only remaining medium finding. Ordering evidence is recorded in `docs/analysis/icu-independent-output-ordering-evidence-2026-07-28.md`.
+The review determinism/test-hardening checkpoints give generated search documents a total `(kind, name, id)` order; cover equal-precedence source resolution, missing monster parents, three-level inheritance, and genuinely negative derived primary totals; replace all 94 domain/pipeline locale-collation calls with one fixed UTF-16 code-unit comparator; and complete the remaining diagnostic, source-resolution, and instability-effect tiebreakers. Locale-aware ordering remains only in web presentation. `pnpm.cmd check` passes all 134 unit/artifact tests and the 43-page synthetic export; deterministic official generation remains byte-identical with 763 items, 2,767 search documents, 0 errors, 275 warnings, and 71 informational decisions. Route-registry lifecycle policy is the review's only remaining medium finding. Ordering evidence is recorded in `docs/analysis/icu-independent-output-ordering-evidence-2026-07-28.md` and `docs/analysis/comparator-totality-evidence-2026-07-29.md`.
 
 ## Spell relationship slice completed
 

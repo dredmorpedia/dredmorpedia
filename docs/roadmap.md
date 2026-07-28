@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-07-28
+Updated: 2026-07-29
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data foundation. Dates and estimates should be added only after the owner resolves the Phase 0 decisions and a complete local dataset is measured.
 
@@ -74,6 +74,8 @@ Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; 
 Every package boundary has tests and documented commands; the web shell meets the agreed mobile/keyboard baseline; pipeline output has a versioned contract.
 
 Progress through 2026-07-28: dataset schema 3, search schema 1, output-manifest schema 2, source-manifest schema 2, guarded patch overlays, a version-scoped published-route registry, versioned provenance UI, deterministic search and item/recipe/encrustment/skill/ability/spell relationship queries, collision-safe canonical routes and alternate aliases, search/stat/recipe/encrustment/skill/ability/spell routes, and desktop/mobile browser coverage are implemented. Generated search documents have a total `(kind, name, id)` order; every persisted domain/pipeline string order uses one ICU-independent UTF-16 comparator; and regressions cover equal-precedence source resolution, missing monster parents, three-level inheritance, and negative derived totals. Spell graph traversal stops cycles and repeated branches while retaining every direct edge and dangling target. Skill loadouts retain named/generic choice, quantity, and always/optional semantics; ability progression and supported spell-trigger events are linked. Generated output now uses real-path overlap guards and a manifest-last commit marker, while the web consumer verifies checksums, complete runtime schemas, search derivation, and diagnostic counts. Monster inheritance cycles keep every cycle member local and diagnosed. Dependabot groups weekly compatible package updates, a separate scheduled production-dependency audit keeps live advisory availability out of ordinary pull-request CI, and the pinned production graph has been refreshed past the reviewed high-severity Next.js, PostCSS, and Sharp advisories. Broader relation APIs and final foundation documentation remain.
+
+Determinism hardening through 2026-07-29 also makes diagnostic, equal-precedence source-resolution, and encrustment-instability comparators self-contained rather than relying on stable-sort traversal order. Reversed-input regressions cover severity/details, source columns, and the final entity-record fallback.
 
 ## Phase 3 — First vertical product slice
 

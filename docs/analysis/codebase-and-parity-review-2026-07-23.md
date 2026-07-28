@@ -10,13 +10,15 @@ This record captures a repository-wide review of the modern workspace (`apps/web
 
 The codebase is disciplined. No critical or high-severity defect was found. The strongest findings are two mediums (route-slug stability under dataset change; ICU-dependent output ordering). The remainder are low-severity hardening items or product-scope parity gaps, several of which are correctly blocked on unresolved owner decisions rather than on engineering. The determinism strategy, the XML security posture, and the web trust boundary are well engineered and should be preserved.
 
-## Resolution update as of 2026-07-28
+## Resolution update as of 2026-07-29
 
 The generated-search comparator now ends on entity ID, closing finding 3 without changing the current official search order. Focused regressions also cover the four domain edges identified by the review: equal-precedence source resolution, an unavailable monster parent, three-level transitive inheritance, and a genuinely negative derived primary-attribute total.
 
 The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
 
 Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. The optional web/artifact/path hardening and minor UI cleanup described below also remain available future work.
+
+The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
 ## Priority findings
 
@@ -44,9 +46,11 @@ Resolution: `packages/domain/src/ordering.ts` now owns the fixed UTF-16 code-uni
 
 `packages/domain/src/search.ts:115-119` sorts by `(kind, name)` only. Its sibling `querySearchDocuments` and every comparator in `identity.ts`, `resolution.ts`, and the relationship modules end on `|| left.id.localeCompare(right.id, "en")`. It is safe today because distinct active entities of one kind have distinct names (same name → same `canonicalKey` → deduped) and `Array.sort` is stable, and the web boundary re-derives and deep-compares this exact array (`apps/web/src/lib/artifact.ts:777-789`). But this array is serialized into `search.json`, it is the one place that deviates from the codebase's "always end on `id`" discipline, and a future change to pre-sort order would silently make it order-sensitive. Append the `id` tiebreaker and add a regression test. Flagged independently by the determinism and domain reviews.
 
-### 4. Minor non-total comparators rely on stable-sort push order — LOW
+### 4. Minor non-total comparators rely on stable-sort push order — RESOLVED 2026-07-29 (originally LOW)
 
 `finalizeDiagnostics` (`packages/data-pipeline/src/import-dataset.ts:73-107`) orders by file/line/column/code/entityId/message but not `severity` or `details`; `resolveEntityCandidates` (`resolution.ts:67-80`) and the instability-effect sort (`import-dataset.ts:221-231`) stop at `line` and omit `column`. Ties fall to deterministic push order, so output is stable today, but the ordering is not self-contained. Adding the already-available fields (`details`, `column`) to the comparators removes the reliance on traversal order.
+
+Resolution: persisted diagnostic and instability-effect comparators now live in a directly tested pipeline module and include the omitted stable fields. Entity resolution includes source column plus a stable full-record fallback. Reversed-input regressions prove that each result is independent of caller order; synthetic and official generation remain byte-identical.
 
 ## Untrusted-input security
 
@@ -119,6 +123,6 @@ Independent of the blocked owner decisions and safe to implement as small vertic
 2. Add a slug-stability test that inserts and removes a colliding entity and asserts pre-existing slugs are unchanged, then decide whether the route registry should be mandatory and whether a `datasetVersion` mismatch should void reservations silently (finding 1).
 3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
 4. **Completed 2026-07-28:** use code-unit comparison for every output-critical domain and pipeline order (finding 2).
-5. Optional hardening: add Zod charset regexes at the web boundary and complete the non-total comparators (finding 4).
+5. **Comparator portion completed 2026-07-29:** complete the non-total comparators and add reversed-input regressions (finding 4). Zod charset regexes at the web boundary remain optional hardening.
 
 Blocked on owner decisions (restated for continuity, tracked in `docs/handoff/new-pc-and-codex.md` and `PROJECT.md`): publication rights for normalized official data and art; the inherited-code/mod/asset license policy; an approved source for stat definitions absent from the canonical build; and the treatment of disputed monster Life/Mana/secondary/damage formulas. Do not resolve these by assumption.

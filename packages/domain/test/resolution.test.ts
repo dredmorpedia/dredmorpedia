@@ -92,4 +92,22 @@ describe("source precedence", () => {
       },
     ]);
   });
+
+  it("uses source columns when candidates otherwise share provenance", () => {
+    const earlier = candidate("synthetic-base", 10, 120);
+    earlier.entity.provenance.column = 3;
+    earlier.entity.variants = [earlier.entity.provenance];
+    const later = candidate("synthetic-base", 10, 155);
+    later.entity.provenance.column = 8;
+    later.entity.variants = [later.entity.provenance];
+
+    const forward = resolveEntityCandidates([earlier, later]);
+    const reverse = resolveEntityCandidates([later, earlier]);
+
+    expect(forward).toEqual(reverse);
+    expect(forward.active[0]?.price).toBe(155);
+    expect(
+      forward.active[0]?.variants.map((variant) => variant.column),
+    ).toEqual([3, 8]);
+  });
 });

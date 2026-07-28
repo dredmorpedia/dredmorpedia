@@ -2,13 +2,13 @@
 
 Date: 2026-07-19
 Scope: commit `68ee565` on `master`, before modernization documentation was added
-Status: baseline evidence for the rebuild; current resolution summary updated 2026-07-28
+Status: baseline evidence for the rebuild; current resolution summary updated 2026-07-29
 
 > Repository update: commit `ed71652` subsequently relocated all 1,450 tracked baseline files into `legacy/` as exact renames with no content changes. Measurements and observations below describe commit `68ee565`; paths should now be read relative to `legacy/` unless historical root placement is the subject.
 
 > Modernization update: the original audit remains intentionally commit-specific rather than being rewritten as if the modern workspace existed in 2026-07-19. The current implementation status and remaining work are summarized below. Use `docs/handoff/ai-agent-conversation-resume.md` for the latest operational checkpoint.
 
-## Modern rebuild status as of 2026-07-28
+## Modern rebuild status as of 2026-07-29
 
 The audit's main architectural recommendations have been implemented. The modern workspace is split into `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked tests use independently authored fixtures under `fixtures/synthetic`; and the preserved application remains under `legacy/` as a behavioral reference.
 
@@ -17,7 +17,7 @@ The audit's main architectural recommendations have been implemented. The modern
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; public-data policy remains open |
 | Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and an optional published-route registry are deterministic domain/pipeline contracts. | Resolved for generation; published route/version lifecycle remains to be decided |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 131 unit/artifact tests, and 34 desktop/mobile Playwright tests are established. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 134 unit/artifact tests, and 34 desktop/mobile Playwright tests are established. | Resolved |
 | Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,857 pages. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
 | Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,767 canonical documents. `/search/` exposes every kind and caps rendering at 50 results; `/browse/` provides bounded static discovery without JavaScript. | Core reach and discovery resolved; broader stat facets and ADR 0003 budgets remain |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates paths against real source roots, emits strict normalized schemas, and React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
@@ -42,7 +42,8 @@ Current validation and search evidence are recorded in:
 - [`spell-effect-control-evidence-2026-07-28.md`](spell-effect-control-evidence-2026-07-28.md),
 - [`spell-effect-buff-condition-evidence-2026-07-28.md`](spell-effect-buff-condition-evidence-2026-07-28.md),
 - [`spell-effect-damage-scaling-evidence-2026-07-28.md`](spell-effect-damage-scaling-evidence-2026-07-28.md),
-- [`icu-independent-output-ordering-evidence-2026-07-28.md`](icu-independent-output-ordering-evidence-2026-07-28.md), and
+- [`icu-independent-output-ordering-evidence-2026-07-28.md`](icu-independent-output-ordering-evidence-2026-07-28.md),
+- [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit

@@ -45,6 +45,10 @@ import {
   resolveRouteRegistry,
   type RouteRegistryDefinition,
 } from "./route-registry";
+import {
+  compareDiagnosticDrafts,
+  compareEncrustmentInstabilityEffects,
+} from "./output-ordering";
 import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 import { sha256, stableSerialize } from "./serialization";
 import { parseXml, type DiagnosticDraft } from "./xml-adapter";
@@ -72,24 +76,10 @@ function sourceLocation(provenance: EntityProvenance): SourceLocation {
   };
 }
 
-function compareDiagnostics(
-  left: DiagnosticDraft,
-  right: DiagnosticDraft,
-): number {
-  return (
-    compareCodeUnits(left.source?.file ?? "", right.source?.file ?? "") ||
-    (left.source?.line ?? 0) - (right.source?.line ?? 0) ||
-    (left.source?.column ?? 0) - (right.source?.column ?? 0) ||
-    compareCodeUnits(left.code, right.code) ||
-    compareCodeUnits(left.entityId ?? "", right.entityId ?? "") ||
-    compareCodeUnits(left.message, right.message)
-  );
-}
-
 function finalizeDiagnostics(drafts: readonly DiagnosticDraft[]): Diagnostic[] {
   const occurrences = new Map<string, number>();
 
-  return [...drafts].sort(compareDiagnostics).map((draft) => {
+  return [...drafts].sort(compareDiagnosticDrafts).map((draft) => {
     const normalizedDraft: DiagnosticDraft = {
       severity: draft.severity,
       code: draft.code,
@@ -234,14 +224,7 @@ function linkEncrustmentInstabilityEffects(
 ): EncrustmentInstabilityEffect[] {
   const spellAliases = aliasesFor(spells);
   return [...effects]
-    .sort(
-      (left, right) =>
-        compareCodeUnits(canonicalKey(left.name), canonicalKey(right.name)) ||
-        compareCodeUnits(left.spellKey, right.spellKey) ||
-        compareCodeUnits(left.provenance.sourceId, right.provenance.sourceId) ||
-        compareCodeUnits(left.provenance.file, right.provenance.file) ||
-        left.provenance.line - right.provenance.line,
-    )
+    .sort(compareEncrustmentInstabilityEffects)
     .map((effect) => {
       const spell = spellAliases.get(effect.spellKey);
       if (!spell) {
