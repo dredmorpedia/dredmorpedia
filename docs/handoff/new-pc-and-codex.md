@@ -21,7 +21,7 @@ A useful first prompt on the new machine is:
 
 - Canonical GitHub repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`.
-- Latest implementation checkpoint summarized here: `ee45e0a` (`Harden production dependencies`), following `2d56d4a` (`Model spell effect buff conditions`). Use `git log` to confirm the latest live branch state.
+- Latest parity/dependency checkpoint summarized by hash: `ee45e0a` (`Harden production dependencies`), following `2d56d4a` (`Model spell effect buff conditions`). The subsequent browser-spec extraction is described below; use `git log` to confirm the latest live branch state.
 - `ed71652` relocated all 1,450 tracked legacy files under `legacy/` as exact renames with no content changes.
 - `4fa3d8a` added the modernization analysis, project/agent guidance, roadmap, ADR process, data policy, and repeatable audit.
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
@@ -86,7 +86,7 @@ Continue the first parity slice without assuming permission to publish official 
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
 6. Treat the current 1,229 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
-7. Before another complex spell-mechanic slice, take one bounded behavior-preserving extraction from the concentrated spell normalizer/tests, spell detail page, browser spec, or artifact schema; keep the complete validation gates unchanged.
+7. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 34 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Resume the measured spell backlog; make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
