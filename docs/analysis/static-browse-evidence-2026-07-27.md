@@ -28,9 +28,9 @@ dataset-neutral 404 now lead into the static browse surface.
 - Every card links to the existing canonical detail URL and identifies its
   source label.
 
-The independently authored synthetic dataset contains 22 searchable records.
+The independently authored synthetic dataset now contains 23 searchable records.
 It produces nine kind pages plus the browse directory, increasing the complete
-synthetic export from 30 to 40 pages.
+synthetic export from its pre-browse 31 pages to 41 pages.
 
 ## Canonical read-only measurement
 
@@ -58,7 +58,7 @@ ignored official artifact.
 
 - Focused web tests cover exhaustive kind metadata, bounded deterministic
   pagination, and invalid/empty page behavior.
-- The synthetic static build generates all 40 pages.
+- The synthetic static build generates all 41 pages.
 - Desktop and mobile Playwright flows disable JavaScript, keyboard-navigate
   from `/browse/` through the spell catalogue to a static spell detail page,
   verify the detail breadcrumb, and check for horizontal overflow.

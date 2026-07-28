@@ -75,8 +75,8 @@ describe("generated artifact loading", () => {
     const { loadArtifact, loadDiagnostics, loadSearchArtifact } =
       await import("../src/lib/artifact");
 
-    expect(loadArtifact().entities.items).toHaveLength(10);
-    expect(loadSearchArtifact().documents).toHaveLength(22);
+    expect(loadArtifact().entities.items).toHaveLength(11);
+    expect(loadSearchArtifact().documents).toHaveLength(23);
     expect(loadDiagnostics()).toHaveLength(24);
   });
 

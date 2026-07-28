@@ -246,6 +246,25 @@ const monsterSpellTriggerKindRanks = new Map(
 
 const partiallySupportedItemChildren = new Set(["armour", "effect", "weapon"]);
 
+function validateItemGemMarkers(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): void {
+  for (const gem of xmlChildren(record, "gem")) {
+    reportUnknownLeafContent(
+      context,
+      gem,
+      "gem",
+      new Set(),
+      provenance,
+      currentEntityId,
+      true,
+    );
+  }
+}
+
 function parseItemRecoveries(
   record: XmlRecord,
   context: NormalizationContext,
@@ -1122,6 +1141,7 @@ function parseItems(
       .filter((stat): stat is NonNullable<typeof stat> => stat !== null)
       .sort((left, right) => left.statKey.localeCompare(right.statKey, "en"));
     const traps = parseItemTraps(record, context, provenance, currentEntityId);
+    validateItemGemMarkers(record, context, provenance, currentEntityId);
 
     const item: Item = {
       ...baseEntity(
@@ -1184,6 +1204,7 @@ function parseItems(
       new Set([
         "artifact",
         "food",
+        "gem",
         "mushroom",
         "potion",
         "trap",

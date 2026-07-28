@@ -86,7 +86,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Item preview" }),
   ).toBeVisible();
-  await expect(page.getByText("Showing 10 of 10 items")).toBeVisible();
+  await expect(page.getByText("Showing 11 of 11 items")).toBeVisible();
   expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
@@ -147,6 +147,24 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
+});
+
+test("renders a strictly validated gem classification marker", async ({
+  page,
+}) => {
+  await page.goto("/items/training-gem/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Training Gem" }),
+  ).toBeVisible();
+  await expect(page.locator(".detail-header .eyebrow")).toHaveText("Gem");
+  await expect(
+    page.getByText(
+      "A synthetic crafting gem identified by its empty source marker.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Unsupported <gem> element was preserved/),
+  ).toHaveCount(0);
 });
 
 test("searches reference entities with shareable structured filters", async ({

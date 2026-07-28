@@ -26,6 +26,11 @@
     <price amount="14" />
     <food mp="8" effect="Clockwork Echo" />
   </item>
+  <item id="training-gem" name="Training Gem" alchemical="1" iconFile="assets/synthetic.svg">
+    <description text="A synthetic crafting gem identified by its empty source marker." />
+    <price amount="25" />
+    <gem />
+  </item>
   <item id="training-mushroom" name="Training Mushroom" iconFile="assets/synthetic.svg">
     <description text="A synthetic mushroom used to verify its cast trigger." />
     <price amount="9" />

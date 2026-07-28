@@ -992,6 +992,7 @@ describe("synthetic dataset import", () => {
   <item name="Potion"><potion /></item>
   <item name="Mushroom"><mushroom /></item>
   <item name="Gem"><gem /></item>
+  <item name="Malformed Gem"><gem future="kept"><future /></gem></item>
   <item name="Toolkit" alchemical="1"><toolkit /></item>
   <item name="Reagent" alchemical="1" />
   <item name="Custom" type="crafting_material" />
@@ -1045,6 +1046,7 @@ describe("synthetic dataset import", () => {
         ["Head", "armour:head"],
         ["Legs", "armour:legs"],
         ["Mace", "weapon:mace"],
+        ["Malformed Gem", "gem"],
         ["Mixed Food", "food"],
         ["Mushroom", "mushroom"],
         ["Neck", "armour:neck"],
@@ -1064,6 +1066,31 @@ describe("synthetic dataset import", () => {
         ["Wand", "wand"],
       ]),
     );
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:malformed gem",
+          details: {
+            element: "gem",
+            attribute: "future",
+            value: "kept",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:malformed gem",
+          details: { element: "future" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "gem",
+      ),
+    ).toEqual([]);
   });
 
   it("normalizes loss-aware spell mana costs and diagnoses unsupported requirements", () => {
@@ -2306,7 +2333,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(10);
+    expect(result.artifact.entities.items).toHaveLength(11);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
@@ -2415,7 +2442,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(22);
+    expect(result.search.documents).toHaveLength(23);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -2508,6 +2535,7 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Brass Ingot")?.category).toBe("material");
     expect(itemByName.get("Clarity Tonic")?.category).toBe("potion");
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
+    expect(itemByName.get("Training Gem")?.category).toBe("gem");
     expect(itemByName.get("Training Trap")?.category).toBe("trap");
     expect(itemByName.get("Training Wand +1")?.category).toBe("wand");
     expect(itemByName.get("Training Ration")?.recoveries).toEqual([
@@ -2545,6 +2573,13 @@ describe("synthetic dataset import", () => {
         spellId: "spell:clockwork echo",
       }),
     ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "item:training gem" &&
+          diagnostic.details?.element === "gem",
+      ),
+    ).toEqual([]);
     expect(itemByName.get("Training Cuirass")?.triggers).toEqual([
       expect.objectContaining({
         kind: "melee-target",

@@ -81,18 +81,19 @@ Important completed item slices include:
 - loss-aware artifact quality;
 - direct hit/kill trigger aliases and exact source flags;
 - food/booze recovery, wand charges, and potion/mushroom trigger leaves; and
-- trap activation, level, caster-targeting, safe placement-source metadata, and stepped-on spell links.
+- trap activation, level, caster-targeting, safe placement-source metadata, and stepped-on spell links;
+- strict empty gem classification markers.
 
-The latest canonical trap slice covers 54 active declarations and 54 resolved spell links, removes all 54 former trap compatibility diagnostics, and deliberately does not infer reset timing, target selection, or placement behavior. Evidence is in `docs/analysis/item-trap-metadata-evidence-2026-07-23.md`.
+The latest canonical gem slice covers 20 empty classification markers, removes all 20 former gem compatibility diagnostics, and deliberately does not infer additional gem behavior. Evidence is in `docs/analysis/item-gem-marker-evidence-2026-07-28.md`.
 
 Other completed areas include spell mana/buff/presentation/effect relationships, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the trap slice, the canonical import reports:
+After the gem-marker slice, the canonical import reports:
 
-- 0 errors, 2,922 warnings, and 71 informational duplicate decisions;
-- 2,890 unsupported/partially-supported item/spell constructs: 555 item and 2,335 spell diagnostics;
+- 0 errors, 2,902 warnings, and 71 informational duplicate decisions;
+- 2,870 unsupported/partially-supported item/spell constructs: 535 item and 2,335 spell diagnostics;
 - 19 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -100,13 +101,12 @@ Remaining item element diagnostics are:
 
 - 268 `armour`;
 - 257 `weapon`;
-- 20 `gem`;
 - 8 `toolkit`; and
 - 2 `macguffin`.
 
 The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The all-entity search slice removed the web-only allow-list that hid 1,969 already-generated official records and made query typing resilient to asynchronous URL updates. The following static-browse slice closed the audit's no-JavaScript discovery gap with 32 bounded canonical catalogue pages plus a directory. The next implementation task should return to the measured parity backlog after remeasurement.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. A small `gem`, `toolkit`, or `macguffin` slice may be appropriate if its official and legacy shapes form a coherent user-visible contract. Do not combine unrelated families merely to reduce the count. Weapon/armour work is larger and should be split by independently evidenced semantics rather than blanket-marking the root element supported.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. The former gem family is complete. Toolkit declarations carry extensive interface/crafting metadata and macguffins carry spell/consumable semantics, so either needs its own evidenced contract despite its low diagnostic count. Weapon/armour work is larger and should be split by independently evidenced semantics rather than blanket-marking the root element supported.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.
 
@@ -119,7 +119,9 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 
 ## Last completed slice validation
 
-The static-browse slice adds a server-rendered directory plus 100-record catalogue pages for all nine entity kinds. Focused web tests cover the exhaustive kind map, pagination, and invalid/empty pages. `pnpm.cmd check` passes formatting, lint, type checking, all 99 unit/artifact tests, deterministic generation, and the 40-page synthetic export. All 28 desktop/mobile Playwright tests pass, including a keyboard flow with JavaScript disabled, responsive overflow checks, and browse pages in the representative axe sweep. `pnpm.cmd build:official` passes deterministic zero-error generation and the complete 2,857-page local static export: the 2,767 canonical documents occupy 32 bounded kind pages plus the browse directory. Evidence and remaining boundaries are recorded in `docs/analysis/static-browse-evidence-2026-07-27.md`.
+The item-gem marker slice strictly validates all 20 canonical empty leaves while keeping the existing `gem` category as their complete representation. `pnpm.cmd check` passes formatting, lint, type checking, all 99 unit/artifact tests, deterministic generation, and the 41-page synthetic export. All 30 desktop/mobile Playwright tests pass, including the new gem route and existing keyboard, no-JavaScript, responsive, and axe coverage. `pnpm.cmd build:official` passes deterministic zero-error generation with 2,902 warnings and 71 informational decisions, removes only the 20 intended gem diagnostics, and exports all 2,857 local static pages. Evidence is recorded in `docs/analysis/item-gem-marker-evidence-2026-07-28.md`.
+
+The static-browse slice adds a server-rendered directory plus 100-record catalogue pages for all nine entity kinds. Focused web tests cover the exhaustive kind map, pagination, and invalid/empty pages. The current `pnpm.cmd check` passes formatting, lint, type checking, all 99 unit/artifact tests, deterministic generation, and the 41-page synthetic export. The current 30 desktop/mobile Playwright tests pass, including a keyboard flow with JavaScript disabled, responsive overflow checks, and browse pages in the representative axe sweep. `pnpm.cmd build:official` passes deterministic zero-error generation and the complete 2,857-page local static export: the 2,767 canonical documents occupy 32 bounded kind pages plus the browse directory. Evidence and remaining boundaries are recorded in `docs/analysis/static-browse-evidence-2026-07-27.md`.
 
 The all-entity search slice exposes every generated kind through one exhaustive entity-type filter and preserves immediate sequential input while debouncing the shareable URL. `pnpm.cmd check` passes formatting, lint, type checking, all 96 unit/artifact tests, deterministic synthetic generation, and the 30-page static export. All 26 desktop/mobile Playwright tests pass, including character-by-character spell search, keyboard navigation, and the representative axe sweep. `pnpm.cmd build:official` passes deterministic zero-error generation and the complete 2,824-page local static export with all 2,767 search documents. Evidence and remaining boundaries are recorded in `docs/analysis/all-entity-search-evidence-2026-07-27.md`.
 
