@@ -1,4 +1,11 @@
-import type { Spell, SpellBuffEventHook, SpellEffect } from "./types";
+import type {
+  Item,
+  Spell,
+  SpellBuffEventHook,
+  SpellEffect,
+  SpellEffectItemOption,
+  SpellEffectSpellOption,
+} from "./types";
 
 export interface SpellEffectChainStep {
   sourceSpell: Spell;
@@ -21,6 +28,22 @@ export interface SpellBuffEventHookBacklink {
   buffIndex: number;
   hook: SpellBuffEventHook;
   hookIndex: number;
+}
+
+export interface SpellEffectOptionSpellBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+  option: SpellEffectSpellOption;
+  optionIndex: number;
+}
+
+export interface SpellEffectOptionItemBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+  option: SpellEffectItemOption;
+  optionIndex: number;
 }
 
 export function spellEffectChain(
@@ -113,5 +136,51 @@ export function spellBuffEventHookBacklinks(
         left.spell.id.localeCompare(right.spell.id, "en") ||
         left.buffIndex - right.buffIndex ||
         left.hookIndex - right.hookIndex,
+    );
+}
+
+export function spellEffectOptionSpellBacklinks(
+  spells: readonly Spell[],
+  targetSpellId: string,
+): SpellEffectOptionSpellBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) =>
+        effect.options.flatMap((option, optionIndex) =>
+          option.kind === "spell" && option.spellId === targetSpellId
+            ? [{ spell, effect, effectIndex, option, optionIndex }]
+            : [],
+        ),
+      ),
+    )
+    .sort(
+      (left, right) =>
+        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
+        left.spell.id.localeCompare(right.spell.id, "en") ||
+        left.effectIndex - right.effectIndex ||
+        left.optionIndex - right.optionIndex,
+    );
+}
+
+export function spellEffectOptionItemBacklinks(
+  spells: readonly Spell[],
+  targetItemId: Item["id"],
+): SpellEffectOptionItemBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) =>
+        effect.options.flatMap((option, optionIndex) =>
+          option.kind === "item" && option.itemId === targetItemId
+            ? [{ spell, effect, effectIndex, option, optionIndex }]
+            : [],
+        ),
+      ),
+    )
+    .sort(
+      (left, right) =>
+        left.spell.canonicalKey.localeCompare(right.spell.canonicalKey, "en") ||
+        left.spell.id.localeCompare(right.spell.id, "en") ||
+        left.effectIndex - right.effectIndex ||
+        left.optionIndex - right.optionIndex,
     );
 }

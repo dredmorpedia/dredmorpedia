@@ -809,6 +809,32 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(effects.getByText("Unresolved spell target")).toBeVisible();
 
+  const listOptions = page.getByRole("region", {
+    name: "Effect list options",
+  });
+  await expect(
+    listOptions.getByRole("heading", { name: "Spawn item from list effect" }),
+  ).toBeVisible();
+  await expect(
+    listOptions.getByRole("link", { name: "Brass Ingot" }),
+  ).toBeVisible();
+  await expect(
+    listOptions.getByRole("link", { name: "Training Trap" }),
+  ).toBeVisible();
+  await expect(
+    listOptions.getByText("Missing Listed Item", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    listOptions.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    listOptions.getByText("Missing Listed Spell", { exact: true }),
+  ).toBeVisible();
+  await expect(listOptions.getByText(/Source amount: 2/)).toBeVisible();
+  await expect(
+    listOptions.getByText(/selection weights, probabilities, eligibility/i),
+  ).toBeVisible();
+
   const chain = page.getByRole("region", { name: "Effect chain" });
   await expect(chain.getByText("Cycle detected")).toBeVisible();
   await expect(chain.getByText("Unresolved target")).toBeVisible();
@@ -833,6 +859,12 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })
+      .getByRole("region", { name: "Spell list options" })
+      .getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Referenced by" })
       .getByRole("region", { name: "Spell buff event hooks" })
       .getByRole("link", { name: "Clockwork Spark" }),
   ).toBeVisible();
@@ -852,6 +884,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("No normalized buff declaration."),
   ).toBeVisible();
   await expect(
+    page
+      .getByRole("region", { name: "Effect list options" })
+      .getByText("No normalized effect list options."),
+  ).toBeVisible();
+  await expect(
     page.getByText(
       "A spell requirement without a mana cost remains unsupported.",
     ),
@@ -862,6 +899,18 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   page,
 }) => {
   await page.goto("/items/brass-ingot/");
+  const spellListBacklinks = page.getByRole("region", {
+    name: "Spell item-list relationships",
+  });
+  await expect(
+    spellListBacklinks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    spellListBacklinks.getByText(/Source amount: not declared/),
+  ).toBeVisible();
+  await expect(
+    spellListBacklinks.getByText(/runtime spawning are not inferred/i),
+  ).toBeVisible();
   const loadoutBacklinks = page.getByRole("region", {
     name: "Starting loadout relationships",
   });

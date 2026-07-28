@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest pushed checkpoint before the current AI-hint work: `afa3a7e` (`Model spell buff halos`). Always verify with `git log` rather than assuming this remains HEAD.
+- Latest pushed checkpoint before the current spell-list-option work: `0ba0501` (`Model spell AI hints`). Always verify with `git log` rather than assuming this remains HEAD.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -90,15 +90,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
 After the spell AI-hint slice, the canonical import reports:
 
 - 0 errors, 2,236 warnings, and 71 informational duplicate decisions;
-- 2,203 unsupported/partially-supported constructs, all spell diagnostics;
-- 20 dangling references tracked separately; and
+- 2,158 unsupported/partially-supported constructs, all spell diagnostics;
+- 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
 No item compatibility diagnostic remains.
@@ -119,6 +119,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 ## Last completed slice validation
 
 The spell AI-hint slice preserves all 47 measured source candidates as ordered, nullable spell- or buff-local metadata. Source precedence leaves 45 active declarations across 45 spells; malformed extensions remain diagnosed, and the page exposes the exact scope/token with an explicit boundary around targeting and runtime behavior. `pnpm.cmd check` passes formatting, lint, type checking, all 113 unit/artifact tests, deterministic generation, and the 43-page synthetic export. All 34 desktop/mobile Playwright tests pass, including AI-hint disclosure, responsive layouts, keyboard flows, and representative axe scans. Deterministic official generation is byte-identical with 2,236 warnings and 71 informational decisions, and the full local static export produces all 2,857 pages. Evidence is recorded in `docs/analysis/spell-ai-hint-evidence-2026-07-28.md`.
+
+The spell effect-list-option slice preserves all 276 measured declarations under 45 typed list effects. It links 84 spell options and 189 of 192 item options, keeps the three unavailable item declarations visible, and exposes reciprocal spell/item navigation without inferring selection or runtime behavior. `pnpm.cmd check` passes formatting, lint, type checking, all 116 unit/artifact tests, deterministic generation, and the 43-page synthetic export. All 34 desktop/mobile Playwright tests pass, including option disclosure/backlinks, responsive layouts, keyboard flows, and representative axe scans. Deterministic official generation is byte-identical with 2,194 warnings and 71 informational decisions, and the full local static export produces all 2,857 pages. Evidence is recorded in `docs/analysis/spell-effect-list-option-evidence-2026-07-28.md`.
 
 The spell buff-halo slice preserves all 53 measured active declarations as ordered buff-local presentation metadata. It validates safe hidden sprite references, frame counts/rates, optional first frames, centered flags, and all measured casing aliases; malformed extensions remain diagnosed, and the page exposes only a source-field summary without loading sprites or inferring animation timing. `pnpm.cmd check` passes formatting, lint, type checking, all 111 unit/artifact tests, deterministic generation, and the 43-page synthetic export. All 34 desktop/mobile Playwright tests pass, including halo disclosure, responsive layouts, keyboard flows, and representative axe scans. Deterministic official generation is byte-identical with 2,283 warnings and 71 informational decisions, and the full local static export produces all 2,857 pages. Evidence is recorded in `docs/analysis/spell-buff-halo-evidence-2026-07-28.md`.
 

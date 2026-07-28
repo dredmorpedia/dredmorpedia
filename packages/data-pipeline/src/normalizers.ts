@@ -38,6 +38,7 @@ import {
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
   type SpellBuffSightModifier,
+  type SpellEffectOption,
   type SpellImpactMetadata,
   type SpellManaCost,
   type SpellTrigger,
@@ -3466,6 +3467,95 @@ function parseSpellBuffs(
   });
 }
 
+function spellEffectOptionRecords(effect: XmlRecord): XmlRecord[] {
+  const value = effect.option;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellEffectOptions(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffectOption[] {
+  const optionKind =
+    effectType === "spawnitemfromlist"
+      ? "item"
+      : effectType === "triggerfromlist"
+        ? "spell"
+        : null;
+  if (optionKind === null) {
+    return [];
+  }
+
+  return spellEffectOptionRecords(effect).map((option, optionIndex) => {
+    const sourceLocation =
+      Object.keys(option).length === 0
+        ? context.parsed.locateChildElement(effect, "option")
+        : context.parsed.locateRecord(option);
+    const optionProvenance = {
+      ...provenance,
+      ...sourceLocation,
+    };
+    reportUnknownLeafContent(
+      context,
+      option,
+      "option",
+      new Set(optionKind === "item" ? ["name", "amount"] : ["name"]),
+      optionProvenance,
+      currentEntityId,
+      true,
+    );
+
+    const sourceName = xmlAttribute(option, "name");
+    const targetName =
+      sourceName === undefined || sourceName.trim() === "" ? null : sourceName;
+    if (targetName === null) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_effect_option_target",
+        message: `Spell effect ${effectIndex + 1} ${optionKind} option ${optionIndex + 1} is missing its target name.`,
+        source: optionProvenance,
+        entityId: currentEntityId,
+        details: { effectIndex, optionIndex, optionKind },
+      });
+    }
+
+    if (optionKind === "item") {
+      return {
+        kind: "item",
+        itemKey: targetName === null ? null : canonicalKey(targetName),
+        itemName: targetName,
+        amount: optionalIntegerValue(
+          xmlAttribute(option, "amount"),
+          context,
+          optionProvenance,
+          `spell effect ${effectIndex + 1} item option ${optionIndex + 1} amount`,
+          currentEntityId,
+          1,
+        ),
+      };
+    }
+
+    return {
+      kind: "spell",
+      spellKey: targetName === null ? null : canonicalKey(targetName),
+      spellName: targetName,
+    };
+  });
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -3485,8 +3575,9 @@ function parseSpells(
     const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("spell", name);
     const effects = xmlChildren(record, "effect")
-      .map((effect) => {
-        reportUnknownLeafContent(
+      .map((effect, effectIndex) => {
+        const effectType = xmlAttribute(effect, "type") ?? "unknown";
+        reportUnknownAttributes(
           context,
           effect,
           "effect",
@@ -3495,11 +3586,22 @@ function parseSpells(
           currentEntityId,
           true,
         );
+        reportUnknownChildren(
+          context,
+          effect,
+          new Set(
+            effectType === "spawnitemfromlist" ||
+              effectType === "triggerfromlist"
+              ? ["option"]
+              : [],
+          ),
+          currentEntityId,
+        );
         const spellName = xmlAttribute(effect, "spell");
         const statName = xmlAttribute(effect, "stat");
         const amountText = xmlAttribute(effect, "amount");
         return {
-          type: xmlAttribute(effect, "type") ?? "unknown",
+          type: effectType,
           ...(spellName
             ? { spellName, spellKey: canonicalKey(spellName) }
             : {}),
@@ -3516,6 +3618,14 @@ function parseSpells(
                 ),
               }
             : {}),
+          options: parseSpellEffectOptions(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
         };
       })
       .sort((left, right) => left.type.localeCompare(right.type, "en"));

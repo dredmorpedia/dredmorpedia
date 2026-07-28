@@ -7,6 +7,8 @@ import {
   spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
+  spellEffectOptionItemBacklinks,
+  spellEffectOptionSpellBacklinks,
   type Spell,
 } from "../src/index";
 
@@ -48,6 +50,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellKey: target.canonicalKey,
     spellName: target.name,
     spellId: target.id,
+    options: [],
   };
 }
 
@@ -100,6 +103,7 @@ describe("spell effect relationships", () => {
       type: "trigger",
       spellKey: "missing echo",
       spellName: "Missing Echo",
+      options: [],
     };
     const spellA = spell("Spell A");
     const spellB = spell("Spell B");
@@ -172,7 +176,7 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [reference(target)]);
     const earlier = spell("Earlier", [
       reference(target),
-      { type: "damage", amount: 2 },
+      { type: "damage", amount: 2, options: [] },
       reference(target),
     ]);
 
@@ -219,6 +223,82 @@ describe("spell effect relationships", () => {
       ["Earlier", 0, 0, "target-hit"],
       ["Earlier", 1, 0, "player-hit"],
       ["Later", 0, 0, "player-hit"],
+    ]);
+  });
+
+  it("returns typed list-option backlinks in deterministic source order", () => {
+    const target = spell("Target");
+    const later = spell("Later", [
+      {
+        type: "triggerfromlist",
+        options: [
+          {
+            kind: "spell",
+            spellKey: target.canonicalKey,
+            spellName: target.name,
+            spellId: target.id,
+          },
+        ],
+      },
+    ]);
+    const earlier = spell("Earlier", [
+      {
+        type: "spawnitemfromlist",
+        options: [
+          {
+            kind: "item",
+            itemKey: "brass ingot",
+            itemName: "Brass Ingot",
+            itemId: "item:brass ingot",
+            amount: null,
+          },
+          {
+            kind: "item",
+            itemKey: "brass ingot",
+            itemName: "Brass Ingot",
+            itemId: "item:brass ingot",
+            amount: 2,
+          },
+        ],
+      },
+      {
+        type: "triggerfromlist",
+        options: [
+          {
+            kind: "spell",
+            spellKey: target.canonicalKey,
+            spellName: target.name,
+            spellId: target.id,
+          },
+        ],
+      },
+    ]);
+
+    expect(
+      spellEffectOptionSpellBacklinks([target, later, earlier], target.id).map(
+        ({ spell: source, effectIndex, optionIndex }) => [
+          source.name,
+          effectIndex,
+          optionIndex,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 1, 0],
+      ["Later", 0, 0],
+    ]);
+    expect(
+      spellEffectOptionItemBacklinks(
+        [target, later, earlier],
+        "item:brass ingot",
+      ).map(({ spell: source, effectIndex, optionIndex, option }) => [
+        source.name,
+        effectIndex,
+        optionIndex,
+        option.amount,
+      ]),
+    ).toEqual([
+      ["Earlier", 0, 0, null],
+      ["Earlier", 0, 1, 2],
     ]);
   });
 });

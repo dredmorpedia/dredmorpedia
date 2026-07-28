@@ -8,6 +8,7 @@ import {
   spellBuffEventHookBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
+  spellEffectOptionSpellBacklinks,
   type MonsterSpellTriggerKind,
   type SpellBuffEventHookKind,
 } from "@dredmorpedia/domain";
@@ -29,6 +30,16 @@ function titleCase(value: string): string {
       (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
     )
     .join(" ");
+}
+
+function effectTypeLabel(value: string): string {
+  if (value === "spawnitemfromlist") {
+    return "Spawn item from list";
+  }
+  if (value === "triggerfromlist") {
+    return "Trigger from list";
+  }
+  return titleCase(value);
 }
 
 function signedValue(value: number): string {
@@ -121,6 +132,9 @@ export default async function SpellPage({
   const spellsById = new Map(
     artifact.entities.spells.map((entry) => [entry.id, entry]),
   );
+  const itemsById = new Map(
+    artifact.entities.items.map((entry) => [entry.id, entry]),
+  );
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
@@ -132,6 +146,17 @@ export default async function SpellPage({
   const buffHookBacklinks = spellBuffEventHookBacklinks(
     artifact.entities.spells,
     spell.id,
+  );
+  const optionSpellBacklinks = spellEffectOptionSpellBacklinks(
+    artifact.entities.spells,
+    spell.id,
+  );
+  const listOptionEffects = spell.effects
+    .map((effect, effectIndex) => ({ effect, effectIndex }))
+    .filter(({ effect }) => effect.options.length > 0);
+  const listOptionCount = listOptionEffects.reduce(
+    (count, { effect }) => count + effect.options.length,
+    0,
   );
   const itemBacklinks = artifact.entities.items.flatMap((item) =>
     item.triggers.flatMap((trigger, triggerIndex) =>
@@ -159,6 +184,7 @@ export default async function SpellPage({
   const backlinkCount =
     spellBacklinks.length +
     buffHookBacklinks.length +
+    optionSpellBacklinks.length +
     itemBacklinks.length +
     macguffinBacklinks.length +
     instabilityBacklinks.length +
@@ -240,6 +266,10 @@ export default async function SpellPage({
           <div>
             <dt>Direct effects</dt>
             <dd>{spell.effects.length}</dd>
+          </div>
+          <div>
+            <dt>List options</dt>
+            <dd>{listOptionCount}</dd>
           </div>
           <div>
             <dt>Buff declarations</dt>
@@ -836,7 +866,7 @@ export default async function SpellPage({
                   <li key={`${effect.type}:${effectIndex}`}>
                     <div className="trigger-summary">
                       <span className="relationship-title">
-                        {titleCase(effect.type)} effect
+                        {effectTypeLabel(effect.type)} effect
                       </span>
                       {targetSpell ? (
                         <Link
@@ -857,7 +887,7 @@ export default async function SpellPage({
                       ) : effect.statKey ? (
                         <strong>{effect.statName ?? effect.statKey}</strong>
                       ) : (
-                        <strong>{titleCase(effect.type)}</strong>
+                        <strong>{effectTypeLabel(effect.type)}</strong>
                       )}
                       <small
                         className={
@@ -880,7 +910,7 @@ export default async function SpellPage({
                     <dl className="trigger-facts">
                       <div>
                         <dt>Type</dt>
-                        <dd>{titleCase(effect.type)}</dd>
+                        <dd>{effectTypeLabel(effect.type)}</dd>
                       </div>
                       {effect.amount !== undefined ? (
                         <div>
@@ -896,6 +926,86 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized direct effects.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="effect-list-options-heading"
+        >
+          <h2 id="effect-list-options-heading" className="section-title-sm">
+            Effect list options
+          </h2>
+          <p className="text-sm leading-6 text-muted-foreground">
+            Options preserve source order and direct item amounts. Selection
+            weights, probabilities, eligibility, fallback behavior, and runtime
+            execution are not inferred.
+          </p>
+          {listOptionEffects.length > 0 ? (
+            <ul className="trigger-list mt-4">
+              {listOptionEffects.map(({ effect, effectIndex }) => (
+                <li key={`${effect.type}:${effectIndex}`}>
+                  <h3 className="relationship-title">
+                    {effectTypeLabel(effect.type)} effect
+                  </h3>
+                  <ol className="relation-list mt-3">
+                    {effect.options.map((option, optionIndex) => {
+                      const target =
+                        option.kind === "item"
+                          ? option.itemId
+                            ? itemsById.get(option.itemId)
+                            : undefined
+                          : option.spellId
+                            ? spellsById.get(option.spellId)
+                            : undefined;
+                      const targetName =
+                        option.kind === "item"
+                          ? option.itemName
+                          : option.spellName;
+                      return (
+                        <li key={optionIndex}>
+                          <span>
+                            <span className="supporting-note">
+                              Option {optionIndex + 1}
+                            </span>
+                            {target ? (
+                              <Link
+                                className="entity-link font-semibold"
+                                href={
+                                  option.kind === "item"
+                                    ? `/items/${target.slug}`
+                                    : `/spells/${target.slug}`
+                                }
+                              >
+                                {target.name}
+                              </Link>
+                            ) : (
+                              <strong>
+                                {targetName ?? "Missing target name"}
+                              </strong>
+                            )}
+                          </span>
+                          <span>
+                            {target
+                              ? `Resolved ${option.kind} target`
+                              : targetName
+                                ? `Unresolved ${option.kind} target`
+                                : "Target unavailable"}
+                            {option.kind === "item"
+                              ? ` · Source amount: ${option.amount ?? "not declared"}`
+                              : ""}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              No normalized effect list options.
             </p>
           )}
         </section>
@@ -991,7 +1101,37 @@ export default async function SpellPage({
                         >
                           {backlink.spell.name}
                         </Link>
-                        <span>{titleCase(backlink.effect.type)} effect</span>
+                        <span>
+                          {effectTypeLabel(backlink.effect.type)} effect
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {optionSpellBacklinks.length > 0 ? (
+                <section aria-labelledby="spell-option-backlinks-heading">
+                  <h3
+                    id="spell-option-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Spell list options
+                  </h3>
+                  <ul className="relation-list">
+                    {optionSpellBacklinks.map((backlink) => (
+                      <li
+                        key={`${backlink.spell.id}:${backlink.effectIndex}:${backlink.optionIndex}`}
+                      >
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${backlink.spell.slug}`}
+                        >
+                          {backlink.spell.name}
+                        </Link>
+                        <span>
+                          {effectTypeLabel(backlink.effect.type)} option{" "}
+                          {backlink.optionIndex + 1}
+                        </span>
                       </li>
                     ))}
                   </ul>

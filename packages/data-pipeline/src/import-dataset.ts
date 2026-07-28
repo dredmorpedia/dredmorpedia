@@ -346,10 +346,12 @@ function linkSkills(
 function linkSpells(
   spells: Spell[],
   stats: readonly Stat[],
+  items: readonly Item[],
   diagnostics: DiagnosticDraft[],
 ): Spell[] {
   const spellAliases = aliasesFor(spells);
   const statAliases = aliasesFor(stats);
+  const itemAliases = aliasesFor(items);
   return spells.map((spell) => ({
     ...spell,
     buffs: spell.buffs.map((buff) => ({
@@ -393,6 +395,41 @@ function linkSpells(
           );
         }
       }
+      linkedEffect.options = effect.options.map((option) => {
+        if (option.kind === "item") {
+          if (option.itemKey === null) {
+            return option;
+          }
+          const target = itemAliases.get(option.itemKey);
+          if (target) {
+            return { ...option, itemId: target.id };
+          }
+          diagnostics.push(
+            danglingDiagnostic(
+              spell,
+              "item",
+              option.itemName ?? option.itemKey,
+            ),
+          );
+          return option;
+        }
+
+        if (option.spellKey === null) {
+          return option;
+        }
+        const target = spellAliases.get(option.spellKey);
+        if (target) {
+          return { ...option, spellId: target.id };
+        }
+        diagnostics.push(
+          danglingDiagnostic(
+            spell,
+            "spell",
+            option.spellName ?? option.spellKey,
+          ),
+        );
+        return option;
+      });
       return linkedEffect;
     }),
   }));
@@ -743,6 +780,7 @@ function resolveCollections(
   const linkedSpells = linkSpells(
     routed.spells.entities,
     linkedStats,
+    linkedItems,
     diagnostics,
   );
   const linkedAbilities = linkAbilities(

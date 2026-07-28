@@ -334,7 +334,25 @@ export interface SpellEffect {
   statName?: string;
   statId?: string;
   amount?: number;
+  options: SpellEffectOption[];
 }
+
+export interface SpellEffectItemOption {
+  kind: "item";
+  itemKey: string | null;
+  itemName: string | null;
+  itemId?: string;
+  amount: number | null;
+}
+
+export interface SpellEffectSpellOption {
+  kind: "spell";
+  spellKey: string | null;
+  spellName: string | null;
+  spellId?: string;
+}
+
+export type SpellEffectOption = SpellEffectItemOption | SpellEffectSpellOption;
 
 export interface SpellManaCost {
   base: number | null;

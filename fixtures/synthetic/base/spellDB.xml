@@ -20,6 +20,15 @@
     </buff>
     <effect type="trigger" spell="Clockwork Echo" />
     <effect type="trigger" spell="Missing Echo" />
+    <effect type="spawnitemfromlist">
+      <option name="Brass Ingot" />
+      <option name="Training Trap" amount="2" />
+      <option name="Missing Listed Item" amount="3" />
+    </effect>
+    <effect type="triggerfromlist">
+      <option name="Clockwork Echo" />
+      <option name="Missing Listed Spell" />
+    </effect>
   </spell>
   <spell id="clockwork-echo" name="Clockwork Echo" type="self" icon="assets/synthetic.svg">
     <description text="Continues the synthetic effect chain and closes its deliberate cycle." />

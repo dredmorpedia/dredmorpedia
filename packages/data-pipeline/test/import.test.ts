@@ -2438,6 +2438,217 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes typed spell effect options and diagnoses malformed extensions", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-options-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Target Item" type="material" />
+</items>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Target Spell" type="self" />
+  <spell name="Complete Lists" type="target">
+    <effect type="spawnitemfromlist">
+      <option name="Target Item" />
+      <option name="Target Item" amount="2" />
+    </effect>
+    <effect type="triggerfromlist">
+      <option name="Target Spell" />
+      <option name="Target Spell" />
+    </effect>
+  </spell>
+  <spell name="Invalid Lists" type="target">
+    <effect type="spawnitemfromlist">
+      <option />
+      <option name="  " />
+      <option name="Target Item" amount="0" future="diagnosed"><futureOption />unexpected text</option>
+    </effect>
+    <effect type="triggerfromlist">
+      <option />
+      <option name="Target Spell" amount="2" />
+    </effect>
+    <effect type="damage">
+      <option name="Target Item" />
+    </effect>
+  </spell>
+</spellDB>`,
+    );
+    const optionManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      optionManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-option-test",
+        sources: [
+          {
+            id: "spell-effect-option-source",
+            label: "Spell Effect Option Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "items", path: "itemDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: optionManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    const complete = spells.get("Complete Lists");
+    const invalid = spells.get("Invalid Lists");
+
+    expect(complete?.effects).toEqual([
+      {
+        type: "spawnitemfromlist",
+        options: [
+          {
+            kind: "item",
+            itemKey: "target item",
+            itemName: "Target Item",
+            itemId: "item:target item",
+            amount: null,
+          },
+          {
+            kind: "item",
+            itemKey: "target item",
+            itemName: "Target Item",
+            itemId: "item:target item",
+            amount: 2,
+          },
+        ],
+      },
+      {
+        type: "triggerfromlist",
+        options: [
+          {
+            kind: "spell",
+            spellKey: "target spell",
+            spellName: "Target Spell",
+            spellId: "spell:target spell",
+          },
+          {
+            kind: "spell",
+            spellKey: "target spell",
+            spellName: "Target Spell",
+            spellId: "spell:target spell",
+          },
+        ],
+      },
+    ]);
+    expect(invalid?.effects).toMatchObject([
+      { type: "damage", options: [] },
+      {
+        type: "spawnitemfromlist",
+        options: [
+          {
+            kind: "item",
+            itemKey: null,
+            itemName: null,
+            amount: null,
+          },
+          {
+            kind: "item",
+            itemKey: null,
+            itemName: null,
+            amount: null,
+          },
+          {
+            kind: "item",
+            itemKey: "target item",
+            itemName: "Target Item",
+            amount: null,
+          },
+        ],
+      },
+      {
+        type: "triggerfromlist",
+        options: [
+          { kind: "spell", spellKey: null, spellName: null },
+          {
+            kind: "spell",
+            spellKey: "target spell",
+            spellName: "Target Spell",
+          },
+        ],
+      },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "missing_spell_effect_option_target",
+      ),
+    ).toHaveLength(3);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid lists",
+          details: expect.objectContaining({ value: "0" }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid lists",
+          details: {
+            element: "option",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid lists",
+          details: {
+            element: "option",
+            attribute: "amount",
+            value: "2",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid lists",
+          details: { element: "futureOption" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid lists",
+          details: { element: "#text" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid lists",
+          details: { element: "option" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete lists" &&
+          (diagnostic.code === "unknown_element" ||
+            diagnostic.code === "unknown_attribute" ||
+            diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes item modifiers and diagnoses invalid fields", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-modifiers-"),

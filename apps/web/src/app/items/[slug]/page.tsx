@@ -12,6 +12,7 @@ import {
   itemToolkitEncrustmentRelationships,
   itemToolkitRecipeRelationships,
   matchesEntityRoute,
+  spellEffectOptionItemBacklinks,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
@@ -23,6 +24,22 @@ import {
 } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
+
+function titleCase(value: string): string {
+  return value
+    .split(/[-_ ]+/)
+    .map(
+      (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
+    )
+    .join(" ");
+}
+
+function effectTypeLabel(value: string): string {
+  if (value === "spawnitemfromlist") {
+    return "Spawn item from list";
+  }
+  return titleCase(value);
+}
 
 export function generateStaticParams() {
   return loadArtifact().entities.items.flatMap((item) =>
@@ -95,6 +112,10 @@ export default async function ItemPage({
   );
   const monsterDropRelationships = itemMonsterDropRelationships(
     artifact.entities.monsters,
+    item.id,
+  );
+  const spellListRelationships = spellEffectOptionItemBacklinks(
+    artifact.entities.spells,
     item.id,
   );
   const statsById = new Map(
@@ -846,6 +867,46 @@ export default async function ItemPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No monster drops reference this item.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="spell-list-relations-heading"
+        >
+          <h2 id="spell-list-relations-heading" className="section-title-sm">
+            Spell item-list relationships
+          </h2>
+          {spellListRelationships.length > 0 ? (
+            <>
+              <ul className="relation-list">
+                {spellListRelationships.map(
+                  ({ spell, effect, effectIndex, option, optionIndex }) => (
+                    <li key={`${spell.id}:${effectIndex}:${optionIndex}`}>
+                      <Link
+                        className="entity-link font-semibold"
+                        href={`/spells/${spell.slug}`}
+                      >
+                        {spell.name}
+                      </Link>
+                      <span>
+                        {effectTypeLabel(effect.type)} option {optionIndex + 1}{" "}
+                        · Source amount: {option.amount ?? "not declared"}
+                      </span>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                These are direct list declarations. Selection probability,
+                eligibility, fallback behavior, and runtime spawning are not
+                inferred.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No spell item list references this item.
             </p>
           )}
         </section>

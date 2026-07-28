@@ -361,6 +361,60 @@ const abilitySchema = z
   })
   .strict();
 
+const nullableNonblankString = z
+  .string()
+  .refine((value) => value.trim().length > 0)
+  .nullable();
+
+const spellEffectItemOptionSchema = z
+  .object({
+    kind: z.literal("item"),
+    itemKey: nullableNonblankString,
+    itemName: nullableNonblankString,
+    itemId: z.string().min(1).optional(),
+    amount: positiveInteger.nullable(),
+  })
+  .strict()
+  .superRefine((option, context) => {
+    if ((option.itemKey === null) !== (option.itemName === null)) {
+      context.addIssue({
+        code: "custom",
+        message: "Item option key and name must both be present or absent.",
+      });
+    }
+    if (option.itemId !== undefined && option.itemKey === null) {
+      context.addIssue({
+        code: "custom",
+        message: "A resolved item option must retain its source target.",
+        path: ["itemId"],
+      });
+    }
+  });
+
+const spellEffectSpellOptionSchema = z
+  .object({
+    kind: z.literal("spell"),
+    spellKey: nullableNonblankString,
+    spellName: nullableNonblankString,
+    spellId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((option, context) => {
+    if ((option.spellKey === null) !== (option.spellName === null)) {
+      context.addIssue({
+        code: "custom",
+        message: "Spell option key and name must both be present or absent.",
+      });
+    }
+    if (option.spellId !== undefined && option.spellKey === null) {
+      context.addIssue({
+        code: "custom",
+        message: "A resolved spell option must retain its source target.",
+        path: ["spellId"],
+      });
+    }
+  });
+
 const spellEffectSchema = z
   .object({
     type: z.string(),
@@ -371,6 +425,9 @@ const spellEffectSchema = z
     statName: optionalString,
     statId: optionalString,
     amount: z.number().int().optional(),
+    options: z.array(
+      z.union([spellEffectItemOptionSchema, spellEffectSpellOptionSchema]),
+    ),
   })
   .strict();
 

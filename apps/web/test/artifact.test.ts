@@ -77,7 +77,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(13);
     expect(loadSearchArtifact().documents).toHaveLength(25);
-    expect(loadDiagnostics()).toHaveLength(21);
+    expect(loadDiagnostics()).toHaveLength(23);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -210,6 +210,33 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/aiHints/);
+  });
+
+  it("rejects malformed spell effect option metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            options: { kind: string; amount?: number | null }[];
+          }[];
+        }[];
+      };
+    };
+    const itemOption = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .flatMap((effect) => effect.options)
+      .find((option) => option.kind === "item");
+    if (!itemOption) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell item-list option.",
+      );
+    }
+    itemOption.amount = 0;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/options/);
   });
 
   it("rejects malformed item modifier metadata", async () => {
