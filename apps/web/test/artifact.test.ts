@@ -167,6 +167,29 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/descriptions/);
   });
 
+  it("rejects malformed spell buff halo metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { buffs: { halos: { frameRate: number | null }[] }[] }[];
+      };
+    };
+    const halo = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.halos)
+      .at(0);
+    if (!halo) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell buff halo metadata.",
+      );
+    }
+    halo.frameRate = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/halos/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

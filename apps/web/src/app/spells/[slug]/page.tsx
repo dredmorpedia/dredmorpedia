@@ -240,6 +240,15 @@ export default async function SpellPage({
               )}
             </dd>
           </div>
+          <div>
+            <dt>Buff halo declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.halos.length,
+                0,
+              )}
+            </dd>
+          </div>
         </dl>
       </header>
 
@@ -434,6 +443,78 @@ export default async function SpellPage({
                           </p>
                         ),
                       )}
+                    </section>
+                  ) : null}
+                  {buff.halos.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-halos-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-halos-heading`}
+                        className="relationship-title"
+                      >
+                        Halo presentation
+                      </h3>
+                      <ul className="trigger-list mt-2">
+                        {buff.halos.map((halo, haloIndex) => (
+                          <li key={haloIndex}>
+                            <div className="trigger-summary">
+                              <span className="relationship-title">
+                                Halo declaration {haloIndex + 1}
+                              </span>
+                              <strong>
+                                {halo.frameCount === null
+                                  ? "Frame count not specified"
+                                  : `${halo.frameCount} source frames`}
+                              </strong>
+                              <small className="trigger-resolution">
+                                Local buff presentation metadata
+                              </small>
+                            </div>
+                            <dl className="trigger-facts">
+                              <div>
+                                <dt>Sprite reference</dt>
+                                <dd>
+                                  {halo.spritePath === null
+                                    ? "Not supplied"
+                                    : "Supplied"}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>Source frame rate</dt>
+                                <dd>
+                                  {halo.frameRate === null
+                                    ? "Not specified"
+                                    : sourceNumber.format(halo.frameRate)}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>First frame</dt>
+                                <dd>
+                                  {halo.firstFrame === null
+                                    ? "Not specified"
+                                    : sourceNumber.format(halo.firstFrame)}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>Centered effect</dt>
+                                <dd>
+                                  {halo.centered === null
+                                    ? "Not specified"
+                                    : yesNo(halo.centered)}
+                                </dd>
+                              </div>
+                            </dl>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        These are engine presentation declarations, not
+                        animation timing formulas. Detailed sprite references
+                        remain hidden while the asset publication boundary is
+                        unresolved.
+                      </p>
                     </section>
                   ) : null}
                   <dl className="trigger-facts">

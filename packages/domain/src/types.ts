@@ -376,6 +376,14 @@ export interface SpellBuffDescription {
   text: string | null;
 }
 
+export interface SpellBuffHaloMetadata {
+  spritePath: string | null;
+  frameCount: number | null;
+  frameRate: number | null;
+  firstFrame: number | null;
+  centered: boolean | null;
+}
+
 export interface SpellBuff {
   iconPath: string | null;
   smallIconPath: string | null;
@@ -393,6 +401,7 @@ export interface SpellBuff {
   allowStacking: boolean | null;
   stackLimit: number | null;
   descriptions: SpellBuffDescription[];
+  halos: SpellBuffHaloMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
   sightModifiers: SpellBuffSightModifier[];

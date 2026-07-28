@@ -1989,6 +1989,8 @@ describe("synthetic dataset import", () => {
     <buff useTimer="2" time="12" manaUpkeep="3" zorkmidUpkeep="4" brittle="5" attacks="6" removable="1" self="0" resistable="0" bad="1" stackable="1" allowstacking="0" stacksize="7" affectsCorpses="0" tag="measured">
       <description text="First measured buff description." />
       <description text="Second measured buff description." />
+      <halo name="sprites\\sfx\\measured-halo\\measured-halo" first="0" num="4" frameRate="120" centerEffect="1" />
+      <halo name="sprites/sfx/lowercase-halo/lowercase-halo" num="2" framerate="60" centereffect="0" />
       <damageBuff crushing="1.5" />
       <resistBuff toxic="-2" />
       <primaryBuff id="2" amount="3" />
@@ -2003,6 +2005,8 @@ describe("synthetic dataset import", () => {
   <spell name="Invalid Buff" type="self">
     <buff useTimer="-1" time="1.5" manaUpkeep="bad" removable="maybe" self="2" resistable="yes" bad="no" stackable="sometimes" allowstacking="perhaps" stacksize="-2" future="diagnosed">
       <description future="diagnosed"><futureDescriptionChild /></description>
+      <halo name="../outside" first="-1" num="1.5" frameRate="bad" framerate="90" centerEffect="maybe" centereffect="0" future="diagnosed"><futureHaloChild /></halo>
+      <halo />
       <damagebuff impossible="2"><futureChild /></damagebuff>
       <primarybuff amount="1" future="diagnosed" />
       <sightbuff amount="bad" future="diagnosed"><futureChild /></sightbuff>
@@ -2061,6 +2065,22 @@ describe("synthetic dataset import", () => {
           { text: "First measured buff description." },
           { text: "Second measured buff description." },
         ],
+        halos: [
+          {
+            spritePath: "sprites/sfx/measured-halo/measured-halo",
+            frameCount: 4,
+            frameRate: 120,
+            firstFrame: 0,
+            centered: true,
+          },
+          {
+            spritePath: "sprites/sfx/lowercase-halo/lowercase-halo",
+            frameCount: 2,
+            frameRate: 60,
+            firstFrame: null,
+            centered: false,
+          },
+        ],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2112,6 +2132,22 @@ describe("synthetic dataset import", () => {
         allowStacking: null,
         stackLimit: null,
         descriptions: [{ text: null }],
+        halos: [
+          {
+            spritePath: null,
+            frameCount: null,
+            frameRate: null,
+            firstFrame: null,
+            centered: null,
+          },
+          {
+            spritePath: null,
+            frameCount: null,
+            frameRate: null,
+            firstFrame: null,
+            centered: null,
+          },
+        ],
         modifiers: [],
         sightModifiers: [{ amount: null }, { amount: null }],
         eventHooks: [
@@ -2130,12 +2166,12 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(7);
+    ).toHaveLength(10);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
       ),
-    ).toHaveLength(6);
+    ).toHaveLength(7);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -2147,6 +2183,44 @@ describe("synthetic dataset import", () => {
           code: "missing_spell_buff_description_text",
           entityId: "spell:invalid buff",
           details: { buffIndex: 0, descriptionIndex: 0 },
+        }),
+        expect.objectContaining({
+          severity: "error",
+          code: "unsafe_asset_path",
+          entityId: "spell:invalid buff",
+          details: { assetPath: "../outside" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_halo_sprite",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, haloIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: {
+            element: "halo",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "conflicting_spell_buff_halo_aliases",
+          entityId: "spell:invalid buff",
+          details: expect.objectContaining({
+            buffIndex: 0,
+            haloIndex: 0,
+            field: "frame rate",
+          }),
+        }),
+        expect.objectContaining({
+          code: "conflicting_spell_buff_halo_aliases",
+          entityId: "spell:invalid buff",
+          details: expect.objectContaining({
+            buffIndex: 0,
+            haloIndex: 0,
+            field: "centered flag",
+          }),
         }),
         expect.objectContaining({
           code: "unknown_attribute",
@@ -2199,6 +2273,11 @@ describe("synthetic dataset import", () => {
         expect.objectContaining({
           code: "unknown_element",
           entityId: "spell:invalid buff",
+          details: { element: "futureHaloChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
           details: { element: "futureChild" },
         }),
       ]),
@@ -2206,7 +2285,7 @@ describe("synthetic dataset import", () => {
     expect(
       result.diagnostics.some(
         (diagnostic) =>
-          diagnostic.details?.element === "sightbuff" &&
+          ["halo", "sightbuff"].includes(String(diagnostic.details?.element)) &&
           diagnostic.code === "unknown_element",
       ),
     ).toBe(false);
@@ -2987,6 +3066,15 @@ describe("synthetic dataset import", () => {
         stackLimit: 3,
         descriptions: [
           { text: "A measured clockwork ward surrounds the caster." },
+        ],
+        halos: [
+          {
+            spritePath: "sprites/sfx/clockwork-ward/clockwork-ward",
+            frameCount: 4,
+            frameRate: 120,
+            firstFrame: 0,
+            centered: true,
+          },
         ],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [

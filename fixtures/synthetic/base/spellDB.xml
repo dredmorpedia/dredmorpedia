@@ -7,6 +7,7 @@
     <impact sprite="sprites/sfx/synthetic-impact/synthetic-impact" frames="5" framerate="70" firstframe="0" centerEffect="0" sync="1" sfx="clockwork_impact_audio_cue" />
     <buff icon="assets/synthetic.svg" smallicon="assets/synthetic.svg" useTimer="1" time="8" manaUpkeep="3" brittle="2" attacks="4" removable="1" self="1" resistable="0" bad="0" stackable="1" allowstacking="1" stacksize="3" tag="clockwork">
       <description text="A measured clockwork ward surrounds the caster." />
+      <halo name="sprites/sfx/clockwork-ward/clockwork-ward" first="0" num="4" frameRate="120" centerEffect="1" />
       <damagebuff crushing="2" voltaic="-1" />
       <resistbuff toxic="3" />
       <primaryBuff id="2" amount="1" />

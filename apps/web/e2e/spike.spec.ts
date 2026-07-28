@@ -681,7 +681,10 @@ test("navigates spell details and stops recursive effect cycles", async ({
     ),
   ).toBeVisible();
 
-  const presentation = page.getByRole("region", { name: "Presentation" });
+  const presentation = page.getByRole("region", {
+    name: "Presentation",
+    exact: true,
+  });
   const animationDeclaration = presentation
     .getByRole("listitem")
     .filter({ hasText: "Animation declaration 1" });
@@ -729,6 +732,25 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     buffs.getByRole("region", { name: "Buff description" }),
   ).toContainText("A measured clockwork ward surrounds the caster.");
+  const haloPresentation = buffs.getByRole("region", {
+    name: "Halo presentation",
+  });
+  await expect(haloPresentation.getByText("4 source frames")).toBeVisible();
+  await expect(
+    haloPresentation.getByText("Sprite reference", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    haloPresentation.getByText("120", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    haloPresentation.getByText("Centered effect", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    haloPresentation.getByText(/not animation timing formulas/i),
+  ).toBeVisible();
+  await expect(haloPresentation).not.toContainText(
+    "sprites/sfx/clockwork-ward/clockwork-ward",
+  );
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();

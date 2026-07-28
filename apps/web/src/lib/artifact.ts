@@ -398,6 +398,17 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    halos: z.array(
+      z
+        .object({
+          spritePath: z.string().nullable(),
+          frameCount: nullableNonnegativeInteger,
+          frameRate: nullableNonnegativeInteger,
+          firstFrame: nullableNonnegativeInteger,
+          centered: z.boolean().nullable(),
+        })
+        .strict(),
+    ),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),
     sightModifiers: z.array(z.object({ amount: nullableNumber }).strict()),

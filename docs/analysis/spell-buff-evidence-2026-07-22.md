@@ -64,6 +64,8 @@ The web page presents the normalized parameters and signed modifiers, explicitly
 
 The later description slice preserves 32 measured candidate declarations as ordered buff-local text, leaves 31 active values after source precedence, adds that text to spell search, and removes the complete nested-description diagnostic family. Current counts and verification are recorded in [`spell-buff-description-evidence-2026-07-28.md`](spell-buff-description-evidence-2026-07-28.md).
 
+The subsequent halo slice preserves all 53 active declarations as ordered buff-local presentation metadata, validates the complete measured casing variants, and hides raw sprite references in the UI. It removes the complete halo diagnostic family without inferring timing or loading proprietary sprites. Current counts and verification are recorded in [`spell-buff-halo-evidence-2026-07-28.md`](spell-buff-halo-evidence-2026-07-28.md).
+
 ## Verification
 
 - Focused domain and pipeline tests cover valid values, casing aliases, multiple declaration ordering, signed modifiers, invalid numeric and boolean tokens, unknown modifier keys, missing stat IDs, unknown attributes, and unsupported nested children.

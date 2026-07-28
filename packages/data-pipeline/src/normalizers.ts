@@ -35,6 +35,7 @@ import {
   type SpellBuff,
   type SpellBuffDescription,
   type SpellBuffEventHook,
+  type SpellBuffHaloMetadata,
   type SpellBuffSightModifier,
   type SpellImpactMetadata,
   type SpellManaCost,
@@ -2963,6 +2964,144 @@ function parseSpellBuffDescriptions(
   );
 }
 
+const spellBuffHaloAttributes = new Set([
+  "centerEffect",
+  "centereffect",
+  "first",
+  "frameRate",
+  "framerate",
+  "name",
+  "num",
+]);
+
+function spellBuffHaloRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.halo;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffHalos(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffHaloMetadata[] {
+  return spellBuffHaloRecords(buff).map((halo, haloIndex) => {
+    const haloProvenance = {
+      ...provenance,
+      ...context.parsed.locateRecord(halo),
+    };
+    reportUnknownLeafContent(
+      context,
+      halo,
+      "halo",
+      spellBuffHaloAttributes,
+      haloProvenance,
+      currentEntityId,
+      true,
+    );
+
+    const spriteReference = xmlAttribute(halo, "name");
+    if (!spriteReference) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_buff_halo_sprite",
+        message: `Spell buff ${buffIndex + 1} halo ${haloIndex + 1} is missing its sprite reference.`,
+        source: haloProvenance,
+        entityId: currentEntityId,
+        details: { buffIndex, haloIndex },
+      });
+    }
+
+    const optionalHaloInteger = (
+      value: string | undefined,
+      field: string,
+    ): number | null =>
+      optionalIntegerValue(
+        value,
+        context,
+        haloProvenance,
+        `spell buff ${buffIndex + 1} halo ${haloIndex + 1} ${field}`,
+        currentEntityId,
+        0,
+      );
+    const reportAliasConflict = (
+      canonicalAttribute: string,
+      aliasAttribute: string,
+      field: string,
+    ): void => {
+      const canonicalValue = xmlAttribute(halo, canonicalAttribute);
+      const aliasValue = xmlAttribute(halo, aliasAttribute);
+      if (canonicalValue === undefined || aliasValue === undefined) {
+        return;
+      }
+      context.diagnostics.push({
+        severity: "warning",
+        code: "conflicting_spell_buff_halo_aliases",
+        message: `Spell buff ${buffIndex + 1} halo ${haloIndex + 1} supplies both supported ${field} attribute aliases; the canonical casing was used.`,
+        source: haloProvenance,
+        entityId: currentEntityId,
+        details: {
+          buffIndex,
+          haloIndex,
+          field,
+          canonicalAttribute,
+          canonicalValue,
+          aliasAttribute,
+          aliasValue,
+        },
+      });
+    };
+    reportAliasConflict("frameRate", "framerate", "frame rate");
+    reportAliasConflict("centerEffect", "centereffect", "centered flag");
+    const frameRateAttribute =
+      xmlAttribute(halo, "frameRate") === undefined &&
+      xmlAttribute(halo, "framerate") !== undefined
+        ? "framerate"
+        : "frameRate";
+    const centerAttribute =
+      xmlAttribute(halo, "centerEffect") === undefined &&
+      xmlAttribute(halo, "centereffect") !== undefined
+        ? "centereffect"
+        : "centerEffect";
+
+    return {
+      spritePath: normalizeAssetReference(
+        spriteReference,
+        context,
+        haloProvenance,
+        currentEntityId,
+      ),
+      frameCount: optionalHaloInteger(xmlAttribute(halo, "num"), "frame count"),
+      frameRate: optionalHaloInteger(
+        xmlAttribute(halo, frameRateAttribute),
+        "frame rate",
+      ),
+      firstFrame: optionalHaloInteger(
+        xmlAttribute(halo, "first"),
+        "first frame",
+      ),
+      centered: optionalBooleanAttribute(
+        halo,
+        centerAttribute,
+        context,
+        haloProvenance,
+        `spell buff ${buffIndex + 1} halo ${haloIndex + 1} centered flag`,
+        currentEntityId,
+      ),
+    };
+  });
+}
+
 function parseSpellBuffSightModifiers(
   buff: XmlRecord,
   context: NormalizationContext,
@@ -3083,6 +3222,7 @@ function parseSpellBuffs(
       new Set([
         ...modifierElementNames,
         "description",
+        "halo",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3208,6 +3348,13 @@ function parseSpellBuffs(
       ),
       stackLimit: optionalBuffInteger("stacksize", "stack limit"),
       descriptions: parseSpellBuffDescriptions(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
+      ),
+      halos: parseSpellBuffHalos(
         buff,
         context,
         provenance,
