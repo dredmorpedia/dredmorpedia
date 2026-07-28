@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import {
   entityRouteSlugs,
   matchesEntityRoute,
+  toolkitItemsForTag,
   type Item,
   type ItemReference,
 } from "@dredmorpedia/domain";
@@ -116,6 +117,10 @@ export default async function RecipePage({
   const itemsById = new Map(
     artifact.entities.items.map((item) => [item.id, item]),
   );
+  const toolkitRelationships = toolkitItemsForTag(
+    artifact.entities.items,
+    recipe.tool,
+  );
   const isAlias = slug !== recipe.slug;
   const tool = titleCase(recipe.tool);
 
@@ -153,6 +158,26 @@ export default async function RecipePage({
           </p>
         </div>
         <dl className="recipe-facts">
+          <div>
+            <dt>Tool</dt>
+            <dd>
+              {toolkitRelationships.length > 0
+                ? toolkitRelationships.map(
+                    ({ item: toolkitItem, declarationIndex }, index) => (
+                      <span key={`${toolkitItem.id}:${declarationIndex}`}>
+                        {index > 0 ? ", " : ""}
+                        <Link
+                          className="entity-link"
+                          href={`/items/${toolkitItem.slug}`}
+                        >
+                          {toolkitItem.name}
+                        </Link>
+                      </span>
+                    ),
+                  )
+                : tool}
+            </dd>
+          </div>
           <div>
             <dt>Required skill</dt>
             <dd>

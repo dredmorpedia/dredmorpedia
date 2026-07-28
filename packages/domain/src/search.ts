@@ -91,10 +91,16 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
         ]
       : []),
     ...(entity.kind === "item"
-      ? entity.macguffinDeclarations.flatMap((declaration) => [
-          declaration.spellName ?? "",
-          declaration.itemClassName ?? "",
-        ])
+      ? [
+          ...entity.macguffinDeclarations.flatMap((declaration) => [
+            declaration.spellName ?? "",
+            declaration.itemClassName ?? "",
+          ]),
+          ...entity.toolkitDeclarations.flatMap((declaration) => [
+            declaration.tag ?? "",
+            declaration.soundCue ?? "",
+          ]),
+        ]
       : []),
     ...statText,
   ];

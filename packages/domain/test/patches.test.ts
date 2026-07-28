@@ -59,6 +59,7 @@ function item(): Item {
     armourDeclarations: [],
     weaponDeclarations: [],
     macguffinDeclarations: [],
+    toolkitDeclarations: [],
     recoveries: [],
     chargeRanges: [],
     traps: [],

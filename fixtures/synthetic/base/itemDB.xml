@@ -68,6 +68,42 @@
     <description text="A route-collision fixture using a numeric suffix." />
     <price amount="22" />
   </item>
+  <item id="training-smithing-kit" name="Training Smithing Kit" alchemical="1" iconFile="assets/synthetic.svg">
+    <description text="A synthetic toolkit with complete crafting-interface source metadata." />
+    <price amount="50" />
+    <toolkit
+      tag="smithing"
+      numslots="2"
+      sound="training_smithing"
+      missing="assets/synthetic.svg"
+      present="assets/synthetic.svg"
+      active="assets/synthetic.svg"
+      slot1_x1="10"
+      slot1_y1="20"
+      slot1_x2="30"
+      slot1_y2="40"
+      slot2_x1="50"
+      slot2_y1="60"
+      slot2_x2="70"
+      slot2_y2="80"
+      output_x1="90"
+      output_y1="100"
+      output_x2="110"
+      output_y2="120"
+      craftbutton="assets/synthetic.svg"
+      craftbuttonposx="130"
+      craftbuttonposy="140"
+      recipebutton="assets/synthetic.svg"
+      recipebuttonposx="150"
+      recipebuttonposy="160"
+      autofillbutton="assets/synthetic.svg"
+      autofillbuttonposx="170"
+      autofillbuttonposy="180"
+      closex="190"
+      closey="200"
+      bg="assets/synthetic.svg"
+    />
+  </item>
   <item id="training-relic" name="Training Relic" special="1" iconFile="assets/synthetic.svg">
     <description text="A synthetic quest object with direct, deliberately uninterpreted source metadata." />
     <price amount="1" />

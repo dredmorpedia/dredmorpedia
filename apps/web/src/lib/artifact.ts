@@ -132,6 +132,23 @@ const itemChargeRangeSchema = z
     { message: "minimum must not exceed maximum" },
   );
 
+const itemToolkitBoundsSchema = z
+  .object({
+    x1: nullableNonnegativeInteger,
+    y1: nullableNonnegativeInteger,
+    x2: nullableNonnegativeInteger,
+    y2: nullableNonnegativeInteger,
+  })
+  .strict();
+
+const itemToolkitControlSchema = z
+  .object({
+    path: z.string().min(1).nullable(),
+    positionX: nullableNonnegativeInteger,
+    positionY: nullableNonnegativeInteger,
+  })
+  .strict();
+
 const itemReferenceSchema = z
   .object({
     itemKey: z.string(),
@@ -196,6 +213,34 @@ const itemSchema = z
             message: "spellId requires a supplied spell reference",
           },
         ),
+    ),
+    toolkitDeclarations: z.array(
+      z
+        .object({
+          tag: z.string().min(1).nullable(),
+          numSlots: nullableNonnegativeInteger,
+          soundCue: z.string().min(1).nullable(),
+          missingPath: z.string().min(1).nullable(),
+          presentPath: z.string().min(1).nullable(),
+          activePath: z.string().min(1).nullable(),
+          slotBounds: z.array(
+            itemToolkitBoundsSchema.extend({
+              slot: positiveInteger,
+            }),
+          ),
+          outputBounds: itemToolkitBoundsSchema,
+          craftButton: itemToolkitControlSchema,
+          recipeButton: itemToolkitControlSchema,
+          autofillButton: itemToolkitControlSchema,
+          closePosition: z
+            .object({
+              x: nullableNonnegativeInteger,
+              y: nullableNonnegativeInteger,
+            })
+            .strict(),
+          backgroundPath: z.string().min(1).nullable(),
+        })
+        .strict(),
     ),
     recoveries: z.array(
       z

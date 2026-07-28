@@ -57,11 +57,11 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Read-only official verification
 
-The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,376 warnings, and 71 info records.
+The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,368 warnings, and 71 info records.
 
-- Normalized artifact: 5,568,864 bytes.
-- Search artifact: 1,344,831 bytes uncompressed.
-- Diagnostics: 1,335,280 bytes.
+- Normalized artifact: 5,607,231 bytes.
+- Search artifact: 1,344,961 bytes uncompressed.
+- Diagnostics: 1,331,767 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - The earlier 1,000-query local CPU benchmark over the 2,710-document pre-encrustment artifact measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency; the user-facing search route still filters its payload to items and stats.
 - The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, 951 spell, and 183 monster pages plus registered/source-ID aliases and bounded browse catalogues, prerendered 2,857 static pages.

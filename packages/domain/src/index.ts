@@ -1,4 +1,5 @@
 export * from "./encrustment-relationships";
+export * from "./crafting-tool-relationships";
 export * from "./identity";
 export * from "./inheritance";
 export * from "./item-categories";

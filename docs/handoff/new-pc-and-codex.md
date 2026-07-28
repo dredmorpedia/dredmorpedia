@@ -84,7 +84,7 @@ Continue the first parity slice without assuming permission to publish official 
 3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
 4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-6. Treat the current 2,343 unsupported/partially-supported construct diagnostics and 20 dangling references as the measured compatibility backlog, not as silently completed parity. Items account for 8 `toolkit` entries and spells for 2,335; 13 non-mana/extra-attribute requirement diagnostics are tracked separately. Completed item slices include fixed modifiers, artifact quality, direct triggers, use/trap metadata, strict gem markers, all 268 armour declarations, all 257 weapon declarations, and both macguffin declarations. Unsupported item effect/scaling extensions and nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
+6. Treat the current 2,335 unsupported/partially-supported spell constructs and 20 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -133,6 +133,10 @@ All 257 canonical weapon leaves are now complete across semantic category, root 
 ## Item macguffin declaration slice completed
 
 Both canonical macguffin leaves now preserve ordered loss-aware spell, item-class-name, and consumable source values. Resolved spells link both ways; the source's `non-existant-spell` target remains visible and raises the measured dangling-reference count to 20. Strict importer and web schemas diagnose malformed or extended shapes, while item pages explicitly withhold activation, targeting, and actual-consumption claims. This removes both former macguffin compatibility diagnostics and leaves 8 `toolkit` plus 2,335 spell constructs. Evidence is recorded in `docs/analysis/item-macguffin-declaration-evidence-2026-07-28.md`.
+
+## Item toolkit declaration slice completed
+
+All eight canonical toolkit leaves now preserve ordered loss-aware crafting tags, slot counts, sound cues, safe presentation references, layout rectangles, controls, and close positions. Matching tags link toolkit items bidirectionally with all 374 recipes and 57 encrustments, while detailed cue IDs, raw references, and old game-interface coordinates remain hidden and do not control the modern UI. Strict importer and web schemas diagnose malformed or extended shapes. This removes the final eight item compatibility diagnostics and leaves 2,335 spell constructs. Evidence is recorded in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
 ## Spell relationship slice completed
 

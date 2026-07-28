@@ -75,8 +75,8 @@ describe("generated artifact loading", () => {
     const { loadArtifact, loadDiagnostics, loadSearchArtifact } =
       await import("../src/lib/artifact");
 
-    expect(loadArtifact().entities.items).toHaveLength(12);
-    expect(loadSearchArtifact().documents).toHaveLength(24);
+    expect(loadArtifact().entities.items).toHaveLength(13);
+    expect(loadSearchArtifact().documents).toHaveLength(25);
     expect(loadDiagnostics()).toHaveLength(21);
   });
 
@@ -250,6 +250,33 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/macguffinDeclarations/);
+  });
+
+  it("rejects malformed item toolkit metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: {
+          toolkitDeclarations: {
+            slotBounds: { slot: number }[];
+          }[];
+        }[];
+      };
+    };
+    const slotBounds = typedArtifact.entities.items
+      .flatMap((item) => item.toolkitDeclarations)
+      .flatMap((declaration) => declaration.slotBounds)
+      .at(0);
+    if (!slotBounds) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no toolkit slot metadata.",
+      );
+    }
+    slotBounds.slot = 0;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/toolkitDeclarations/);
   });
 
   it("rejects malformed item recovery metadata", async () => {

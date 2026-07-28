@@ -18,6 +18,9 @@ import {
   type ItemArmourMetadata,
   type ItemArtifactMetadata,
   type ItemMacguffinMetadata,
+  type ItemToolkitBounds,
+  type ItemToolkitControlMetadata,
+  type ItemToolkitMetadata,
   type ItemTrigger,
   type ItemTriggerKind,
   type ItemWeaponMetadata,
@@ -492,6 +495,291 @@ function parseItemMacguffinDeclarations(
         `item macguffin declaration ${declarationIndex + 1} consumable flag`,
         currentEntityId,
       ),
+    };
+  });
+}
+
+const itemToolkitAttributes = new Set([
+  "active",
+  "autofillbutton",
+  "autofillbuttonposx",
+  "autofillbuttonposy",
+  "bg",
+  "closex",
+  "closey",
+  "craftbutton",
+  "craftbuttonposx",
+  "craftbuttonposy",
+  "missing",
+  "numslots",
+  "output_x1",
+  "output_x2",
+  "output_y1",
+  "output_y2",
+  "present",
+  "recipebutton",
+  "recipebuttonposx",
+  "recipebuttonposy",
+  "slot1_x1",
+  "slot1_x2",
+  "slot1_y1",
+  "slot1_y2",
+  "slot2_x1",
+  "slot2_x2",
+  "slot2_y1",
+  "slot2_y2",
+  "slot3_x1",
+  "slot3_x2",
+  "slot3_y1",
+  "slot3_y2",
+  "slot4_x1",
+  "slot4_x2",
+  "slot4_y1",
+  "slot4_y2",
+  "sound",
+  "tag",
+]);
+
+function parseItemToolkitDeclarations(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemToolkitMetadata[] {
+  const rawDeclarations = Object.hasOwn(record, "toolkit")
+    ? Array.isArray(record.toolkit)
+      ? record.toolkit
+      : [record.toolkit]
+    : [];
+
+  return rawDeclarations.map((rawDeclaration, declarationIndex) => {
+    const declaration = isXmlRecord(rawDeclaration) ? rawDeclaration : {};
+    const declarationLabel = `item toolkit declaration ${declarationIndex + 1}`;
+    if (
+      !isXmlRecord(rawDeclaration) &&
+      (typeof rawDeclaration !== "string" || rawDeclaration.trim() !== "")
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unknown_element",
+        message:
+          "Unsupported text content inside <toolkit> was preserved only as a diagnostic.",
+        source: context.parsed.locateChildElement(record, "toolkit"),
+        entityId: currentEntityId,
+        details: { element: "toolkit" },
+      });
+    }
+
+    reportUnknownLeafContent(
+      context,
+      declaration,
+      "toolkit",
+      itemToolkitAttributes,
+      provenance,
+      currentEntityId,
+      true,
+    );
+
+    const sourceText = (
+      attribute: string,
+      field: string,
+      required = false,
+    ): string | null => {
+      const rawValue = xmlAttribute(declaration, attribute);
+      const value = rawValue?.trim() || null;
+      if ((required || rawValue !== undefined) && value === null) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "invalid_item_toolkit_text",
+          message: `${declarationLabel} has no usable ${field}.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { field, value: rawValue ?? "" },
+        });
+      }
+      return value;
+    };
+    const coordinate = (attribute: string, field: string) =>
+      optionalIntegerValue(
+        xmlAttribute(declaration, attribute),
+        context,
+        provenance,
+        `${declarationLabel} ${field}`,
+        currentEntityId,
+        0,
+      );
+    const bounds = (prefix: string, field: string): ItemToolkitBounds => {
+      const parsed = {
+        x1: coordinate(`${prefix}_x1`, `${field} x1`),
+        y1: coordinate(`${prefix}_y1`, `${field} y1`),
+        x2: coordinate(`${prefix}_x2`, `${field} x2`),
+        y2: coordinate(`${prefix}_y2`, `${field} y2`),
+      };
+      const suppliedCount = Object.values(parsed).filter(
+        (value) => value !== null,
+      ).length;
+      if (suppliedCount > 0 && suppliedCount < 4) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "incomplete_item_toolkit_bounds",
+          message: `${declarationLabel} has incomplete ${field} coordinates.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { field },
+        });
+      }
+      return parsed;
+    };
+    const control = (
+      referenceAttribute: string,
+      xAttribute: string,
+      yAttribute: string,
+      field: string,
+    ): ItemToolkitControlMetadata => {
+      const sourcePath = sourceText(
+        referenceAttribute,
+        `${field} presentation reference`,
+      );
+      const parsed = {
+        path: normalizeAssetReference(
+          sourcePath ?? undefined,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        positionX: coordinate(xAttribute, `${field} position x`),
+        positionY: coordinate(yAttribute, `${field} position y`),
+      };
+      const suppliedCount = Object.values(parsed).filter(
+        (value) => value !== null,
+      ).length;
+      if (suppliedCount > 0 && suppliedCount < 3) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "incomplete_item_toolkit_control",
+          message: `${declarationLabel} has incomplete ${field} presentation metadata.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { field },
+        });
+      }
+      return parsed;
+    };
+    const assetReference = (attribute: string, field: string) => {
+      const sourcePath = sourceText(attribute, field);
+      return normalizeAssetReference(
+        sourcePath ?? undefined,
+        context,
+        provenance,
+        currentEntityId,
+      );
+    };
+
+    const tag = sourceText("tag", "crafting tag", true);
+    const rawNumSlots = xmlAttribute(declaration, "numslots");
+    if (rawNumSlots === undefined || rawNumSlots === "") {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_item_toolkit_slot_count",
+        message: `${declarationLabel} has no slot count.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+    const numSlots = optionalIntegerValue(
+      rawNumSlots,
+      context,
+      provenance,
+      `${declarationLabel} slot count`,
+      currentEntityId,
+      0,
+    );
+    const missingPath = assetReference(
+      "missing",
+      "missing-state presentation reference",
+    );
+    const presentPath = assetReference(
+      "present",
+      "present-state presentation reference",
+    );
+    const activePath = assetReference(
+      "active",
+      "active-state presentation reference",
+    );
+    const stateReferenceCount = [missingPath, presentPath, activePath].filter(
+      (value) => value !== null,
+    ).length;
+    if (stateReferenceCount > 0 && stateReferenceCount < 3) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "incomplete_item_toolkit_state_references",
+        message: `${declarationLabel} has an incomplete set of state presentation references.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    const slotBounds = [1, 2, 3, 4]
+      .map((slot) => ({ slot, ...bounds(`slot${slot}`, `slot ${slot}`) }))
+      .filter(({ x1, y1, x2, y2 }) =>
+        [x1, y1, x2, y2].some((value) => value !== null),
+      );
+    if (numSlots !== null && slotBounds.some(({ slot }) => slot > numSlots)) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_item_toolkit_slot_layout",
+        message: `${declarationLabel} supplies coordinates beyond its declared slot count.`,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { numSlots },
+      });
+    }
+    const closePosition = {
+      x: coordinate("closex", "close position x"),
+      y: coordinate("closey", "close position y"),
+    };
+    const closeCoordinateCount = Object.values(closePosition).filter(
+      (value) => value !== null,
+    ).length;
+    if (closeCoordinateCount === 1) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "incomplete_item_toolkit_close_position",
+        message: `${declarationLabel} has an incomplete close position.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    return {
+      tag,
+      numSlots,
+      soundCue: sourceText("sound", "sound cue"),
+      missingPath,
+      presentPath,
+      activePath,
+      slotBounds,
+      outputBounds: bounds("output", "output"),
+      craftButton: control(
+        "craftbutton",
+        "craftbuttonposx",
+        "craftbuttonposy",
+        "craft button",
+      ),
+      recipeButton: control(
+        "recipebutton",
+        "recipebuttonposx",
+        "recipebuttonposy",
+        "recipe button",
+      ),
+      autofillButton: control(
+        "autofillbutton",
+        "autofillbuttonposx",
+        "autofillbuttonposy",
+        "autofill button",
+      ),
+      closePosition,
+      backgroundPath: assetReference("bg", "background presentation reference"),
     };
   });
 }
@@ -1390,6 +1678,12 @@ function parseItems(
       provenance,
       currentEntityId,
     );
+    const toolkitDeclarations = parseItemToolkitDeclarations(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     validateItemGemMarkers(record, context, provenance, currentEntityId);
 
     const item: Item = {
@@ -1424,6 +1718,7 @@ function parseItems(
       armourDeclarations,
       weaponDeclarations,
       macguffinDeclarations,
+      toolkitDeclarations,
       recoveries: parseItemRecoveries(
         record,
         context,
@@ -1464,6 +1759,7 @@ function parseItems(
         "mushroom",
         "potion",
         "trap",
+        "toolkit",
         "wand",
         "weapon",
         ...(Object.hasOwn(record, "mushroom") ? ["casts"] : []),

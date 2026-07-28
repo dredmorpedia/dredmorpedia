@@ -9,6 +9,8 @@ import {
   itemMonsterDropRelationships,
   itemRecipeRelationships,
   itemSkillLoadoutRelationships,
+  itemToolkitEncrustmentRelationships,
+  itemToolkitRecipeRelationships,
   matchesEntityRoute,
 } from "@dredmorpedia/domain";
 
@@ -78,6 +80,14 @@ export default async function ItemPage({
   const encrustmentRelationships = itemEncrustmentRelationships(
     artifact.entities.encrustments,
     item.id,
+  );
+  const toolkitRecipeRelationships = itemToolkitRecipeRelationships(
+    artifact.entities.recipes,
+    item,
+  );
+  const toolkitEncrustmentRelationships = itemToolkitEncrustmentRelationships(
+    artifact.entities.encrustments,
+    item,
   );
   const skillLoadoutRelationships = itemSkillLoadoutRelationships(
     artifact.entities.skills,
@@ -159,6 +169,7 @@ export default async function ItemPage({
           {item.weaponDeclarations.length > 0 ||
           item.armourDeclarations.length > 0 ||
           item.macguffinDeclarations.length > 0 ||
+          item.toolkitDeclarations.length > 0 ||
           item.recoveries.length > 0 ||
           item.chargeRanges.length > 0 ||
           item.traps.length > 0 ? (
@@ -315,6 +326,119 @@ export default async function ItemPage({
                   </p>
                 </section>
               ) : null}
+              {item.toolkitDeclarations.length > 0 ? (
+                <section aria-labelledby="item-toolkit-heading">
+                  <h3 id="item-toolkit-heading" className="relationship-title">
+                    Toolkit declarations
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.toolkitDeclarations.map((declaration, index) => {
+                      const stateReferenceCount = [
+                        declaration.missingPath,
+                        declaration.presentPath,
+                        declaration.activePath,
+                      ].filter((value) => value !== null).length;
+                      const controlCount = [
+                        declaration.craftButton,
+                        declaration.recipeButton,
+                        declaration.autofillButton,
+                      ].filter(
+                        (control) =>
+                          control.path !== null ||
+                          control.positionX !== null ||
+                          control.positionY !== null,
+                      ).length;
+                      const outputCoordinateCount = Object.values(
+                        declaration.outputBounds,
+                      ).filter((value) => value !== null).length;
+                      const closeCoordinateCount = Object.values(
+                        declaration.closePosition,
+                      ).filter((value) => value !== null).length;
+                      return (
+                        <div key={index}>
+                          {item.toolkitDeclarations.length > 1 ? (
+                            <p className="supporting-note">
+                              Declaration {index + 1}
+                            </p>
+                          ) : null}
+                          <dl className="stat-list">
+                            <div>
+                              <dt>Crafting tag</dt>
+                              <dd>{declaration.tag ?? "Unavailable"}</dd>
+                            </div>
+                            <div>
+                              <dt>Input slots</dt>
+                              <dd>{declaration.numSlots ?? "Unavailable"}</dd>
+                            </div>
+                            <div>
+                              <dt>Sound cue</dt>
+                              <dd>
+                                {declaration.soundCue === null
+                                  ? "Not supplied"
+                                  : "Supplied"}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>State presentation</dt>
+                              <dd>
+                                {stateReferenceCount === 0
+                                  ? "Not supplied"
+                                  : `${stateReferenceCount} references supplied`}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Slot layout coverage</dt>
+                              <dd>
+                                {declaration.slotBounds.length === 0
+                                  ? "Not supplied"
+                                  : `${declaration.slotBounds.length} slots supplied`}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Output layout</dt>
+                              <dd>
+                                {outputCoordinateCount === 0
+                                  ? "Not supplied"
+                                  : `${outputCoordinateCount} coordinates supplied`}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Controls</dt>
+                              <dd>
+                                {controlCount === 0
+                                  ? "Not supplied"
+                                  : `${controlCount} controls supplied`}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Close position</dt>
+                              <dd>
+                                {closeCoordinateCount === 0
+                                  ? "Not supplied"
+                                  : `${closeCoordinateCount} coordinates supplied`}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Background presentation</dt>
+                              <dd>
+                                {declaration.backgroundPath === null
+                                  ? "Not supplied"
+                                  : "Supplied"}
+                              </dd>
+                            </div>
+                          </dl>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="supporting-note">
+                    The tag and slot count are direct crafting metadata. Sound
+                    cue IDs, presentation references, and old game-interface
+                    coordinates stay hidden and do not control this site&apos;s
+                    UI; no crafting runtime behavior is inferred.
+                  </p>
+                </section>
+              ) : null}
               {item.recoveries.length > 0 ? (
                 <section aria-labelledby="item-recovery-heading">
                   <h3 id="item-recovery-heading" className="relationship-title">
@@ -440,8 +564,8 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized weapon, armour, macguffin, recovery, charge, or trap
-              metadata.
+              No normalized weapon, armour, macguffin, toolkit, recovery,
+              charge, or trap metadata.
             </p>
           )}
         </section>
@@ -622,7 +746,8 @@ export default async function ItemPage({
           <h2 id="relations-heading" className="section-title-sm">
             Crafting relationships
           </h2>
-          {recipeRelationships.length > 0 ? (
+          {recipeRelationships.length > 0 ||
+          toolkitRecipeRelationships.length > 0 ? (
             <div className="relationship-groups">
               {craftedBy.length > 0 ? (
                 <section aria-labelledby="crafted-by-heading">
@@ -659,6 +784,29 @@ export default async function ItemPage({
                           {recipe.name}
                         </Link>
                         <span>Uses {inputAmount}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {toolkitRecipeRelationships.length > 0 ? (
+                <section aria-labelledby="crafted-with-toolkit-heading">
+                  <h3
+                    id="crafted-with-toolkit-heading"
+                    className="relationship-title"
+                  >
+                    Crafted with this toolkit
+                  </h3>
+                  <ul className="relation-list">
+                    {toolkitRecipeRelationships.map((recipe) => (
+                      <li key={recipe.id}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/recipes/${recipe.slug}`}
+                        >
+                          {recipe.name}
+                        </Link>
+                        <span>Uses {recipe.tool}</span>
                       </li>
                     ))}
                   </ul>
@@ -709,27 +857,58 @@ export default async function ItemPage({
           <h2 id="encrustment-relations-heading" className="section-title-sm">
             Encrusting relationships
           </h2>
-          {encrustmentRelationships.length > 0 ? (
-            <section aria-labelledby="used-to-encrust-heading">
-              <h3 id="used-to-encrust-heading" className="relationship-title">
-                Used to encrust
-              </h3>
-              <ul className="relation-list">
-                {encrustmentRelationships.map(
-                  ({ encrustment, inputAmount }) => (
-                    <li key={encrustment.id}>
-                      <Link
-                        className="entity-link font-semibold"
-                        href={`/encrustments/${encrustment.slug}`}
-                      >
-                        {encrustment.name}
-                      </Link>
-                      <span>Uses {inputAmount}</span>
-                    </li>
-                  ),
-                )}
-              </ul>
-            </section>
+          {encrustmentRelationships.length > 0 ||
+          toolkitEncrustmentRelationships.length > 0 ? (
+            <div className="relationship-groups">
+              {encrustmentRelationships.length > 0 ? (
+                <section aria-labelledby="used-to-encrust-heading">
+                  <h3
+                    id="used-to-encrust-heading"
+                    className="relationship-title"
+                  >
+                    Used to encrust
+                  </h3>
+                  <ul className="relation-list">
+                    {encrustmentRelationships.map(
+                      ({ encrustment, inputAmount }) => (
+                        <li key={encrustment.id}>
+                          <Link
+                            className="entity-link font-semibold"
+                            href={`/encrustments/${encrustment.slug}`}
+                          >
+                            {encrustment.name}
+                          </Link>
+                          <span>Uses {inputAmount}</span>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </section>
+              ) : null}
+              {toolkitEncrustmentRelationships.length > 0 ? (
+                <section aria-labelledby="encrusted-with-toolkit-heading">
+                  <h3
+                    id="encrusted-with-toolkit-heading"
+                    className="relationship-title"
+                  >
+                    Encrusted with this toolkit
+                  </h3>
+                  <ul className="relation-list">
+                    {toolkitEncrustmentRelationships.map((encrustment) => (
+                      <li key={encrustment.id}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/encrustments/${encrustment.slug}`}
+                        >
+                          {encrustment.name}
+                        </Link>
+                        <span>Uses {encrustment.tool}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">
               No linked encrustments.

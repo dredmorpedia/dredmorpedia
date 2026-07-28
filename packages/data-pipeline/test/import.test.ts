@@ -891,6 +891,179 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes complete toolkit declarations and diagnoses malformed interface metadata", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-toolkits-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Complete Toolkit" alchemical="1">
+    <toolkit tag="smithing" numslots="2" sound="hammer"
+      missing="ui/missing.png" present="ui/present.png" active="ui/active.png"
+      slot1_x1="1" slot1_y1="2" slot1_x2="3" slot1_y2="4"
+      slot2_x1="5" slot2_y1="6" slot2_x2="7" slot2_y2="8"
+      output_x1="9" output_y1="10" output_x2="11" output_y2="12"
+      craftbutton="ui/craft" craftbuttonposx="13" craftbuttonposy="14"
+      recipebutton="ui/recipe" recipebuttonposx="15" recipebuttonposy="16"
+      autofillbutton="ui/autofill" autofillbuttonposx="17" autofillbuttonposy="18"
+      closex="19" closey="20" bg="ui/background.png" />
+  </item>
+  <item name="Empty Toolkit"><toolkit /></item>
+  <item name="Invalid Toolkit"><toolkit tag="" numslots="-1" slot1_x1="left" bg="../outside.png" /></item>
+  <item name="Partial Toolkit"><toolkit tag="smithing" numslots="1" missing="ui/missing.png" slot1_x1="1" craftbutton="ui/craft" closex="2" /></item>
+  <item name="Overflow Toolkit"><toolkit tag="smithing" numslots="1" slot2_x1="1" slot2_y1="2" slot2_x2="3" slot2_y2="4" /></item>
+  <item name="Repeated Toolkit"><toolkit tag="smithing" numslots="1" /><toolkit tag="alchemy" numslots="4" /></item>
+  <item name="Extended Toolkit"><toolkit tag="smithing" numslots="1" future="kept"><future /></toolkit></item>
+  <item name="Text Toolkit"><toolkit>unexpected</toolkit></item>
+</items>`,
+    );
+    const toolkitManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      toolkitManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-toolkit-test",
+        sources: [
+          {
+            id: "toolkit-source",
+            label: "Toolkit Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: toolkitManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const itemByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(itemByName.get("Complete Toolkit")?.toolkitDeclarations).toEqual([
+      {
+        tag: "smithing",
+        numSlots: 2,
+        soundCue: "hammer",
+        missingPath: "ui/missing.png",
+        presentPath: "ui/present.png",
+        activePath: "ui/active.png",
+        slotBounds: [
+          { slot: 1, x1: 1, y1: 2, x2: 3, y2: 4 },
+          { slot: 2, x1: 5, y1: 6, x2: 7, y2: 8 },
+        ],
+        outputBounds: { x1: 9, y1: 10, x2: 11, y2: 12 },
+        craftButton: {
+          path: "ui/craft",
+          positionX: 13,
+          positionY: 14,
+        },
+        recipeButton: {
+          path: "ui/recipe",
+          positionX: 15,
+          positionY: 16,
+        },
+        autofillButton: {
+          path: "ui/autofill",
+          positionX: 17,
+          positionY: 18,
+        },
+        closePosition: { x: 19, y: 20 },
+        backgroundPath: "ui/background.png",
+      },
+    ]);
+    expect(itemByName.get("Empty Toolkit")?.toolkitDeclarations).toEqual([
+      expect.objectContaining({ tag: null, numSlots: null }),
+    ]);
+    expect(itemByName.get("Invalid Toolkit")?.toolkitDeclarations).toEqual([
+      expect.objectContaining({
+        tag: null,
+        numSlots: null,
+        backgroundPath: null,
+        slotBounds: [],
+      }),
+    ]);
+    expect(
+      itemByName.get("Repeated Toolkit")?.toolkitDeclarations,
+    ).toHaveLength(2);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_item_toolkit_text",
+          entityId: "item:empty toolkit",
+        }),
+        expect.objectContaining({
+          code: "missing_item_toolkit_slot_count",
+          entityId: "item:empty toolkit",
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "item:invalid toolkit",
+        }),
+        expect.objectContaining({
+          code: "unsafe_asset_path",
+          entityId: "item:invalid toolkit",
+        }),
+        expect.objectContaining({
+          code: "incomplete_item_toolkit_state_references",
+          entityId: "item:partial toolkit",
+        }),
+        expect.objectContaining({
+          code: "incomplete_item_toolkit_bounds",
+          entityId: "item:partial toolkit",
+        }),
+        expect.objectContaining({
+          code: "incomplete_item_toolkit_control",
+          entityId: "item:partial toolkit",
+        }),
+        expect.objectContaining({
+          code: "incomplete_item_toolkit_close_position",
+          entityId: "item:partial toolkit",
+        }),
+        expect.objectContaining({
+          code: "invalid_item_toolkit_slot_layout",
+          entityId: "item:overflow toolkit",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:extended toolkit",
+          details: {
+            element: "toolkit",
+            attribute: "future",
+            value: "kept",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:extended toolkit",
+          details: { element: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:text toolkit",
+          details: { element: "toolkit" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "unknown_element" &&
+          diagnostic.entityId === "item:complete toolkit" &&
+          diagnostic.details?.element === "toolkit",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes loss-aware item artifact declarations", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-artifacts-"),
@@ -2735,7 +2908,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(12);
+    expect(result.artifact.entities.items).toHaveLength(13);
     expect(result.artifact.entities.recipes).toHaveLength(1);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
@@ -2844,7 +3017,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(24);
+    expect(result.search.documents).toHaveLength(25);
     expect(result.search).toMatchObject({
       schemaVersion: 1,
       datasetSchemaVersion: 3,
@@ -2950,6 +3123,7 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Clarity Tonic")?.category).toBe("potion");
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
     expect(itemByName.get("Training Gem")?.category).toBe("gem");
+    expect(itemByName.get("Training Smithing Kit")?.category).toBe("toolkit");
     expect(itemByName.get("Training Trap")?.category).toBe("trap");
     expect(itemByName.get("Training Wand +1")?.category).toBe("wand");
     expect(itemByName.get("Training Ration")?.recoveries).toEqual([
@@ -2985,10 +3159,49 @@ describe("synthetic dataset import", () => {
       },
     ]);
     expect(
+      itemByName.get("Training Smithing Kit")?.toolkitDeclarations,
+    ).toEqual([
+      {
+        tag: "smithing",
+        numSlots: 2,
+        soundCue: "training_smithing",
+        missingPath: "assets/synthetic.svg",
+        presentPath: "assets/synthetic.svg",
+        activePath: "assets/synthetic.svg",
+        slotBounds: [
+          { slot: 1, x1: 10, y1: 20, x2: 30, y2: 40 },
+          { slot: 2, x1: 50, y1: 60, x2: 70, y2: 80 },
+        ],
+        outputBounds: { x1: 90, y1: 100, x2: 110, y2: 120 },
+        craftButton: {
+          path: "assets/synthetic.svg",
+          positionX: 130,
+          positionY: 140,
+        },
+        recipeButton: {
+          path: "assets/synthetic.svg",
+          positionX: 150,
+          positionY: 160,
+        },
+        autofillButton: {
+          path: "assets/synthetic.svg",
+          positionX: 170,
+          positionY: 180,
+        },
+        closePosition: { x: 190, y: 200 },
+        backgroundPath: "assets/synthetic.svg",
+      },
+    ]);
+    expect(
       result.search.documents.find(
         (document) => document.id === "item:training relic",
       )?.text,
     ).toContain("clockwork echo training curiosity");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "item:training smithing kit",
+      )?.text,
+    ).toContain("smithing training_smithing");
     expect(itemByName.get("Clarity Tonic")?.triggers).toEqual([
       expect.objectContaining({
         kind: "quaffed",

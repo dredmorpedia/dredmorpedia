@@ -93,6 +93,42 @@ export interface ItemMacguffinMetadata {
   consumable: boolean | null;
 }
 
+export interface ItemToolkitBounds {
+  x1: number | null;
+  y1: number | null;
+  x2: number | null;
+  y2: number | null;
+}
+
+export interface ItemToolkitSlotBounds extends ItemToolkitBounds {
+  slot: number;
+}
+
+export interface ItemToolkitControlMetadata {
+  path: string | null;
+  positionX: number | null;
+  positionY: number | null;
+}
+
+export interface ItemToolkitMetadata {
+  tag: string | null;
+  numSlots: number | null;
+  soundCue: string | null;
+  missingPath: string | null;
+  presentPath: string | null;
+  activePath: string | null;
+  slotBounds: ItemToolkitSlotBounds[];
+  outputBounds: ItemToolkitBounds;
+  craftButton: ItemToolkitControlMetadata;
+  recipeButton: ItemToolkitControlMetadata;
+  autofillButton: ItemToolkitControlMetadata;
+  closePosition: {
+    x: number | null;
+    y: number | null;
+  };
+  backgroundPath: string | null;
+}
+
 export const itemRecoveryResources = ["life", "mana"] as const;
 
 export type ItemRecoveryResource = (typeof itemRecoveryResources)[number];
@@ -171,6 +207,7 @@ export interface Item extends NormalizedEntityBase {
   armourDeclarations: ItemArmourMetadata[];
   weaponDeclarations: ItemWeaponMetadata[];
   macguffinDeclarations: ItemMacguffinMetadata[];
+  toolkitDeclarations: ItemToolkitMetadata[];
   recoveries: ItemRecovery[];
   chargeRanges: ItemChargeRange[];
   traps: ItemTrapMetadata[];

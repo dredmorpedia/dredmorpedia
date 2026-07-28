@@ -40,6 +40,7 @@ function candidate(
       armourDeclarations: [],
       weaponDeclarations: [],
       macguffinDeclarations: [],
+      toolkitDeclarations: [],
       recoveries: [],
       chargeRanges: [],
       traps: [],

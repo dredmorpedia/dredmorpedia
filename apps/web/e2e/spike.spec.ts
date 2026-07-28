@@ -86,7 +86,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Item preview" }),
   ).toBeVisible();
-  await expect(page.getByText("Showing 12 of 12 items")).toBeVisible();
+  await expect(page.getByText("Showing 13 of 13 items")).toBeVisible();
   expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
@@ -514,7 +514,7 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
     page
       .getByRole("region", { name: "Use metadata" })
       .getByText(
-        "No normalized weapon, armour, macguffin, recovery, charge, or trap metadata.",
+        "No normalized weapon, armour, macguffin, toolkit, recovery, charge, or trap metadata.",
       ),
   ).toBeVisible();
 });
@@ -555,6 +555,93 @@ test("shows linked macguffin source metadata without inferring behavior", async 
     backlinks
       .getByRole("region", { name: "Item macguffins" })
       .getByRole("link", { name: "Training Relic" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+});
+
+test("shows toolkit metadata and navigates crafting tool relationships", async ({
+  page,
+}) => {
+  await page.goto("/items/training-smithing-kit/");
+  const useMetadata = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    useMetadata.getByRole("heading", { name: "Toolkit declarations" }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("smithing", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata
+      .getByText("Sound cue", { exact: true })
+      .locator("..")
+      .getByText("Supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("3 references supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("2 slots supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("4 coordinates supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText("3 controls supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    useMetadata.getByText(/do not control this site's UI/i),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Unsupported <toolkit> element was preserved only as a diagnostic.",
+    ),
+  ).toHaveCount(0);
+  expect(await page.locator("body").textContent()).not.toContain(
+    "assets/synthetic.svg",
+  );
+  expect(await page.locator("body").textContent()).not.toContain(
+    "training_smithing",
+  );
+
+  const craftingRelationships = page.getByRole("region", {
+    name: "Crafting relationships",
+  });
+  await expect(
+    craftingRelationships.getByRole("heading", {
+      name: "Crafted with this toolkit",
+    }),
+  ).toBeVisible();
+  const recipeLink = craftingRelationships.getByRole("link", {
+    name: "Clockwork Blade Recipe",
+  });
+  await recipeLink.focus();
+  await expect(recipeLink).toBeFocused();
+  await recipeLink.press("Enter");
+  await expect(page).toHaveURL(/\/recipes\/clockwork-blade-recipe\/$/);
+  const recipeToolLink = page
+    .getByText("Tool", { exact: true })
+    .locator("..")
+    .getByRole("link", { name: "Training Smithing Kit" });
+  await expect(recipeToolLink).toBeVisible();
+
+  await page.goto("/items/training-smithing-kit/");
+  const encrustmentLink = page
+    .getByRole("region", { name: "Encrusting relationships" })
+    .getByRole("link", { name: "Synthetic Gear Polish" });
+  await expect(encrustmentLink).toBeVisible();
+  await encrustmentLink.click();
+  await expect(page).toHaveURL(/\/encrustments\/synthetic-gear-polish\/$/);
+  await expect(
+    page
+      .getByText("Tool", { exact: true })
+      .locator("..")
+      .getByRole("link", { name: "Training Smithing Kit" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -1177,6 +1264,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/items/clockwork-sword/",
     "/items/training-cuirass/",
     "/items/training-relic/",
+    "/items/training-smithing-kit/",
     "/items/training-ration/",
     "/items/training-trap/",
     "/items/training-wand-1/",
