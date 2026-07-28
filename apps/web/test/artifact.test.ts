@@ -100,6 +100,59 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/entities\.recipes/);
   });
 
+  it("rejects an unsafe canonical entity slug", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: { items: { slug: string }[] };
+    };
+    const firstItem = artifact.entities.items[0];
+    if (!firstItem) {
+      throw new Error("Synthetic artifact unexpectedly has no items.");
+    }
+    firstItem.slug = "../outside";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/entities\.items\.0\.slug/);
+  });
+
+  it("rejects an unsafe entity alias slug", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: { items: { slugAliases: string[] }[] };
+    };
+    const firstItem = artifact.entities.items[0];
+    if (!firstItem) {
+      throw new Error("Synthetic artifact unexpectedly has no items.");
+    }
+    firstItem.slugAliases.push("Clockwork Blade");
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/slugAliases/);
+  });
+
+  it("rejects a canonical-or-alias route collision within an entity kind", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: {
+        items: { id: string; slug: string; slugAliases: string[] }[];
+      };
+    };
+    const [firstItem, secondItem] = artifact.entities.items;
+    if (!firstItem || !secondItem) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has fewer than two items.",
+      );
+    }
+    secondItem.slugAliases.push(firstItem.slug);
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(
+      new RegExp(
+        `duplicate item route slug "${firstItem.slug}".*${firstItem.id}.*${secondItem.id}`,
+      ),
+    );
+  });
+
   it("rejects malformed spell animation metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {
@@ -565,5 +618,22 @@ describe("generated artifact loading", () => {
     const { loadSearchArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadSearchArtifact()).toThrow(/not derived/);
+  });
+
+  it("rejects an unsafe search-document URL before derivation checks", async () => {
+    const search = readJson("search.json") as {
+      documents: { url: string }[];
+    };
+    const firstDocument = search.documents[0];
+    if (!firstDocument) {
+      throw new Error(
+        "Synthetic search fixture unexpectedly has no documents.",
+      );
+    }
+    firstDocument.url = "javascript:alert(1)";
+    writeOutput("search.json", search, true);
+    const { loadSearchArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadSearchArtifact()).toThrow(/documents\.0\.url/);
   });
 });

@@ -30,6 +30,18 @@ const nullableNonnegativeNumber = z.number().nonnegative().nullable();
 const nullableNonnegativeInteger = nonnegativeInteger.nullable();
 const nullablePercentageInteger = percentageInteger.nullable();
 const optionalString = z.string().optional();
+const entitySlugSchema = z
+  .string()
+  .regex(
+    /^[a-z0-9-]+$/,
+    "must contain only lowercase ASCII letters, digits, and hyphens",
+  );
+const entityUrlSchema = z
+  .string()
+  .regex(
+    /^\/[a-z]+\/[a-z0-9-]+$/,
+    "must be an absolute entity path with a lowercase route and slug",
+  );
 
 const patchValueSchema = z.union([
   z.string(),
@@ -83,8 +95,8 @@ const appliedPatchSchema = z
 const entityBaseShape = {
   id: z.string(),
   canonicalKey: z.string(),
-  slug: z.string(),
-  slugAliases: z.array(z.string()),
+  slug: entitySlugSchema,
+  slugAliases: z.array(entitySlugSchema),
   name: z.string(),
   description: z.string(),
   provenance: provenanceSchema,
@@ -826,7 +838,7 @@ const searchArtifactSchema = z
           sourceId: z.string(),
           category: z.string().nullable(),
           statKeys: z.array(z.string()),
-          url: z.string(),
+          url: entityUrlSchema,
           text: z.string(),
         })
         .strict(),
@@ -967,6 +979,22 @@ function assertUnique(values: readonly string[], label: string): void {
   }
 }
 
+function assertUniqueEntityRouteSlugs(artifact: DatasetArtifact): void {
+  const routeOwners = new Map<string, string>();
+  for (const entity of allEntities(artifact)) {
+    for (const slug of [entity.slug, ...entity.slugAliases]) {
+      const route = `${entity.kind}:${slug}`;
+      const existingOwner = routeOwners.get(route);
+      if (existingOwner !== undefined) {
+        throw new Error(
+          `Generated artifact contains duplicate ${entity.kind} route slug "${slug}" for entities ${existingOwner} and ${entity.id}.`,
+        );
+      }
+      routeOwners.set(route, entity.id);
+    }
+  }
+}
+
 export function loadArtifact(): DatasetArtifact {
   if (artifactCache) {
     return artifactCache;
@@ -991,6 +1019,7 @@ export function loadArtifact(): DatasetArtifact {
     allEntities(artifact).map((entity) => entity.id),
     "entity IDs",
   );
+  assertUniqueEntityRouteSlugs(artifact);
   artifactCache = artifact;
   return artifactCache;
 }

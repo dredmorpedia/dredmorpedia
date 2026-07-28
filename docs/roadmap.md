@@ -79,6 +79,8 @@ Determinism hardening through 2026-07-29 also makes diagnostic, equal-precedence
 
 Trust-boundary hardening through 2026-07-29 validates normalized asset values before root probing. A focused parser regression proves traversal is rejected even if a future caller supplies no asset lookup roots.
 
+The web artifact boundary now validates canonical/alias slug and search-URL shapes and independently rejects duplicate same-kind canonical-or-alias route ownership before static route generation. Checksummed-tampering regressions cover all four failure paths without changing valid generated output.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

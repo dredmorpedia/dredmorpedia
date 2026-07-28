@@ -22,6 +22,8 @@ The remaining low-severity comparator gaps are also closed. Diagnostics now end 
 
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
+The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).
+
 ## Priority findings
 
 ### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
@@ -65,7 +67,8 @@ No exploitable defect found. Defenses actively tried and confirmed sound:
 
 Hardening opportunities (none currently exploitable):
 
-- The Zod boundary types `slug`, `slugAliases`, `url`, and `iconPath` as bare `z.string()`. A charset regex (`/^[a-z0-9-]+$/` on slugs, a `/^\/[a-z]+\/[a-z0-9-]+$/` shape on `url`) would make the boundary self-defending instead of relying on upstream invariants.
+- **Resolved 2026-07-29:** the Zod boundary previously typed `slug`, `slugAliases`, and search-document `url` as bare strings and the loader checked unique entity IDs without independently checking route ownership. Canonical and alias slugs now require the generated lowercase ASCII shape, search URLs require an absolute entity-route shape, and every canonical-or-alias slug must have exactly one owner within its entity kind.
+- Presentation/reference path fields such as `iconPath` remain bare nullable strings at the web boundary. The pipeline already validates them as safe relative paths and the web never uses them as `src`/`href`; a shared path-shape schema remains optional defense in depth.
 - **Resolved 2026-07-29:** `normalizeAssetPath` previously performed its `..`/absolute rejection only inside the asset-root loop, so an empty `assetRoots` list would skip validation. It now validates unconditionally before root probing, with a focused empty-root parser regression.
 - An absolute `source.root` (`manifest.ts`) is accepted without a containment check, by design, to allow external game-install directories. This is safe only because the manifest is trusted operator configuration; a one-line comment noting the manifest as a trust anchor would document the assumption.
 
