@@ -74,6 +74,12 @@ export interface ItemArtifactMetadata {
   quality: number | null;
 }
 
+export interface ItemArmourMetadata {
+  slot: string | null;
+  level: number | null;
+  randoms: number | null;
+}
+
 export const itemRecoveryResources = ["life", "mana"] as const;
 
 export type ItemRecoveryResource = (typeof itemRecoveryResources)[number];
@@ -149,6 +155,7 @@ export interface Item extends NormalizedEntityBase {
   price: number | null;
   quality: number;
   artifacts: ItemArtifactMetadata[];
+  armourDeclarations: ItemArmourMetadata[];
   recoveries: ItemRecovery[];
   chargeRanges: ItemChargeRange[];
   traps: ItemTrapMetadata[];

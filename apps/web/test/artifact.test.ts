@@ -77,7 +77,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(11);
     expect(loadSearchArtifact().documents).toHaveLength(23);
-    expect(loadDiagnostics()).toHaveLength(24);
+    expect(loadDiagnostics()).toHaveLength(23);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -184,6 +184,28 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/artifacts/);
+  });
+
+  it("rejects malformed item armour metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { armourDeclarations: { randoms: number | null }[] }[];
+      };
+    };
+    const armour = typedArtifact.entities.items
+      .flatMap((item) => item.armourDeclarations)
+      .at(0);
+    if (!armour) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item armour metadata.",
+      );
+    }
+    armour.randoms = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/armourDeclarations/);
   });
 
   it("rejects malformed item recovery metadata", async () => {

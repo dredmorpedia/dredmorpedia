@@ -155,6 +155,15 @@ const itemSchema = z
         })
         .strict(),
     ),
+    armourDeclarations: z.array(
+      z
+        .object({
+          slot: z.string().min(1).nullable(),
+          level: nullableNonnegativeInteger,
+          randoms: nullableNonnegativeInteger,
+        })
+        .strict(),
+    ),
     recoveries: z.array(
       z
         .object({

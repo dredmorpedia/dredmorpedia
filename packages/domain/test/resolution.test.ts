@@ -37,6 +37,7 @@ function candidate(
       price,
       quality: 2,
       artifacts: [],
+      armourDeclarations: [],
       recoveries: [],
       chargeRanges: [],
       traps: [],

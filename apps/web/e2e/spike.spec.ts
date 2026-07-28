@@ -385,6 +385,16 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   await expect(weaponTriggers.getByText("Resolved target spell")).toBeVisible();
 
   await page.goto("/items/training-cuirass/");
+  const armourUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    armourUse.getByRole("heading", { name: "Armour declarations" }),
+  ).toBeVisible();
+  await expect(armourUse.getByText("chest", { exact: true })).toBeVisible();
+  await expect(armourUse.getByText("Source level")).toBeVisible();
+  await expect(armourUse.getByText("Random stat source")).toBeVisible();
+  await expect(
+    armourUse.getByText(/equipment formulas are not inferred/i),
+  ).toBeVisible();
   const armourTriggers = page.getByRole("region", { name: "Triggers" });
   await expect(armourTriggers.getByText("25%", { exact: true })).toBeVisible();
   await expect(armourTriggers.getByText("30%", { exact: true })).toBeVisible();
@@ -402,6 +412,11 @@ test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   await expect(
     armourTriggers.getByText("after=1", { exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Supported fields from <armour> were normalized, but other content remains unmodeled.",
+    ),
+  ).toHaveCount(0);
 
   await page.goto("/items/training-trap/");
   const trapTriggers = page.getByRole("region", { name: "Triggers" });
@@ -482,7 +497,7 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
   await expect(
     page
       .getByRole("region", { name: "Use metadata" })
-      .getByText("No normalized recovery, charge, or trap metadata."),
+      .getByText("No normalized armour, recovery, charge, or trap metadata."),
   ).toBeVisible();
 });
 

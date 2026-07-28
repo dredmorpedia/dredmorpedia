@@ -31,11 +31,11 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Synthetic verification
 
-- Normalized artifact: 52,397 bytes.
-- Search artifact: 9,671 bytes for 22 documents.
-- Diagnostics remain the intentional 1 error and 19 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, monster-spell, monster-item, and skill-loadout targets remain explicit.
-- Domain/pipeline tests: 70 passed, plus 12 web artifact-boundary tests.
-- Browser tests: 24 passed across desktop and mobile Chromium.
+- Normalized artifact: 54,047 bytes.
+- Search artifact: 10,089 bytes for 23 documents.
+- Diagnostics remain the intentional 1 error and 18 warnings, with 4 info records for precedence, the guarded synthetic patch, and two applied route-registry entries. Partially normalized item elements plus intentionally unresolved shared-effect, spell-effect, ability-spell, monster-spell, monster-item, and skill-loadout targets remain explicit.
+- Domain/pipeline tests: 85 passed, plus 16 web artifact/browse tests.
+- Browser tests: 30 passed across desktop and mobile Chromium.
 - Axe scans found no automatically detectable violations on representative home, search, canonical item/stat/recipe/encrustment/skill/ability/spell/monster, source-ID alias, and registered historical-alias routes.
 - Desktop and 412-pixel mobile layouts were visually inspected. The registered alias notice, recipe requirements, unresolved-item state, navigation, relationships, and provenance reflow without horizontal overflow.
 - Item quality normalization/display passed its separate code review on 2026-07-21. Synthetic records cover weapon root quality, nested armour quality, nested trap quality, and a potion whose unrelated root level must still normalize to zero. Quality patches accept only non-negative integers, and the web artifact boundary rejects missing or invalid quality fields.
@@ -43,6 +43,7 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 - All 77 canonical direct item hit/kill triggers resolve, including three formerly ignored lowercase aliases. Exact `after` metadata is retained without timing inference, and all 74 associated compatibility diagnostics are removed.
 - Item use metadata preserves 49 canonical Life/Mana recovery declarations, 25 exact `meat=1` source flags, and 21 valid wand charge ranges. All 64 related food/booze/wand/potion/mushroom spell triggers resolve. Fully validating those leaves removes 120 former compatibility diagnostics without inferring recovery timing, charge consumption, or flag behavior.
 - Item trap metadata preserves activation, level, caster-targeting, and safe placement-source declarations while retaining stepped-on spell links. The canonical dataset contains 54 complete active trap declarations and resolved links; fully validating the leaf removes all 54 former trap diagnostics without inferring reset, targeting, or placement behavior.
+- Item armour metadata preserves all 268 canonical slot, level, and optional `randoms` declarations loss-aware. The item page exposes the direct source values, malformed extensions remain diagnosed, and no random-stat selection or equipment formula is inferred.
 - Synthetic item-modifier coverage includes fixed weapon damage plus signed damage, resistance, primary, and secondary declarations. Focused importer tests cover measured casing aliases and malformed values/keys; the item page separates named stats from direct modifiers; and a keyboard search flow filters by the generated `Crushing damage` facet.
 - Monster drop/item backlinks and the initial aggressiveness/span/invisible AI source metadata passed their separate code review on 2026-07-21. Named and type-driven drops are an exclusive domain union backed by the same runtime guard used at the web artifact boundary; adversarial partial, mixed, invalid-type, and out-of-range records are rejected. All boolean AI metadata distinguishes enabled, explicitly disabled, and absent source values without inferring behavior.
 - Monster sight, movement, and presentation metadata passed separate code review on 2026-07-22. Invalid supplied loss-aware boolean tokens emit `invalid_boolean` and remain unavailable instead of becoming disabled, unexpected nested content in leaf metadata elements emits `unknown_element`, and browser coverage asserts that raw engine references remain absent from the presentation summary.
@@ -55,14 +56,14 @@ The formal file contract is in [`../contracts/generated-artifacts.md`](../contra
 
 ## Read-only official verification
 
-The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,922 warnings, and 71 info records.
+The canonical `1.1.5 public_beta` base-plus-three-expansion dataset produces 763 items, 57 active encrustments, 183 monsters, and 2,767 search documents with 0 errors, 2,634 warnings, and 71 info records.
 
-- Normalized artifact: 5,462,796 bytes.
+- Normalized artifact: 5,503,759 bytes.
 - Search artifact: 1,344,780 bytes uncompressed.
-- Diagnostics: 1,596,122 bytes.
+- Diagnostics: 1,458,920 bytes.
 - The import allocated 52 unambiguous source-ID aliases, all currently on skills, and reported no slug collisions or alias conflicts.
 - The earlier 1,000-query local CPU benchmark over the 2,710-document pre-encrustment artifact measured 0.153 ms mean, 0.452 ms p95, and 6.604 ms maximum. This measures query execution only, not browser parse/hydration or interaction latency; the user-facing search route still filters its payload to items and stats.
-- The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, 951 spell, and 183 monster pages plus registered/source-ID aliases, prerendered 2,824 static pages.
+- The latest production build, including all 374 recipe, 57 encrustment, 52 canonical skill, 352 ability, 951 spell, and 183 monster pages plus registered/source-ID aliases and bounded browse catalogues, prerendered 2,857 static pages.
 - The generated JSON and static export contain no local installation or user-profile path.
 - The reviewed quality rule matched all 763 official items with zero discrepancies: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 traps use nested `<trap level>`, and 184 other records use zero. This includes 68 food/potion records whose unrelated root `level` is deliberately ignored. All normalized values were present, non-negative integers; the observed maximum was 16.
 - Fixed item stats produce 1,584 signed modifiers across 506 active items: 480 damage, 255 resistance, 122 primary, and 727 secondary, with at most 12 on one item. Direct modifier-family support removes 599 former item diagnostics while fixed weapon damage remains inside the broader partially-supported weapon boundary. Numeric primary/secondary IDs remain source IDs, and the search artifact exposes collision-safe facets without fabricating definitions. Detailed evidence and exclusions are recorded in [`item-stat-modifier-evidence-2026-07-22.md`](item-stat-modifier-evidence-2026-07-22.md).

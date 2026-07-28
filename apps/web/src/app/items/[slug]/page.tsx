@@ -156,10 +156,47 @@ export default async function ItemPage({
           <h2 id="item-use-heading" className="section-title-sm">
             Use metadata
           </h2>
-          {item.recoveries.length > 0 ||
+          {item.armourDeclarations.length > 0 ||
+          item.recoveries.length > 0 ||
           item.chargeRanges.length > 0 ||
           item.traps.length > 0 ? (
             <div className="relationship-groups">
+              {item.armourDeclarations.length > 0 ? (
+                <section aria-labelledby="item-armour-heading">
+                  <h3 id="item-armour-heading" className="relationship-title">
+                    Armour declarations
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.armourDeclarations.map((armour, index) => (
+                      <div key={index}>
+                        {item.armourDeclarations.length > 1 ? (
+                          <p className="supporting-note">
+                            Declaration {index + 1}
+                          </p>
+                        ) : null}
+                        <dl className="stat-list">
+                          <div>
+                            <dt>Slot</dt>
+                            <dd>{armour.slot ?? "Unavailable"}</dd>
+                          </div>
+                          <div>
+                            <dt>Source level</dt>
+                            <dd>{armour.level ?? "Unavailable"}</dd>
+                          </div>
+                          <div>
+                            <dt>Random stat source</dt>
+                            <dd>{armour.randoms ?? "Not supplied"}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="supporting-note">
+                    These are direct equipment declarations. Random-stat
+                    selection and equipment formulas are not inferred.
+                  </p>
+                </section>
+              ) : null}
               {item.recoveries.length > 0 ? (
                 <section aria-labelledby="item-recovery-heading">
                   <h3 id="item-recovery-heading" className="relationship-title">
@@ -285,7 +322,7 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized recovery, charge, or trap metadata.
+              No normalized armour, recovery, charge, or trap metadata.
             </p>
           )}
         </section>

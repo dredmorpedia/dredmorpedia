@@ -15,6 +15,7 @@ import {
   type EntityKind,
   type EntityProvenance,
   type Item,
+  type ItemArmourMetadata,
   type ItemArtifactMetadata,
   type ItemTrigger,
   type ItemTriggerKind,
@@ -108,9 +109,6 @@ function childAttribute(
 function itemQualityAttribute(record: XmlRecord): string | undefined {
   if (Object.hasOwn(record, "weapon")) {
     return xmlAttribute(record, "level");
-  }
-  if (Object.hasOwn(record, "armour")) {
-    return childAttribute(record, "armour", "level");
   }
   if (Object.hasOwn(record, "trap")) {
     return childAttribute(record, "trap", "level");
@@ -244,7 +242,7 @@ const monsterSpellTriggerKindRanks = new Map(
   monsterSpellTriggerKinds.map((kind, index) => [kind, index]),
 );
 
-const partiallySupportedItemChildren = new Set(["armour", "effect", "weapon"]);
+const partiallySupportedItemChildren = new Set(["effect", "weapon"]);
 
 function validateItemGemMarkers(
   record: XmlRecord,
@@ -263,6 +261,90 @@ function validateItemGemMarkers(
       true,
     );
   }
+}
+
+function parseItemArmourDeclarations(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemArmourMetadata[] {
+  const rawArmourDeclarations = Object.hasOwn(record, "armour")
+    ? Array.isArray(record.armour)
+      ? record.armour
+      : [record.armour]
+    : [];
+
+  return rawArmourDeclarations.map((rawArmour, armourIndex) => {
+    const armour = isXmlRecord(rawArmour) ? rawArmour : {};
+    if (
+      !isXmlRecord(rawArmour) &&
+      (typeof rawArmour !== "string" || rawArmour.trim() !== "")
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unknown_element",
+        message:
+          "Unsupported text content inside <armour> was preserved only as a diagnostic.",
+        source: context.parsed.locateChildElement(record, "armour"),
+        entityId: currentEntityId,
+        details: { element: "armour" },
+      });
+    }
+
+    reportUnknownLeafContent(
+      context,
+      armour,
+      "armour",
+      new Set(["level", "randoms", "type"]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+
+    const rawSlot = xmlAttribute(armour, "type");
+    const slot = rawSlot?.trim().toLocaleLowerCase("en") || null;
+    if (slot === null) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_item_armour_slot",
+        message: `Armour declaration ${armourIndex + 1} has no type; its equipment slot is unavailable.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    const rawLevel = xmlAttribute(armour, "level");
+    if (rawLevel === undefined || rawLevel === "") {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_item_armour_level",
+        message: `Armour declaration ${armourIndex + 1} has no level; its source level is unavailable.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    }
+
+    return {
+      slot,
+      level: optionalIntegerValue(
+        rawLevel,
+        context,
+        provenance,
+        `item armour declaration ${armourIndex + 1} level`,
+        currentEntityId,
+        0,
+      ),
+      randoms: optionalIntegerValue(
+        xmlAttribute(armour, "randoms"),
+        context,
+        provenance,
+        `item armour declaration ${armourIndex + 1} randoms`,
+        currentEntityId,
+        0,
+      ),
+    };
+  });
 }
 
 function parseItemRecoveries(
@@ -1141,6 +1223,12 @@ function parseItems(
       .filter((stat): stat is NonNullable<typeof stat> => stat !== null)
       .sort((left, right) => left.statKey.localeCompare(right.statKey, "en"));
     const traps = parseItemTraps(record, context, provenance, currentEntityId);
+    const armourDeclarations = parseItemArmourDeclarations(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     validateItemGemMarkers(record, context, provenance, currentEntityId);
 
     const item: Item = {
@@ -1155,21 +1243,24 @@ function parseItems(
       quality:
         traps.length > 0
           ? (traps[0]?.level ?? 0)
-          : integerValue(
-              itemQualityAttribute(record),
-              0,
-              context,
-              provenance,
-              "item quality",
-              currentEntityId,
-              0,
-            ),
+          : armourDeclarations.length > 0
+            ? (armourDeclarations[0]?.level ?? 0)
+            : integerValue(
+                itemQualityAttribute(record),
+                0,
+                context,
+                provenance,
+                "item quality",
+                currentEntityId,
+                0,
+              ),
       artifacts: parseItemArtifacts(
         record,
         context,
         provenance,
         currentEntityId,
       ),
+      armourDeclarations,
       recoveries: parseItemRecoveries(
         record,
         context,
@@ -1203,6 +1294,7 @@ function parseItems(
       record,
       new Set([
         "artifact",
+        "armour",
         "food",
         "gem",
         "mushroom",

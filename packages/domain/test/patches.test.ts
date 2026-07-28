@@ -56,6 +56,7 @@ function item(): Item {
     price: 155,
     quality: 3,
     artifacts: [],
+    armourDeclarations: [],
     recoveries: [],
     chargeRanges: [],
     traps: [],

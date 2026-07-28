@@ -495,6 +495,118 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(2);
   });
 
+  it("normalizes loss-aware armour declarations and diagnoses malformed content", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-armour-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Complete Armour"><armour type="Chest" level="4" randoms="1" /></item>
+  <item name="Missing Armour Fields"><armour /></item>
+  <item name="Invalid Armour Values"><armour type=" ring " level="-1" randoms="half" /></item>
+  <item name="Repeated Armour"><armour type="head" level="2" /><armour type="sleeve" level="3" randoms="0" /></item>
+  <item name="Extended Armour"><armour type="shield" level="3" future="kept"><future /></armour></item>
+  <item name="Text Armour"><armour>unexpected</armour></item>
+</items>`,
+    );
+    const armourManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      armourManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-armour-test",
+        sources: [
+          {
+            id: "armour-source",
+            label: "Armour Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: armourManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const itemByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(itemByName.get("Complete Armour")).toMatchObject({
+      quality: 4,
+      armourDeclarations: [{ slot: "chest", level: 4, randoms: 1 }],
+    });
+    expect(itemByName.get("Missing Armour Fields")).toMatchObject({
+      quality: 0,
+      armourDeclarations: [{ slot: null, level: null, randoms: null }],
+    });
+    expect(itemByName.get("Invalid Armour Values")).toMatchObject({
+      quality: 0,
+      armourDeclarations: [{ slot: "ring", level: null, randoms: null }],
+    });
+    expect(itemByName.get("Repeated Armour")).toMatchObject({
+      quality: 2,
+      armourDeclarations: [
+        { slot: "head", level: 2, randoms: null },
+        { slot: "sleeve", level: 3, randoms: 0 },
+      ],
+    });
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_item_armour_slot",
+          entityId: "item:missing armour fields",
+        }),
+        expect.objectContaining({
+          code: "missing_item_armour_level",
+          entityId: "item:missing armour fields",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:extended armour",
+          details: {
+            element: "armour",
+            attribute: "future",
+            value: "kept",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:extended armour",
+          details: { element: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:text armour",
+          details: { element: "armour" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "invalid_number" &&
+          diagnostic.entityId === "item:invalid armour values",
+      ),
+    ).toHaveLength(2);
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.details?.element === "armour",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes loss-aware item artifact declarations", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-artifacts-"),
@@ -2528,6 +2640,9 @@ describe("synthetic dataset import", () => {
       },
     ]);
     expect(itemByName.get("Training Cuirass")?.quality).toBe(4);
+    expect(itemByName.get("Training Cuirass")?.armourDeclarations).toEqual([
+      { slot: "chest", level: 4, randoms: 1 },
+    ]);
     expect(itemByName.get("Training Trap")?.quality).toBe(5);
     expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
     expect(blade?.category).toBe("weapon:sword");
