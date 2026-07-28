@@ -34,7 +34,8 @@ Current validation and search evidence are recorded in:
 - [`item-armour-declaration-evidence-2026-07-28.md`](item-armour-declaration-evidence-2026-07-28.md),
 - [`item-weapon-declaration-evidence-2026-07-28.md`](item-weapon-declaration-evidence-2026-07-28.md),
 - [`item-macguffin-declaration-evidence-2026-07-28.md`](item-macguffin-declaration-evidence-2026-07-28.md),
-- [`item-toolkit-declaration-evidence-2026-07-28.md`](item-toolkit-declaration-evidence-2026-07-28.md), and
+- [`item-toolkit-declaration-evidence-2026-07-28.md`](item-toolkit-declaration-evidence-2026-07-28.md),
+- [`spell-buff-description-evidence-2026-07-28.md`](spell-buff-description-evidence-2026-07-28.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -42,7 +43,7 @@ Current validation and search evidence are recorded in:
 The following audit concerns are still actionable:
 
 1. **Publication and licensing:** decide whether normalized official data and art may be hosted, establish inherited code/mod/asset licensing and attribution, and then formally accept or revise ADRs 0001 and 0002.
-2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains 2,335 unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 20 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains 2,303 unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 20 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** before publishing multiple game datasets or adding a version switcher, decide how route registries are carried across dataset versions and when they become mandatory for already-published URLs.
 5. **Formula/source decisions:** approve a stat-definition source absent from the canonical build and resolve or intentionally exclude disputed monster Life, Mana, secondary-stat, and damage formulas.

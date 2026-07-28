@@ -83,6 +83,7 @@ function buff(
     stackable: null,
     allowStacking: null,
     stackLimit: null,
+    descriptions: [],
     sourceFlags: [],
     modifiers: [],
     sightModifiers: [],

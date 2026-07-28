@@ -33,6 +33,7 @@ import {
   type Spell,
   type SpellAnimationMetadata,
   type SpellBuff,
+  type SpellBuffDescription,
   type SpellBuffEventHook,
   type SpellBuffSightModifier,
   type SpellImpactMetadata,
@@ -2929,6 +2930,39 @@ function spellBuffSightModifierRecords(buff: XmlRecord): XmlRecord[] {
   });
 }
 
+function parseSpellBuffDescriptions(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffDescription[] {
+  return xmlChildren(buff, "description").map(
+    (description, descriptionIndex) => {
+      reportUnknownLeafContent(
+        context,
+        description,
+        "description",
+        new Set(["text"]),
+        provenance,
+        currentEntityId,
+      );
+      const text = xmlAttribute(description, "text");
+      if (text === undefined) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_spell_buff_description_text",
+          message: `Spell buff ${buffIndex + 1} description ${descriptionIndex + 1} is missing its text.`,
+          source: context.parsed.locateRecord(description),
+          entityId: currentEntityId,
+          details: { buffIndex, descriptionIndex },
+        });
+      }
+      return { text: text ?? null };
+    },
+  );
+}
+
 function parseSpellBuffSightModifiers(
   buff: XmlRecord,
   context: NormalizationContext,
@@ -3048,6 +3082,7 @@ function parseSpellBuffs(
       buff,
       new Set([
         ...modifierElementNames,
+        "description",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3172,6 +3207,13 @@ function parseSpellBuffs(
         currentEntityId,
       ),
       stackLimit: optionalBuffInteger("stacksize", "stack limit"),
+      descriptions: parseSpellBuffDescriptions(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
+      ),
       sourceFlags: spellBuffSourceFlagAttributes
         .flatMap((sourceKey) => {
           const value = xmlAttribute(buff, sourceKey);

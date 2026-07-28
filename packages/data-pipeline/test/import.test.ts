@@ -1987,6 +1987,8 @@ describe("synthetic dataset import", () => {
 <spellDB>
   <spell name="Complete Buff" type="self">
     <buff useTimer="2" time="12" manaUpkeep="3" zorkmidUpkeep="4" brittle="5" attacks="6" removable="1" self="0" resistable="0" bad="1" stackable="1" allowstacking="0" stacksize="7" affectsCorpses="0" tag="measured">
+      <description text="First measured buff description." />
+      <description text="Second measured buff description." />
       <damageBuff crushing="1.5" />
       <resistBuff toxic="-2" />
       <primaryBuff id="2" amount="3" />
@@ -2000,6 +2002,7 @@ describe("synthetic dataset import", () => {
   </spell>
   <spell name="Invalid Buff" type="self">
     <buff useTimer="-1" time="1.5" manaUpkeep="bad" removable="maybe" self="2" resistable="yes" bad="no" stackable="sometimes" allowstacking="perhaps" stacksize="-2" future="diagnosed">
+      <description future="diagnosed"><futureDescriptionChild /></description>
       <damagebuff impossible="2"><futureChild /></damagebuff>
       <primarybuff amount="1" future="diagnosed" />
       <sightbuff amount="bad" future="diagnosed"><futureChild /></sightbuff>
@@ -2054,6 +2057,10 @@ describe("synthetic dataset import", () => {
         stackable: true,
         allowStacking: false,
         stackLimit: 7,
+        descriptions: [
+          { text: "First measured buff description." },
+          { text: "Second measured buff description." },
+        ],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2104,6 +2111,7 @@ describe("synthetic dataset import", () => {
         stackable: null,
         allowStacking: null,
         stackLimit: null,
+        descriptions: [{ text: null }],
         modifiers: [],
         sightModifiers: [{ amount: null }, { amount: null }],
         eventHooks: [
@@ -2130,6 +2138,16 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(6);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: { element: "description", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_description_text",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, descriptionIndex: 0 },
+        }),
         expect.objectContaining({
           code: "unknown_attribute",
           entityId: "spell:invalid buff",
@@ -2172,6 +2190,11 @@ describe("synthetic dataset import", () => {
           code: "dangling_reference",
           entityId: "spell:complete buff",
           details: { targetKind: "spell", reference: "Missing Hook Spell" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "futureDescriptionChild" },
         }),
         expect.objectContaining({
           code: "unknown_element",
@@ -2962,6 +2985,9 @@ describe("synthetic dataset import", () => {
         stackable: true,
         allowStacking: true,
         stackLimit: 3,
+        descriptions: [
+          { text: "A measured clockwork ward surrounds the caster." },
+        ],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [
           { kind: "damage", sourceKey: "crushing", amount: 2 },
@@ -3058,6 +3084,11 @@ describe("synthetic dataset import", () => {
         (document) => document.id === "monster:training diggle",
       )?.text,
     ).toContain("artifact");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "spell:clockwork spark",
+      )?.text,
+    ).toContain("a measured clockwork ward surrounds the caster");
     expect(
       result.search.documents.find(
         (document) => document.id === "template:small cross",

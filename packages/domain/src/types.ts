@@ -372,6 +372,10 @@ export interface SpellBuffSightModifier {
   amount: number | null;
 }
 
+export interface SpellBuffDescription {
+  text: string | null;
+}
+
 export interface SpellBuff {
   iconPath: string | null;
   smallIconPath: string | null;
@@ -388,6 +392,7 @@ export interface SpellBuff {
   stackable: boolean | null;
   allowStacking: boolean | null;
   stackLimit: number | null;
+  descriptions: SpellBuffDescription[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
   sightModifiers: SpellBuffSightModifier[];

@@ -412,6 +412,30 @@ export default async function SpellPage({
                       or trigger behavior.
                     </small>
                   </div>
+                  {buff.descriptions.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-descriptions-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-descriptions-heading`}
+                        className="relationship-title"
+                      >
+                        Buff description
+                      </h3>
+                      {buff.descriptions.map(
+                        (description, descriptionIndex) => (
+                          <p
+                            className="mt-2 text-sm leading-6 text-muted-foreground"
+                            key={descriptionIndex}
+                          >
+                            {description.text ??
+                              "Description text unavailable."}
+                          </p>
+                        ),
+                      )}
+                    </section>
+                  ) : null}
                   <dl className="trigger-facts">
                     {buff.timerMode !== null ? (
                       <div>

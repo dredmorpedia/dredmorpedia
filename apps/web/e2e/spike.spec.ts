@@ -726,6 +726,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(presentation).not.toContainText("clockwork_impact_audio_cue");
 
   const buffs = page.getByRole("region", { name: "Buffs" });
+  await expect(
+    buffs.getByRole("region", { name: "Buff description" }),
+  ).toContainText("A measured clockwork ward surrounds the caster.");
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();

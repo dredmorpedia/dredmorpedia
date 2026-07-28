@@ -4,7 +4,7 @@ Date: 2026-07-22
 
 Scope: legacy behavior, synthetic compatibility fixtures, and read-only aggregate measurement of the canonical official dataset
 
-Status: implemented source-parameter, direct-modifier, hit-event relationship, and sight-modifier slices; other nested buff mechanics remain explicit backlog
+Status: implemented source-parameter, direct-modifier, description, hit-event relationship, and sight-modifier slices; other nested buff mechanics remain explicit backlog
 
 Later note: diagnostic totals in this slice are its historical completion baseline. The subsequent general hardening review exposed previously silent spell-effect attributes and children; current totals are recorded in [`general-project-review-hardening-2026-07-22.md`](general-project-review-hardening-2026-07-22.md).
 
@@ -61,6 +61,8 @@ After the source-parameter slice, two identical canonical imports were byte-iden
 The buff root and the four supported modifier families no longer produce compatibility diagnostics. The later target/player hit event-hook slice normalizes 61 declarations, all resolved, and the subsequent sight slice preserves 18 signed sight-radius source modifiers. Together they reduce the compatibility backlog to 2,413 diagnostics: 1,510 item plus 903 spell diagnostics. Remaining spell work includes animation metadata and nested buff mechanics such as nested effects, halos, invisibility, muting, polymorph, and other engine-specific declarations. Those constructs are not represented as completed behavior. Detailed evidence is recorded in [`spell-buff-event-hook-evidence-2026-07-22.md`](spell-buff-event-hook-evidence-2026-07-22.md) and [`spell-buff-sight-evidence-2026-07-22.md`](spell-buff-sight-evidence-2026-07-22.md).
 
 The web page presents the normalized parameters and signed modifiers, explicitly labels them as source declarations, and does not infer stacking resolution, trigger timing, final combat totals, or undocumented currency behavior. Presentation paths remain in the local generated artifact and are not rendered while the asset-publication boundary is unresolved.
+
+The later description slice preserves 32 measured candidate declarations as ordered buff-local text, leaves 31 active values after source precedence, adds that text to spell search, and removes the complete nested-description diagnostic family. Current counts and verification are recorded in [`spell-buff-description-evidence-2026-07-28.md`](spell-buff-description-evidence-2026-07-28.md).
 
 ## Verification
 

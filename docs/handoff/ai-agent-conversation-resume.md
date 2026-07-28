@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest pushed checkpoint before the current toolkit-declaration work: `3763676` (`Model macguffin declarations`). Always verify with `git log` rather than assuming this remains HEAD.
+- Latest pushed checkpoint before the current buff-description work: `5679a5d` (`Model toolkit declarations`). Always verify with `git log` rather than assuming this remains HEAD.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -90,14 +90,14 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the toolkit-declaration slice, the canonical import reports:
+After the spell buff-description slice, the canonical import reports:
 
-- 0 errors, 2,368 warnings, and 71 informational duplicate decisions;
-- 2,335 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 2,336 warnings, and 71 informational duplicate decisions;
+- 2,303 unsupported/partially-supported constructs, all spell diagnostics;
 - 20 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -117,6 +117,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell buff-description slice preserves all 32 measured candidate declarations as ordered, nullable buff-local text. Source precedence leaves 31 active, non-empty values across 31 spells; malformed or extended declarations remain diagnosed, the text contributes to spell search, and the page displays it inside the matching buff without inferring gameplay semantics. `pnpm.cmd check` passes formatting, lint, type checking, all 110 unit/artifact tests, deterministic generation, and the 43-page synthetic export. All 34 desktop/mobile Playwright tests pass, including description disclosure, responsive layouts, keyboard flows, and representative axe scans. Deterministic official generation passes with 2,336 warnings and 71 informational decisions, and the full local static export produces all 2,857 pages. Evidence is recorded in `docs/analysis/spell-buff-description-evidence-2026-07-28.md`.
 
 The item-toolkit declaration slice preserves all eight measured tags, slot counts, sound cues, safe presentation references, layout rectangles, controls, and close positions in an ordered loss-aware shape. Strict importer and web schemas reject malformed extensions; all 374 recipes and 57 encrustments link through matching toolkit tags; detailed cue/reference/coordinate values remain hidden; and no complete crafting behavior is inferred. `pnpm.cmd check` passes formatting, lint, type checking, all 109 unit/artifact tests, deterministic generation, and the 43-page synthetic export. All 34 desktop/mobile Playwright tests pass, including toolkit disclosure, reciprocal crafting navigation, keyboard focus, responsive layouts, and representative axe scans. `pnpm.cmd build:official` passes deterministic zero-error generation with 2,368 warnings and 71 informational decisions and exports all 2,857 local static pages. Evidence is recorded in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 

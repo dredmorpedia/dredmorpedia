@@ -391,6 +391,13 @@ const spellBuffSchema = z
     stackable: z.boolean().nullable(),
     allowStacking: z.boolean().nullable(),
     stackLimit: nullableNonnegativeInteger,
+    descriptions: z.array(
+      z
+        .object({
+          text: z.string().nullable(),
+        })
+        .strict(),
+    ),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),
     sightModifiers: z.array(z.object({ amount: nullableNumber }).strict()),

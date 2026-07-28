@@ -144,6 +144,29 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/frameCount/);
   });
 
+  it("rejects malformed spell buff descriptions", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { buffs: { descriptions: { text: unknown }[] }[] }[];
+      };
+    };
+    const description = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.descriptions)
+      .at(0);
+    if (!description) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell buff description.",
+      );
+    }
+    description.text = 42;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/descriptions/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

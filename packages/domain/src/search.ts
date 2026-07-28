@@ -102,6 +102,11 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
           ]),
         ]
       : []),
+    ...(entity.kind === "spell"
+      ? entity.buffs.flatMap((buff) =>
+          buff.descriptions.map((description) => description.text ?? ""),
+        )
+      : []),
     ...statText,
   ];
 
