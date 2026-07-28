@@ -168,6 +168,26 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     controlledEffect
+      .getByText("Blasting damage", { exact: true })
+      .locator("..")
+      .getByText("+3 base · 0.25 factor", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Crushing damage", { exact: true })
+      .locator("..")
+      .getByText("Base not declared or unavailable · 0.5 factor", {
+        exact: true,
+      }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
+      .getByText("Secondary scaling source ID", { exact: true })
+      .locator("..")
+      .getByText("6", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
       .getByText("Affects caster", { exact: true })
       .locator("..")
       .getByText("Yes", { exact: true }),
@@ -232,7 +252,7 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("Yes", { exact: true }),
   ).toBeVisible();
   await expect(
-    effects.getByText(/without combining them into targeting eligibility/i),
+    effects.getByText(/without combining them into final damage/i),
   ).toBeVisible();
   await expect(
     effects.getByText("None declared", { exact: true }).first(),
@@ -332,8 +352,18 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByRole("region", { name: "Effect list options" })
       .getByText("No normalized effect list options."),
   ).toBeVisible();
-  const forbiddenConditionEffect = page
-    .getByRole("region", { name: "Effects", exact: true })
+  const echoEffects = page.getByRole("region", {
+    name: "Effects",
+    exact: true,
+  });
+  await expect(
+    echoEffects
+      .getByText("Damage and scaling", { exact: true })
+      .first()
+      .locator("..")
+      .getByText("None declared", { exact: true }),
+  ).toBeVisible();
+  const forbiddenConditionEffect = echoEffects
     .getByRole("listitem")
     .filter({ hasText: "Named buff forbidden" })
     .first();

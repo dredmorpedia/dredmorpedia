@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest parity/dependency checkpoint summarized by hash: `ee45e0a` (`Harden production dependencies`), following `2d56d4a` (`Model spell effect buff conditions`). The subsequent browser-spec extraction is described below; always verify the live HEAD with `git log`.
+- Latest pushed checkpoint: `226b862` (`Split spell browser coverage`). The uncommitted spell-effect damage/scaling slice is described below; always verify the live HEAD and working tree with Git.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -91,14 +91,14 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect damage amounts/factors/scaling selectors, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the spell-effect-buff-condition slice, the canonical import reports:
+After the spell-effect-damage-scaling slice, the canonical import reports:
 
-- 0 errors, 1,265 warnings, and 71 informational duplicate decisions;
-- 1,229 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 275 warnings, and 71 informational duplicate decisions;
+- 239 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -106,7 +106,7 @@ No item compatibility diagnostic remains.
 
 The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The all-entity search slice removed the web-only allow-list that hid 1,969 already-generated official records and made query typing resilient to asynchronous URL updates. The following static-browse slice closed the audit's no-JavaScript discovery gap with 32 bounded canonical catalogue pages plus a directory. A later repository review found no new correctness blocker, but identified concentrated maintenance risk in the spell normalizer/tests, spell detail page, browser spec, and artifact schema. The first bounded extraction is complete: the 355-line spell-detail browser flow now lives in a dedicated spec with every assertion and all 34 desktop/mobile cases preserved. Further extraction should stay behavior-preserving and be selected only when it supports the next parity slice rather than becoming an open-ended cleanup.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one measured spell-mechanic family from the much larger spell backlog and give it an independently evidenced contract rather than blanket-supporting spell content.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.
 
@@ -118,6 +118,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell-effect damage/scaling slice preserves 605 active damage declarations across 433 effects: 586 base amounts, 294 factor coefficients, and 19 factor-only declarations. It also preserves 15 amount factors, two floor factors, 23 primary selectors, and 67 secondary selectors across 106 effects. Strict type-specific normalization and the artifact guard reject malformed shapes, both measured primary-selector casings are supported, and the UI presents these as direct source metadata without inferring final combat, healing, mana, or spawn formulas. `pnpm.cmd check` passes all 123 unit/artifact tests and the 43-page synthetic export; all 34 desktop/mobile Playwright cases pass; and `pnpm.cmd build:official` is byte-identical with 0 errors, 275 warnings, 71 informational decisions, and all 2,857 local static pages. Evidence is recorded in `docs/analysis/spell-effect-damage-scaling-evidence-2026-07-28.md`.
 
 The browser-spec maintenance checkpoint moves the complete spell-detail/cycle flow from the catch-all spike spec into `apps/web/e2e/spells.spec.ts` without changing its assertions. The catch-all spec falls from 1,487 to 1,131 lines, and Playwright still discovers and passes all 34 desktop/mobile cases across two files, including the representative axe sweep. `pnpm.cmd check` passes all 121 unit/artifact tests and the 43-page synthetic export; `pnpm.cmd build:official` remains byte-identical with 0 errors, 1,265 warnings, 71 informational decisions, and all 2,857 local static pages.
 

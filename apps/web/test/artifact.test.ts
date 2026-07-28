@@ -297,6 +297,33 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/conditions/);
   });
 
+  it("rejects malformed spell effect damage metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            damage: { factor: number | null }[];
+          }[];
+        }[];
+      };
+    };
+    const damage = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .flatMap((effect) => effect.damage)
+      .find((entry) => entry.factor !== null);
+    if (!damage) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect damage metadata.",
+      );
+    }
+    damage.factor = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/damage/);
+  });
+
   it("rejects malformed item modifier metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

@@ -2536,10 +2536,18 @@ describe("synthetic dataset import", () => {
         spellName: null,
       },
     };
+    const noScaling = {
+      amountFactor: null,
+      floorFactor: null,
+      primaryStatId: null,
+      secondaryStatId: null,
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
+        damage: [],
+        scaling: noScaling,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -2561,6 +2569,8 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "triggerfromlist",
+        damage: [],
+        scaling: noScaling,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -2726,6 +2736,13 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Complete Controls")?.effects).toEqual([
       {
         type: "damage",
+        damage: [],
+        scaling: {
+          amountFactor: null,
+          floorFactor: null,
+          primaryStatId: null,
+          secondaryStatId: null,
+        },
         controls: {
           chancePercent: 35,
           affectsCaster: true,
@@ -2752,6 +2769,13 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "trigger",
+        damage: [],
+        scaling: {
+          amountFactor: null,
+          floorFactor: null,
+          primaryStatId: null,
+          secondaryStatId: null,
+        },
         controls: {
           chancePercent: 25,
           affectsCaster: false,
@@ -2780,6 +2804,13 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Invalid Controls")?.effects).toEqual([
       {
         type: "damage",
+        damage: [],
+        scaling: {
+          amountFactor: null,
+          floorFactor: null,
+          primaryStatId: null,
+          secondaryStatId: null,
+        },
         controls: {
           chancePercent: null,
           affectsCaster: null,
@@ -2806,6 +2837,13 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "trigger",
+        damage: [],
+        scaling: {
+          amountFactor: null,
+          floorFactor: null,
+          primaryStatId: null,
+          secondaryStatId: null,
+        },
         controls: {
           chancePercent: null,
           affectsCaster: null,
@@ -2875,6 +2913,197 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete controls" &&
           (diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "conflicting_spell_effect_control_aliases"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes direct spell effect damage and scaling metadata loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-damage-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Damage" type="target">
+    <effect type="damage" blasting="3" blastingF="0.25" crushingF="0.5" primaryscale="2" />
+    <effect type="drain" necromantic="4" necromanticF="0.2" secondaryScale="6" />
+    <effect type="heal" amount="5" amountF="0.3" secondaryScale="4" />
+    <effect type="spellpoints" amount="4" amountF="0.2" />
+    <effect type="spawnitematlocation" floorScaleF="1.1" />
+  </spell>
+  <spell name="Invalid Damage" type="target">
+    <effect type="damage" blasting="-1" blastingF="nope" primaryScale="2" primaryscale="3" secondaryScale="4" future="diagnosed" />
+    <effect type="heal" amountF="" primaryScale="-1" />
+    <effect type="spawnitematlocation" floorScaleF="bad" />
+    <effect type="target" blasting="1" amountF="0.2" floorScaleF="1" />
+  </spell>
+</spellDB>`,
+    );
+    const damageManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      damageManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-damage-test",
+        sources: [
+          {
+            id: "spell-effect-damage-source",
+            label: "Spell Effect Damage Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: damageManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    const complete = spells.get("Complete Damage");
+    const invalid = spells.get("Invalid Damage");
+
+    expect(
+      complete?.effects.find((effect) => effect.type === "damage"),
+    ).toMatchObject({
+      damage: [
+        { sourceKey: "blasting", amount: 3, factor: 0.25 },
+        { sourceKey: "crushing", amount: null, factor: 0.5 },
+      ],
+      scaling: {
+        amountFactor: null,
+        floorFactor: null,
+        primaryStatId: 2,
+        secondaryStatId: null,
+      },
+    });
+    expect(
+      complete?.effects.find((effect) => effect.type === "drain"),
+    ).toMatchObject({
+      damage: [{ sourceKey: "necromantic", amount: 4, factor: 0.2 }],
+      scaling: {
+        amountFactor: null,
+        floorFactor: null,
+        primaryStatId: null,
+        secondaryStatId: 6,
+      },
+    });
+    expect(
+      complete?.effects.find((effect) => effect.type === "heal")?.scaling,
+    ).toEqual({
+      amountFactor: 0.3,
+      floorFactor: null,
+      primaryStatId: null,
+      secondaryStatId: 4,
+    });
+    expect(
+      complete?.effects.find((effect) => effect.type === "spellpoints")
+        ?.scaling,
+    ).toEqual({
+      amountFactor: 0.2,
+      floorFactor: null,
+      primaryStatId: null,
+      secondaryStatId: null,
+    });
+    expect(
+      complete?.effects.find((effect) => effect.type === "spawnitematlocation")
+        ?.scaling,
+    ).toEqual({
+      amountFactor: null,
+      floorFactor: 1.1,
+      primaryStatId: null,
+      secondaryStatId: null,
+    });
+    expect(
+      invalid?.effects.find((effect) => effect.type === "damage"),
+    ).toMatchObject({
+      damage: [{ sourceKey: "blasting", amount: null, factor: null }],
+      scaling: {
+        primaryStatId: 2,
+        secondaryStatId: 4,
+      },
+    });
+    expect(
+      invalid?.effects.find((effect) => effect.type === "heal")?.scaling,
+    ).toEqual({
+      amountFactor: null,
+      floorFactor: null,
+      primaryStatId: null,
+      secondaryStatId: null,
+    });
+    expect(
+      invalid?.effects.find((effect) => effect.type === "target"),
+    ).toMatchObject({
+      damage: [],
+      scaling: {
+        amountFactor: null,
+        floorFactor: null,
+        primaryStatId: null,
+        secondaryStatId: null,
+      },
+    });
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid damage" &&
+          diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(5);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "conflicting_spell_effect_scaling_aliases",
+          entityId: "spell:invalid damage",
+        }),
+        expect.objectContaining({
+          code: "conflicting_spell_effect_scaling_selectors",
+          entityId: "spell:invalid damage",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid damage",
+          details: {
+            element: "effect",
+            attribute: "blasting",
+            value: "1",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid damage",
+          details: {
+            element: "effect",
+            attribute: "amountF",
+            value: "0.2",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid damage",
+          details: {
+            element: "effect",
+            attribute: "floorScaleF",
+            value: "1",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete damage" &&
+          (diagnostic.code === "unknown_attribute" ||
+            diagnostic.code === "conflicting_spell_effect_scaling_aliases" ||
+            diagnostic.code === "conflicting_spell_effect_scaling_selectors"),
       ),
     ).toBe(false);
   });

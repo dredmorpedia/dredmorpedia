@@ -14,6 +14,7 @@ export * from "./skill-relationships";
 export * from "./spell-relationships";
 export * from "./template-grid";
 export {
+  damageSourceKeys,
   encrustmentModifierKinds,
   entityKinds,
   itemRecoveryResources,

@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 
 import {
   canonicalKey,
+  damageSourceKeys,
   entityId,
   itemTrapActivationModes,
   itemTriggerKinds,
@@ -1857,24 +1858,7 @@ function parseRecipes(
   }
 }
 
-const statModifierDamageKeys = new Set([
-  "acidic",
-  "aethereal",
-  "asphyxiative",
-  "blasting",
-  "conflagratory",
-  "crushing",
-  "existential",
-  "hyperborean",
-  "necromantic",
-  "piercing",
-  "putrefying",
-  "righteous",
-  "slashing",
-  "toxic",
-  "transmutative",
-  "voltaic",
-]);
+const statModifierDamageKeys = new Set<string>(damageSourceKeys);
 
 const statModifierElementNames = [
   "damagebuff",
@@ -3578,6 +3562,237 @@ const spellEffectConditionAttributes = [
   "requirebuffonnottriggername",
 ] as const;
 
+const spellEffectDamageTypes = new Set(["damage", "drain"]);
+const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
+const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
+const spellEffectScaleSelectorTypes = new Set(["damage", "drain", "heal"]);
+const spellEffectDamageAttributes = damageSourceKeys.flatMap((sourceKey) => [
+  sourceKey,
+  `${sourceKey}F`,
+]);
+const spellEffectScaleSelectorAttributes = [
+  "primaryScale",
+  "primaryscale",
+  "secondaryScale",
+] as const;
+
+function spellEffectScalingAttributes(effectType: string): string[] {
+  return [
+    ...(spellEffectAmountFactorTypes.has(effectType) ? ["amountF"] : []),
+    ...(spellEffectFloorFactorTypes.has(effectType) ? ["floorScaleF"] : []),
+    ...(spellEffectScaleSelectorTypes.has(effectType)
+      ? spellEffectScaleSelectorAttributes
+      : []),
+  ];
+}
+
+function parseSpellEffectNumberAttribute(
+  effect: XmlRecord,
+  attribute: string,
+  effectIndex: number,
+  field: string,
+  numericKind: "number" | "integer",
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): number | null {
+  const value = xmlAttribute(effect, attribute);
+  if (value === undefined) {
+    return null;
+  }
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  if (value.trim() === "") {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "invalid_number",
+      message: `Expected a non-negative ${numericKind === "integer" ? "integer" : "number"} for ${field}; used an unavailable value instead.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { field, value },
+    });
+    return null;
+  }
+  return numericKind === "integer"
+    ? optionalIntegerValue(
+        value,
+        context,
+        effectProvenance,
+        field,
+        currentEntityId,
+        0,
+      )
+    : optionalNumberValue(
+        value,
+        context,
+        effectProvenance,
+        field,
+        currentEntityId,
+        0,
+      );
+}
+
+function parseSpellEffectDamage(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["damage"] {
+  if (!spellEffectDamageTypes.has(effectType)) {
+    return [];
+  }
+
+  return damageSourceKeys.flatMap((sourceKey) => {
+    const amountAttribute = sourceKey;
+    const factorAttribute = `${sourceKey}F`;
+    if (
+      xmlAttribute(effect, amountAttribute) === undefined &&
+      xmlAttribute(effect, factorAttribute) === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        sourceKey,
+        amount: parseSpellEffectNumberAttribute(
+          effect,
+          amountAttribute,
+          effectIndex,
+          `spell effect ${effectIndex + 1} ${sourceKey} damage amount`,
+          "number",
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        factor: parseSpellEffectNumberAttribute(
+          effect,
+          factorAttribute,
+          effectIndex,
+          `spell effect ${effectIndex + 1} ${sourceKey} damage factor`,
+          "number",
+          context,
+          provenance,
+          currentEntityId,
+        ),
+      },
+    ];
+  });
+}
+
+function parseSpellEffectScaling(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["scaling"] {
+  const supportsAmountFactor = spellEffectAmountFactorTypes.has(effectType);
+  const supportsFloorFactor = spellEffectFloorFactorTypes.has(effectType);
+  const supportsScaleSelectors = spellEffectScaleSelectorTypes.has(effectType);
+  const camelPrimaryValue = xmlAttribute(effect, "primaryScale");
+  const lowerPrimaryValue = xmlAttribute(effect, "primaryscale");
+  const secondaryValue = xmlAttribute(effect, "secondaryScale");
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+
+  if (
+    supportsScaleSelectors &&
+    camelPrimaryValue !== undefined &&
+    lowerPrimaryValue !== undefined
+  ) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_effect_scaling_aliases",
+      message: `Spell effect ${effectIndex + 1} supplies both supported primary scaling aliases; the canonical casing was used.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: {
+        effectIndex,
+        canonicalAttribute: "primaryScale",
+        canonicalValue: camelPrimaryValue,
+        aliasAttribute: "primaryscale",
+        aliasValue: lowerPrimaryValue,
+      },
+    });
+  }
+  if (
+    supportsScaleSelectors &&
+    (camelPrimaryValue !== undefined || lowerPrimaryValue !== undefined) &&
+    secondaryValue !== undefined
+  ) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_effect_scaling_selectors",
+      message: `Spell effect ${effectIndex + 1} supplies both primary and secondary scaling selectors; both source values were retained without choosing a formula.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex },
+    });
+  }
+
+  const primaryAttribute =
+    camelPrimaryValue === undefined && lowerPrimaryValue !== undefined
+      ? "primaryscale"
+      : "primaryScale";
+  return {
+    amountFactor: supportsAmountFactor
+      ? parseSpellEffectNumberAttribute(
+          effect,
+          "amountF",
+          effectIndex,
+          `spell effect ${effectIndex + 1} amount factor`,
+          "number",
+          context,
+          provenance,
+          currentEntityId,
+        )
+      : null,
+    floorFactor: supportsFloorFactor
+      ? parseSpellEffectNumberAttribute(
+          effect,
+          "floorScaleF",
+          effectIndex,
+          `spell effect ${effectIndex + 1} floor factor`,
+          "number",
+          context,
+          provenance,
+          currentEntityId,
+        )
+      : null,
+    primaryStatId: supportsScaleSelectors
+      ? parseSpellEffectNumberAttribute(
+          effect,
+          primaryAttribute,
+          effectIndex,
+          `spell effect ${effectIndex + 1} primary scaling source ID`,
+          "integer",
+          context,
+          provenance,
+          currentEntityId,
+        )
+      : null,
+    secondaryStatId: supportsScaleSelectors
+      ? parseSpellEffectNumberAttribute(
+          effect,
+          "secondaryScale",
+          effectIndex,
+          `spell effect ${effectIndex + 1} secondary scaling source ID`,
+          "integer",
+          context,
+          provenance,
+          currentEntityId,
+        )
+      : null,
+  };
+}
+
 function parseSpellEffectControls(
   effect: XmlRecord,
   effectIndex: number,
@@ -3886,6 +4101,10 @@ function parseSpells(
             ...(effectType === "trigger" || effectType === "dot"
               ? spellEffectConditionAttributes
               : []),
+            ...(spellEffectDamageTypes.has(effectType)
+              ? spellEffectDamageAttributes
+              : []),
+            ...spellEffectScalingAttributes(effectType),
           ]),
           provenance,
           currentEntityId,
@@ -3923,6 +4142,22 @@ function parseSpells(
                 ),
               }
             : {}),
+          damage: parseSpellEffectDamage(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
+          scaling: parseSpellEffectScaling(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
           controls: parseSpellEffectControls(
             effect,
             effectIndex,

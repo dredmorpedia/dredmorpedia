@@ -857,8 +857,9 @@ export default async function SpellPage({
             Effects
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Direct source controls and buff conditions are shown without
-            combining them into targeting eligibility, buff-presence evaluation,
+            Direct damage amounts, factor coefficients, scaling selectors,
+            controls, and buff conditions are shown without combining them into
+            final damage, targeting eligibility, buff-presence evaluation,
             trigger timing, resistance, ignition, or runtime probability
             behavior.
           </p>
@@ -894,6 +895,11 @@ export default async function SpellPage({
                   effect.conditions.requiredBuff.spellName !== null ||
                   effect.conditions.forbiddenBuff.enabled !== null ||
                   effect.conditions.forbiddenBuff.spellName !== null;
+                const hasSourceScaling =
+                  effect.scaling.amountFactor !== null ||
+                  effect.scaling.floorFactor !== null ||
+                  effect.scaling.primaryStatId !== null ||
+                  effect.scaling.secondaryStatId !== null;
                 return (
                   <li key={`${effect.type}:${effectIndex}`}>
                     <div className="trigger-summary">
@@ -948,6 +954,54 @@ export default async function SpellPage({
                         <div>
                           <dt>Amount</dt>
                           <dd>{signedValue(effect.amount)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.damage.map((damage) => (
+                        <div key={damage.sourceKey}>
+                          <dt>{titleCase(damage.sourceKey)} damage</dt>
+                          <dd>
+                            {damage.amount === null
+                              ? "Base not declared or unavailable"
+                              : `${signedValue(damage.amount)} base`}
+                            {" · "}
+                            {damage.factor === null
+                              ? "Factor not declared or unavailable"
+                              : `${sourceNumber.format(damage.factor)} factor`}
+                          </dd>
+                        </div>
+                      ))}
+                      {effect.scaling.amountFactor !== null ? (
+                        <div>
+                          <dt>Amount factor</dt>
+                          <dd>
+                            {sourceNumber.format(effect.scaling.amountFactor)}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {effect.scaling.floorFactor !== null ? (
+                        <div>
+                          <dt>Floor factor</dt>
+                          <dd>
+                            {sourceNumber.format(effect.scaling.floorFactor)}
+                          </dd>
+                        </div>
+                      ) : null}
+                      {effect.scaling.primaryStatId !== null ? (
+                        <div>
+                          <dt>Primary scaling source ID</dt>
+                          <dd>{effect.scaling.primaryStatId}</dd>
+                        </div>
+                      ) : null}
+                      {effect.scaling.secondaryStatId !== null ? (
+                        <div>
+                          <dt>Secondary scaling source ID</dt>
+                          <dd>{effect.scaling.secondaryStatId}</dd>
+                        </div>
+                      ) : null}
+                      {effect.damage.length === 0 && !hasSourceScaling ? (
+                        <div>
+                          <dt>Damage and scaling</dt>
+                          <dd>None declared</dd>
                         </div>
                       ) : null}
                       {effect.controls.chancePercent !== null ? (

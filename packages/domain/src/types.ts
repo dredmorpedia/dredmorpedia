@@ -334,9 +334,45 @@ export interface SpellEffect {
   statName?: string;
   statId?: string;
   amount?: number;
+  damage: SpellEffectDamage[];
+  scaling: SpellEffectScaling;
   controls: SpellEffectControls;
   conditions: SpellEffectConditions;
   options: SpellEffectOption[];
+}
+
+export const damageSourceKeys = [
+  "acidic",
+  "aethereal",
+  "asphyxiative",
+  "blasting",
+  "conflagratory",
+  "crushing",
+  "existential",
+  "hyperborean",
+  "necromantic",
+  "piercing",
+  "putrefying",
+  "righteous",
+  "slashing",
+  "toxic",
+  "transmutative",
+  "voltaic",
+] as const;
+
+export type DamageSourceKey = (typeof damageSourceKeys)[number];
+
+export interface SpellEffectDamage {
+  sourceKey: DamageSourceKey;
+  amount: number | null;
+  factor: number | null;
+}
+
+export interface SpellEffectScaling {
+  amountFactor: number | null;
+  floorFactor: number | null;
+  primaryStatId: number | null;
+  secondaryStatId: number | null;
 }
 
 export interface SpellEffectControls {

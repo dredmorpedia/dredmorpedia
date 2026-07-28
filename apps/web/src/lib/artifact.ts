@@ -5,6 +5,7 @@ import { isDeepStrictEqual } from "node:util";
 
 import {
   createSearchDocuments,
+  damageSourceKeys,
   entityKinds,
   isValidTemplateRows,
   itemRecoveryResources,
@@ -449,6 +450,23 @@ const spellEffectSchema = z
     statName: optionalString,
     statId: optionalString,
     amount: z.number().int().optional(),
+    damage: z.array(
+      z
+        .object({
+          sourceKey: z.enum(damageSourceKeys),
+          amount: nullableNonnegativeNumber,
+          factor: nullableNonnegativeNumber,
+        })
+        .strict(),
+    ),
+    scaling: z
+      .object({
+        amountFactor: nullableNonnegativeNumber,
+        floorFactor: nullableNonnegativeNumber,
+        primaryStatId: nullableNonnegativeInteger,
+        secondaryStatId: nullableNonnegativeInteger,
+      })
+      .strict(),
     controls: z
       .object({
         chancePercent: nullablePercentageInteger,

@@ -37,6 +37,13 @@ const noEffectConditions: Spell["effects"][number]["conditions"] = {
   },
 };
 
+const noEffectScaling: Spell["effects"][number]["scaling"] = {
+  amountFactor: null,
+  floorFactor: null,
+  primaryStatId: null,
+  secondaryStatId: null,
+};
+
 function spell(name: string, effects: Spell["effects"] = []): Spell {
   const provenance = {
     sourceId: "synthetic-spells",
@@ -75,6 +82,8 @@ function reference(target: Spell): Spell["effects"][number] {
     spellKey: target.canonicalKey,
     spellName: target.name,
     spellId: target.id,
+    damage: [],
+    scaling: noEffectScaling,
     controls: noEffectControls,
     conditions: noEffectConditions,
     options: [],
@@ -130,6 +139,8 @@ describe("spell effect relationships", () => {
       type: "trigger",
       spellKey: "missing echo",
       spellName: "Missing Echo",
+      damage: [],
+      scaling: noEffectScaling,
       controls: noEffectControls,
       conditions: noEffectConditions,
       options: [],
@@ -208,6 +219,8 @@ describe("spell effect relationships", () => {
       {
         type: "damage",
         amount: 2,
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [],
@@ -266,6 +279,8 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [
       {
         type: "triggerfromlist",
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -281,6 +296,8 @@ describe("spell effect relationships", () => {
     const earlier = spell("Earlier", [
       {
         type: "spawnitemfromlist",
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -302,6 +319,8 @@ describe("spell effect relationships", () => {
       },
       {
         type: "triggerfromlist",
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -348,6 +367,8 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [
       {
         type: "trigger",
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: {
           ...noEffectConditions,
@@ -364,6 +385,8 @@ describe("spell effect relationships", () => {
     const earlier = spell("Earlier", [
       {
         type: "trigger",
+        damage: [],
+        scaling: noEffectScaling,
         controls: noEffectControls,
         conditions: {
           ...noEffectConditions,
