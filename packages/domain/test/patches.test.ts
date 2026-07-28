@@ -57,6 +57,7 @@ function item(): Item {
     quality: 3,
     artifacts: [],
     armourDeclarations: [],
+    weaponDeclarations: [],
     recoveries: [],
     chargeRanges: [],
     traps: [],

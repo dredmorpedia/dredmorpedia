@@ -377,6 +377,22 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
 
 test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   await page.goto("/items/clockwork-blade/");
+  const weaponUse = page.getByRole("region", { name: "Use metadata" });
+  await expect(
+    weaponUse.getByRole("heading", { name: "Weapon declarations" }),
+  ).toBeVisible();
+  await expect(weaponUse.getByText("Can target floor")).toBeVisible();
+  await expect(weaponUse.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(weaponUse.getByText("Thrown presentation source")).toBeVisible();
+  await expect(weaponUse.getByText("Supplied", { exact: true })).toBeVisible();
+  await expect(
+    weaponUse.getByText(/no recoverability or combat formula is inferred/i),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Supported fields from <weapon> were normalized, but other content remains unmodeled.",
+    ),
+  ).toHaveCount(0);
   const weaponTriggers = page.getByRole("region", { name: "Triggers" });
   await expect(weaponTriggers.getByText("When the item hits")).toBeVisible();
   await expect(
@@ -497,7 +513,9 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
   await expect(
     page
       .getByRole("region", { name: "Use metadata" })
-      .getByText("No normalized armour, recovery, charge, or trap metadata."),
+      .getByText(
+        "No normalized weapon, armour, recovery, charge, or trap metadata.",
+      ),
   ).toBeVisible();
 });
 

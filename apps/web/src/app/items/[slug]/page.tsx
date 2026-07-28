@@ -156,11 +156,55 @@ export default async function ItemPage({
           <h2 id="item-use-heading" className="section-title-sm">
             Use metadata
           </h2>
-          {item.armourDeclarations.length > 0 ||
+          {item.weaponDeclarations.length > 0 ||
+          item.armourDeclarations.length > 0 ||
           item.recoveries.length > 0 ||
           item.chargeRanges.length > 0 ||
           item.traps.length > 0 ? (
             <div className="relationship-groups">
+              {item.weaponDeclarations.length > 0 ? (
+                <section aria-labelledby="item-weapon-heading">
+                  <h3 id="item-weapon-heading" className="relationship-title">
+                    Weapon declarations
+                  </h3>
+                  <div className="relationship-groups">
+                    {item.weaponDeclarations.map((weapon, index) => (
+                      <div key={index}>
+                        {item.weaponDeclarations.length > 1 ? (
+                          <p className="supporting-note">
+                            Declaration {index + 1}
+                          </p>
+                        ) : null}
+                        <dl className="stat-list">
+                          <div>
+                            <dt>Can target floor</dt>
+                            <dd>
+                              {weapon.canTargetFloor === null
+                                ? "Not supplied"
+                                : weapon.canTargetFloor
+                                  ? "Yes"
+                                  : "No"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Thrown presentation source</dt>
+                            <dd>
+                              {weapon.thrownPath === null
+                                ? "Not supplied"
+                                : "Supplied"}
+                            </dd>
+                          </div>
+                        </dl>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="supporting-note">
+                    Fixed damage and hit spells appear in their dedicated
+                    sections. Presentation references stay hidden, and no
+                    recoverability or combat formula is inferred.
+                  </p>
+                </section>
+              ) : null}
               {item.armourDeclarations.length > 0 ? (
                 <section aria-labelledby="item-armour-heading">
                   <h3 id="item-armour-heading" className="relationship-title">
@@ -322,7 +366,7 @@ export default async function ItemPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized armour, recovery, charge, or trap metadata.
+              No normalized weapon, armour, recovery, charge, or trap metadata.
             </p>
           )}
         </section>

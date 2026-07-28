@@ -19,6 +19,7 @@ import {
   type ItemArtifactMetadata,
   type ItemTrigger,
   type ItemTriggerKind,
+  type ItemWeaponMetadata,
   type Monster,
   type MonsterDrop,
   type MonsterSpellTrigger,
@@ -242,7 +243,7 @@ const monsterSpellTriggerKindRanks = new Map(
   monsterSpellTriggerKinds.map((kind, index) => [kind, index]),
 );
 
-const partiallySupportedItemChildren = new Set(["effect", "weapon"]);
+const partiallySupportedItemChildren = new Set(["effect"]);
 
 function validateItemGemMarkers(
   record: XmlRecord,
@@ -342,6 +343,74 @@ function parseItemArmourDeclarations(
         `item armour declaration ${armourIndex + 1} randoms`,
         currentEntityId,
         0,
+      ),
+    };
+  });
+}
+
+function parseItemWeaponDeclarations(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): ItemWeaponMetadata[] {
+  const rawWeaponDeclarations = Object.hasOwn(record, "weapon")
+    ? Array.isArray(record.weapon)
+      ? record.weapon
+      : [record.weapon]
+    : [];
+
+  return rawWeaponDeclarations.map((rawWeapon, weaponIndex) => {
+    const weapon = isXmlRecord(rawWeapon) ? rawWeapon : {};
+    if (
+      !isXmlRecord(rawWeapon) &&
+      (typeof rawWeapon !== "string" || rawWeapon.trim() !== "")
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "unknown_element",
+        message:
+          "Unsupported text content inside <weapon> was preserved only as a diagnostic.",
+        source: context.parsed.locateChildElement(record, "weapon"),
+        entityId: currentEntityId,
+        details: { element: "weapon" },
+      });
+    }
+
+    reportUnknownLeafContent(
+      context,
+      weapon,
+      "weapon",
+      new Set([
+        ...statModifierDamageKeys,
+        "canTargetFloor",
+        "cantargetfloor",
+        "hit",
+        "thrown",
+      ]),
+      provenance,
+      currentEntityId,
+      true,
+    );
+
+    const floorTargetAttribute = Object.hasOwn(weapon, "@canTargetFloor")
+      ? "canTargetFloor"
+      : "cantargetfloor";
+
+    return {
+      canTargetFloor: optionalBooleanAttribute(
+        weapon,
+        floorTargetAttribute,
+        context,
+        provenance,
+        `item weapon declaration ${weaponIndex + 1} floor-target flag`,
+        currentEntityId,
+      ),
+      thrownPath: normalizeAssetReference(
+        xmlAttribute(weapon, "thrown"),
+        context,
+        provenance,
+        currentEntityId,
       ),
     };
   });
@@ -1229,6 +1298,12 @@ function parseItems(
       provenance,
       currentEntityId,
     );
+    const weaponDeclarations = parseItemWeaponDeclarations(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     validateItemGemMarkers(record, context, provenance, currentEntityId);
 
     const item: Item = {
@@ -1261,6 +1336,7 @@ function parseItems(
         currentEntityId,
       ),
       armourDeclarations,
+      weaponDeclarations,
       recoveries: parseItemRecoveries(
         record,
         context,
@@ -1301,6 +1377,7 @@ function parseItems(
         "potion",
         "trap",
         "wand",
+        "weapon",
         ...(Object.hasOwn(record, "mushroom") ? ["casts"] : []),
         "description",
         "price",

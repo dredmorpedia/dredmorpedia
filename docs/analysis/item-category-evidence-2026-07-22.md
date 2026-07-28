@@ -1,5 +1,7 @@
 # Item category evidence
 
+> 2026-07-28 update: the later gem, armour, and [`weapon`](item-weapon-declaration-evidence-2026-07-28.md) slices complete those measured leaves. The category contract itself remains unchanged and still does not imply support for unrelated source content.
+
 Date: 2026-07-22
 
 ## Scope

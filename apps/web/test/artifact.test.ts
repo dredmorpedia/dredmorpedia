@@ -77,7 +77,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(11);
     expect(loadSearchArtifact().documents).toHaveLength(23);
-    expect(loadDiagnostics()).toHaveLength(23);
+    expect(loadDiagnostics()).toHaveLength(21);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -206,6 +206,28 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/armourDeclarations/);
+  });
+
+  it("rejects malformed item weapon metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { weaponDeclarations: { thrownPath: string | null }[] }[];
+      };
+    };
+    const weapon = typedArtifact.entities.items
+      .flatMap((item) => item.weaponDeclarations)
+      .at(0);
+    if (!weapon) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item weapon metadata.",
+      );
+    }
+    weapon.thrownPath = "";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/weaponDeclarations/);
   });
 
   it("rejects malformed item recovery metadata", async () => {

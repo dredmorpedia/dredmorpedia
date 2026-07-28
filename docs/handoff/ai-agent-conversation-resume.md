@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest pushed checkpoint before the current armour-declaration work: `6ac614c` (`Support strict gem classification`). Always verify with `git log` rather than assuming this remains HEAD.
+- Latest pushed checkpoint before the current weapon-declaration work: `5fdc3c6` (`Model armour declarations`). Always verify with `git log` rather than assuming this remains HEAD.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -83,30 +83,30 @@ Important completed item slices include:
 - food/booze recovery, wand charges, and potion/mushroom trigger leaves;
 - trap activation, level, caster-targeting, safe placement-source metadata, and stepped-on spell links;
 - strict empty gem classification markers; and
-- loss-aware armour slot, level, and optional `randoms` declarations.
+- loss-aware armour slot, level, and optional `randoms` declarations; and
+- complete weapon leaves across category, quality, fixed damage, hit triggers, floor targeting, and safe hidden thrown-presentation references.
 
-The latest canonical armour slice covers all 268 active declarations, removes their former compatibility diagnostics, and deliberately does not infer random-stat selection or equipment formulas. Evidence is in `docs/analysis/item-armour-declaration-evidence-2026-07-28.md`.
+The latest canonical weapon slice covers all 257 active declarations, removes their former compatibility diagnostics, and deliberately does not infer recoverability or combat formulas. Evidence is in `docs/analysis/item-weapon-declaration-evidence-2026-07-28.md`.
 
 Other completed areas include spell mana/buff/presentation/effect relationships, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the armour-declaration slice, the canonical import reports:
+After the weapon-declaration slice, the canonical import reports:
 
-- 0 errors, 2,634 warnings, and 71 informational duplicate decisions;
-- 2,602 unsupported/partially-supported item/spell constructs: 267 item and 2,335 spell diagnostics;
+- 0 errors, 2,377 warnings, and 71 informational duplicate decisions;
+- 2,345 unsupported/partially-supported item/spell constructs: 10 item and 2,335 spell diagnostics;
 - 19 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
 Remaining item element diagnostics are:
 
-- 257 `weapon`;
 - 8 `toolkit`; and
 - 2 `macguffin`.
 
 The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The all-entity search slice removed the web-only allow-list that hid 1,969 already-generated official records and made query typing resilient to asynchronous URL updates. The following static-browse slice closed the audit's no-JavaScript discovery gap with 32 bounded canonical catalogue pages plus a directory. The next implementation task should return to the measured parity backlog after remeasurement.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. The former gem and armour families are complete. Toolkit declarations carry extensive interface/crafting metadata and macguffins carry spell/consumable semantics, so either needs its own evidenced contract despite its low diagnostic count. Weapon work is larger and should be split by independently evidenced semantics rather than blanket-marking the root element supported.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Gem, armour, and weapon families are complete. Toolkit declarations carry extensive interface/crafting metadata and macguffins carry spell/consumable semantics, so either needs its own evidenced contract despite its low diagnostic count. The much larger spell backlog should be split into independently evidenced mechanics rather than blanket-supported.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.
 
@@ -118,6 +118,8 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The item-weapon declaration slice completes all measured weapon leaves across the existing semantic category, root quality, fixed modifiers, and hit-trigger relationships plus ordered loss-aware floor-target/presentation metadata. Strict importer and web schemas reject malformed extensions, the item page hides raw presentation references, and no recoverability or combat formula is inferred. `pnpm.cmd check` passes formatting, lint, type checking, all 103 unit/artifact tests, deterministic generation, and the 41-page synthetic export. All 30 desktop/mobile Playwright tests pass, including weapon disclosure, responsive layouts, keyboard flows, and representative axe scans. `pnpm.cmd build:official` passes deterministic zero-error generation with 2,377 warnings and 71 informational decisions and exports all 2,857 local static pages. Evidence is recorded in `docs/analysis/item-weapon-declaration-evidence-2026-07-28.md`.
 
 The item-armour declaration slice preserves all canonical slot, level, and optional `randoms` values in an ordered loss-aware shape, renders the direct values with an explicit no-formula boundary, and rejects malformed or extended source/artifact shapes. `pnpm.cmd check` passes formatting, lint, type checking, all 101 unit/artifact tests, deterministic generation, and the 41-page synthetic export. All 30 desktop/mobile Playwright tests pass, including armour disclosure, the related empty state, responsive layouts, and the representative axe sweep. `pnpm.cmd build:official` passes deterministic zero-error generation with 2,634 warnings and 71 informational decisions, removes exactly the 268 intended armour diagnostics, and exports all 2,857 local static pages. Evidence is recorded in `docs/analysis/item-armour-declaration-evidence-2026-07-28.md`.
 

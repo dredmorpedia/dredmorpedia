@@ -164,6 +164,14 @@ const itemSchema = z
         })
         .strict(),
     ),
+    weaponDeclarations: z.array(
+      z
+        .object({
+          canTargetFloor: z.boolean().nullable(),
+          thrownPath: z.string().min(1).nullable(),
+        })
+        .strict(),
+    ),
     recoveries: z.array(
       z
         .object({

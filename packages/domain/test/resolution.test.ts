@@ -38,6 +38,7 @@ function candidate(
       quality: 2,
       artifacts: [],
       armourDeclarations: [],
+      weaponDeclarations: [],
       recoveries: [],
       chargeRanges: [],
       traps: [],

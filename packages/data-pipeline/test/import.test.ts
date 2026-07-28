@@ -607,6 +607,132 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
+  it("normalizes loss-aware weapon declarations and diagnoses malformed content", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-item-weapons-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Complete Weapon"><weapon slashing="2" thrown="assets/projectile.spr" canTargetFloor="1" /></item>
+  <item name="Empty Weapon"><weapon /></item>
+  <item name="Lowercase Weapon"><weapon cantargetfloor="true" /></item>
+  <item name="False Weapon"><weapon canTargetFloor="0" /></item>
+  <item name="Invalid Weapon"><weapon canTargetFloor="sometimes" /></item>
+  <item name="Unsafe Weapon"><weapon thrown="../outside.spr" /></item>
+  <item name="Repeated Weapon"><weapon /><weapon thrown="second.spr" /></item>
+  <item name="Extended Weapon"><weapon crushingF="0.5" primaryScale="0" future="kept"><future /></weapon></item>
+  <item name="Text Weapon"><weapon>unexpected</weapon></item>
+</items>`,
+    );
+    const weaponManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      weaponManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "item-weapon-test",
+        sources: [
+          {
+            id: "weapon-source",
+            label: "Weapon Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: weaponManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const itemByName = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(itemByName.get("Complete Weapon")).toMatchObject({
+      weaponDeclarations: [
+        {
+          canTargetFloor: true,
+          thrownPath: "assets/projectile.spr",
+        },
+      ],
+      modifiers: [{ kind: "damage", sourceKey: "slashing", amount: 2 }],
+    });
+    expect(itemByName.get("Empty Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: null, thrownPath: null },
+    ]);
+    expect(itemByName.get("Lowercase Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: true, thrownPath: null },
+    ]);
+    expect(itemByName.get("False Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: false, thrownPath: null },
+    ]);
+    expect(itemByName.get("Invalid Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: null, thrownPath: null },
+    ]);
+    expect(itemByName.get("Unsafe Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: null, thrownPath: null },
+    ]);
+    expect(itemByName.get("Repeated Weapon")?.weaponDeclarations).toEqual([
+      { canTargetFloor: null, thrownPath: null },
+      { canTargetFloor: null, thrownPath: "second.spr" },
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "item:invalid weapon",
+        }),
+        expect.objectContaining({
+          code: "unsafe_asset_path",
+          entityId: "item:unsafe weapon",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:extended weapon",
+          details: {
+            element: "weapon",
+            attribute: "crushingF",
+            value: "0.5",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "item:extended weapon",
+          details: {
+            element: "weapon",
+            attribute: "primaryScale",
+            value: "0",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:extended weapon",
+          details: { element: "future" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "item:text weapon",
+          details: { element: "weapon" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.details?.element === "weapon",
+      ),
+    ).toBe(false);
+  });
+
   it("normalizes loss-aware item artifact declarations", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-item-artifacts-"),
@@ -1798,9 +1924,15 @@ describe("synthetic dataset import", () => {
         "invalid_number",
         "unknown_item_modifier",
         "missing_item_modifier_key",
-        "partially_supported_element",
       ]),
     );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.details?.element === "weapon",
+      ),
+    ).toBe(false);
     expect(
       result.diagnostics.some(
         (diagnostic) =>
@@ -2625,6 +2757,9 @@ describe("synthetic dataset import", () => {
     ]);
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("quality");
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("triggers");
+    expect(blade?.appliedOverrides[0]?.changedFields).toContain(
+      "weaponDeclarations",
+    );
     expect(blade?.triggers).toEqual([
       {
         kind: "item-hit",
@@ -2647,6 +2782,12 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Clarity Tonic")?.quality).toBe(0);
     expect(blade?.category).toBe("weapon:sword");
     expect(blade?.artifacts).toEqual([{ quality: 8 }]);
+    expect(blade?.weaponDeclarations).toEqual([
+      {
+        canTargetFloor: true,
+        thrownPath: "assets/clockwork-blade.svg",
+      },
+    ]);
     expect(itemByName.get("Brass Ingot")?.category).toBe("material");
     expect(itemByName.get("Clarity Tonic")?.category).toBe("potion");
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
@@ -3186,6 +3327,14 @@ describe("synthetic dataset import", () => {
           diagnostic.code === "partially_supported_element" &&
           diagnostic.entityId === "item:training trap" &&
           diagnostic.details?.element === "trap",
+      ),
+    ).toBeUndefined();
+    expect(
+      result.diagnostics.find(
+        (diagnostic) =>
+          diagnostic.code === "partially_supported_element" &&
+          diagnostic.entityId === "item:clockwork blade" &&
+          diagnostic.details?.element === "weapon",
       ),
     ).toBeUndefined();
     expect(result.diagnostics).toContainEqual(

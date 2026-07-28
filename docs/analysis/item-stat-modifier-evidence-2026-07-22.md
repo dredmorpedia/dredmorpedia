@@ -1,5 +1,7 @@
 # Item stat modifier evidence
 
+> 2026-07-28 update: [`item-weapon-declaration-evidence-2026-07-28.md`](item-weapon-declaration-evidence-2026-07-28.md) completes the measured weapon leaf and supersedes this document's broader partially-supported-weapon status. Damage-factor/scaling extensions remain explicitly diagnosed.
+
 Date: 2026-07-22
 Status: implemented and verified against the ignored canonical dataset
 

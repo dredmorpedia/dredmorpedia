@@ -80,6 +80,11 @@ export interface ItemArmourMetadata {
   randoms: number | null;
 }
 
+export interface ItemWeaponMetadata {
+  canTargetFloor: boolean | null;
+  thrownPath: string | null;
+}
+
 export const itemRecoveryResources = ["life", "mana"] as const;
 
 export type ItemRecoveryResource = (typeof itemRecoveryResources)[number];
@@ -156,6 +161,7 @@ export interface Item extends NormalizedEntityBase {
   quality: number;
   artifacts: ItemArtifactMetadata[];
   armourDeclarations: ItemArmourMetadata[];
+  weaponDeclarations: ItemWeaponMetadata[];
   recoveries: ItemRecovery[];
   chargeRanges: ItemChargeRange[];
   traps: ItemTrapMetadata[];
