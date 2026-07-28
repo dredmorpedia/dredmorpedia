@@ -20,6 +20,8 @@ Output-critical ordering is now independent of ICU/CLDR: every domain and pipeli
 
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
+The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
+
 ## Priority findings
 
 ### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
@@ -64,7 +66,7 @@ No exploitable defect found. Defenses actively tried and confirmed sound:
 Hardening opportunities (none currently exploitable):
 
 - The Zod boundary types `slug`, `slugAliases`, `url`, and `iconPath` as bare `z.string()`. A charset regex (`/^[a-z0-9-]+$/` on slugs, a `/^\/[a-z]+\/[a-z0-9-]+$/` shape on `url`) would make the boundary self-defending instead of relying on upstream invariants.
-- `normalizeAssetPath` (`packages/data-pipeline/src/normalizers.ts:919-968`) performs its `..`/absolute rejection only inside the `for (const assetRoot of context.assetRoots)` loop; an empty `assetRoots` would skip validation and return the path unvalidated. Not reachable today (the caller always supplies at least one root, and the result is rendered as text), but `normalizeAssetReference` validates unconditionally and this should match it.
+- **Resolved 2026-07-29:** `normalizeAssetPath` previously performed its `..`/absolute rejection only inside the asset-root loop, so an empty `assetRoots` list would skip validation. It now validates unconditionally before root probing, with a focused empty-root parser regression.
 - An absolute `source.root` (`manifest.ts`) is accepted without a containment check, by design, to allow external game-install directories. This is safe only because the manifest is trusted operator configuration; a one-line comment noting the manifest as a trust anchor would document the assumption.
 
 ## Web application
@@ -124,5 +126,6 @@ Independent of the blocked owner decisions and safe to implement as small vertic
 3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
 4. **Completed 2026-07-28:** use code-unit comparison for every output-critical domain and pipeline order (finding 2).
 5. **Comparator portion completed 2026-07-29:** complete the non-total comparators and add reversed-input regressions (finding 4). Zod charset regexes at the web boundary remain optional hardening.
+6. **Completed 2026-07-29:** validate normalized asset paths before root probing and cover the empty-root caller edge.
 
 Blocked on owner decisions (restated for continuity, tracked in `docs/handoff/new-pc-and-codex.md` and `PROJECT.md`): publication rights for normalized official data and art; the inherited-code/mod/asset license policy; an approved source for stat definitions absent from the canonical build; and the treatment of disputed monster Life/Mana/secondary/damage formulas. Do not resolve these by assumption.

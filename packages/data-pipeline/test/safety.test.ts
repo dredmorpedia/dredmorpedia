@@ -22,6 +22,7 @@ import {
   resolveWithin,
   writeOutputs,
 } from "../src/index";
+import { parseDatabase } from "../src/normalizers";
 
 function captureZodIssues(action: () => unknown): ZodError["issues"] {
   try {
@@ -153,6 +154,49 @@ describe("input safety", () => {
     expect(() =>
       resolveWithin(path.resolve("fixtures/synthetic"), "../legacy.xml"),
     ).toThrow(/Unsafe relative path/);
+  });
+
+  it("rejects unsafe normalized asset paths without lookup roots", () => {
+    const file = "fixtures/empty-roots/itemDB.xml";
+    const parsed = parseXml({
+      xml: '<items><item name="Unsafe Asset" iconFile="../outside.svg" /></items>',
+      sourceId: "empty-roots",
+      file,
+    });
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      throw new Error("Expected the asset-path fixture to parse.");
+    }
+
+    const diagnostics: Parameters<typeof parseDatabase>[1]["diagnostics"] = [];
+    const candidates = parseDatabase("items", {
+      source: {
+        id: "empty-roots",
+        label: "Empty asset roots",
+        kind: "fixture",
+        version: "1.0.0",
+        precedence: 0,
+        root: "fixtures/empty-roots",
+        files: [{ kind: "items", path: "itemDB.xml" }],
+      },
+      assetRoots: [],
+      file,
+      parsed: parsed.value,
+      diagnostics,
+      registerInput: () => {
+        throw new Error("Unsafe paths must be rejected before registration.");
+      },
+    });
+
+    expect(candidates.items[0]?.entity.iconPath).toBeNull();
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        code: "unsafe_asset_path",
+        entityId: "item:unsafe asset",
+        details: { assetPath: "../outside.svg" },
+      }),
+    ]);
   });
 
   it("rejects XML document type declarations", () => {

@@ -77,6 +77,8 @@ Progress through 2026-07-28: dataset schema 3, search schema 1, output-manifest 
 
 Determinism hardening through 2026-07-29 also makes diagnostic, equal-precedence source-resolution, and encrustment-instability comparators self-contained rather than relying on stable-sort traversal order. Reversed-input regressions cover severity/details, source columns, and the final entity-record fallback.
 
+Trust-boundary hardening through 2026-07-29 validates normalized asset values before root probing. A focused parser regression proves traversal is rejected even if a future caller supplies no asset lookup roots.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

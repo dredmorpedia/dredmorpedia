@@ -1469,6 +1469,7 @@ function normalizeAssetPath(
 
   const normalized = value.replaceAll("\\", "/").replace(/^\.\//, "");
   try {
+    assertSafeRelativePath(normalized);
     for (const assetRoot of context.assetRoots) {
       const absolutePath = resolveExistingWithin(
         assetRoot.absolutePath,
