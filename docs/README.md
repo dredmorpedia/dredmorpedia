@@ -4,6 +4,8 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/spell-effect-bleed-evidence-2026-07-29.md`](analysis/spell-effect-bleed-evidence-2026-07-29.md) — direct bleed flags, preserved-app presentation parity, canonical counts, and explicit runtime boundaries.
+
 - [`../PROJECT.md`](../PROJECT.md) — product mission, audiences, principles, constraints, and open decisions.
 - [`analysis/repository-audit-2026-07-19.md`](analysis/repository-audit-2026-07-19.md) — dated evidence about the legacy repository and runtime.
 - [`analysis/architecture-spike-2026-07-19.md`](analysis/architecture-spike-2026-07-19.md) — implemented synthetic-spike evidence, measurements, checks, and remaining validation gates.

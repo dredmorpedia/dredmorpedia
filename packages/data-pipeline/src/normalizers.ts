@@ -3551,6 +3551,7 @@ const spellEffectControlAttributes = [
   "resistable",
   "taxa",
   "burn",
+  "bleed",
 ] as const;
 
 const spellEffectConditionAttributes = [
@@ -3922,6 +3923,7 @@ function parseSpellEffectControls(
     ),
     resistable: optionalControlFlag("resistable", "resistable flag"),
     burnsTarget: optionalControlFlag("burn", "burn flag"),
+    bleedsTarget: optionalControlFlag("bleed", "bleed flag"),
     taxonomy,
   };
 }

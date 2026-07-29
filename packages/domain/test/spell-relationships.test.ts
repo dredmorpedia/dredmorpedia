@@ -22,6 +22,7 @@ const noEffectControls: Spell["effects"][number]["controls"] = {
   affectsCorpses: null,
   resistable: null,
   burnsTarget: null,
+  bleedsTarget: null,
   taxonomy: null,
 };
 

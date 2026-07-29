@@ -384,6 +384,7 @@ export interface SpellEffectControls {
   affectsCorpses: boolean | null;
   resistable: boolean | null;
   burnsTarget: boolean | null;
+  bleedsTarget: boolean | null;
   taxonomy: string | null;
 }
 

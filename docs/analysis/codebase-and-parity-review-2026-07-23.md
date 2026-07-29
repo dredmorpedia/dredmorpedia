@@ -33,6 +33,14 @@ trigger timing. This reduces the measured spell compatibility backlog from 170
 to 154 constructs. Evidence is recorded in
 [`spell-effect-after-flag-evidence-2026-07-29.md`](spell-effect-after-flag-evidence-2026-07-29.md).
 
+The subsequent bleed slice preserves all 12 active direct `bleed` declarations
+as loss-aware booleans and applies the preserved application's "Starts
+bleeding" label to the nine standalone bleed effects. It does not infer damage,
+duration, stacking, resistance, or target-selection behavior. This reduces the
+measured spell compatibility backlog from 154 to 142 constructs. Evidence is
+recorded in
+[`spell-effect-bleed-evidence-2026-07-29.md`](spell-effect-bleed-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

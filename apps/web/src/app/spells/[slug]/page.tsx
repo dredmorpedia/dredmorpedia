@@ -32,6 +32,9 @@ function effectTypeLabel(value: string): string {
   if (value === "triggerfromlist") {
     return "Trigger from list";
   }
+  if (value === "bleed") {
+    return "Starts bleeding";
+  }
   return titleCase(value);
 }
 
@@ -876,6 +879,7 @@ export default async function SpellPage({
                   effect.controls.affectsCorpses !== null ||
                   effect.controls.resistable !== null ||
                   effect.controls.burnsTarget !== null ||
+                  effect.controls.bleedsTarget !== null ||
                   effect.controls.taxonomy !== null;
                 const requiredBuff = effect.conditions.requiredBuff.spellId
                   ? spellsById.get(effect.conditions.requiredBuff.spellId)
@@ -1049,6 +1053,12 @@ export default async function SpellPage({
                         <div>
                           <dt>Burn flag</dt>
                           <dd>{yesNo(effect.controls.burnsTarget)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.bleedsTarget !== null ? (
+                        <div>
+                          <dt>Starts bleeding</dt>
+                          <dd>{yesNo(effect.controls.bleedsTarget)}</dd>
                         </div>
                       ) : null}
                       {effect.controls.taxonomy !== null ? (

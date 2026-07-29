@@ -174,6 +174,15 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     controlledEffect
+      .getByText("Starts bleeding", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    effects.getByRole("listitem").filter({ hasText: "Starts bleeding effect" }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
       .getByText("Blasting damage", { exact: true })
       .locator("..")
       .getByText("+3 base · 0.25 factor", { exact: true }),
