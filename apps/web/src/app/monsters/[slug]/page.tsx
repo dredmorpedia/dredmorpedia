@@ -6,6 +6,7 @@ import {
   calculateMonsterPrimaryAttributes,
   entityRouteSlugs,
   matchesEntityRoute,
+  spellEffectMonsterTargetBacklinks,
   type MonsterSpellTriggerKind,
 } from "@dredmorpedia/domain";
 
@@ -131,6 +132,10 @@ export default async function MonsterPage({
   );
   const diagnostics = loadDiagnostics().filter((entry) =>
     monster.diagnosticIds.includes(entry.id),
+  );
+  const summonBacklinks = spellEffectMonsterTargetBacklinks(
+    artifact.entities.spells,
+    monster.id,
   );
   const isAlias = slug !== monster.slug;
   const encounterGroup = monster.special
@@ -666,6 +671,40 @@ export default async function MonsterPage({
             Drops are direct declarations for this monster and do not inherit
             from its parent. Type-driven drops remain visible without
             fabricating an item link.
+          </p>
+        </section>
+
+        <section className="detail-card" aria-labelledby="summoned-by-heading">
+          <h2 id="summoned-by-heading" className="section-title-sm">
+            Summoned by spells
+          </h2>
+          {summonBacklinks.length > 0 ? (
+            <ul className="relation-list">
+              {summonBacklinks.map(({ spell, effect, effectIndex }) => (
+                <li key={`${spell.id}:${effectIndex}`}>
+                  <Link
+                    className="entity-link font-semibold"
+                    href={`/spells/${spell.slug}`}
+                  >
+                    {spell.name}
+                  </Link>
+                  <span>
+                    {titleCase(effect.type)} effect · Source amount:{" "}
+                    {effect.amount ?? "not declared"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized spell directly names this monster as a summon
+              target.
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These are direct source relationships. They do not establish
+            availability, allegiance, placement, lifetime, AI state, or runtime
+            spawning behavior.
           </p>
         </section>
 

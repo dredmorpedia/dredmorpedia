@@ -361,6 +361,35 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/itemTarget/);
   });
 
+  it("rejects malformed summon monster-target metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            monsterTarget: {
+              monsterKey: string | null;
+              monsterName: string | null;
+            };
+          }[];
+        }[];
+      };
+    };
+    const targetedEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.monsterTarget.monsterKey !== null);
+    if (!targetedEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no summon monster target.",
+      );
+    }
+    targetedEffect.monsterTarget.monsterName = null;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/monsterTarget/);
+  });
+
   it("rejects malformed spell effect control metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

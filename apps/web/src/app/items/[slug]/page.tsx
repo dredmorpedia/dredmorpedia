@@ -894,7 +894,7 @@ export default async function ItemPage({
                         {spell.name}
                       </Link>
                       <span>
-                        {effectTypeLabel(effect.type)} effect Â· Source amount:{" "}
+                        {effectTypeLabel(effect.type)} effect · Source amount:{" "}
                         {effect.amount ?? "not declared"}
                       </span>
                     </li>

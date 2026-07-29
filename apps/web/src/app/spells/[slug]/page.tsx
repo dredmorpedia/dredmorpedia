@@ -134,6 +134,9 @@ export default async function SpellPage({
   const itemsById = new Map(
     artifact.entities.items.map((entry) => [entry.id, entry]),
   );
+  const monstersById = new Map(
+    artifact.entities.monsters.map((entry) => [entry.id, entry]),
+  );
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
@@ -856,12 +859,13 @@ export default async function SpellPage({
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
             Direct damage amounts, factor coefficients, scaling selectors, item
-            targets, effect presentation, controls, and buff conditions are
-            shown without combining them into final damage, targeting
-            eligibility, buff-presence evaluation, trigger timing, resistance,
-            ignition, animation sequencing, random-item selection, inventory
-            placement, or runtime probability behavior. Detailed effect sprite
-            paths and sound cue IDs remain hidden.
+            and summon-monster targets, effect presentation, controls, and buff
+            conditions are shown without combining them into final damage,
+            targeting eligibility, buff-presence evaluation, trigger timing,
+            resistance, ignition, animation sequencing, random-item selection,
+            inventory placement, summon allegiance, placement, lifetime, AI
+            state, or runtime probability behavior. Detailed effect sprite paths
+            and sound cue IDs remain hidden.
           </p>
           {spell.effects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -875,9 +879,13 @@ export default async function SpellPage({
                 const targetItem = effect.itemTarget.itemId
                   ? itemsById.get(effect.itemTarget.itemId)
                   : undefined;
+                const targetMonster = effect.monsterTarget.monsterId
+                  ? monstersById.get(effect.monsterTarget.monsterId)
+                  : undefined;
                 const unresolved =
                   (effect.spellKey && !targetSpell) ||
-                  (effect.statKey && !targetStat);
+                  (effect.statKey && !targetStat) ||
+                  (effect.monsterTarget.monsterKey && !targetMonster);
                 const hasSourceControls =
                   effect.controls.durationTurns !== null ||
                   effect.controls.after !== null ||
@@ -940,6 +948,15 @@ export default async function SpellPage({
                         </Link>
                       ) : effect.itemTarget.itemName !== null ? (
                         <strong>{effect.itemTarget.itemName}</strong>
+                      ) : targetMonster ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/monsters/${targetMonster.slug}`}
+                        >
+                          {targetMonster.name}
+                        </Link>
+                      ) : effect.monsterTarget.monsterName !== null ? (
+                        <strong>{effect.monsterTarget.monsterName}</strong>
                       ) : (
                         <strong>{effectTypeLabel(effect.type)}</strong>
                       )}
@@ -962,7 +979,12 @@ export default async function SpellPage({
                                   ? "Resolved item target"
                                   : effect.itemTarget.itemName !== null
                                     ? "Source item target (no normalized item entity)"
-                                    : "No entity target"}
+                                    : targetMonster
+                                      ? "Resolved summon monster target"
+                                      : effect.monsterTarget.monsterName !==
+                                          null
+                                        ? "Unresolved summon monster target"
+                                        : "No entity target"}
                       </small>
                     </div>
                     <dl className="trigger-facts">

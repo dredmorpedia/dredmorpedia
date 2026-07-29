@@ -335,6 +335,7 @@ export interface SpellEffect {
   statId?: string;
   amount?: number;
   itemTarget: SpellEffectItemTarget;
+  monsterTarget: SpellEffectMonsterTarget;
   damage: SpellEffectDamage[];
   scaling: SpellEffectScaling;
   presentation: SpellEffectPresentationMetadata | null;
@@ -347,6 +348,12 @@ export interface SpellEffectItemTarget {
   itemKey: string | null;
   itemName: string | null;
   itemId?: string;
+}
+
+export interface SpellEffectMonsterTarget {
+  monsterKey: string | null;
+  monsterName: string | null;
+  monsterId?: string;
 }
 
 export const damageSourceKeys = [

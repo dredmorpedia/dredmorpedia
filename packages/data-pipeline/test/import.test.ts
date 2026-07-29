@@ -2550,11 +2550,16 @@ describe("synthetic dataset import", () => {
       itemKey: null,
       itemName: null,
     };
+    const noMonsterTarget = {
+      monsterKey: null,
+      monsterName: null,
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
         itemTarget: noItemTarget,
+        monsterTarget: noMonsterTarget,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2580,6 +2585,7 @@ describe("synthetic dataset import", () => {
       {
         type: "triggerfromlist",
         itemTarget: noItemTarget,
+        monsterTarget: noMonsterTarget,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2749,6 +2755,7 @@ describe("synthetic dataset import", () => {
       {
         type: "damage",
         itemTarget: { itemKey: null, itemName: null },
+        monsterTarget: { monsterKey: null, monsterName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2788,6 +2795,7 @@ describe("synthetic dataset import", () => {
       {
         type: "trigger",
         itemTarget: { itemKey: null, itemName: null },
+        monsterTarget: { monsterKey: null, monsterName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2829,6 +2837,7 @@ describe("synthetic dataset import", () => {
       {
         type: "damage",
         itemTarget: { itemKey: null, itemName: null },
+        monsterTarget: { monsterKey: null, monsterName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2868,6 +2877,7 @@ describe("synthetic dataset import", () => {
       {
         type: "trigger",
         itemTarget: { itemKey: null, itemName: null },
+        monsterTarget: { monsterKey: null, monsterName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -3202,6 +3212,128 @@ describe("synthetic dataset import", () => {
           diagnostic.code === "dangling_reference",
       ),
     ).toBe(false);
+  });
+
+  it("normalizes summon monster targets and links known monsters", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-monster-target-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "monDB.xml"),
+      `<?xml version="1.0"?>
+<monsters>
+  <monster name="Training Diggle" taxa="Animal" level="0" />
+</monsters>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Known Summon" type="target">
+    <effect type="summon" monsterType="Training Diggle" amount="2" />
+    <effect type="summonhostile" monsterType="Training Diggle" />
+  </spell>
+  <spell name="Invalid Summons" type="target">
+    <effect type="summon" monsterType="" />
+    <effect type="summon" />
+    <effect type="summon" monsterType="Missing Diggle" />
+    <effect type="damage" monsterType="Unsupported Here" />
+  </spell>
+</spellDB>`,
+    );
+    const monsterTargetManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      monsterTargetManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-monster-target-test",
+        sources: [
+          {
+            id: "spell-effect-monster-target-source",
+            label: "Spell Effect Monster Target Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "monsters", path: "monDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: monsterTargetManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    expect(
+      spells.get("Known Summon")?.effects.map((effect) => effect.monsterTarget),
+    ).toEqual([
+      {
+        monsterKey: "training diggle",
+        monsterName: "Training Diggle",
+        monsterId: "monster:training diggle",
+      },
+      {
+        monsterKey: "training diggle",
+        monsterName: "Training Diggle",
+        monsterId: "monster:training diggle",
+      },
+    ]);
+    expect(
+      spells
+        .get("Invalid Summons")
+        ?.effects.map((effect) => effect.monsterTarget),
+    ).toEqual([
+      { monsterKey: null, monsterName: null },
+      { monsterKey: null, monsterName: null },
+      { monsterKey: null, monsterName: null },
+      { monsterKey: "missing diggle", monsterName: "Missing Diggle" },
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_effect_monster_target",
+          entityId: "spell:invalid summons",
+          details: { effectIndex: 0, effectType: "summon" },
+        }),
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "spell:invalid summons",
+          details: { targetKind: "monster", reference: "Missing Diggle" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid summons",
+          details: {
+            element: "effect",
+            attribute: "monsterType",
+            value: "Unsupported Here",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:known summon" &&
+          diagnostic.code === "unknown_attribute",
+      ),
+    ).toBe(false);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid summons" &&
+          diagnostic.code === "missing_spell_effect_monster_target",
+      ),
+    ).toHaveLength(1);
   });
 
   it("normalizes direct spell effect damage and scaling metadata loss-aware", () => {

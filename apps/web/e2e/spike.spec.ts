@@ -825,6 +825,29 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
       .getByRole("region", { name: "Referenced by" })
       .getByRole("link", { name: "Measured Strike" }),
   ).toBeVisible();
+  const spellEffects = page.getByRole("region", { name: "Effects" });
+  const summonLink = spellEffects.getByRole("link", {
+    name: "Training Diggle",
+  });
+  await expect(
+    spellEffects.getByText("Resolved summon monster target"),
+  ).toBeVisible();
+  await summonLink.focus();
+  await expect(summonLink).toBeFocused();
+  await summonLink.press("Enter");
+  await expect(page).toHaveURL(/\/monsters\/training-diggle\/$/);
+  const summonBacklinks = page.getByRole("region", {
+    name: "Summoned by spells",
+  });
+  await expect(
+    summonBacklinks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    summonBacklinks.getByText(/Summon effect.*Source amount: 1/),
+  ).toBeVisible();
+  await expect(
+    summonBacklinks.getByText(/allegiance, placement, lifetime, AI state/i),
+  ).toBeVisible();
 
   await page.goto("/abilities/clockwork-followthrough/");
   const eventTrigger = page.getByRole("region", {

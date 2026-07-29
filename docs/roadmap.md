@@ -232,6 +232,16 @@ and leaves 95 spell compatibility constructs, 13 separately tracked spell
 requirements, and 23 dangling references. Evidence is recorded in
 `docs/analysis/spell-effect-item-target-evidence-2026-07-29.md`.
 
+Direct spell-effect monster targets now preserve all 21 active `monsterType`
+declarations across 11 `summon` and 10 `summonhostile` effects. All 21 resolve
+to normalized monsters with reciprocal backlinks; two additional summon-family
+effects intentionally omit the target and remain valid null records.
+Availability, allegiance, placement, lifetime, AI state, selection, and runtime
+spawning remain uninterpreted. This removes all 21 former target diagnostics
+and leaves 74 spell compatibility constructs, 13 separately tracked spell
+requirements, and 23 dangling references. Evidence is recorded in
+`docs/analysis/spell-effect-monster-target-evidence-2026-07-29.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

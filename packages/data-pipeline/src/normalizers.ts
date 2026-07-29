@@ -3575,6 +3575,8 @@ const spellEffectConditionAttributes = [
 
 const spellEffectItemTargetTypes = new Set(["spawn", "spawnitematlocation"]);
 const spellEffectItemTargetAttributes = ["itemname", "itemName"] as const;
+const spellEffectMonsterTargetTypes = new Set(["summon", "summonhostile"]);
+const spellEffectMonsterTargetAttributes = ["monsterType"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
 const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
 const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
@@ -3699,6 +3701,42 @@ function parseSpellEffectItemTarget(
   return {
     itemKey: itemName === null ? null : canonicalKey(itemName),
     itemName,
+  };
+}
+
+function parseSpellEffectMonsterTarget(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["monsterTarget"] {
+  if (!spellEffectMonsterTargetTypes.has(effectType)) {
+    return { monsterKey: null, monsterName: null };
+  }
+
+  const sourceName = xmlAttribute(effect, "monsterType");
+  const monsterName =
+    sourceName === undefined || sourceName.trim() === "" ? null : sourceName;
+  if (sourceName !== undefined && monsterName === null) {
+    const effectProvenance = {
+      ...provenance,
+      ...context.parsed.locateRecord(effect),
+    };
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_monster_target",
+      message: `Spell effect ${effectIndex + 1} supplies an empty direct monster target.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex, effectType },
+    });
+  }
+
+  return {
+    monsterKey: monsterName === null ? null : canonicalKey(monsterName),
+    monsterName,
   };
 }
 
@@ -4269,6 +4307,9 @@ function parseSpells(
             ...(spellEffectItemTargetTypes.has(effectType)
               ? spellEffectItemTargetAttributes
               : []),
+            ...(spellEffectMonsterTargetTypes.has(effectType)
+              ? spellEffectMonsterTargetAttributes
+              : []),
             ...(spellEffectDamageTypes.has(effectType)
               ? spellEffectDamageAttributes
               : []),
@@ -4311,6 +4352,14 @@ function parseSpells(
               }
             : {}),
           itemTarget: parseSpellEffectItemTarget(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
+          monsterTarget: parseSpellEffectMonsterTarget(
             effect,
             effectType,
             effectIndex,

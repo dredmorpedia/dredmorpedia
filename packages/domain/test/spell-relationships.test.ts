@@ -9,6 +9,7 @@ import {
   spellEffectChain,
   spellEffectConditionBacklinks,
   spellEffectItemTargetBacklinks,
+  spellEffectMonsterTargetBacklinks,
   spellEffectOptionItemBacklinks,
   spellEffectOptionSpellBacklinks,
   type Spell,
@@ -54,6 +55,11 @@ const noEffectItemTarget: Spell["effects"][number]["itemTarget"] = {
   itemName: null,
 };
 
+const noEffectMonsterTarget: Spell["effects"][number]["monsterTarget"] = {
+  monsterKey: null,
+  monsterName: null,
+};
+
 function spell(name: string, effects: Spell["effects"] = []): Spell {
   const provenance = {
     sourceId: "synthetic-spells",
@@ -93,6 +99,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellName: target.name,
     spellId: target.id,
     itemTarget: noEffectItemTarget,
+    monsterTarget: noEffectMonsterTarget,
     damage: [],
     scaling: noEffectScaling,
     presentation: null,
@@ -152,6 +159,7 @@ describe("spell effect relationships", () => {
       spellKey: "missing echo",
       spellName: "Missing Echo",
       itemTarget: noEffectItemTarget,
+      monsterTarget: noEffectMonsterTarget,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -234,6 +242,7 @@ describe("spell effect relationships", () => {
         type: "damage",
         amount: 2,
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -296,6 +305,7 @@ describe("spell effect relationships", () => {
       {
         type: "triggerfromlist",
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -315,6 +325,7 @@ describe("spell effect relationships", () => {
       {
         type: "spawnitemfromlist",
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -340,6 +351,7 @@ describe("spell effect relationships", () => {
       {
         type: "triggerfromlist",
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -395,6 +407,7 @@ describe("spell effect relationships", () => {
         itemName: "Brass Ingot",
         itemId: targetId,
       },
+      monsterTarget: noEffectMonsterTarget,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -411,6 +424,7 @@ describe("spell effect relationships", () => {
           itemKey: "source-token",
           itemName: "source-token",
         },
+        monsterTarget: noEffectMonsterTarget,
       },
       directTarget("spawn"),
     ]);
@@ -430,12 +444,59 @@ describe("spell effect relationships", () => {
     ]);
   });
 
+  it("returns summon monster-target backlinks in deterministic source order", () => {
+    const targetId = "monster:training diggle";
+    const summonTarget = (): Spell["effects"][number] => ({
+      type: "summon",
+      amount: 1,
+      itemTarget: noEffectItemTarget,
+      monsterTarget: {
+        monsterKey: "training diggle",
+        monsterName: "Training Diggle",
+        monsterId: targetId,
+      },
+      damage: [],
+      scaling: noEffectScaling,
+      presentation: null,
+      controls: noEffectControls,
+      conditions: noEffectConditions,
+      options: [],
+    });
+    const later = spell("Later", [summonTarget()]);
+    const earlier = spell("Earlier", [
+      summonTarget(),
+      {
+        ...summonTarget(),
+        monsterTarget: {
+          monsterKey: "missing diggle",
+          monsterName: "Missing Diggle",
+        },
+      },
+      summonTarget(),
+    ]);
+
+    expect(
+      spellEffectMonsterTargetBacklinks([later, earlier], targetId).map(
+        ({ spell: source, effectIndex, effect }) => [
+          source.name,
+          effectIndex,
+          effect.amount,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, 1],
+      ["Earlier", 2, 1],
+      ["Later", 0, 1],
+    ]);
+  });
+
   it("returns named buff-condition backlinks in deterministic source order", () => {
     const target = spell("Target");
     const later = spell("Later", [
       {
         type: "trigger",
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -456,6 +517,7 @@ describe("spell effect relationships", () => {
       {
         type: "trigger",
         itemTarget: noEffectItemTarget,
+        monsterTarget: noEffectMonsterTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,

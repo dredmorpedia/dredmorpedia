@@ -26,6 +26,7 @@
     <effect type="trigger" spell="Missing Echo" requireBuff="1" />
     <effect type="spawn" itemname="Brass Ingot" amount="2" />
     <effect type="spawnitematlocation" itemName="randomring" amount="1" floorScaleF="1" />
+    <effect type="summon" monsterType="Training Diggle" amount="1" />
     <effect type="spawnitemfromlist">
       <option name="Brass Ingot" />
       <option name="Training Trap" amount="2" />

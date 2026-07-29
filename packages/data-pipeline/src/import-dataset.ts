@@ -329,11 +329,13 @@ function linkSpells(
   spells: Spell[],
   stats: readonly Stat[],
   items: readonly Item[],
+  monsters: readonly Monster[],
   diagnostics: DiagnosticDraft[],
 ): Spell[] {
   const spellAliases = aliasesFor(spells);
   const statAliases = aliasesFor(stats);
   const itemAliases = aliasesFor(items);
+  const monsterAliases = aliasesFor(monsters);
   const linkBuffCondition = (
     owner: Spell,
     condition: SpellEffectBuffCondition,
@@ -406,6 +408,26 @@ function linkSpells(
             ...effect.itemTarget,
             itemId: target.id,
           };
+        }
+      }
+      if (
+        effect.monsterTarget.monsterKey !== null &&
+        effect.monsterTarget.monsterName !== null
+      ) {
+        const target = monsterAliases.get(effect.monsterTarget.monsterKey);
+        if (target) {
+          linkedEffect.monsterTarget = {
+            ...effect.monsterTarget,
+            monsterId: target.id,
+          };
+        } else {
+          diagnostics.push(
+            danglingDiagnostic(
+              spell,
+              "monster",
+              effect.monsterTarget.monsterName,
+            ),
+          );
         }
       }
       linkedEffect.options = effect.options.map((option) => {
@@ -794,6 +816,7 @@ function resolveCollections(
     routed.spells.entities,
     linkedStats,
     linkedItems,
+    routed.monsters.entities,
     diagnostics,
   );
   const linkedAbilities = linkAbilities(

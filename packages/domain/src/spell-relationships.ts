@@ -1,6 +1,7 @@
 import { compareCodeUnits } from "./ordering";
 import type {
   Item,
+  Monster,
   Spell,
   SpellBuffEventHook,
   SpellEffect,
@@ -49,6 +50,12 @@ export interface SpellEffectOptionItemBacklink {
 }
 
 export interface SpellEffectItemTargetBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+}
+
+export interface SpellEffectMonsterTargetBacklink {
   spell: Spell;
   effect: SpellEffect;
   effectIndex: number;
@@ -211,6 +218,26 @@ export function spellEffectItemTargetBacklinks(
     .flatMap((spell) =>
       spell.effects.flatMap((effect, effectIndex) =>
         effect.itemTarget.itemId === targetItemId
+          ? [{ spell, effect, effectIndex }]
+          : [],
+      ),
+    )
+    .sort(
+      (left, right) =>
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
+        left.effectIndex - right.effectIndex,
+    );
+}
+
+export function spellEffectMonsterTargetBacklinks(
+  spells: readonly Spell[],
+  targetMonsterId: Monster["id"],
+): SpellEffectMonsterTargetBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) =>
+        effect.monsterTarget.monsterId === targetMonsterId
           ? [{ spell, effect, effectIndex }]
           : [],
       ),

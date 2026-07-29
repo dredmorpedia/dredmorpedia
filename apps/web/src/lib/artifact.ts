@@ -465,6 +465,31 @@ const spellEffectItemTargetSchema = z
     }
   });
 
+const spellEffectMonsterTargetSchema = z
+  .object({
+    monsterKey: nullableNonblankString,
+    monsterName: nullableNonblankString,
+    monsterId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((target, context) => {
+    if ((target.monsterKey === null) !== (target.monsterName === null)) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Direct monster-target key and name must both be present or absent.",
+      });
+    }
+    if (target.monsterId !== undefined && target.monsterKey === null) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "A resolved direct monster target must retain its source target.",
+        path: ["monsterId"],
+      });
+    }
+  });
+
 const spellEffectBuffConditionSchema = z
   .object({
     enabled: z.boolean().nullable(),
@@ -500,6 +525,7 @@ const spellEffectSchema = z
     statId: optionalString,
     amount: z.number().int().optional(),
     itemTarget: spellEffectItemTargetSchema,
+    monsterTarget: spellEffectMonsterTargetSchema,
     damage: z.array(
       z
         .object({

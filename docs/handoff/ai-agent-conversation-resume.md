@@ -101,14 +101,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo and direct-effect presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect item targets with reciprocal resolved-item links, damage amounts/factors/scaling selectors, duration declarations, `after`, bleed, and skip-animation flags, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo and direct-effect presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect item and monster targets with reciprocal resolved-entity links, damage amounts/factors/scaling selectors, duration declarations, `after`, bleed, and skip-animation flags, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the direct spell-effect item-target slice, the canonical import reports:
+After the direct spell-effect monster-target slice, the canonical import
+reports:
 
-- 0 errors, 131 warnings, and 71 informational duplicate decisions;
-- 95 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 110 warnings, and 71 informational duplicate decisions;
+- 74 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -140,8 +141,8 @@ unit/artifact tests and 36 desktop/mobile browser cases. Search schema 2, the
 ignored local official pages pass. The spell-effect-`after` slice raises the
 unit/artifact total to 151, the bleed slice raises it to 152, the
 skip-animation slice raises it to 153, the direct effect-presentation slice
-raises it to 155, and the direct item-target slice raises it to 158 while
-retaining the 36 browser cases.
+raises it to 155, the direct item-target slice raises it to 158, and the direct
+monster-target slice raises it to 161 while retaining the 36 browser cases.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
@@ -155,6 +156,21 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The direct spell-effect monster-target slice preserves all 21 active
+`monsterType` declarations across 11 `summon` and 10 `summonhostile` effects.
+All targets resolve to normalized monsters with reciprocal backlinks; two
+additional summon-family effects intentionally omit the target and remain
+valid null records. The strict importer and artifact boundary cover absence,
+empty values, dangling targets, unsupported types, and partial records.
+Availability, allegiance, placement, lifetime, AI state, selection, timing,
+and runtime spawning remain uninterpreted. Deterministic official generation
+is byte-identical with 0 errors, 110 warnings, and 71 informational decisions.
+Evidence is recorded in
+`docs/analysis/spell-effect-monster-target-evidence-2026-07-29.md`.
+`pnpm.cmd check` passes all 161 unit/artifact tests and the 43-page synthetic
+export; all 36 desktop/mobile browser cases pass; and the byte-identical
+canonical dataset exports all 2,857 local static pages.
 
 The direct spell-effect item-target slice preserves all nine active
 `itemname` / `itemName` declarations on `spawn` and
