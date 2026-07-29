@@ -334,12 +334,19 @@ export interface SpellEffect {
   statName?: string;
   statId?: string;
   amount?: number;
+  itemTarget: SpellEffectItemTarget;
   damage: SpellEffectDamage[];
   scaling: SpellEffectScaling;
   presentation: SpellEffectPresentationMetadata | null;
   controls: SpellEffectControls;
   conditions: SpellEffectConditions;
   options: SpellEffectOption[];
+}
+
+export interface SpellEffectItemTarget {
+  itemKey: string | null;
+  itemName: string | null;
+  itemId?: string;
 }
 
 export const damageSourceKeys = [

@@ -441,6 +441,30 @@ const spellEffectSpellOptionSchema = z
     }
   });
 
+const spellEffectItemTargetSchema = z
+  .object({
+    itemKey: nullableNonblankString,
+    itemName: nullableNonblankString,
+    itemId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((target, context) => {
+    if ((target.itemKey === null) !== (target.itemName === null)) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Direct item-target key and name must both be present or absent.",
+      });
+    }
+    if (target.itemId !== undefined && target.itemKey === null) {
+      context.addIssue({
+        code: "custom",
+        message: "A resolved direct item target must retain its source target.",
+        path: ["itemId"],
+      });
+    }
+  });
+
 const spellEffectBuffConditionSchema = z
   .object({
     enabled: z.boolean().nullable(),
@@ -475,6 +499,7 @@ const spellEffectSchema = z
     statName: optionalString,
     statId: optionalString,
     amount: z.number().int().optional(),
+    itemTarget: spellEffectItemTargetSchema,
     damage: z.array(
       z
         .object({

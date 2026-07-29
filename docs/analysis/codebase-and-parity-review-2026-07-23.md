@@ -58,6 +58,14 @@ behavior. This reduces the measured spell compatibility backlog from 137 to
 104 constructs. Evidence is recorded in
 [`spell-effect-presentation-evidence-2026-07-29.md`](spell-effect-presentation-evidence-2026-07-29.md).
 
+The direct item-target slice preserves all nine active `itemname` / `itemName`
+declarations on `spawn` and `spawnitematlocation` effects. Three targets link
+to normalized items in both directions; six source-only labels remain visible
+without fabricated entities or false dangling-reference claims. This reduces
+the measured spell compatibility backlog from 104 to 95 constructs. Evidence
+is recorded in
+[`spell-effect-item-target-evidence-2026-07-29.md`](spell-effect-item-target-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

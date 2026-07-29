@@ -399,6 +399,15 @@ function linkSpells(
           );
         }
       }
+      if (effect.itemTarget.itemKey !== null) {
+        const target = itemAliases.get(effect.itemTarget.itemKey);
+        if (target) {
+          linkedEffect.itemTarget = {
+            ...effect.itemTarget,
+            itemId: target.id,
+          };
+        }
+      }
       linkedEffect.options = effect.options.map((option) => {
         if (option.kind === "item") {
           if (option.itemKey === null) {

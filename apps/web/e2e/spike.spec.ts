@@ -706,6 +706,18 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(
     spellListBacklinks.getByText(/runtime spawning are not inferred/i),
   ).toBeVisible();
+  const directItemBacklinks = page.getByRole("region", {
+    name: "Spell direct-item relationships",
+  });
+  await expect(
+    directItemBacklinks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    directItemBacklinks.getByText(/Spawn effect.*Source amount: 2/),
+  ).toBeVisible();
+  await expect(
+    directItemBacklinks.getByText(/random-item selectors/i),
+  ).toBeVisible();
   const loadoutBacklinks = page.getByRole("region", {
     name: "Starting loadout relationships",
   });

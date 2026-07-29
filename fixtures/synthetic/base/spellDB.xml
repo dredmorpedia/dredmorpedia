@@ -24,6 +24,8 @@
     <effect type="paralyze" turns="3" resistable="0" />
     <effect type="trigger" spell="Clockwork Echo" requirebuffontrigger="1" requirebuffontriggername="Clockwork Spark" />
     <effect type="trigger" spell="Missing Echo" requireBuff="1" />
+    <effect type="spawn" itemname="Brass Ingot" amount="2" />
+    <effect type="spawnitematlocation" itemName="randomring" amount="1" floorScaleF="1" />
     <effect type="spawnitemfromlist">
       <option name="Brass Ingot" />
       <option name="Training Trap" amount="2" />

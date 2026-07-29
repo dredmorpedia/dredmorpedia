@@ -29,6 +29,9 @@ function effectTypeLabel(value: string): string {
   if (value === "spawnitemfromlist") {
     return "Spawn item from list";
   }
+  if (value === "spawnitematlocation") {
+    return "Spawn item at location";
+  }
   if (value === "triggerfromlist") {
     return "Trigger from list";
   }
@@ -852,12 +855,13 @@ export default async function SpellPage({
             Effects
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Direct damage amounts, factor coefficients, scaling selectors,
-            effect presentation, controls, and buff conditions are shown without
-            combining them into final damage, targeting eligibility,
-            buff-presence evaluation, trigger timing, resistance, ignition,
-            animation sequencing, or runtime probability behavior. Detailed
-            effect sprite paths and sound cue IDs remain hidden.
+            Direct damage amounts, factor coefficients, scaling selectors, item
+            targets, effect presentation, controls, and buff conditions are
+            shown without combining them into final damage, targeting
+            eligibility, buff-presence evaluation, trigger timing, resistance,
+            ignition, animation sequencing, random-item selection, inventory
+            placement, or runtime probability behavior. Detailed effect sprite
+            paths and sound cue IDs remain hidden.
           </p>
           {spell.effects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -867,6 +871,9 @@ export default async function SpellPage({
                   : undefined;
                 const targetStat = effect.statId
                   ? statsById.get(effect.statId)
+                  : undefined;
+                const targetItem = effect.itemTarget.itemId
+                  ? itemsById.get(effect.itemTarget.itemId)
                   : undefined;
                 const unresolved =
                   (effect.spellKey && !targetSpell) ||
@@ -924,6 +931,15 @@ export default async function SpellPage({
                         </Link>
                       ) : effect.statKey ? (
                         <strong>{effect.statName ?? effect.statKey}</strong>
+                      ) : targetItem ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/items/${targetItem.slug}`}
+                        >
+                          {targetItem.name}
+                        </Link>
+                      ) : effect.itemTarget.itemName !== null ? (
+                        <strong>{effect.itemTarget.itemName}</strong>
                       ) : (
                         <strong>{effectTypeLabel(effect.type)}</strong>
                       )}
@@ -942,7 +958,11 @@ export default async function SpellPage({
                               ? "Resolved stat target"
                               : effect.statKey
                                 ? "Unresolved stat target"
-                                : "No entity target"}
+                                : targetItem
+                                  ? "Resolved item target"
+                                  : effect.itemTarget.itemName !== null
+                                    ? "Source item target (no normalized item entity)"
+                                    : "No entity target"}
                       </small>
                     </div>
                     <dl className="trigger-facts">

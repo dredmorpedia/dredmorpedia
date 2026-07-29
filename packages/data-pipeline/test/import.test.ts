@@ -2546,10 +2546,15 @@ describe("synthetic dataset import", () => {
       primaryStatId: null,
       secondaryStatId: null,
     };
+    const noItemTarget = {
+      itemKey: null,
+      itemName: null,
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
+        itemTarget: noItemTarget,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2574,6 +2579,7 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "triggerfromlist",
+        itemTarget: noItemTarget,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2742,6 +2748,7 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Complete Controls")?.effects).toEqual([
       {
         type: "damage",
+        itemTarget: { itemKey: null, itemName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2780,6 +2787,7 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "trigger",
+        itemTarget: { itemKey: null, itemName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2820,6 +2828,7 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Invalid Controls")?.effects).toEqual([
       {
         type: "damage",
+        itemTarget: { itemKey: null, itemName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2858,6 +2867,7 @@ describe("synthetic dataset import", () => {
       },
       {
         type: "trigger",
+        itemTarget: { itemKey: null, itemName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -3072,6 +3082,124 @@ describe("synthetic dataset import", () => {
         (diagnostic) =>
           diagnostic.entityId === "spell:complete effect presentation" &&
           diagnostic.code === "unknown_attribute",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes direct spell effect item targets and links known items", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-item-target-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Known Spawn"><price amount="1" /></item>
+</items>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Direct Item Targets" type="target">
+    <effect type="spawn" itemname="Known Spawn" amount="2" />
+    <effect type="spawnitematlocation" itemName="randomring" amount="1" />
+    <effect type="damage" />
+  </spell>
+  <spell name="Invalid Item Targets" type="target">
+    <effect type="spawn" itemname="" />
+    <effect type="spawn" itemname="Canonical Target" itemName="Alias Target" />
+    <effect type="damage" itemname="Unsupported Here" />
+  </spell>
+</spellDB>`,
+    );
+    const itemTargetManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      itemTargetManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-item-target-test",
+        sources: [
+          {
+            id: "spell-effect-item-target-source",
+            label: "Spell Effect Item Target Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "items", path: "itemDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: itemTargetManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells
+        .get("Direct Item Targets")
+        ?.effects.map((effect) => effect.itemTarget),
+    ).toEqual([
+      { itemKey: null, itemName: null },
+      {
+        itemKey: "known spawn",
+        itemName: "Known Spawn",
+        itemId: "item:known spawn",
+      },
+      { itemKey: "randomring", itemName: "randomring" },
+    ]);
+    expect(
+      spells
+        .get("Invalid Item Targets")
+        ?.effects.map((effect) => effect.itemTarget),
+    ).toEqual([
+      { itemKey: null, itemName: null },
+      { itemKey: null, itemName: null },
+      { itemKey: "canonical target", itemName: "Canonical Target" },
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_effect_item_target",
+          entityId: "spell:invalid item targets",
+          details: { effectIndex: 0, effectType: "spawn" },
+        }),
+        expect.objectContaining({
+          code: "conflicting_spell_effect_item_target_aliases",
+          entityId: "spell:invalid item targets",
+          details: expect.objectContaining({
+            effectIndex: 1,
+            canonicalValue: "Canonical Target",
+            aliasValue: "Alias Target",
+          }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid item targets",
+          details: {
+            element: "effect",
+            attribute: "itemname",
+            value: "Unsupported Here",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:direct item targets" &&
+          diagnostic.code === "dangling_reference",
       ),
     ).toBe(false);
   });

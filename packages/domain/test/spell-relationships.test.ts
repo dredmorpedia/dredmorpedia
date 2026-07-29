@@ -8,6 +8,7 @@ import {
   spellEffectBacklinks,
   spellEffectChain,
   spellEffectConditionBacklinks,
+  spellEffectItemTargetBacklinks,
   spellEffectOptionItemBacklinks,
   spellEffectOptionSpellBacklinks,
   type Spell,
@@ -48,6 +49,11 @@ const noEffectScaling: Spell["effects"][number]["scaling"] = {
   secondaryStatId: null,
 };
 
+const noEffectItemTarget: Spell["effects"][number]["itemTarget"] = {
+  itemKey: null,
+  itemName: null,
+};
+
 function spell(name: string, effects: Spell["effects"] = []): Spell {
   const provenance = {
     sourceId: "synthetic-spells",
@@ -86,6 +92,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellKey: target.canonicalKey,
     spellName: target.name,
     spellId: target.id,
+    itemTarget: noEffectItemTarget,
     damage: [],
     scaling: noEffectScaling,
     presentation: null,
@@ -144,6 +151,7 @@ describe("spell effect relationships", () => {
       type: "trigger",
       spellKey: "missing echo",
       spellName: "Missing Echo",
+      itemTarget: noEffectItemTarget,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -225,6 +233,7 @@ describe("spell effect relationships", () => {
       {
         type: "damage",
         amount: 2,
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -286,6 +295,7 @@ describe("spell effect relationships", () => {
     const later = spell("Later", [
       {
         type: "triggerfromlist",
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -304,6 +314,7 @@ describe("spell effect relationships", () => {
     const earlier = spell("Earlier", [
       {
         type: "spawnitemfromlist",
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -328,6 +339,7 @@ describe("spell effect relationships", () => {
       },
       {
         type: "triggerfromlist",
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -372,11 +384,58 @@ describe("spell effect relationships", () => {
     ]);
   });
 
+  it("returns direct item-target backlinks in deterministic source order", () => {
+    const targetId = "item:brass ingot";
+    const directTarget = (
+      type: "spawn" | "spawnitematlocation",
+    ): Spell["effects"][number] => ({
+      type,
+      itemTarget: {
+        itemKey: "brass ingot",
+        itemName: "Brass Ingot",
+        itemId: targetId,
+      },
+      damage: [],
+      scaling: noEffectScaling,
+      presentation: null,
+      controls: noEffectControls,
+      conditions: noEffectConditions,
+      options: [],
+    });
+    const later = spell("Later", [directTarget("spawn")]);
+    const earlier = spell("Earlier", [
+      directTarget("spawnitematlocation"),
+      {
+        ...directTarget("spawn"),
+        itemTarget: {
+          itemKey: "source-token",
+          itemName: "source-token",
+        },
+      },
+      directTarget("spawn"),
+    ]);
+
+    expect(
+      spellEffectItemTargetBacklinks([later, earlier], targetId).map(
+        ({ spell: source, effectIndex, effect }) => [
+          source.name,
+          effectIndex,
+          effect.type,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, "spawnitematlocation"],
+      ["Earlier", 2, "spawn"],
+      ["Later", 0, "spawn"],
+    ]);
+  });
+
   it("returns named buff-condition backlinks in deterministic source order", () => {
     const target = spell("Target");
     const later = spell("Later", [
       {
         type: "trigger",
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -396,6 +455,7 @@ describe("spell effect relationships", () => {
     const earlier = spell("Earlier", [
       {
         type: "trigger",
+        itemTarget: noEffectItemTarget,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,

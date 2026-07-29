@@ -48,6 +48,12 @@ export interface SpellEffectOptionItemBacklink {
   optionIndex: number;
 }
 
+export interface SpellEffectItemTargetBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+}
+
 export type SpellEffectConditionKind = "required-buff" | "forbidden-buff";
 
 export interface SpellEffectConditionBacklink {
@@ -194,6 +200,26 @@ export function spellEffectOptionItemBacklinks(
         compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex ||
         left.optionIndex - right.optionIndex,
+    );
+}
+
+export function spellEffectItemTargetBacklinks(
+  spells: readonly Spell[],
+  targetItemId: Item["id"],
+): SpellEffectItemTargetBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) =>
+        effect.itemTarget.itemId === targetItemId
+          ? [{ spell, effect, effectIndex }]
+          : [],
+      ),
+    )
+    .sort(
+      (left, right) =>
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
+        left.effectIndex - right.effectIndex,
     );
 }
 

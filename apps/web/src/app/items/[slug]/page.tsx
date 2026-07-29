@@ -12,6 +12,7 @@ import {
   itemToolkitEncrustmentRelationships,
   itemToolkitRecipeRelationships,
   matchesEntityRoute,
+  spellEffectItemTargetBacklinks,
   spellEffectOptionItemBacklinks,
 } from "@dredmorpedia/domain";
 
@@ -29,6 +30,9 @@ export const dynamicParams = false;
 function effectTypeLabel(value: string): string {
   if (value === "spawnitemfromlist") {
     return "Spawn item from list";
+  }
+  if (value === "spawnitematlocation") {
+    return "Spawn item at location";
   }
   return titleCase(value);
 }
@@ -107,6 +111,10 @@ export default async function ItemPage({
     item.id,
   );
   const spellListRelationships = spellEffectOptionItemBacklinks(
+    artifact.entities.spells,
+    item.id,
+  );
+  const spellItemTargetRelationships = spellEffectItemTargetBacklinks(
     artifact.entities.spells,
     item.id,
   );
@@ -859,6 +867,49 @@ export default async function ItemPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No monster drops reference this item.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="spell-item-target-relations-heading"
+        >
+          <h2
+            id="spell-item-target-relations-heading"
+            className="section-title-sm"
+          >
+            Spell direct-item relationships
+          </h2>
+          {spellItemTargetRelationships.length > 0 ? (
+            <>
+              <ul className="relation-list">
+                {spellItemTargetRelationships.map(
+                  ({ spell, effect, effectIndex }) => (
+                    <li key={`${spell.id}:${effectIndex}`}>
+                      <Link
+                        className="entity-link font-semibold"
+                        href={`/spells/${spell.slug}`}
+                      >
+                        {spell.name}
+                      </Link>
+                      <span>
+                        {effectTypeLabel(effect.type)} effect Â· Source amount:{" "}
+                        {effect.amount ?? "not declared"}
+                      </span>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                These are direct source targets. Runtime spawning, random-item
+                selectors, inventory placement, and availability are not
+                inferred.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No direct spell effect targets this item.
             </p>
           )}
         </section>

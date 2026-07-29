@@ -3573,6 +3573,8 @@ const spellEffectConditionAttributes = [
   "requirebuffonnottriggername",
 ] as const;
 
+const spellEffectItemTargetTypes = new Set(["spawn", "spawnitematlocation"]);
+const spellEffectItemTargetAttributes = ["itemname", "itemName"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
 const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
 const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
@@ -3643,6 +3645,61 @@ function parseSpellEffectNumberAttribute(
         currentEntityId,
         0,
       );
+}
+
+function parseSpellEffectItemTarget(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["itemTarget"] {
+  if (!spellEffectItemTargetTypes.has(effectType)) {
+    return { itemKey: null, itemName: null };
+  }
+
+  const lowerValue = xmlAttribute(effect, "itemname");
+  const camelValue = xmlAttribute(effect, "itemName");
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  if (lowerValue !== undefined && camelValue !== undefined) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_effect_item_target_aliases",
+      message: `Spell effect ${effectIndex + 1} supplies both supported item-target aliases; the canonical lowercase spelling was used.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: {
+        effectIndex,
+        canonicalAttribute: "itemname",
+        canonicalValue: lowerValue,
+        aliasAttribute: "itemName",
+        aliasValue: camelValue,
+      },
+    });
+  }
+
+  const sourceName = lowerValue ?? camelValue;
+  const itemName =
+    sourceName === undefined || sourceName.trim() === "" ? null : sourceName;
+  if (sourceName !== undefined && itemName === null) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_item_target",
+      message: `Spell effect ${effectIndex + 1} supplies an empty direct item target.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex, effectType },
+    });
+  }
+
+  return {
+    itemKey: itemName === null ? null : canonicalKey(itemName),
+    itemName,
+  };
 }
 
 function parseSpellEffectDamage(
@@ -4209,6 +4266,9 @@ function parseSpells(
             ...(effectType === "trigger" || effectType === "dot"
               ? spellEffectConditionAttributes
               : []),
+            ...(spellEffectItemTargetTypes.has(effectType)
+              ? spellEffectItemTargetAttributes
+              : []),
             ...(spellEffectDamageTypes.has(effectType)
               ? spellEffectDamageAttributes
               : []),
@@ -4250,6 +4310,14 @@ function parseSpells(
                 ),
               }
             : {}),
+          itemTarget: parseSpellEffectItemTarget(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
           damage: parseSpellEffectDamage(
             effect,
             effectType,

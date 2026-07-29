@@ -332,6 +332,35 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/options/);
   });
 
+  it("rejects malformed direct spell effect item-target metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            itemTarget: {
+              itemKey: string | null;
+              itemName: string | null;
+            };
+          }[];
+        }[];
+      };
+    };
+    const targetedEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.itemTarget.itemKey !== null);
+    if (!targetedEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no direct spell item target.",
+      );
+    }
+    targetedEffect.itemTarget.itemName = null;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/itemTarget/);
+  });
+
   it("rejects malformed spell effect control metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

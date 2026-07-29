@@ -156,6 +156,29 @@ test("navigates spell details and stops recursive effect cycles", async ({
     effects.getByText("Missing Echo", { exact: true }),
   ).toBeVisible();
   await expect(effects.getByText("Unresolved spell target")).toBeVisible();
+  const directItemEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Spawn effect" })
+    .first();
+  await expect(
+    directItemEffect.getByRole("link", { name: "Brass Ingot" }),
+  ).toBeVisible();
+  await expect(
+    directItemEffect.getByText("Resolved item target", { exact: true }),
+  ).toBeVisible();
+  const sourceItemEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Spawn item at location effect" })
+    .first();
+  await expect(
+    sourceItemEffect.getByText("randomring", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    sourceItemEffect.getByText(
+      "Source item target (no normalized item entity)",
+      { exact: true },
+    ),
+  ).toBeVisible();
   const controlledEffect = effects
     .getByRole("listitem")
     .filter({ hasText: "Damage effect" })
