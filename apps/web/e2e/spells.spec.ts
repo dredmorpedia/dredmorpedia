@@ -181,6 +181,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     effects.getByRole("listitem").filter({ hasText: "Starts bleeding effect" }),
   ).toBeVisible();
+  const teleportEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Teleport effect" })
+    .first();
+  await expect(
+    teleportEffect
+      .getByText("Skip animation", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
   await expect(
     controlledEffect
       .getByText("Blasting damage", { exact: true })

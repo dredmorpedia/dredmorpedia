@@ -855,8 +855,8 @@ export default async function SpellPage({
             Direct damage amounts, factor coefficients, scaling selectors,
             controls, and buff conditions are shown without combining them into
             final damage, targeting eligibility, buff-presence evaluation,
-            trigger timing, resistance, ignition, or runtime probability
-            behavior.
+            trigger timing, resistance, ignition, animation sequencing, or
+            runtime probability behavior.
           </p>
           {spell.effects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -880,6 +880,7 @@ export default async function SpellPage({
                   effect.controls.resistable !== null ||
                   effect.controls.burnsTarget !== null ||
                   effect.controls.bleedsTarget !== null ||
+                  effect.controls.skipAnimation !== null ||
                   effect.controls.taxonomy !== null;
                 const requiredBuff = effect.conditions.requiredBuff.spellId
                   ? spellsById.get(effect.conditions.requiredBuff.spellId)
@@ -1059,6 +1060,12 @@ export default async function SpellPage({
                         <div>
                           <dt>Starts bleeding</dt>
                           <dd>{yesNo(effect.controls.bleedsTarget)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.skipAnimation !== null ? (
+                        <div>
+                          <dt>Skip animation</dt>
+                          <dd>{yesNo(effect.controls.skipAnimation)}</dd>
                         </div>
                       ) : null}
                       {effect.controls.taxonomy !== null ? (

@@ -23,6 +23,7 @@ const noEffectControls: Spell["effects"][number]["controls"] = {
   resistable: null,
   burnsTarget: null,
   bleedsTarget: null,
+  skipAnimation: null,
   taxonomy: null,
 };
 

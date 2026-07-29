@@ -4,6 +4,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/spell-effect-skip-animation-evidence-2026-07-29.md`](analysis/spell-effect-skip-animation-evidence-2026-07-29.md) — direct skip-animation flags, casing evidence, canonical counts, and explicit runtime boundaries.
 - [`analysis/spell-effect-bleed-evidence-2026-07-29.md`](analysis/spell-effect-bleed-evidence-2026-07-29.md) — direct bleed flags, preserved-app presentation parity, canonical counts, and explicit runtime boundaries.
 
 - [`../PROJECT.md`](../PROJECT.md) — product mission, audiences, principles, constraints, and open decisions.

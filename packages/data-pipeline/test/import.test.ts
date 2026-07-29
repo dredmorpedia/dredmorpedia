@@ -2524,6 +2524,7 @@ describe("synthetic dataset import", () => {
       resistable: null,
       burnsTarget: null,
       bleedsTarget: null,
+      skipAnimation: null,
       taxonomy: null,
     };
     const noConditions = {
@@ -2700,11 +2701,11 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Controls" type="target">
-    <effect type="damage" turns="3" after="1" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="1" />
-    <effect type="trigger" turns="0" after="0" percentage="25" affectscaster="0" />
+    <effect type="damage" turns="3" after="1" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="1" skipanimation="1" />
+    <effect type="trigger" turns="0" after="0" percentage="25" affectscaster="0" skipAnimation="0" />
   </spell>
   <spell name="Invalid Controls" type="target">
-    <effect type="damage" turns="-1" after="maybe" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" bleed="maybe" future="diagnosed" />
+    <effect type="damage" turns="-1" after="maybe" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" bleed="maybe" skipAnimation="maybe" skipanimation="1" future="diagnosed" />
     <effect type="trigger" turns="1.5" percent="" />
   </spell>
 </spellDB>`,
@@ -2756,6 +2757,7 @@ describe("synthetic dataset import", () => {
           resistable: false,
           burnsTarget: true,
           bleedsTarget: true,
+          skipAnimation: true,
           taxonomy: "Construct",
         },
         conditions: {
@@ -2792,6 +2794,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          skipAnimation: false,
           taxonomy: null,
         },
         conditions: {
@@ -2830,6 +2833,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          skipAnimation: null,
           taxonomy: null,
         },
         conditions: {
@@ -2866,6 +2870,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          skipAnimation: null,
           taxonomy: null,
         },
         conditions: {
@@ -2889,7 +2894,7 @@ describe("synthetic dataset import", () => {
         (diagnostic) =>
           diagnostic.code === "conflicting_spell_effect_control_aliases",
       ),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     expect(
       result.diagnostics.filter(
         (diagnostic) =>
@@ -2903,7 +2908,7 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:invalid controls" &&
           diagnostic.code === "invalid_boolean",
       ),
-    ).toHaveLength(7);
+    ).toHaveLength(8);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -4148,6 +4153,7 @@ describe("synthetic dataset import", () => {
       resistable: false,
       burnsTarget: true,
       bleedsTarget: false,
+      skipAnimation: null,
       taxonomy: "Construct",
     });
     expect(

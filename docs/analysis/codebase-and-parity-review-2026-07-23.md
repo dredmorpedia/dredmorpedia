@@ -41,6 +41,15 @@ measured spell compatibility backlog from 154 to 142 constructs. Evidence is
 recorded in
 [`spell-effect-bleed-evidence-2026-07-29.md`](spell-effect-bleed-evidence-2026-07-29.md).
 
+The skip-animation slice preserves all five active direct `skipanimation`
+declarations as loss-aware booleans and accepts the installed validation
+schema's `skipAnimation` casing. The preserved application ignores the flag;
+the modern page discloses it without inferring animation order, timing,
+synchronization, or which presentation sequence the engine suppresses. This
+reduces the measured spell compatibility backlog from 142 to 137 constructs.
+Evidence is recorded in
+[`spell-effect-skip-animation-evidence-2026-07-29.md`](spell-effect-skip-animation-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

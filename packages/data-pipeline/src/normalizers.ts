@@ -3552,6 +3552,8 @@ const spellEffectControlAttributes = [
   "taxa",
   "burn",
   "bleed",
+  "skipAnimation",
+  "skipanimation",
 ] as const;
 
 const spellEffectConditionAttributes = [
@@ -3833,6 +3835,7 @@ function parseSpellEffectControls(
   };
   reportAliasConflict("percent", "percentage", "chance");
   reportAliasConflict("affectsCaster", "affectscaster", "affects-caster flag");
+  reportAliasConflict("skipAnimation", "skipanimation", "skip-animation flag");
 
   const chanceAttribute =
     xmlAttribute(effect, "percent") === undefined &&
@@ -3844,6 +3847,11 @@ function parseSpellEffectControls(
     xmlAttribute(effect, "affectscaster") !== undefined
       ? "affectscaster"
       : "affectsCaster";
+  const skipAnimationAttribute =
+    xmlAttribute(effect, "skipAnimation") === undefined &&
+    xmlAttribute(effect, "skipanimation") !== undefined
+      ? "skipanimation"
+      : "skipAnimation";
   const chanceValue = xmlAttribute(effect, chanceAttribute);
   let chancePercent: number | null = null;
   if (chanceValue !== undefined) {
@@ -3924,6 +3932,10 @@ function parseSpellEffectControls(
     resistable: optionalControlFlag("resistable", "resistable flag"),
     burnsTarget: optionalControlFlag("burn", "burn flag"),
     bleedsTarget: optionalControlFlag("bleed", "bleed flag"),
+    skipAnimation: optionalControlFlag(
+      skipAnimationAttribute,
+      "skip-animation flag",
+    ),
     taxonomy,
   };
 }

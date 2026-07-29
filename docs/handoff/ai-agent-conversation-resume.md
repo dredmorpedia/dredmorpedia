@@ -12,7 +12,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 
 - Repository: `https://github.com/dredmorpedia/dredmorpedia.git`.
 - Working branch: `master`, with direct owner-requested commits to `origin/master`.
-- Latest parity checkpoint summarized by hash: `42db351` (`Model spell effect damage scaling`). The subsequent domain determinism/test hardening is described below; always verify the live HEAD and working tree with Git.
+- The current parity checkpoint is described below; always verify the live HEAD and working tree with Git rather than relying on a copied commit hash.
 - Canonical read-only source baseline: Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623`, base game plus all three official expansions.
 - The modern workspace is under `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked legal fixtures are under `fixtures/synthetic`; the preserved reference application is under `legacy`.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
@@ -101,14 +101,14 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect damage amounts/factors/scaling selectors, duration declarations, `after` flags, and bleed flags, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect damage amounts/factors/scaling selectors, duration declarations, `after`, bleed, and skip-animation flags, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the spell-effect-bleed slice, the canonical import reports:
+After the spell-effect-skip-animation slice, the canonical import reports:
 
-- 0 errors, 178 warnings, and 71 informational duplicate decisions;
-- 142 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 173 warnings, and 71 informational duplicate decisions;
+- 137 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -138,8 +138,8 @@ The subsequent spelling-suggestion slice raises the current totals to 150
 unit/artifact tests and 36 desktop/mobile browser cases. Search schema 2, the
 43-page synthetic export, deterministic official generation, and all 2,857
 ignored local official pages pass. The spell-effect-`after` slice raises the
-unit/artifact total to 151, and the bleed slice raises it to 152 while
-retaining the 36 browser cases.
+unit/artifact total to 151, the bleed slice raises it to 152, and the
+skip-animation slice raises it to 153 while retaining the 36 browser cases.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
@@ -153,6 +153,19 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell-effect-skip-animation slice preserves all five active lowercase
+declarations as loss-aware booleans and accepts the installed validation
+schema's camel-cased alias. Strict importer and artifact checks preserve
+explicit false, reject malformed values, and diagnose simultaneous aliases.
+The page discloses the direct flag without inferring animation order, timing,
+synchronization, target selection, or which presentation sequence the engine
+suppresses. Deterministic official generation is byte-identical with 0 errors,
+173 warnings, and 71 informational decisions. Evidence is recorded in
+`docs/analysis/spell-effect-skip-animation-evidence-2026-07-29.md`.
+`pnpm.cmd check` passes all 153 unit/artifact tests and the 43-page synthetic
+export; all 36 desktop/mobile browser cases pass; and the byte-identical
+canonical dataset exports all 2,857 local static pages.
 
 The spell-effect-bleed slice preserves all 12 active direct declarations as
 loss-aware booleans and gives the nine standalone bleed effects the preserved

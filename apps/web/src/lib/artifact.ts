@@ -503,6 +503,7 @@ const spellEffectSchema = z
         resistable: z.boolean().nullable(),
         burnsTarget: z.boolean().nullable(),
         bleedsTarget: z.boolean().nullable(),
+        skipAnimation: z.boolean().nullable(),
         taxonomy: nullableNonblankString,
       })
       .strict(),
