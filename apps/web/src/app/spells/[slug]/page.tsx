@@ -305,6 +305,15 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff casting-prevention declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.muteDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>AI hint declarations</dt>
             <dd>{aiHintDeclarations.length}</dd>
           </div>
@@ -657,6 +666,42 @@ export default async function SpellPage({
                         inferring visibility strength, detection, actor scope,
                         breaking conditions, stacking, duration, or runtime
                         behavior.
+                      </p>
+                    </section>
+                  ) : null}
+                  {buff.muteDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-casting-prevention-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-casting-prevention-heading`}
+                        className="relationship-title"
+                      >
+                        Casting prevention
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.muteDeclarations.map(
+                          (declaration, declarationIndex) => (
+                            <div key={declarationIndex}>
+                              <dt>
+                                Declaration {declarationIndex + 1} source amount
+                              </dt>
+                              <dd>
+                                {declaration.amount === null
+                                  ? "Not specified or unavailable"
+                                  : sourceNumber.format(declaration.amount)}
+                              </dd>
+                            </div>
+                          ),
+                        )}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The preserved application labels this marker as
+                        preventing casting. Its source amount is retained
+                        without inferring affected actors or spell categories,
+                        amount meaning, immunity, resistance, stacking,
+                        duration, removal, or runtime success.
                       </p>
                     </section>
                   ) : null}

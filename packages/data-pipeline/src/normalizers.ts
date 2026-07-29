@@ -39,7 +39,6 @@ import {
   type SpellBuffDescription,
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
-  type SpellBuffInvisibilityDeclaration,
   type SpellBuffSightModifier,
   type SpellEffect,
   type SpellEffectOption,
@@ -2917,8 +2916,13 @@ function spellBuffSightModifierRecords(buff: XmlRecord): XmlRecord[] {
   });
 }
 
-function spellBuffInvisibilityRecords(buff: XmlRecord): XmlRecord[] {
-  const value = buff.invisible;
+type SpellBuffAmountMarkerElement = "invisible" | "mute";
+
+function spellBuffAmountMarkerRecords(
+  buff: XmlRecord,
+  elementName: SpellBuffAmountMarkerElement,
+): XmlRecord[] {
+  const value = buff[elementName];
   const entries = Array.isArray(value) ? value : [value];
   return entries.flatMap((entry) => {
     if (isXmlRecord(entry)) {
@@ -2931,18 +2935,20 @@ function spellBuffInvisibilityRecords(buff: XmlRecord): XmlRecord[] {
   });
 }
 
-function parseSpellBuffInvisibilityDeclarations(
+function parseSpellBuffAmountMarkerDeclarations(
   buff: XmlRecord,
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
   buffIndex: number,
-): SpellBuffInvisibilityDeclaration[] {
-  return spellBuffInvisibilityRecords(buff).map(
+  elementName: SpellBuffAmountMarkerElement,
+  declarationLabel: string,
+): { amount: number | null }[] {
+  return spellBuffAmountMarkerRecords(buff, elementName).map(
     (declaration, declarationIndex) => {
       const declarationLocation =
         Object.keys(declaration).length === 0
-          ? context.parsed.locateChildElement(buff, "invisible")
+          ? context.parsed.locateChildElement(buff, elementName)
           : context.parsed.locateRecord(declaration);
       const declarationProvenance = {
         ...provenance,
@@ -2951,7 +2957,7 @@ function parseSpellBuffInvisibilityDeclarations(
       reportUnknownLeafContent(
         context,
         declaration,
-        "invisible",
+        elementName,
         new Set(["amount"]),
         declarationProvenance,
         currentEntityId,
@@ -2963,11 +2969,11 @@ function parseSpellBuffInvisibilityDeclarations(
         context.diagnostics.push({
           severity: "warning",
           code: "invalid_number",
-          message: `Expected an integer greater than or equal to 0 for spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount; used an unavailable value instead.`,
+          message: `Expected an integer greater than or equal to 0 for spell buff ${buffIndex + 1} ${declarationLabel} declaration ${declarationIndex + 1} amount; used an unavailable value instead.`,
           source: declarationProvenance,
           entityId: currentEntityId,
           details: {
-            field: `spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount`,
+            field: `spell buff ${buffIndex + 1} ${declarationLabel} declaration ${declarationIndex + 1} amount`,
             value: sourceAmount,
           },
         });
@@ -2979,7 +2985,7 @@ function parseSpellBuffInvisibilityDeclarations(
           sourceAmount,
           context,
           declarationProvenance,
-          `spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount`,
+          `spell buff ${buffIndex + 1} ${declarationLabel} declaration ${declarationIndex + 1} amount`,
           currentEntityId,
           0,
         ),
@@ -3347,6 +3353,7 @@ function parseSpellBuffs(
         "description",
         "halo",
         "invisible",
+        "mute",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3485,12 +3492,23 @@ function parseSpellBuffs(
         currentEntityId,
         buffIndex,
       ),
-      invisibilityDeclarations: parseSpellBuffInvisibilityDeclarations(
+      invisibilityDeclarations: parseSpellBuffAmountMarkerDeclarations(
         buff,
         context,
         provenance,
         currentEntityId,
         buffIndex,
+        "invisible",
+        "invisibility",
+      ),
+      muteDeclarations: parseSpellBuffAmountMarkerDeclarations(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
+        "mute",
+        "mute",
       ),
       aiHints: parseSpellAiHints(buff, context, provenance, currentEntityId, {
         buffIndex,

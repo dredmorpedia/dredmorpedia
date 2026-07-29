@@ -520,6 +520,7 @@ export interface SpellBuff {
   descriptions: SpellBuffDescription[];
   halos: SpellBuffHaloMetadata[];
   invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
+  muteDeclarations: SpellBuffMuteDeclaration[];
   aiHints: SpellAiHintMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
@@ -528,6 +529,10 @@ export interface SpellBuff {
 }
 
 export interface SpellBuffInvisibilityDeclaration {
+  amount: number | null;
+}
+
+export interface SpellBuffMuteDeclaration {
   amount: number | null;
 }
 

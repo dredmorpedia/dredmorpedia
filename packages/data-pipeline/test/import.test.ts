@@ -2083,6 +2083,7 @@ describe("synthetic dataset import", () => {
           },
         ],
         invisibilityDeclarations: [],
+        muteDeclarations: [],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2391,6 +2392,110 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete invisibility" &&
           diagnostic.code === "unknown_element" &&
           diagnostic.details?.element === "invisible",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes ordered buff-local mute declarations loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buff-mute-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Mute" type="self">
+    <buff>
+      <mute amount="1" />
+      <mute />
+    </buff>
+  </spell>
+  <spell name="Invalid Mute" type="self">
+    <buff>
+      <mute amount="-1" future="diagnosed">unexpected text<futureChild /></mute>
+      <mute amount="1.5" />
+      <mute amount="many" />
+      <mute amount=" " />
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const muteManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      muteManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-mute-test",
+        sources: [
+          {
+            id: "spell-buff-mute-source",
+            label: "Spell Buff Mute Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: muteManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Complete Mute")?.buffs[0]?.muteDeclarations).toEqual([
+      { amount: 1 },
+      { amount: null },
+    ]);
+    expect(spells.get("Invalid Mute")?.buffs[0]?.muteDeclarations).toEqual([
+      { amount: null },
+      { amount: null },
+      { amount: null },
+      { amount: null },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid mute" &&
+          diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(4);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid mute",
+          details: {
+            element: "mute",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid mute",
+          details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid mute",
+          details: { element: "#text" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete mute" &&
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "mute",
       ),
     ).toBe(false);
   });
@@ -4713,6 +4818,7 @@ describe("synthetic dataset import", () => {
           },
         ],
         invisibilityDeclarations: [{ amount: 1 }],
+        muteDeclarations: [{ amount: 1 }],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [
           { kind: "damage", sourceKey: "crushing", amount: 2 },

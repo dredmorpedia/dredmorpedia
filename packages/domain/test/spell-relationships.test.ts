@@ -152,6 +152,7 @@ function buff(
     descriptions: [],
     halos: [],
     invisibilityDeclarations: [],
+    muteDeclarations: [],
     aiHints: [],
     sourceFlags: [],
     modifiers: [],

@@ -122,6 +122,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     invisibility.getByText(/without inferring visibility strength/i),
   ).toBeVisible();
+  const castingPrevention = buffs.getByRole("region", {
+    name: "Casting prevention",
+  });
+  await expect(
+    castingPrevention.getByText("Declaration 1 source amount", { exact: true }),
+  ).toBeVisible();
+  await expect(castingPrevention.getByText("1", { exact: true })).toBeVisible();
+  await expect(
+    castingPrevention.getByText(/without inferring affected actors/i),
+  ).toBeVisible();
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();
