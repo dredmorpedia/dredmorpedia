@@ -314,6 +314,15 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff polymorph declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.polymorphDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>AI hint declarations</dt>
             <dd>{aiHintDeclarations.length}</dd>
           </div>
@@ -702,6 +711,66 @@ export default async function SpellPage({
                         without inferring affected actors or spell categories,
                         amount meaning, immunity, resistance, stacking,
                         duration, removal, or runtime success.
+                      </p>
+                    </section>
+                  ) : null}
+                  {buff.polymorphDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-polymorph-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-polymorph-heading`}
+                        className="relationship-title"
+                      >
+                        Polymorph targets
+                      </h3>
+                      <ul className="relation-list">
+                        {buff.polymorphDeclarations.map(
+                          (declaration, declarationIndex) => {
+                            const targetMonster = declaration.monsterId
+                              ? monstersById.get(declaration.monsterId)
+                              : undefined;
+                            return (
+                              <li key={declarationIndex}>
+                                <span>
+                                  {targetMonster ? (
+                                    <Link
+                                      className="entity-link font-semibold"
+                                      href={`/monsters/${targetMonster.slug}`}
+                                    >
+                                      {targetMonster.name}
+                                    </Link>
+                                  ) : declaration.monsterName !== null ? (
+                                    <strong>{declaration.monsterName}</strong>
+                                  ) : (
+                                    <strong>Target unavailable</strong>
+                                  )}
+                                </span>
+                                <small
+                                  className={
+                                    declaration.monsterName && !targetMonster
+                                      ? "trigger-resolution trigger-resolution-unresolved"
+                                      : "trigger-resolution"
+                                  }
+                                >
+                                  {targetMonster
+                                    ? "Resolved monster target"
+                                    : declaration.monsterName !== null
+                                      ? "Unresolved monster target"
+                                      : "No usable source target"}
+                                </small>
+                              </li>
+                            );
+                          },
+                        )}
+                      </ul>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The preserved application labels this declaration as
+                        polymorphing into the named monster type. The
+                        relationship does not establish duration, stat or
+                        ability replacement, equipment behavior, targeting,
+                        faction, reversibility, or runtime success.
                       </p>
                     </section>
                   ) : null}

@@ -337,6 +337,36 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/muteDeclarations/);
   });
 
+  it("rejects malformed spell buff polymorph metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            polymorphDeclarations: {
+              monsterKey: string | null;
+              monsterName: string | null;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.polymorphDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no buff polymorph declaration.",
+      );
+    }
+    declaration.monsterName = null;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/polymorphDeclarations/);
+  });
+
   it("rejects malformed spell AI hint metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

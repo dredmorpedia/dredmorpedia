@@ -12,6 +12,7 @@
       <ai hint="self" />
       <invisible amount="1" />
       <mute amount="1" />
+      <polymorph name="Training Diggle" />
       <damagebuff crushing="2" voltaic="-1" />
       <resistbuff toxic="3" />
       <primaryBuff id="2" amount="1" />

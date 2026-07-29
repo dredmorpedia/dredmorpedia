@@ -132,6 +132,18 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     castingPrevention.getByText(/without inferring affected actors/i),
   ).toBeVisible();
+  const polymorphTargets = buffs.getByRole("region", {
+    name: "Polymorph targets",
+  });
+  await expect(
+    polymorphTargets.getByRole("link", { name: "Training Diggle" }),
+  ).toBeVisible();
+  await expect(
+    polymorphTargets.getByText("Resolved monster target", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    polymorphTargets.getByText(/does not establish duration, stat or ability/i),
+  ).toBeVisible();
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();

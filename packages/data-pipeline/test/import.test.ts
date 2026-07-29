@@ -2084,6 +2084,7 @@ describe("synthetic dataset import", () => {
         ],
         invisibilityDeclarations: [],
         muteDeclarations: [],
+        polymorphDeclarations: [],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2496,6 +2497,129 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete mute" &&
           diagnostic.code === "unknown_element" &&
           diagnostic.details?.element === "mute",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes and links ordered buff-local polymorph targets loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buff-polymorph-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Polymorph" type="self">
+    <buff>
+      <polymorph name="Training Form" />
+    </buff>
+  </spell>
+  <spell name="Invalid Polymorph" type="self">
+    <buff>
+      <polymorph />
+      <polymorph name=" " />
+      <polymorph name="Missing Form" future="diagnosed">unexpected text<futureChild /></polymorph>
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "monDB.xml"),
+      `<?xml version="1.0"?>
+<monsterDB>
+  <monster name="Training Form" />
+</monsterDB>`,
+    );
+    const polymorphManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      polymorphManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-polymorph-test",
+        sources: [
+          {
+            id: "spell-buff-polymorph-source",
+            label: "Spell Buff Polymorph Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "spells", path: "spellDB.xml" },
+              { kind: "monsters", path: "monDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: polymorphManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells.get("Complete Polymorph")?.buffs[0]?.polymorphDeclarations,
+    ).toEqual([
+      {
+        monsterKey: "training form",
+        monsterName: "Training Form",
+        monsterId: "monster:training form",
+      },
+    ]);
+    expect(
+      spells.get("Invalid Polymorph")?.buffs[0]?.polymorphDeclarations,
+    ).toEqual([
+      { monsterKey: null, monsterName: null },
+      { monsterKey: null, monsterName: null },
+      { monsterKey: "missing form", monsterName: "Missing Form" },
+    ]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid polymorph" &&
+          diagnostic.code === "missing_spell_buff_polymorph_target",
+      ),
+    ).toHaveLength(2);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid polymorph",
+          details: {
+            element: "polymorph",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid polymorph",
+          details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid polymorph",
+          details: { element: "#text" },
+        }),
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "spell:invalid polymorph",
+          message: expect.stringContaining("Missing Form"),
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete polymorph" &&
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "polymorph",
       ),
     ).toBe(false);
   });
@@ -4819,6 +4943,13 @@ describe("synthetic dataset import", () => {
         ],
         invisibilityDeclarations: [{ amount: 1 }],
         muteDeclarations: [{ amount: 1 }],
+        polymorphDeclarations: [
+          {
+            monsterKey: "training diggle",
+            monsterName: "Training Diggle",
+            monsterId: "monster:training diggle",
+          },
+        ],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [
           { kind: "damage", sourceKey: "crushing", amount: 2 },

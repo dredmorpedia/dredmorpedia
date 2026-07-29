@@ -39,6 +39,7 @@ import {
   type SpellBuffDescription,
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
+  type SpellBuffPolymorphDeclaration,
   type SpellBuffSightModifier,
   type SpellEffect,
   type SpellEffectOption,
@@ -2994,6 +2995,71 @@ function parseSpellBuffAmountMarkerDeclarations(
   );
 }
 
+function spellBuffPolymorphRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.polymorph;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffPolymorphDeclarations(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffPolymorphDeclaration[] {
+  return spellBuffPolymorphRecords(buff).map(
+    (declaration, declarationIndex) => {
+      const declarationLocation =
+        Object.keys(declaration).length === 0
+          ? context.parsed.locateChildElement(buff, "polymorph")
+          : context.parsed.locateRecord(declaration);
+      const declarationProvenance = {
+        ...provenance,
+        ...declarationLocation,
+      };
+      reportUnknownLeafContent(
+        context,
+        declaration,
+        "polymorph",
+        new Set(["name"]),
+        declarationProvenance,
+        currentEntityId,
+        true,
+      );
+
+      const sourceName = xmlAttribute(declaration, "name");
+      const monsterName =
+        sourceName === undefined || sourceName.trim() === ""
+          ? null
+          : sourceName;
+      if (monsterName === null) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_spell_buff_polymorph_target",
+          message: `Spell buff ${buffIndex + 1} polymorph declaration ${declarationIndex + 1} is missing its monster target.`,
+          source: declarationProvenance,
+          entityId: currentEntityId,
+          details: { buffIndex, declarationIndex },
+        });
+      }
+
+      return {
+        monsterKey: monsterName === null ? null : canonicalKey(monsterName),
+        monsterName,
+      };
+    },
+  );
+}
+
 function parseSpellBuffDescriptions(
   buff: XmlRecord,
   context: NormalizationContext,
@@ -3354,6 +3420,7 @@ function parseSpellBuffs(
         "halo",
         "invisible",
         "mute",
+        "polymorph",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3509,6 +3576,13 @@ function parseSpellBuffs(
         buffIndex,
         "mute",
         "mute",
+      ),
+      polymorphDeclarations: parseSpellBuffPolymorphDeclarations(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
       ),
       aiHints: parseSpellAiHints(buff, context, provenance, currentEntityId, {
         buffIndex,

@@ -6,6 +6,7 @@ import {
   calculateMonsterPrimaryAttributes,
   entityRouteSlugs,
   matchesEntityRoute,
+  spellBuffPolymorphBacklinks,
   spellEffectMonsterTargetBacklinks,
   type MonsterSpellTriggerKind,
 } from "@dredmorpedia/domain";
@@ -134,6 +135,10 @@ export default async function MonsterPage({
     monster.diagnosticIds.includes(entry.id),
   );
   const summonBacklinks = spellEffectMonsterTargetBacklinks(
+    artifact.entities.spells,
+    monster.id,
+  );
+  const polymorphBacklinks = spellBuffPolymorphBacklinks(
     artifact.entities.spells,
     monster.id,
   );
@@ -705,6 +710,44 @@ export default async function MonsterPage({
             These are direct source relationships. They do not establish
             availability, allegiance, placement, lifetime, AI state, or runtime
             spawning behavior.
+          </p>
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="polymorphed-by-heading"
+        >
+          <h2 id="polymorphed-by-heading" className="section-title-sm">
+            Polymorph target of spells
+          </h2>
+          {polymorphBacklinks.length > 0 ? (
+            <ul className="relation-list">
+              {polymorphBacklinks.map(
+                ({ spell, buffIndex, declarationIndex }) => (
+                  <li key={`${spell.id}:${buffIndex}:${declarationIndex}`}>
+                    <Link
+                      className="entity-link font-semibold"
+                      href={`/spells/${spell.slug}`}
+                    >
+                      {spell.name}
+                    </Link>
+                    <span>
+                      Buff {buffIndex + 1} · Declaration {declarationIndex + 1}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized spell buff directly names this monster as a
+              polymorph target.
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            These are direct named source relationships. They do not establish
+            duration, stat or ability replacement, equipment behavior,
+            targeting, faction, reversibility, or runtime success.
           </p>
         </section>
 

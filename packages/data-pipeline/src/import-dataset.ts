@@ -354,6 +354,22 @@ function linkSpells(
     ...spell,
     buffs: spell.buffs.map((buff) => ({
       ...buff,
+      polymorphDeclarations: buff.polymorphDeclarations.map((declaration) => {
+        if (
+          declaration.monsterKey === null ||
+          declaration.monsterName === null
+        ) {
+          return declaration;
+        }
+        const target = monsterAliases.get(declaration.monsterKey);
+        if (target) {
+          return { ...declaration, monsterId: target.id };
+        }
+        diagnostics.push(
+          danglingDiagnostic(spell, "monster", declaration.monsterName),
+        );
+        return declaration;
+      }),
       eventHooks: buff.eventHooks.map((hook) => {
         const target = spellAliases.get(hook.spellKey);
         if (target) {

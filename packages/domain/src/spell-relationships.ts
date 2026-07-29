@@ -4,6 +4,7 @@ import type {
   Monster,
   Spell,
   SpellBuffEventHook,
+  SpellBuffPolymorphDeclaration,
   SpellEffect,
   SpellEffectBuffCondition,
   SpellEffectItemOption,
@@ -59,6 +60,13 @@ export interface SpellEffectMonsterTargetBacklink {
   spell: Spell;
   effect: SpellEffect;
   effectIndex: number;
+}
+
+export interface SpellBuffPolymorphBacklink {
+  spell: Spell;
+  buffIndex: number;
+  declaration: SpellBuffPolymorphDeclaration;
+  declarationIndex: number;
 }
 
 export interface SpellEffectRemovedBuffBacklink {
@@ -253,6 +261,29 @@ export function spellEffectMonsterTargetBacklinks(
         compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
         compareCodeUnits(left.spell.id, right.spell.id) ||
         left.effectIndex - right.effectIndex,
+    );
+}
+
+export function spellBuffPolymorphBacklinks(
+  spells: readonly Spell[],
+  targetMonsterId: Monster["id"],
+): SpellBuffPolymorphBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.buffs.flatMap((buff, buffIndex) =>
+        buff.polymorphDeclarations.flatMap((declaration, declarationIndex) =>
+          declaration.monsterId === targetMonsterId
+            ? [{ spell, buffIndex, declaration, declarationIndex }]
+            : [],
+        ),
+      ),
+    )
+    .sort(
+      (left, right) =>
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
+        left.buffIndex - right.buffIndex ||
+        left.declarationIndex - right.declarationIndex,
     );
 }
 

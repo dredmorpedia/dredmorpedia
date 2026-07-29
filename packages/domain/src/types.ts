@@ -521,6 +521,7 @@ export interface SpellBuff {
   halos: SpellBuffHaloMetadata[];
   invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
   muteDeclarations: SpellBuffMuteDeclaration[];
+  polymorphDeclarations: SpellBuffPolymorphDeclaration[];
   aiHints: SpellAiHintMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
@@ -534,6 +535,12 @@ export interface SpellBuffInvisibilityDeclaration {
 
 export interface SpellBuffMuteDeclaration {
   amount: number | null;
+}
+
+export interface SpellBuffPolymorphDeclaration {
+  monsterKey: string | null;
+  monsterName: string | null;
+  monsterId?: string;
 }
 
 export interface Spell extends NormalizedEntityBase {

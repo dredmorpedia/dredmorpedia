@@ -490,6 +490,30 @@ const spellEffectMonsterTargetSchema = z
     }
   });
 
+const spellBuffPolymorphDeclarationSchema = z
+  .object({
+    monsterKey: nullableNonblankString,
+    monsterName: nullableNonblankString,
+    monsterId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((target, context) => {
+    if ((target.monsterKey === null) !== (target.monsterName === null)) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Polymorph target key and name must both be present or absent.",
+      });
+    }
+    if (target.monsterId !== undefined && target.monsterKey === null) {
+      context.addIssue({
+        code: "custom",
+        message: "A resolved polymorph target must retain its source target.",
+        path: ["monsterId"],
+      });
+    }
+  });
+
 const spellEffectRemovedBuffSchema = z
   .object({
     spellKey: nullableNonblankString,
@@ -665,6 +689,7 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    polymorphDeclarations: z.array(spellBuffPolymorphDeclarationSchema),
     aiHints: z.array(spellAiHintSchema),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),

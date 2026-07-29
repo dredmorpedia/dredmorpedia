@@ -848,6 +848,18 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(
     summonBacklinks.getByText(/allegiance, placement, lifetime, AI state/i),
   ).toBeVisible();
+  const polymorphBacklinks = page.getByRole("region", {
+    name: "Polymorph target of spells",
+  });
+  await expect(
+    polymorphBacklinks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(
+    polymorphBacklinks.getByText("Buff 1 · Declaration 1", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    polymorphBacklinks.getByText(/do not establish duration, stat or ability/i),
+  ).toBeVisible();
 
   await page.goto("/abilities/clockwork-followthrough/");
   const eventTrigger = page.getByRole("region", {

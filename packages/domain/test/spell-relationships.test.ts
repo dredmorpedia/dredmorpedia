@@ -5,6 +5,7 @@ import {
   entityId,
   slugify,
   spellBuffEventHookBacklinks,
+  spellBuffPolymorphBacklinks,
   spellEffectBacklinks,
   spellEffectChain,
   spellEffectConditionBacklinks,
@@ -132,6 +133,7 @@ function buffEventHookReference(
 
 function buff(
   eventHooks: Spell["buffs"][number]["eventHooks"],
+  polymorphDeclarations: Spell["buffs"][number]["polymorphDeclarations"] = [],
 ): Spell["buffs"][number] {
   return {
     iconPath: null,
@@ -153,6 +155,7 @@ function buff(
     halos: [],
     invisibilityDeclarations: [],
     muteDeclarations: [],
+    polymorphDeclarations,
     aiHints: [],
     sourceFlags: [],
     modifiers: [],
@@ -503,6 +506,38 @@ describe("spell effect relationships", () => {
       ["Earlier", 0, 1],
       ["Earlier", 2, 1],
       ["Later", 0, 1],
+    ]);
+  });
+
+  it("returns polymorph backlinks in deterministic source order", () => {
+    const targetId = "monster:training diggle";
+    const declaration = (
+      linked = true,
+    ): Spell["buffs"][number]["polymorphDeclarations"][number] => ({
+      monsterKey: "training diggle",
+      monsterName: "Training Diggle",
+      ...(linked ? { monsterId: targetId } : {}),
+    });
+    const later = spell("Later");
+    later.buffs = [buff([], [declaration()])];
+    const earlier = spell("Earlier");
+    earlier.buffs = [
+      buff([], [declaration(), declaration(false), declaration()]),
+    ];
+
+    expect(
+      spellBuffPolymorphBacklinks([later, earlier], targetId).map(
+        ({ spell: source, buffIndex, declarationIndex, declaration }) => [
+          source.name,
+          buffIndex,
+          declarationIndex,
+          declaration.monsterName,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, 0, "Training Diggle"],
+      ["Earlier", 0, 2, "Training Diggle"],
+      ["Later", 0, 0, "Training Diggle"],
     ]);
   });
 
