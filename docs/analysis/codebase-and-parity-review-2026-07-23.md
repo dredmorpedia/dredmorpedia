@@ -16,7 +16,7 @@ The generated-search comparator now ends on entity ID, closing finding 3 without
 
 The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
 
-Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. Minor UI cleanup and explicit documentation of the manifest trust anchor remain available low-severity work.
+Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. Minor UI cleanup remains available low-severity work.
 
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
@@ -25,6 +25,12 @@ The empty-root asset-path hardening gap is also closed. Asset values are now val
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).
 
 The presentation/reference path boundary is now also complete. Pipeline rejection of absolute, drive-relative, and traversal values is host-independent; every web artifact field that carries an asset reference uses one safe-relative-path schema; and all 3,708 non-null canonical references satisfy it. Focused importer and checksummed-tampering regressions cover drive-relative and traversal failures. Evidence is recorded in [`asset-reference-artifact-boundary-evidence-2026-07-29.md`](asset-reference-artifact-boundary-evidence-2026-07-29.md).
+
+The manifest trust-anchor assumption is now explicit in code, the input
+contract, and the data policy. A focused regression permits a trusted absolute
+external source root while proving its declared database paths remain
+real-path-contained. Evidence is recorded in
+[`source-root-trust-boundary-evidence-2026-07-29.md`](source-root-trust-boundary-evidence-2026-07-29.md).
 
 ## Priority findings
 
@@ -72,7 +78,12 @@ Hardening opportunities (none currently exploitable):
 - **Resolved 2026-07-29:** the Zod boundary previously typed `slug`, `slugAliases`, and search-document `url` as bare strings and the loader checked unique entity IDs without independently checking route ownership. Canonical and alias slugs now require the generated lowercase ASCII shape, search URLs require an absolute entity-route shape, and every canonical-or-alias slug must have exactly one owner within its entity kind.
 - **Resolved 2026-07-29:** presentation/reference fields such as `iconPath` were bare nullable strings at the web boundary. One safe-relative-path schema now covers every item, skill/ability, spell, and monster asset reference. Pipeline validation is host-independent, including Windows drive-relative values, and the ignored canonical artifact's 3,708 non-null references all satisfy the consumer boundary.
 - **Resolved 2026-07-29:** `normalizeAssetPath` previously performed its `..`/absolute rejection only inside the asset-root loop, so an empty `assetRoots` list would skip validation. It now validates unconditionally before root probing, with a focused empty-root parser regression.
-- An absolute `source.root` (`manifest.ts`) is accepted without a containment check, by design, to allow external game-install directories. This is safe only because the manifest is trusted operator configuration; a one-line comment noting the manifest as a trust anchor would document the assumption.
+- **Resolved 2026-07-29:** an absolute `source.root` remains accepted by
+  design so a trusted local manifest can name an external read-only game
+  installation. The code and contracts now identify the manifest as an
+  operator-controlled trust anchor; a paired regression proves the absolute
+  root is allowed while every declared source file remains relative and
+  contained beneath its real source root.
 
 ## Web application
 

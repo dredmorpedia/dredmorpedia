@@ -108,6 +108,11 @@ The ordered repository-wide hardening queue is complete. Patch overlays enforce 
 
 The asset-reference contract is also host-independent end to end: the pipeline rejects POSIX absolute, Windows absolute/drive-relative, and traversal values, and the web applies one safe-relative-path schema across all item, skill/ability, spell, and monster presentation fields. The ignored canonical artifact's 3,708 non-null references satisfy the boundary.
 
+The source-manifest trust assumption is explicit in code, policy, and the input
+contract. A trusted local manifest may name an absolute external read-only
+source root; declared database paths are still real-path-contained beneath that
+root, and generated artifacts never expose the machine-local root.
+
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.
@@ -120,6 +125,15 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The source-root trust-boundary checkpoint documents the source manifest as
+trusted local/operator configuration. A focused regression proves an absolute
+external root is permitted while a declared traversal remains rejected.
+`pnpm.cmd check` passes all 142 unit/artifact tests, byte-identical synthetic
+generation, and the 43-page synthetic export; deterministic official generation
+remains byte-identical with 763 items, 2,767 search documents, 0 errors, 275
+warnings, and 71 informational decisions. Evidence is recorded in
+`docs/analysis/source-root-trust-boundary-evidence-2026-07-29.md`.
 
 The asset-reference artifact-boundary checkpoint makes pipeline rejection of POSIX absolute, Windows absolute/drive-relative, and traversal values independent of the generator host and applies one web schema to every generated item, skill/ability, spell, and monster asset reference. Focused pipeline and checksummed-tampering regressions pass; all 3,708 non-null canonical references satisfy the boundary. The full workspace passes 141 unit/artifact tests and the 43-page synthetic export; the byte-identical ignored canonical dataset passes the complete 2,857-page static export with 0 errors, 275 warnings, and 71 informational decisions. Evidence is recorded in `docs/analysis/asset-reference-artifact-boundary-evidence-2026-07-29.md`.
 

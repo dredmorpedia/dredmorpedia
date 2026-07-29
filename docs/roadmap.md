@@ -83,6 +83,12 @@ The web artifact boundary now validates canonical/alias slug and search-URL shap
 
 Asset-reference hardening now rejects POSIX absolute, Windows absolute/drive-relative, and traversal values independently of the generator host. One web schema covers all item, skill/ability, spell, and monster presentation paths; all 3,708 non-null canonical references satisfy it.
 
+The source-manifest trust boundary is now explicit: trusted local manifests may
+name an absolute read-only game-installation root, while declared database files
+remain real-path-contained beneath it and machine-local roots stay out of
+generated artifacts. A focused regression covers both the allowed root and a
+rejected traversal attempt.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

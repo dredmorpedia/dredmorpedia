@@ -17,6 +17,15 @@ Lower source precedence is processed first. A higher precedence replaces a lower
 
 Patch references contain an integer `order` and a repository-relative `path`. Patch paths must resolve inside the repository, are included in input checksums, and are sorted by order then path. Duplicate source IDs and duplicate patch paths are rejected.
 
+The source manifest is trusted operator configuration, not an untrusted upload
+format. A source `root` may therefore be absolute so the importer can read a
+game installation outside the repository. The importer canonicalizes that root
+without modifying it, then requires every declared `files[].path` to be a safe
+relative path whose real filesystem target remains inside the source root,
+including through symbolic links. Machine-local roots are never copied into
+generated artifacts. Patch and route-registry paths do not share this exception:
+they remain repository-relative and repository-contained.
+
 ## Published-route registry
 
 Route-registry schema version `1` pins canonical slugs and historical aliases for a specific dataset ID/version. Each entry names an entity kind and resolves its target either by current canonical entity ID or, preferably, by exact source ID plus original source ID. The source-ID form survives a corrected display name or canonical key as long as the source record identity remains stable.

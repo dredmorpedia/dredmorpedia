@@ -31,6 +31,13 @@ Repository tools and contributors must not:
 
 Any future importer must accept an explicit source root, validate that reads remain inside it, reject traversal and unsafe links, and write only to a separate configured output directory.
 
+The implemented source manifest is a trusted local/operator configuration
+boundary. It may name an absolute external source root, but it is not safe to
+accept from an untrusted upload or remote request. Every database path declared
+beneath that root remains relative and is checked after real-path resolution so
+traversal and symbolic-link escapes cannot widen read access. Generated outputs
+sanitize the root rather than recording its machine-local value.
+
 ## Repository boundary
 
 Do not commit:

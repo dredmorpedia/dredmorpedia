@@ -555,4 +555,49 @@ describe("input safety", () => {
       rmSync(repositoryRoot, { recursive: true, force: true });
     }
   });
+
+  it("allows a trusted absolute source root while containing declared files", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-manifest-trust-"),
+    );
+    const externalSourceRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-external-source-"),
+    );
+    try {
+      writeFileSync(path.join(externalSourceRoot, "itemDB.xml"), "<items />");
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      const manifest = {
+        schemaVersion: 2,
+        datasetId: "manifest-trust-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "external-fixture",
+            label: "External Fixture",
+            kind: "fixture",
+            version: "1.0.0",
+            precedence: 0,
+            root: externalSourceRoot,
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+        patches: [],
+      };
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+
+      expect(
+        loadManifest(manifestPath, repositoryRoot).manifest.sources[0]?.root,
+      ).toBe(externalSourceRoot);
+
+      manifest.sources[0]!.files[0]!.path = "../outside.xml";
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+
+      expect(() => loadManifest(manifestPath, repositoryRoot)).toThrow(
+        /Unsafe relative path/,
+      );
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+      rmSync(externalSourceRoot, { recursive: true, force: true });
+    }
+  });
 });

@@ -111,6 +111,9 @@ export function resolveSourceRoot(
   manifestDirectory: string,
   sourceRoot: string,
 ): string {
+  // The manifest is trusted operator configuration. Absolute roots
+  // intentionally support read-only external game installations; every
+  // declared source file is still contained with resolveExistingWithin.
   return path.isAbsolute(sourceRoot)
     ? realpathSync(sourceRoot)
     : resolveExistingWithin(manifestDirectory, sourceRoot);
