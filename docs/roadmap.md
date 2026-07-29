@@ -253,6 +253,17 @@ tracked spell requirements, and 23 dangling references. Evidence is recorded
 in
 `docs/analysis/spell-effect-named-buff-removal-evidence-2026-07-29.md`.
 
+Buff-local invisibility metadata now preserves all nine active `<invisible>`
+declarations across nine spells. Eight retain source amount `1`, and one
+retains a valid unavailable amount because the source omits it. The preserved
+application confirms the invisibility label but does not interpret the amount;
+the modern page therefore withholds visibility strength, detection, actor
+scope, breaking, stacking, duration, targeting, AI, and runtime semantics.
+This removes all nine former `<invisible>` diagnostics and leaves 42 spell
+compatibility constructs, 13 separately tracked spell requirements, and 23
+dangling references. Evidence is recorded in
+`docs/analysis/spell-buff-invisibility-evidence-2026-07-29.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

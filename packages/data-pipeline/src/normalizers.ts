@@ -39,6 +39,7 @@ import {
   type SpellBuffDescription,
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
+  type SpellBuffInvisibilityDeclaration,
   type SpellBuffSightModifier,
   type SpellEffect,
   type SpellEffectOption,
@@ -2916,6 +2917,77 @@ function spellBuffSightModifierRecords(buff: XmlRecord): XmlRecord[] {
   });
 }
 
+function spellBuffInvisibilityRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.invisible;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffInvisibilityDeclarations(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffInvisibilityDeclaration[] {
+  return spellBuffInvisibilityRecords(buff).map(
+    (declaration, declarationIndex) => {
+      const declarationLocation =
+        Object.keys(declaration).length === 0
+          ? context.parsed.locateChildElement(buff, "invisible")
+          : context.parsed.locateRecord(declaration);
+      const declarationProvenance = {
+        ...provenance,
+        ...declarationLocation,
+      };
+      reportUnknownLeafContent(
+        context,
+        declaration,
+        "invisible",
+        new Set(["amount"]),
+        declarationProvenance,
+        currentEntityId,
+        true,
+      );
+
+      const sourceAmount = xmlAttribute(declaration, "amount");
+      if (sourceAmount !== undefined && sourceAmount.trim() === "") {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "invalid_number",
+          message: `Expected an integer greater than or equal to 0 for spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount; used an unavailable value instead.`,
+          source: declarationProvenance,
+          entityId: currentEntityId,
+          details: {
+            field: `spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount`,
+            value: sourceAmount,
+          },
+        });
+        return { amount: null };
+      }
+
+      return {
+        amount: optionalIntegerValue(
+          sourceAmount,
+          context,
+          declarationProvenance,
+          `spell buff ${buffIndex + 1} invisibility declaration ${declarationIndex + 1} amount`,
+          currentEntityId,
+          0,
+        ),
+      };
+    },
+  );
+}
+
 function parseSpellBuffDescriptions(
   buff: XmlRecord,
   context: NormalizationContext,
@@ -3274,6 +3346,7 @@ function parseSpellBuffs(
         "ai",
         "description",
         "halo",
+        "invisible",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3406,6 +3479,13 @@ function parseSpellBuffs(
         buffIndex,
       ),
       halos: parseSpellBuffHalos(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
+      ),
+      invisibilityDeclarations: parseSpellBuffInvisibilityDeclarations(
         buff,
         context,
         provenance,

@@ -296,6 +296,15 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff invisibility declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.invisibilityDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>AI hint declarations</dt>
             <dd>{aiHintDeclarations.length}</dd>
           </div>
@@ -612,6 +621,42 @@ export default async function SpellPage({
                         animation timing formulas. Detailed sprite references
                         remain hidden while the asset publication boundary is
                         unresolved.
+                      </p>
+                    </section>
+                  ) : null}
+                  {buff.invisibilityDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-invisibility-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-invisibility-heading`}
+                        className="relationship-title"
+                      >
+                        Invisibility
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.invisibilityDeclarations.map(
+                          (declaration, declarationIndex) => (
+                            <div key={declarationIndex}>
+                              <dt>
+                                Declaration {declarationIndex + 1} source amount
+                              </dt>
+                              <dd>
+                                {declaration.amount === null
+                                  ? "Not specified or unavailable"
+                                  : sourceNumber.format(declaration.amount)}
+                              </dd>
+                            </div>
+                          ),
+                        )}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The preserved application identifies this marker as
+                        invisibility. Its source amount is retained without
+                        inferring visibility strength, detection, actor scope,
+                        breaking conditions, stacking, duration, or runtime
+                        behavior.
                       </p>
                     </section>
                   ) : null}

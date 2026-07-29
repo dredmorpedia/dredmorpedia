@@ -283,6 +283,33 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/halos/);
   });
 
+  it("rejects malformed spell buff invisibility metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            invisibilityDeclarations: { amount: number | null }[];
+          }[];
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.invisibilityDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no buff invisibility declaration.",
+      );
+    }
+    declaration.amount = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/invisibilityDeclarations/);
+  });
+
   it("rejects malformed spell AI hint metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

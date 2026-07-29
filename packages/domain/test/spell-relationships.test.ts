@@ -151,6 +151,7 @@ function buff(
     stackLimit: null,
     descriptions: [],
     halos: [],
+    invisibilityDeclarations: [],
     aiHints: [],
     sourceFlags: [],
     modifiers: [],

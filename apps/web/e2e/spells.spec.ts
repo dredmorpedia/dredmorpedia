@@ -112,6 +112,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(haloPresentation).not.toContainText(
     "sprites/sfx/clockwork-ward/clockwork-ward",
   );
+  const invisibility = buffs.getByRole("region", {
+    name: "Invisibility",
+  });
+  await expect(
+    invisibility.getByText("Declaration 1 source amount", { exact: true }),
+  ).toBeVisible();
+  await expect(invisibility.getByText("1", { exact: true })).toBeVisible();
+  await expect(
+    invisibility.getByText(/without inferring visibility strength/i),
+  ).toBeVisible();
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();

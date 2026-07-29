@@ -519,11 +519,16 @@ export interface SpellBuff {
   stackLimit: number | null;
   descriptions: SpellBuffDescription[];
   halos: SpellBuffHaloMetadata[];
+  invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
   aiHints: SpellAiHintMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];
   sightModifiers: SpellBuffSightModifier[];
   eventHooks: SpellBuffEventHook[];
+}
+
+export interface SpellBuffInvisibilityDeclaration {
+  amount: number | null;
 }
 
 export interface Spell extends NormalizedEntityBase {

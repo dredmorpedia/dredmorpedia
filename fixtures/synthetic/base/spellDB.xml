@@ -10,6 +10,7 @@
       <description text="A measured clockwork ward surrounds the caster." />
       <halo name="sprites/sfx/clockwork-ward/clockwork-ward" first="0" num="4" frameRate="120" centerEffect="1" />
       <ai hint="self" />
+      <invisible amount="1" />
       <damagebuff crushing="2" voltaic="-1" />
       <resistbuff toxic="3" />
       <primaryBuff id="2" amount="1" />

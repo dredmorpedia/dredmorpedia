@@ -651,6 +651,13 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    invisibilityDeclarations: z.array(
+      z
+        .object({
+          amount: nullableNonnegativeInteger,
+        })
+        .strict(),
+    ),
     aiHints: z.array(spellAiHintSchema),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),

@@ -2082,6 +2082,7 @@ describe("synthetic dataset import", () => {
             centered: false,
           },
         ],
+        invisibilityDeclarations: [],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2296,6 +2297,100 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete buff" &&
           (diagnostic.code === "unknown_element" ||
             diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes ordered buff-local invisibility declarations loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buff-invisibility-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Invisibility" type="self">
+    <buff>
+      <invisible amount="1" />
+      <invisible />
+    </buff>
+  </spell>
+  <spell name="Invalid Invisibility" type="self">
+    <buff>
+      <invisible amount="-1" future="diagnosed"><futureChild /></invisible>
+      <invisible amount="1.5" />
+      <invisible amount=" " />
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const invisibilityManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      invisibilityManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-invisibility-test",
+        sources: [
+          {
+            id: "spell-buff-invisibility-source",
+            label: "Spell Buff Invisibility Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: invisibilityManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells.get("Complete Invisibility")?.buffs[0]?.invisibilityDeclarations,
+    ).toEqual([{ amount: 1 }, { amount: null }]);
+    expect(
+      spells.get("Invalid Invisibility")?.buffs[0]?.invisibilityDeclarations,
+    ).toEqual([{ amount: null }, { amount: null }, { amount: null }]);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid invisibility" &&
+          diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(3);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid invisibility",
+          details: {
+            element: "invisible",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid invisibility",
+          details: { element: "futureChild" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete invisibility" &&
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "invisible",
       ),
     ).toBe(false);
   });
@@ -4617,6 +4712,7 @@ describe("synthetic dataset import", () => {
             centered: true,
           },
         ],
+        invisibilityDeclarations: [{ amount: 1 }],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [
           { kind: "damage", sourceKey: "crushing", amount: 2 },
