@@ -22,13 +22,17 @@ Search must eventually combine text with typed filters and numeric game fields. 
   aliases only. Suggestions never silently replace the query. Use a search
   library only if measured relevance or performance later justifies it.
 
-Dataset artifact version 2 and search artifact version 1 now implement this split. The search route loads the search payload, applies project-owned text/facet logic, preserves filters in the URL, and renders at most 50 results. This implementation is not permission to publish official content.
+Dataset artifact version 3 and search artifact version 2 now implement this
+split. Search schema 2 adds ordered route aliases to each document. The search
+route loads the search payload, applies project-owned text/facet and spelling
+logic, preserves filters in the URL, and renders at most 50 results. This
+implementation is not permission to publish official content.
 
 ## Consequences
 
 This avoids an early dependency and keeps domain filtering explicit. It also means the project owns token normalization, ranking, result grouping, and later typo/prefix behavior until evidence justifies a specialized index.
 
-Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for query execution across 1,000 representative calls. This excludes JSON transfer, parse/hydration, rendering, and interaction latency, so the user-facing budget remains open. Evidence is recorded in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md).
+Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for query execution across 1,000 representative calls. This excludes JSON transfer, parse/hydration, rendering, and interaction latency, so the user-facing budget remains open. Initial query evidence is recorded in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md); the implemented suggestion contract and schema-2 measurements are in [`../analysis/search-spelling-suggestions-evidence-2026-07-29.md`](../analysis/search-spelling-suggestions-evidence-2026-07-29.md).
 
 ## Acceptance checklist
 
@@ -38,6 +42,9 @@ Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for 
 - [x] Initial relevance direction is agreed: deterministic ordinary results
       plus bounded, user-selected name/alias suggestions for zero-result
       queries.
+- [x] Name/route-alias suggestions are implemented without a third-party
+      library, honor active filters, remain capped at five, and require an
+      explicit user selection.
 - [ ] Query and interaction benchmarks are recorded on desktop and mobile.
 - [ ] Detailed suggestion examples and a response-time budget are agreed and
       measured.

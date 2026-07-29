@@ -977,7 +977,7 @@ export function importDataset(
     diagnostics: countDiagnostics(finalizedDiagnostics),
   };
   const search: SearchArtifact = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     datasetSchemaVersion: artifact.schemaVersion,
     datasetId: artifact.datasetId,
     language: artifact.language,

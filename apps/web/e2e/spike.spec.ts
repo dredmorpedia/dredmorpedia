@@ -241,6 +241,43 @@ test("searches every record kind without losing sequential input", async ({
   ).toBeVisible();
 });
 
+test("offers keyboard-selectable spelling suggestions only within active filters", async ({
+  page,
+}) => {
+  await page.goto("/search/?kind=item&q=clokwork+blade");
+  await expect(page.getByText("0 matching records")).toBeVisible();
+
+  const suggestions = page.getByRole("region", {
+    name: "Did you mean one of these names?",
+  });
+  await expect(suggestions).toBeVisible();
+  expect(await suggestions.getByRole("button").count()).toBeLessThanOrEqual(5);
+
+  const clockworkBlade = suggestions.getByRole("button", {
+    name: /Clockwork Blade/,
+  });
+  await clockworkBlade.focus();
+  await expect(clockworkBlade).toBeFocused();
+  await clockworkBlade.press("Enter");
+
+  const search = page.getByRole("searchbox", { name: "Search terms" });
+  await expect(search).toBeFocused();
+  await expect(search).toHaveValue("Clockwork Blade");
+  await expect(page).toHaveURL(/kind=item.*q=Clockwork(?:\+|%20)Blade/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+
+  await page.goto("/search/?kind=spell&q=clokwork+blade");
+  await expect(page.getByText("0 matching records")).toBeVisible();
+  await expect(
+    page.getByRole("region", {
+      name: "Did you mean one of these names?",
+    }),
+  ).toHaveCount(0);
+});
+
 test("finds and renders a targeting template with a keyboard flow", async ({
   page,
 }) => {
@@ -1104,6 +1141,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/browse/",
     "/browse/spells/1/",
     "/search/",
+    "/search/?q=clokwork+blade",
     "/items/clockwork-blade/",
     "/items/clockwork-blade-plus/",
     "/items/clockwork-sword/",

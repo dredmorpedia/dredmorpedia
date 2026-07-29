@@ -841,7 +841,7 @@ const datasetArtifactSchema = z
 
 const searchArtifactSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     datasetSchemaVersion: z.literal(3),
     datasetId: z.string(),
     language: z.literal("en"),
@@ -851,6 +851,7 @@ const searchArtifactSchema = z
           id: z.string(),
           kind: z.enum(entityKinds),
           name: z.string(),
+          aliases: z.array(entitySlugSchema),
           summary: z.string(),
           sourceId: z.string(),
           category: z.string().nullable(),

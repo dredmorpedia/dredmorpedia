@@ -713,6 +713,7 @@ export interface SearchDocument {
   id: string;
   kind: EntityKind;
   name: string;
+  aliases: string[];
   summary: string;
   sourceId: string;
   category: string | null;
@@ -739,7 +740,7 @@ export interface DatasetArtifact {
 }
 
 export interface SearchArtifact {
-  schemaVersion: 1;
+  schemaVersion: 2;
   datasetSchemaVersion: DatasetArtifact["schemaVersion"];
   datasetId: string;
   language: "en";

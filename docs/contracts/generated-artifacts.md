@@ -80,9 +80,9 @@ The top-level `encrustmentInstabilityEffects` array preserves the shared definit
 
 ### `search.json`
 
-Search schema version: `1`
+Search schema version: `2`
 
-Contains `datasetSchemaVersion: 3`, the matching dataset ID/language, and deterministic search documents. Each document has an entity ID, route, normalized text, entity/source/category facets, and item-stat facets. Item modifier facets use collision-safe kind/source-key identities, allowing fixed official item modifiers to remain filterable even when standalone stat definitions are unavailable. Monster documents use taxonomy as their category and include dungeon depth, fighter/rogue/wizard source levels, spell-hook names, and drop item/type names in normalized text. The web application loads this file only on search routes.
+Contains `datasetSchemaVersion: 3`, the matching dataset ID/language, and deterministic search documents. Each document has an entity ID, canonical route, ordered route aliases, normalized text, entity/source/category facets, and item-stat facets. Route aliases are part of normalized text and are the only candidates beyond canonical names for project-owned zero-result spelling suggestions. Item modifier facets use collision-safe kind/source-key identities, allowing fixed official item modifiers to remain filterable even when standalone stat definitions are unavailable. Monster documents use taxonomy as their category and include dungeon depth, fighter/rogue/wizard source levels, spell-hook names, and drop item/type names in normalized text. The web application loads this file only on search and bounded browse routes.
 
 ### `diagnostics.json`
 

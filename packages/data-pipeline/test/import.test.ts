@@ -4201,7 +4201,7 @@ describe("synthetic dataset import", () => {
     );
     expect(result.search.documents).toHaveLength(25);
     expect(result.search).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       datasetSchemaVersion: 3,
       datasetId: "synthetic-architecture-spike",
     });
@@ -4217,6 +4217,11 @@ describe("synthetic dataset import", () => {
       "modifier:resistance:toxic",
       "modifier:secondary:6",
     ]);
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "item:clockwork blade",
+      )?.aliases,
+    ).toEqual(["clockwork-blade-plus", "clockwork-sword"]);
     expect(
       result.search.documents.find(
         (document) => document.id === "monster:armored training diggle",

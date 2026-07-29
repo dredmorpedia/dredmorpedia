@@ -25,7 +25,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - Official XML, generated official datasets, and copied official assets stay ignored and non-public. Selected screenshots may be prepared when requesting permission, but a screenshot does not establish permission to publish the underlying material.
 - New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are outside that intended scope. Scoped license files remain pending until the copyright-holder wording is supplied.
 - ADR 0001 and ADR 0002 are Accepted within this local-only boundary. ADR 0004 accepts a permanent inherited route-registry lifecycle for durably shared or published datasets; its enforcement is an implementation follow-up.
-- Search should gain project-owned, name-and-alias-only spelling suggestions when a query has zero results: at most five suggestions, always selected by the user, with no automatic query replacement. Response budgets and concrete relevance examples remain open in ADR 0003.
+- Search has project-owned, name-and-route-alias-only spelling suggestions when a query has zero results: at most five suggestions, always selected by the user, with no automatic query replacement. Response budgets and broader concrete relevance examples remain open in ADR 0003.
 - Engine mechanics absent from XML must be evaluated individually immediately before their implementation. Legacy formulas are evidence to test, not automatically authoritative or automatically excluded.
 - Post-parity quality-of-life priorities and presentation of extra technical detail are intentionally deferred until parity polish, when they can be decided against concrete pages.
 
@@ -83,7 +83,7 @@ Before handoff, run `git diff --check`, confirm no local installation/user paths
 
 ## Implemented product/data coverage
 
-The rebuild currently has deterministic static routes, structured search, and bounded server-rendered browse catalogues across items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. Search keeps typed input local while debouncing shareable URL updates so an older navigation cannot overwrite newer characters. The browse directory and its 100-record pages expose every direct detail route without JavaScript. Detail breadcrumbs, the primary navigation, home item discovery, and the 404 recovery path lead into that catalogue. The application includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal.
+The rebuild currently has deterministic static routes, structured search, and bounded server-rendered browse catalogues across items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. Search schema 2 carries ordered route aliases. Search keeps typed input local while debouncing shareable URL updates so an older navigation cannot overwrite newer characters; after a genuine zero-result query, the project-owned domain query can offer at most five name/route-alias spelling suggestions that honor active filters and change the query only when selected. The browse directory and its 100-record pages expose every direct detail route without JavaScript. Detail breadcrumbs, the primary navigation, home item discovery, and the 404 recovery path lead into that catalogue. The application includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal. Suggestion evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`.
 
 Important completed item slices include:
 
@@ -134,9 +134,14 @@ share one tested `titleCase` implementation with consistent separator and
 empty-segment handling. `pnpm.cmd check` passes all 146 unit/artifact tests and
 the 43-page synthetic export; all 34 desktop/mobile browser cases pass.
 
+The subsequent spelling-suggestion slice raises the current totals to 150
+unit/artifact tests and 36 desktop/mobile browser cases. Search schema 2, the
+43-page synthetic export, deterministic official generation, and all 2,857
+ignored local official pages pass.
+
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
-The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement, the bounded local asset importer, and zero-result spelling suggestions are approved directions but remain implementation work.
+The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
 ## Git and owner handoff convention
 

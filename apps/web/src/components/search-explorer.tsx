@@ -4,6 +4,7 @@ import {
   entityKinds,
   itemCategoryLabel,
   querySearchDocuments,
+  suggestSearchDocuments,
   type EntityKind,
   type SearchDocument,
 } from "@dredmorpedia/domain";
@@ -99,6 +100,7 @@ export function SearchExplorer({
   const serializedSearchParams = searchParams.toString();
   const queryParam = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(queryParam);
+  const searchInput = useRef<HTMLInputElement>(null);
   const latestQuery = useRef(query);
   const submittedQuery = useRef<string | null>(null);
   useEffect(() => {
@@ -164,14 +166,16 @@ export function SearchExplorer({
   const stat = statOptions.some((option) => option.value === requestedStat)
     ? requestedStat
     : "all";
-  const allResults = querySearchDocuments(documents, {
+  const searchQuery = {
     query,
     ...(kind === "all" ? {} : { kinds: [kind as EntityKind] }),
     ...(source === "all" ? {} : { sourceIds: [source] }),
     ...(category === "all" ? {} : { category }),
     ...(stat === "all" ? {} : { statKey: stat }),
-  });
+  };
+  const allResults = querySearchDocuments(documents, searchQuery);
   const visibleResults = allResults.slice(0, 50);
+  const suggestions = suggestSearchDocuments(documents, searchQuery);
 
   const updateFilter = (key: string, value: string) => {
     const next = new URLSearchParams(serializedSearchParams);
@@ -200,6 +204,11 @@ export function SearchExplorer({
     startTransition(() => router.replace(pathname));
   };
 
+  const applySuggestion = (value: string) => {
+    setQuery(value);
+    searchInput.current?.focus();
+  };
+
   return (
     <section aria-labelledby="search-heading" className="space-y-5">
       <div>
@@ -220,6 +229,7 @@ export function SearchExplorer({
             Search terms
           </label>
           <input
+            ref={searchInput}
             id="global-search"
             type="search"
             value={query}
@@ -265,6 +275,39 @@ export function SearchExplorer({
           ? `; showing the first ${visibleResults.length}`
           : ""}
       </p>
+
+      {suggestions.length > 0 ? (
+        <section
+          aria-labelledby="search-suggestions-heading"
+          className="rounded-xl border border-border bg-surface/75 p-5"
+        >
+          <p className="eyebrow">Possible spelling matches</p>
+          <h2
+            id="search-suggestions-heading"
+            className="mt-2 text-lg font-semibold"
+          >
+            Did you mean one of these names?
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Select a suggestion to replace the search terms. Your active filters
+            stay applied.
+          </p>
+          <ul className="mt-4 flex list-none flex-wrap gap-2 p-0">
+            {suggestions.map(({ document }) => (
+              <li key={document.id}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => applySuggestion(document.name)}
+                >
+                  {document.name}
+                  <span className="sr-only">, {kindLabels[document.kind]}</span>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {visibleResults.length > 0 ? (
         <ul className="search-result-list">

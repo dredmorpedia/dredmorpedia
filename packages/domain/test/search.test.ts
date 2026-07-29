@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createSearchDocuments,
   querySearchDocuments,
+  searchSuggestionLimit,
+  suggestSearchDocuments,
   type EntityCollections,
   type SearchDocument,
   type Stat,
@@ -52,6 +54,7 @@ const documents: SearchDocument[] = [
     id: "item:clockwork blade",
     kind: "item",
     name: "Clockwork Blade",
+    aliases: ["clockwork-sword"],
     summary: "A precise synthetic weapon.",
     sourceId: "synthetic-expansion",
     category: "weapon",
@@ -63,6 +66,7 @@ const documents: SearchDocument[] = [
     id: "item:brass ingot",
     kind: "item",
     name: "Brass Ingot",
+    aliases: [],
     summary: "A synthetic crafting material.",
     sourceId: "synthetic-base",
     category: "material",
@@ -74,6 +78,7 @@ const documents: SearchDocument[] = [
     id: "stat:melee power",
     kind: "stat",
     name: "Melee Power",
+    aliases: [],
     summary: "Synthetic close-combat output.",
     sourceId: "synthetic-base",
     category: "secondary",
@@ -85,6 +90,7 @@ const documents: SearchDocument[] = [
     id: "template:small cross",
     kind: "template",
     name: "Small Cross",
+    aliases: [],
     summary: "",
     sourceId: "synthetic-base",
     category: null,
@@ -150,5 +156,67 @@ describe("search queries", () => {
         kinds: ["template"],
       }).map((result) => result.document.url),
     ).toEqual(["/templates/small-cross"]);
+  });
+
+  it("offers deterministic name suggestions only for zero-result queries", () => {
+    expect(
+      suggestSearchDocuments(documents, { query: "clokwork blade" }).map(
+        (suggestion) => suggestion.document.name,
+      ),
+    ).toEqual(["Clockwork Blade"]);
+    expect(
+      suggestSearchDocuments(documents, { query: "clockwork blade" }),
+    ).toEqual([]);
+    expect(
+      suggestSearchDocuments(documents, { query: "precise synthetic wepon" }),
+    ).toEqual([]);
+  });
+
+  it("uses route aliases as suggestion candidates and honors active filters", () => {
+    expect(
+      suggestSearchDocuments(documents, {
+        query: "clockwrok sword",
+        kinds: ["item"],
+        sourceIds: ["synthetic-expansion"],
+      }).map((suggestion) => suggestion.document.id),
+    ).toEqual(["item:clockwork blade"]);
+    expect(
+      suggestSearchDocuments(documents, {
+        query: "clockwrok sword",
+        kinds: ["spell"],
+      }),
+    ).toEqual([]);
+  });
+
+  it("caps suggestions at five with stable ordering", () => {
+    const crowdedDocuments: SearchDocument[] = Array.from(
+      { length: 6 },
+      (_, index) => ({
+        id: `item:training-wand-${index}`,
+        kind: "item",
+        name: `Training Wand ${String.fromCharCode(65 + index)}`,
+        aliases: [],
+        summary: "",
+        sourceId: "synthetic-base",
+        category: "wand",
+        statKeys: [],
+        url: `/items/training-wand-${index}`,
+        text: `training wand ${String.fromCharCode(97 + index)}`,
+      }),
+    );
+
+    const query = { query: "training wamd", limit: 99 };
+    expect(suggestSearchDocuments(crowdedDocuments, query)).toHaveLength(
+      searchSuggestionLimit,
+    );
+    expect(
+      suggestSearchDocuments([...crowdedDocuments].reverse(), query),
+    ).toEqual(suggestSearchDocuments(crowdedDocuments, query));
+    expect(
+      suggestSearchDocuments(crowdedDocuments, { ...query, limit: 2 }),
+    ).toHaveLength(2);
+    expect(
+      suggestSearchDocuments(crowdedDocuments, { ...query, limit: 0 }),
+    ).toEqual([]);
   });
 });

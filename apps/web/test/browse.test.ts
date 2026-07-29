@@ -18,6 +18,7 @@ function searchDocument(
     id: `${kind}:${id}`,
     kind,
     name: `Record ${id}`,
+    aliases: [],
     summary: "",
     sourceId: "synthetic",
     category: null,
