@@ -2554,12 +2554,17 @@ describe("synthetic dataset import", () => {
       monsterKey: null,
       monsterName: null,
     };
+    const noRemovedBuff = {
+      spellKey: null,
+      spellName: null,
+    };
 
     expect(complete?.effects).toEqual([
       {
         type: "spawnitemfromlist",
         itemTarget: noItemTarget,
         monsterTarget: noMonsterTarget,
+        removedBuff: noRemovedBuff,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2586,6 +2591,7 @@ describe("synthetic dataset import", () => {
         type: "triggerfromlist",
         itemTarget: noItemTarget,
         monsterTarget: noMonsterTarget,
+        removedBuff: noRemovedBuff,
         damage: [],
         scaling: noScaling,
         presentation: null,
@@ -2756,6 +2762,7 @@ describe("synthetic dataset import", () => {
         type: "damage",
         itemTarget: { itemKey: null, itemName: null },
         monsterTarget: { monsterKey: null, monsterName: null },
+        removedBuff: { spellKey: null, spellName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2796,6 +2803,7 @@ describe("synthetic dataset import", () => {
         type: "trigger",
         itemTarget: { itemKey: null, itemName: null },
         monsterTarget: { monsterKey: null, monsterName: null },
+        removedBuff: { spellKey: null, spellName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2838,6 +2846,7 @@ describe("synthetic dataset import", () => {
         type: "damage",
         itemTarget: { itemKey: null, itemName: null },
         monsterTarget: { monsterKey: null, monsterName: null },
+        removedBuff: { spellKey: null, spellName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -2878,6 +2887,7 @@ describe("synthetic dataset import", () => {
         type: "trigger",
         itemTarget: { itemKey: null, itemName: null },
         monsterTarget: { monsterKey: null, monsterName: null },
+        removedBuff: { spellKey: null, spellName: null },
         damage: [],
         scaling: {
           amountFactor: null,
@@ -3334,6 +3344,106 @@ describe("synthetic dataset import", () => {
           diagnostic.code === "missing_spell_effect_monster_target",
       ),
     ).toHaveLength(1);
+  });
+
+  it("normalizes named buff-removal targets and links known buff spells", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-removed-buff-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Target Buff" type="self">
+    <buff removable="1" />
+  </spell>
+  <spell name="Known Removal" type="self">
+    <effect type="removebuffbyname" name="Target Buff" />
+  </spell>
+  <spell name="Invalid Removals" type="self">
+    <effect type="removebuffbyname" name="" />
+    <effect type="removebuffbyname" />
+    <effect type="removebuffbyname" name="Missing Buff" />
+    <effect type="damage" name="Unsupported Here" />
+  </spell>
+</spellDB>`,
+    );
+    const removedBuffManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      removedBuffManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-removed-buff-test",
+        sources: [
+          {
+            id: "spell-effect-removed-buff-source",
+            label: "Spell Effect Removed Buff Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: removedBuffManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    expect(spells.get("Known Removal")?.effects[0]?.removedBuff).toEqual({
+      spellKey: "target buff",
+      spellName: "Target Buff",
+      spellId: "spell:target buff",
+    });
+    expect(
+      spells
+        .get("Invalid Removals")
+        ?.effects.map((effect) => effect.removedBuff),
+    ).toEqual(
+      expect.arrayContaining([
+        { spellKey: null, spellName: null },
+        { spellKey: "missing buff", spellName: "Missing Buff" },
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid removals" &&
+          diagnostic.code === "missing_spell_effect_removed_buff",
+      ),
+    ).toHaveLength(2);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "dangling_reference",
+          entityId: "spell:invalid removals",
+          details: { targetKind: "spell", reference: "Missing Buff" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid removals",
+          details: {
+            element: "effect",
+            attribute: "name",
+            value: "Unsupported Here",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:known removal" &&
+          diagnostic.code === "unknown_attribute",
+      ),
+    ).toBe(false);
   });
 
   it("normalizes direct spell effect damage and scaling metadata loss-aware", () => {

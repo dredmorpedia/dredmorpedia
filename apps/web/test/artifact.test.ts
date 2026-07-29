@@ -390,6 +390,35 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/monsterTarget/);
   });
 
+  it("rejects malformed named buff-removal metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            removedBuff: {
+              spellKey: string | null;
+              spellName: string | null;
+            };
+          }[];
+        }[];
+      };
+    };
+    const targetedEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.removedBuff.spellKey !== null);
+    if (!targetedEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no named buff-removal target.",
+      );
+    }
+    targetedEffect.removedBuff.spellName = null;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/removedBuff/);
+  });
+
   it("rejects malformed spell effect control metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

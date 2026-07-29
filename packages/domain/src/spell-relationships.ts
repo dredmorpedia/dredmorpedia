@@ -61,6 +61,12 @@ export interface SpellEffectMonsterTargetBacklink {
   effectIndex: number;
 }
 
+export interface SpellEffectRemovedBuffBacklink {
+  spell: Spell;
+  effect: SpellEffect;
+  effectIndex: number;
+}
+
 export type SpellEffectConditionKind = "required-buff" | "forbidden-buff";
 
 export interface SpellEffectConditionBacklink {
@@ -238,6 +244,26 @@ export function spellEffectMonsterTargetBacklinks(
     .flatMap((spell) =>
       spell.effects.flatMap((effect, effectIndex) =>
         effect.monsterTarget.monsterId === targetMonsterId
+          ? [{ spell, effect, effectIndex }]
+          : [],
+      ),
+    )
+    .sort(
+      (left, right) =>
+        compareCodeUnits(left.spell.canonicalKey, right.spell.canonicalKey) ||
+        compareCodeUnits(left.spell.id, right.spell.id) ||
+        left.effectIndex - right.effectIndex,
+    );
+}
+
+export function spellEffectRemovedBuffBacklinks(
+  spells: readonly Spell[],
+  targetSpellId: Spell["id"],
+): SpellEffectRemovedBuffBacklink[] {
+  return spells
+    .flatMap((spell) =>
+      spell.effects.flatMap((effect, effectIndex) =>
+        effect.removedBuff.spellId === targetSpellId
           ? [{ spell, effect, effectIndex }]
           : [],
       ),

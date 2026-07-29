@@ -430,6 +430,22 @@ function linkSpells(
           );
         }
       }
+      if (
+        effect.removedBuff.spellKey !== null &&
+        effect.removedBuff.spellName !== null
+      ) {
+        const target = spellAliases.get(effect.removedBuff.spellKey);
+        if (target) {
+          linkedEffect.removedBuff = {
+            ...effect.removedBuff,
+            spellId: target.id,
+          };
+        } else {
+          diagnostics.push(
+            danglingDiagnostic(spell, "spell", effect.removedBuff.spellName),
+          );
+        }
+      }
       linkedEffect.options = effect.options.map((option) => {
         if (option.kind === "item") {
           if (option.itemKey === null) {

@@ -12,6 +12,7 @@ import {
   spellEffectMonsterTargetBacklinks,
   spellEffectOptionItemBacklinks,
   spellEffectOptionSpellBacklinks,
+  spellEffectRemovedBuffBacklinks,
   type Spell,
 } from "../src/index";
 
@@ -60,6 +61,11 @@ const noEffectMonsterTarget: Spell["effects"][number]["monsterTarget"] = {
   monsterName: null,
 };
 
+const noEffectRemovedBuff: Spell["effects"][number]["removedBuff"] = {
+  spellKey: null,
+  spellName: null,
+};
+
 function spell(name: string, effects: Spell["effects"] = []): Spell {
   const provenance = {
     sourceId: "synthetic-spells",
@@ -100,6 +106,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellId: target.id,
     itemTarget: noEffectItemTarget,
     monsterTarget: noEffectMonsterTarget,
+    removedBuff: noEffectRemovedBuff,
     damage: [],
     scaling: noEffectScaling,
     presentation: null,
@@ -160,6 +167,7 @@ describe("spell effect relationships", () => {
       spellName: "Missing Echo",
       itemTarget: noEffectItemTarget,
       monsterTarget: noEffectMonsterTarget,
+      removedBuff: noEffectRemovedBuff,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -243,6 +251,7 @@ describe("spell effect relationships", () => {
         amount: 2,
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -306,6 +315,7 @@ describe("spell effect relationships", () => {
         type: "triggerfromlist",
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -326,6 +336,7 @@ describe("spell effect relationships", () => {
         type: "spawnitemfromlist",
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -352,6 +363,7 @@ describe("spell effect relationships", () => {
         type: "triggerfromlist",
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -408,6 +420,7 @@ describe("spell effect relationships", () => {
         itemId: targetId,
       },
       monsterTarget: noEffectMonsterTarget,
+      removedBuff: noEffectRemovedBuff,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -455,6 +468,7 @@ describe("spell effect relationships", () => {
         monsterName: "Training Diggle",
         monsterId: targetId,
       },
+      removedBuff: noEffectRemovedBuff,
       damage: [],
       scaling: noEffectScaling,
       presentation: null,
@@ -490,6 +504,52 @@ describe("spell effect relationships", () => {
     ]);
   });
 
+  it("returns named buff-removal backlinks in deterministic source order", () => {
+    const target = spell("Target Buff");
+    const removal = (): Spell["effects"][number] => ({
+      type: "removebuffbyname",
+      itemTarget: noEffectItemTarget,
+      monsterTarget: noEffectMonsterTarget,
+      removedBuff: {
+        spellKey: target.canonicalKey,
+        spellName: target.name,
+        spellId: target.id,
+      },
+      damage: [],
+      scaling: noEffectScaling,
+      presentation: null,
+      controls: noEffectControls,
+      conditions: noEffectConditions,
+      options: [],
+    });
+    const later = spell("Later", [removal()]);
+    const earlier = spell("Earlier", [
+      removal(),
+      {
+        ...removal(),
+        removedBuff: {
+          spellKey: "missing buff",
+          spellName: "Missing Buff",
+        },
+      },
+      removal(),
+    ]);
+
+    expect(
+      spellEffectRemovedBuffBacklinks([later, target, earlier], target.id).map(
+        ({ spell: source, effectIndex, effect }) => [
+          source.name,
+          effectIndex,
+          effect.removedBuff.spellName,
+        ],
+      ),
+    ).toEqual([
+      ["Earlier", 0, "Target Buff"],
+      ["Earlier", 2, "Target Buff"],
+      ["Later", 0, "Target Buff"],
+    ]);
+  });
+
   it("returns named buff-condition backlinks in deterministic source order", () => {
     const target = spell("Target");
     const later = spell("Later", [
@@ -497,6 +557,7 @@ describe("spell effect relationships", () => {
         type: "trigger",
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,
@@ -518,6 +579,7 @@ describe("spell effect relationships", () => {
         type: "trigger",
         itemTarget: noEffectItemTarget,
         monsterTarget: noEffectMonsterTarget,
+        removedBuff: noEffectRemovedBuff,
         damage: [],
         scaling: noEffectScaling,
         presentation: null,

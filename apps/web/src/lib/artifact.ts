@@ -490,6 +490,31 @@ const spellEffectMonsterTargetSchema = z
     }
   });
 
+const spellEffectRemovedBuffSchema = z
+  .object({
+    spellKey: nullableNonblankString,
+    spellName: nullableNonblankString,
+    spellId: z.string().min(1).optional(),
+  })
+  .strict()
+  .superRefine((target, context) => {
+    if ((target.spellKey === null) !== (target.spellName === null)) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Removed-buff target key and name must both be present or absent.",
+      });
+    }
+    if (target.spellId !== undefined && target.spellKey === null) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "A resolved removed-buff target must retain its source target.",
+        path: ["spellId"],
+      });
+    }
+  });
+
 const spellEffectBuffConditionSchema = z
   .object({
     enabled: z.boolean().nullable(),
@@ -526,6 +551,7 @@ const spellEffectSchema = z
     amount: z.number().int().optional(),
     itemTarget: spellEffectItemTargetSchema,
     monsterTarget: spellEffectMonsterTargetSchema,
+    removedBuff: spellEffectRemovedBuffSchema,
     damage: z.array(
       z
         .object({

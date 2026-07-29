@@ -336,6 +336,7 @@ export interface SpellEffect {
   amount?: number;
   itemTarget: SpellEffectItemTarget;
   monsterTarget: SpellEffectMonsterTarget;
+  removedBuff: SpellEffectRemovedBuff;
   damage: SpellEffectDamage[];
   scaling: SpellEffectScaling;
   presentation: SpellEffectPresentationMetadata | null;
@@ -354,6 +355,12 @@ export interface SpellEffectMonsterTarget {
   monsterKey: string | null;
   monsterName: string | null;
   monsterId?: string;
+}
+
+export interface SpellEffectRemovedBuff {
+  spellKey: string | null;
+  spellName: string | null;
+  spellId?: string;
 }
 
 export const damageSourceKeys = [

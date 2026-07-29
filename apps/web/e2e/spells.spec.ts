@@ -396,6 +396,15 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     conditionBacklinks.getByText("Forbidden named buff"),
   ).toBeVisible();
+  const removalBacklinks = backlinks.getByRole("region", {
+    name: "Named buff removals",
+  });
+  await expect(
+    removalBacklinks.getByRole("link", { name: "Clockwork Echo" }),
+  ).toBeVisible();
+  await expect(
+    removalBacklinks.getByText("Remove buff by name effect"),
+  ).toBeVisible();
 
   await effects.getByRole("link", { name: "Clockwork Echo" }).click();
   await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
@@ -444,6 +453,18 @@ test("navigates spell details and stops recursive effect cycles", async ({
     name: "Effects",
     exact: true,
   });
+  const removedBuffEffect = echoEffects
+    .getByRole("listitem")
+    .filter({ hasText: "Remove buff by name effect" });
+  const removedBuffLink = removedBuffEffect.getByRole("link", {
+    name: "Clockwork Spark",
+  });
+  await expect(removedBuffLink).toBeVisible();
+  await expect(
+    removedBuffEffect.getByText("Resolved named buff target", { exact: true }),
+  ).toBeVisible();
+  await removedBuffLink.focus();
+  await expect(removedBuffLink).toBeFocused();
   await expect(
     echoEffects
       .getByText("Damage and scaling", { exact: true })
@@ -470,6 +491,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page.getByText(
       "A spell requirement without a mana cost remains unsupported.",
+    ),
+  ).toBeVisible();
+  await expect(
+    echoEffects.getByText(
+      /removal eligibility, removal scope, stack handling/i,
     ),
   ).toBeVisible();
 });

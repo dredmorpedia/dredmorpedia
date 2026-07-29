@@ -3577,6 +3577,8 @@ const spellEffectItemTargetTypes = new Set(["spawn", "spawnitematlocation"]);
 const spellEffectItemTargetAttributes = ["itemname", "itemName"] as const;
 const spellEffectMonsterTargetTypes = new Set(["summon", "summonhostile"]);
 const spellEffectMonsterTargetAttributes = ["monsterType"] as const;
+const spellEffectRemovedBuffTypes = new Set(["removebuffbyname"]);
+const spellEffectRemovedBuffAttributes = ["name"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
 const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
 const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
@@ -3737,6 +3739,42 @@ function parseSpellEffectMonsterTarget(
   return {
     monsterKey: monsterName === null ? null : canonicalKey(monsterName),
     monsterName,
+  };
+}
+
+function parseSpellEffectRemovedBuff(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["removedBuff"] {
+  if (!spellEffectRemovedBuffTypes.has(effectType)) {
+    return { spellKey: null, spellName: null };
+  }
+
+  const sourceName = xmlAttribute(effect, "name");
+  const spellName =
+    sourceName === undefined || sourceName.trim() === "" ? null : sourceName;
+  if (spellName === null) {
+    const effectProvenance = {
+      ...provenance,
+      ...context.parsed.locateRecord(effect),
+    };
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_removed_buff",
+      message: `Spell effect ${effectIndex + 1} is missing its named buff-removal target.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex, effectType },
+    });
+  }
+
+  return {
+    spellKey: spellName === null ? null : canonicalKey(spellName),
+    spellName,
   };
 }
 
@@ -4310,6 +4348,9 @@ function parseSpells(
             ...(spellEffectMonsterTargetTypes.has(effectType)
               ? spellEffectMonsterTargetAttributes
               : []),
+            ...(spellEffectRemovedBuffTypes.has(effectType)
+              ? spellEffectRemovedBuffAttributes
+              : []),
             ...(spellEffectDamageTypes.has(effectType)
               ? spellEffectDamageAttributes
               : []),
@@ -4360,6 +4401,14 @@ function parseSpells(
             currentEntityId,
           ),
           monsterTarget: parseSpellEffectMonsterTarget(
+            effect,
+            effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
+          removedBuff: parseSpellEffectRemovedBuff(
             effect,
             effectType,
             effectIndex,

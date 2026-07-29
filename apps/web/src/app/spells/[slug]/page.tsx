@@ -10,6 +10,7 @@ import {
   spellEffectChain,
   spellEffectConditionBacklinks,
   spellEffectOptionSpellBacklinks,
+  spellEffectRemovedBuffBacklinks,
   type MonsterSpellTriggerKind,
   type SpellBuffEventHookKind,
 } from "@dredmorpedia/domain";
@@ -37,6 +38,9 @@ function effectTypeLabel(value: string): string {
   }
   if (value === "bleed") {
     return "Starts bleeding";
+  }
+  if (value === "removebuffbyname") {
+    return "Remove buff by name";
   }
   return titleCase(value);
 }
@@ -157,6 +161,10 @@ export default async function SpellPage({
     artifact.entities.spells,
     spell.id,
   );
+  const removedBuffBacklinks = spellEffectRemovedBuffBacklinks(
+    artifact.entities.spells,
+    spell.id,
+  );
   const listOptionEffects = spell.effects
     .map((effect, effectIndex) => ({ effect, effectIndex }))
     .filter(({ effect }) => effect.options.length > 0);
@@ -192,6 +200,7 @@ export default async function SpellPage({
     buffHookBacklinks.length +
     optionSpellBacklinks.length +
     conditionBacklinks.length +
+    removedBuffBacklinks.length +
     itemBacklinks.length +
     macguffinBacklinks.length +
     instabilityBacklinks.length +
@@ -859,13 +868,15 @@ export default async function SpellPage({
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
             Direct damage amounts, factor coefficients, scaling selectors, item
-            and summon-monster targets, effect presentation, controls, and buff
-            conditions are shown without combining them into final damage,
-            targeting eligibility, buff-presence evaluation, trigger timing,
-            resistance, ignition, animation sequencing, random-item selection,
-            inventory placement, summon allegiance, placement, lifetime, AI
-            state, or runtime probability behavior. Detailed effect sprite paths
-            and sound cue IDs remain hidden.
+            and summon-monster targets, named buff-removal targets, effect
+            presentation, controls, and buff conditions are shown without
+            combining them into final damage, targeting eligibility,
+            buff-presence evaluation, removal eligibility, removal scope, stack
+            handling, trigger timing, resistance, ignition, animation
+            sequencing, random-item selection, inventory placement, summon
+            allegiance, placement, lifetime, AI state, or runtime probability
+            behavior. Detailed effect sprite paths and sound cue IDs remain
+            hidden.
           </p>
           {spell.effects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -882,10 +893,14 @@ export default async function SpellPage({
                 const targetMonster = effect.monsterTarget.monsterId
                   ? monstersById.get(effect.monsterTarget.monsterId)
                   : undefined;
+                const removedBuff = effect.removedBuff.spellId
+                  ? spellsById.get(effect.removedBuff.spellId)
+                  : undefined;
                 const unresolved =
                   (effect.spellKey && !targetSpell) ||
                   (effect.statKey && !targetStat) ||
-                  (effect.monsterTarget.monsterKey && !targetMonster);
+                  (effect.monsterTarget.monsterKey && !targetMonster) ||
+                  (effect.removedBuff.spellKey && !removedBuff);
                 const hasSourceControls =
                   effect.controls.durationTurns !== null ||
                   effect.controls.after !== null ||
@@ -957,6 +972,15 @@ export default async function SpellPage({
                         </Link>
                       ) : effect.monsterTarget.monsterName !== null ? (
                         <strong>{effect.monsterTarget.monsterName}</strong>
+                      ) : removedBuff ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${removedBuff.slug}`}
+                        >
+                          {removedBuff.name}
+                        </Link>
+                      ) : effect.removedBuff.spellName !== null ? (
+                        <strong>{effect.removedBuff.spellName}</strong>
                       ) : (
                         <strong>{effectTypeLabel(effect.type)}</strong>
                       )}
@@ -984,7 +1008,12 @@ export default async function SpellPage({
                                       : effect.monsterTarget.monsterName !==
                                           null
                                         ? "Unresolved summon monster target"
-                                        : "No entity target"}
+                                        : removedBuff
+                                          ? "Resolved named buff target"
+                                          : effect.removedBuff.spellName !==
+                                              null
+                                            ? "Unresolved named buff target"
+                                            : "No entity target"}
                       </small>
                     </div>
                     <dl className="trigger-facts">
@@ -1481,6 +1510,29 @@ export default async function SpellPage({
                               ? ""
                               : " (flag disabled)"}
                         </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {removedBuffBacklinks.length > 0 ? (
+                <section aria-labelledby="removed-buff-backlinks-heading">
+                  <h3
+                    id="removed-buff-backlinks-heading"
+                    className="relationship-title"
+                  >
+                    Named buff removals
+                  </h3>
+                  <ul className="relation-list">
+                    {removedBuffBacklinks.map((backlink) => (
+                      <li key={`${backlink.spell.id}:${backlink.effectIndex}`}>
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/spells/${backlink.spell.slug}`}
+                        >
+                          {backlink.spell.name}
+                        </Link>
+                        <span>Remove buff by name effect</span>
                       </li>
                     ))}
                   </ul>

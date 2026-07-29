@@ -42,5 +42,6 @@
     <requirements shield="1" />
     <effect type="stat" stat="Savvy" amount="1" />
     <effect type="trigger" spell="Clockwork Spark" requirebuffonnottrigger="1" requirebuffonnottriggername="Clockwork Spark" />
+    <effect type="removebuffbyname" name="Clockwork Spark" />
   </spell>
 </spells>
