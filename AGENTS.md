@@ -13,8 +13,10 @@ Read these files before making a substantial change:
 3. `docs/architecture/modernization-proposal.md`
 4. `docs/roadmap.md`
 5. Relevant records in `docs/decisions/`
-6. `docs/handoff/new-pc-and-codex.md` when resuming on a new machine or in a context-free Codex task
-7. `docs/handoff/ai-agent-conversation-resume.md` when resuming ongoing incremental work in a fresh conversation
+6. `docs/data-and-assets-policy.md` and `docs/licensing-policy.md` for content,
+   publication, or licensing scope
+7. `docs/handoff/new-pc-and-codex.md` when resuming on a new machine or in a context-free Codex task
+8. `docs/handoff/ai-agent-conversation-resume.md` when resuming ongoing incremental work in a fresh conversation
 
 ## Current repository state
 
@@ -32,7 +34,12 @@ Read these files before making a substantial change:
 - Direct macguffin declarations preserve spell, class-name, and consumable source values; consumers must not infer activation, targeting, or actual-consumption behavior.
 - Direct toolkit declarations preserve crafting tags, slot counts, symbolic sound cues, safe presentation references, and old game-interface coordinates. Matching recipe/encrustment tags link bidirectionally, but detailed cue/reference/coordinate values stay hidden; consumers must not use the coordinates for the modern UI or infer a complete crafting runtime formula.
 - Trap activation, caster-targeting, and placement fields remain direct source metadata; consumers must not infer reset timing, target selection, or placement behavior, and raw origin asset paths stay hidden while publication rights are unresolved.
-- ADR 0001 and ADR 0002 are technically validated but remain proposed until the publication-policy gate is complete. ADR 0003's split artifact/query path is implemented but its user-facing budgets remain open. Evidence is recorded under `docs/analysis/`.
+- ADR 0001 and ADR 0002 are accepted under the owner-approved local-first
+  official-content boundary. ADR 0003's split artifact/query path is
+  implemented; bounded zero-result name/alias suggestions are approved but not
+  yet implemented, and user-facing budgets remain open. ADR 0004 accepts
+  inherited route reservations and tombstones for shared dataset lineages, with
+  enforcement still pending. Evidence is recorded under `docs/analysis/`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints
@@ -46,6 +53,11 @@ Read these files before making a substantial change:
 - Preserve provenance on normalized records: source ID, source file, original name/ID where present, and applied patch information.
 - Use small synthetic or explicitly redistributable fixtures in tests. Tests must not require a local game installation unless clearly marked as optional integration tests.
 - New UI must be responsive, keyboard operable, semantically structured, and tested for common accessibility failures.
+- The local MVP targets `1.1.5 public_beta`. Do not build a version switcher
+  until a second complete, verified dataset exists.
+- A future local asset importer may copy only assets referenced by displayed
+  entities/features into gitignored generated output. It must remain read-only
+  toward the installation and must not bulk-copy unrelated resources.
 
 ## Architecture boundaries for the rebuild
 

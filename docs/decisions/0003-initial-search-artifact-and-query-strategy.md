@@ -17,6 +17,10 @@ Search must eventually combine text with typed filters and numeric game fields. 
 - Begin the first product slice with normalized text matching over the generated documents. Load the search artifact only on routes that use it and do not render the full dataset merely to search the DOM.
 - Benchmark query latency, parse/hydration cost, compressed transfer size, and keyboard interaction on representative desktop and mobile hardware.
 - Add a library such as MiniSearch or move querying to a worker only if measurements show the project-owned path misses an agreed responsiveness or relevance target.
+- Keep ordinary matching deterministic. When a query has zero results, offer at
+  most five project-owned spelling suggestions derived from entity names and
+  aliases only. Suggestions never silently replace the query. Use a search
+  library only if measured relevance or performance later justifies it.
 
 Dataset artifact version 2 and search artifact version 1 now implement this split. The search route loads the search payload, applies project-owned text/facet logic, preserves filters in the URL, and renders at most 50 results. This implementation is not permission to publish official content.
 
@@ -31,5 +35,9 @@ Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for 
 - [x] Full-dataset search-document count and uncompressed serialized size are recorded.
 - [x] Search documents have deterministic IDs, URLs, text, and facets.
 - [x] The first product slice emits the search documents as a separate artifact.
+- [x] Initial relevance direction is agreed: deterministic ordinary results
+      plus bounded, user-selected name/alias suggestions for zero-result
+      queries.
 - [ ] Query and interaction benchmarks are recorded on desktop and mobile.
-- [ ] Relevance acceptance examples and a response-time budget are agreed.
+- [ ] Detailed suggestion examples and a response-time budget are agreed and
+      measured.

@@ -1,13 +1,13 @@
 # Modernization proposal
 
 Date: 2026-07-19
-Status: owner-approved direction; technical spike validated, publication policy pending
+Status: owner-approved direction; technical spike validated; local-only publication policy accepted
 
 ## Recommendation in one sentence
 
 Build a pnpm TypeScript workspace with a deterministic Node-based XML/data pipeline, a framework-independent domain package, and a Next.js App Router web application that is statically exported first and can adopt server-backed features later without replacing the UI platform.
 
-This is proposed in [`../decisions/0001-platform-and-repository-direction.md`](../decisions/0001-platform-and-repository-direction.md). The owner approved the platform direction, and the synthetic plus read-only full-dataset spike validated its technical checklist. The ADR remains proposed because restricted data and asset publication are independently gated by [`../data-and-assets-policy.md`](../data-and-assets-policy.md). Measurements are recorded in [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md).
+This is accepted in [`../decisions/0001-platform-and-repository-direction.md`](../decisions/0001-platform-and-repository-direction.md). The owner approved the platform direction, and the synthetic plus read-only full-dataset spike validated its technical checklist. The current local-only data and asset boundary is recorded in [`../data-and-assets-policy.md`](../data-and-assets-policy.md); future public deployment still requires permission evidence. Measurements are recorded in [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md).
 
 ## Why this shape fits Dredmorpedia
 
@@ -260,9 +260,21 @@ Rejected. The old APIs, global data model, inline templates, and browser parser 
 
 Rejected for the initial release. Core data changes at build/import time and can be emitted statically. A database adds migrations, hosting, backups, query layers, and operational failure modes before accounts or collaborative data justify it.
 
-## Decisions required from the owner
+## Remaining owner and release decisions
 
-1. Define the public generated-data and asset redistribution policy.
-2. Define acceptance criteria for the first parity slice: recommended `items + stats + source provenance + search`, with crafting/encrusting backlinks immediately after.
-3. Define search response-time and relevance acceptance criteria for ADR 0003.
-4. Prioritize the first post-parity quality-of-life feature; keep live tracking in a separate later research decision.
+The owner accepted ADRs 0001 and 0002 on 2026-07-29 under a local-first
+official-content boundary. The `1.1.5 public_beta` dataset is the MVP; a version
+switcher waits for a second verified dataset. Relevant entity assets may be
+imported incrementally into ignored local output, but no official-derived
+dataset or asset is approved for public deployment.
+
+Remaining decisions are:
+
+1. approve the final first-parity acceptance statement after the remaining
+   parity work and polish;
+2. define and measure ADR 0003 response-time budgets and concrete spelling
+   suggestion examples;
+3. confirm copyright-holder wording for the scoped MIT license and continue
+   provenance work for excluded legacy/mod/asset material; and
+4. prioritize quality-of-life features only after parity polish. Live tracking
+   remains a separate later research decision.

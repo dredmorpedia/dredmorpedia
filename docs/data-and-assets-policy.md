@@ -1,7 +1,7 @@
 # Game data and asset policy
 
-Status: interim project policy
-Updated: 2026-07-19
+Status: owner-approved local-first policy
+Updated: 2026-07-29
 
 This document defines the working safety and publication boundary for the rebuild. It is deliberately conservative while ownership, licenses, and redistribution permissions are investigated. It is project policy, not legal advice.
 
@@ -61,6 +61,38 @@ Generated output is not automatically safe to publish merely because it is trans
 4. whether users instead need a local import workflow;
 5. a repeatable check preventing restricted inputs from entering the deployment artifact.
 
-## Current publication gate
+## Local product and asset scope
 
-Code and documentation may be developed and published independently of restricted content. A production data deployment remains blocked until the generated-data and asset boundary above is resolved. GitHub Pages is a viable technical candidate for a static build, but hosting availability does not answer the content-rights question.
+The current product target is a locally complete `1.1.5 public_beta` build. Its
+official generated data and assets remain ignored and non-public.
+
+An incremental asset pipeline may copy only files referenced by entities or
+features that the modern application actually presents. The initial target is
+the meaningful entity artwork used by the preserved application for parity,
+not a bulk copy of unrelated game resources. Each import must:
+
+- read the installation without modifying it;
+- validate source references and containment before copying;
+- write only to a separate gitignored generated-assets directory;
+- keep machine-local source roots out of generated metadata; and
+- include deterministic checksums and missing-asset diagnostics proportional
+  to the generated data contract.
+
+Specialized presentation such as palette-tinted monster sprites or animation
+frames is decided with the page that needs it rather than imported speculatively.
+
+Selected screenshots from the local product may be prepared for a permission
+request. A screenshot does not itself grant permission to publish the
+underlying dataset, assets, or a public official-content build.
+
+## Current publication boundary
+
+Code, documentation, and independently authored synthetic fixtures may be
+developed publicly. Official XML, generated official datasets, and imported
+official assets remain local-only. Public official-content deployment is
+postponed until documented permission or other reviewed legal evidence defines
+which fields and assets may be hosted, with what attribution and safeguards.
+
+This local-first boundary is the approved current policy and allowed ADRs 0001
+and 0002 to be accepted. It is not a conclusion that future redistribution is
+permitted. GitHub Pages remains a technical candidate only.

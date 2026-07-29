@@ -5,7 +5,7 @@ Scope: independently authored synthetic fixtures plus read-only measurements fro
 
 ## Outcome
 
-The architecture spike validates the proposed package boundaries, deterministic importer, source overlay behavior, and static delivery path against both legal synthetic fixtures and the full local official dataset. Technical validation for ADRs 0001 and 0002 is complete. They remain Proposed because normalized official data/art publication and inherited-content licensing are unresolved.
+The architecture spike validates the proposed package boundaries, deterministic importer, source overlay behavior, and static delivery path against both legal synthetic fixtures and the full local official dataset. Technical validation for ADRs 0001 and 0002 is complete. They remained Proposed at the time of this spike; the owner accepted both on 2026-07-29 within the local-only product boundary recorded in the ADRs and data policy.
 
 ## Implemented proof
 
@@ -55,8 +55,8 @@ The spike supports retaining the proposed Node/pnpm/strict TypeScript, Next.js s
 
 ## Remaining validation gates
 
-1. Decide which normalized official data and artwork, if any, can be committed or publicly deployed.
-2. Establish code and inherited mod/asset license and provenance policy.
+1. Obtain permission evidence before committing or publicly deploying normalized official data or artwork; the accepted current boundary is local-only.
+2. Add scoped MIT license files after the copyright-holder wording is supplied, without claiming inherited code/mod/asset or official-content rights.
 3. Agree the first parity-slice acceptance statement and search response/relevance budgets.
 4. Implement missing domain normalizers incrementally from synthetic fixtures; the current full-data artifact is structural evidence, not parity-complete content.
-5. Accept or revise ADRs 0001 and 0002 after the publication boundary is decided.
+5. Implement ADR 0004's inherited route-registry lifecycle before treating a dataset as durably shared or published.

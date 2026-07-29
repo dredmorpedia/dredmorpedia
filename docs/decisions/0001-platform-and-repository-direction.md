@@ -1,7 +1,7 @@
 # ADR 0001: Platform and repository direction
 
 Date: 2026-07-19
-Status: Proposed (technical validation complete; publication boundary pending)
+Status: Accepted
 Owners: repository owner + maintainer
 
 ## Context
@@ -10,7 +10,7 @@ The legacy application parses proprietary/locally supplied XML in the browser, s
 
 The replacement needs static reference pages, interactive structured tools, deterministic import behavior, strong tests, inexpensive initial deployment, and a path to optional user features.
 
-## Decision under validation
+## Decision
 
 Adopt:
 
@@ -26,6 +26,12 @@ Adopt:
 - no database or authentication until an approved feature requires synchronized user data.
 
 Target complete legacy functional/content parity for the base game and all three official expansions. Preserve mod support as a future capability rather than an initial coverage requirement. Validate GitHub Pages as the first free static-hosting candidate without coupling the build to that provider.
+
+Use Dungeons of Dredmor `1.1.5 public_beta` as the single MVP dataset. A
+version switcher is deferred until a second complete, verified dataset exists.
+The local product may become complete against ignored official data and
+on-demand entity assets, but official-derived content remains non-public until
+separate permission or legal evidence supports publication.
 
 Ship the initial application and canonical game content in English only. Do not introduce localized routes, translation catalogs, or a language selector until there is an approved source and maintenance plan for at least one additional language. Keep imported source text separate from application interface copy, use UTF-8 and `lang="en"`, prefer locale-aware formatting APIs, and keep stable entity identities and canonical routes independent of display language. Future translated game content should be an explicit overlay with provenance rather than a mutation of canonical English records.
 
@@ -70,12 +76,17 @@ Relocate the legacy application intact under `legacy/` in an isolated, verified 
 - [x] Repository owner approves selective shadcn/ui + Base UI adoption and the initial English-only scope.
 - [x] Initial source scope is base game plus all three official expansions; mods are lower priority.
 - [x] Exact canonical installed game version/build is recorded.
-- [ ] Redistribution policy for generated data and assets is written.
+- [x] The current generated-data and asset boundary is written: official
+      derivatives remain local-only while future publication permission is
+      unresolved.
 - [x] A short synthetic-data spike proves representative XML parsing, deterministic collisions, artifact generation, and static generation of at least one entity route.
 - [x] The spike records build time and artifact size using the available full local dataset.
 
-The interim read-only and non-publication rules are documented in [`../data-and-assets-policy.md`](../data-and-assets-policy.md). They do not by themselves resolve redistribution rights.
+The owner accepted this ADR on 2026-07-29 under the local-first official-content
+boundary in [`../data-and-assets-policy.md`](../data-and-assets-policy.md).
+Acceptance does not itself resolve or grant redistribution rights.
 
 Component approach references: [shadcn/ui introduction](https://ui.shadcn.com/docs), [Base UI overview](https://base-ui.com/react/overview/about), and [Base UI accessibility responsibilities](https://base-ui.com/react/overview/accessibility).
 
-Synthetic and read-only full-dataset evidence is recorded in [`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md). Keep this ADR Proposed until the remaining publication-policy gate passes; the workspace may continue only through work that does not assume redistribution rights.
+Synthetic and read-only full-dataset evidence is recorded in
+[`../analysis/architecture-spike-2026-07-19.md`](../analysis/architecture-spike-2026-07-19.md).

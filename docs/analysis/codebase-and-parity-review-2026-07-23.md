@@ -16,7 +16,7 @@ The generated-search comparator now ends on entity ID, closing finding 3 without
 
 The broader parity recommendations to expose every entity kind, buffer search input locally, and provide bounded static no-JavaScript discovery are also complete. The first behavior-preserving maintenance extraction moved the spell browser flow into a dedicated specification.
 
-Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. Route ownership across insertion/deletion and dataset-version changes is therefore the only open medium finding and still requires an explicit registry lifecycle decision. Minor UI cleanup remains available low-severity work.
+Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. The owner has now decided the route-registry lifecycle; implementing its inherited reservations, tombstones, and publication failure gate is the remaining work for the only medium finding. Minor UI cleanup remains available low-severity work.
 
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
@@ -53,7 +53,7 @@ and all 34 desktop/mobile browser cases.
 
 ## Priority findings
 
-### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
+### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, policy decided; implementation pending
 
 `packages/domain/src/identity.ts:137-148`. Within a slug-collision group the owner of the un-suffixed base slug is the collation-first entity (`compareEntities`: canonicalKey, then id). The collision _suffixes_ are stable — `stableSlugSuffix` (`identity.ts:73-80`) is FNV-1a over each entity's own `id`, so a hashed slug is a pure function of that entity — but _ownership of the clean slug_ is decided by group membership. Two entities can share a base slug while differing in `canonicalKey` (they differ only in characters that `slugify` strips but `canonicalKey` keeps, e.g. punctuation), so adding or removing a group member can move ownership.
 
@@ -62,6 +62,12 @@ Concrete scenario: an item `"Foo!"` (`canonicalKey "foo!"`, slug `foo`) initiall
 Mitigation exists but is weak. The route registry pins owners via reservations (`packages/data-pipeline/src/route-registry.ts`), but it is optional and, in `resolveRouteRegistry` (`route-registry.ts:168-188`), **all** reservations are dropped with a `route_registry_scope_mismatch` issue when `datasetId`/`datasetVersion` do not match. A dataset-version bump without a regenerated registry therefore returns every route to collation-order allocation and can churn published URLs. This bears directly on product principle #5 ("Stable and shareable" URLs).
 
 Coverage: the hazard is untested. `identity.test.ts` covers order-independence for a fixed set and the reservation-pinning path, but no test adds or removes a colliding entity and asserts that pre-existing slugs are unchanged.
+
+Resolution direction accepted 2026-07-29: ADR 0004 makes inherited registries
+mandatory for durably shared dataset lineages, retains removed routes as
+tombstones, and requires invalid inheritance to fail publication. The
+single-version `public_beta` MVP and unpublished experiments may continue
+without a version switcher. Code and migration coverage remain pending.
 
 ### 2. Output ordering depends on ICU-version collation, and `--check` cannot detect divergence — RESOLVED 2026-07-28 (originally MEDIUM)
 
@@ -140,7 +146,7 @@ Highest-impact gaps, ranked:
 1. No browse/index surface for spells, monsters, skills, abilities, recipes, or encrustments. Only Items is browsable; the others are reachable only via cross-links or a typed slug. The search artifact already contains every kind, but the UI filters to items/stats/templates via a hardcoded allow-list at `apps/web/src/app/search/page.tsx:49-54` and `kindOptions` at `apps/web/src/components/search-explorer.tsx:34-39`. Widening that list (and/or adding per-kind index routes and nav) is the cheapest high-impact parity move and needs no new data work.
 2. Spell effect fidelity. Effects render as a generic `type` plus amount, and the documented compatibility backlog (per the 2026-07-23 handoff: 609 item plus 2,333 spell constructs) is dominated by spell effects. This is the largest content gap.
 3. The Meta/analytics section is entirely absent. It was low-fidelity in legacy and its one table depends on disputed monster formulas the rebuild deliberately withholds.
-4. Game art is not rendered; pages show "reference supplied/not supplied" text. Blocked on the asset-publication decision.
+4. Game art is not rendered; pages show "reference supplied/not supplied" text. An incremental local-only entity-asset pipeline is approved but not implemented; public art remains blocked on permission.
 5. Search breadth and by-stat coverage regress against legacy (which searched items/skills/spells by name and ranked items/abilities/spells by stat magnitude).
 6. Templates are effectively orphan pages: `SpellEffect` carries no template key, so the legacy spell→AOE-grid relationship is not modeled.
 7. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
@@ -157,10 +163,17 @@ Legacy behaviors that are traps and should not be replicated: the Flash/Download
 Independent of the blocked owner decisions and safe to implement as small vertical slices (change plus test plus doc note):
 
 1. **Completed 2026-07-28:** append the `id` tiebreaker to `createSearchDocuments` and add a regression test (finding 3).
-2. Add a slug-stability test that inserts and removes a colliding entity and asserts pre-existing slugs are unchanged, then decide whether the route registry should be mandatory and whether a `datasetVersion` mismatch should void reservations silently (finding 1).
+2. Implement ADR 0004: add insertion/deletion/tombstone/reappearance tests,
+   inherit registries across shared dataset versions, and fail
+   publication-oriented builds on invalid registry state (finding 1).
 3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
 4. **Completed 2026-07-28:** use code-unit comparison for every output-critical domain and pipeline order (finding 2).
 5. **Comparator portion completed 2026-07-29:** complete the non-total comparators and add reversed-input regressions (finding 4). Zod charset regexes at the web boundary remain optional hardening.
 6. **Completed 2026-07-29:** validate normalized asset paths before root probing and cover the empty-root caller edge.
 
-Blocked on owner decisions (restated for continuity, tracked in `docs/handoff/new-pc-and-codex.md` and `PROJECT.md`): publication rights for normalized official data and art; the inherited-code/mod/asset license policy; an approved source for stat definitions absent from the canonical build; and the treatment of disputed monster Life/Mana/secondary/damage formulas. Do not resolve these by assumption.
+The current owner policy is local-first: official data and relevant entity art
+may be generated only into ignored local output. Future public rights,
+copyright-holder wording for the scoped MIT license, excluded
+legacy/mod/asset provenance, stat-definition sources, and individual
+engine-derived formulas still require evidence or a focused decision at the
+relevant implementation boundary.

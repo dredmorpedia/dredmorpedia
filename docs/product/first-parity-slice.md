@@ -2,7 +2,10 @@
 
 Status: draft for owner approval
 
-The first product slice is **items + stats + source provenance + search**. This statement is intentionally a reviewable draft: it does not approve publishing official data or choose a final search performance budget.
+The first product slice is **items + stats + source provenance + search**. This
+statement remains a reviewable draft. Official content is approved only for the
+ignored local `1.1.5 public_beta` MVP, not public deployment, and the final
+search performance budget remains open.
 
 ## User outcome
 
@@ -22,6 +25,9 @@ A player can find an item or stat, understand normalized game values and sources
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
 - Search covers all nine generated entity kinds and supports shareable text, entity-type, source, item-category, and item-stat filters, including source-defined item modifiers when standalone stat definitions are unavailable.
 - Text matching requires every normalized query token. Exact and prefix name matches rank above description-only matches; ties are deterministic.
+- A zero-result query offers at most five deterministic, user-selected spelling
+  suggestions derived from entity names and aliases. Suggestions do not
+  silently replace the query.
 - Search renders at most 50 results at once and exposes the total match count and useful empty/reset states.
 - Static browse catalogues expose every entity kind and direct detail link without JavaScript, render at most 100 records per page, and preserve an explicit empty page for kinds absent from the active dataset.
 - Item-to-stat and stat-to-item links do not produce broken routes for available definitions.
@@ -33,7 +39,11 @@ A player can find an item or stat, understand normalized game values and sources
 
 - Synthetic fixtures cover every published behavior and remain sufficient for CI.
 - The canonical local official dataset imports and builds read-only with zero parser errors.
-- Local paths, official databases/assets, and generated official derivatives remain outside Git and public output until the policy gate is resolved.
+- Local paths, official databases/assets, and generated official derivatives
+  remain outside Git and public output.
+- Local visual parity may copy only assets referenced by entities/features shown
+  by implemented pages into ignored generated output, without modifying the
+  installation or bulk-copying unrelated resources.
 - Unsupported constructs, dangling references, missing definitions, and precedence decisions remain measurable diagnostics.
 
 ## Quality acceptance
@@ -41,10 +51,20 @@ A player can find an item or stat, understand normalized game values and sources
 - Desktop and mobile keyboard flows pass for static browse with JavaScript disabled, item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, spell-effect navigation, item/skill/ability/loadout navigation, and monster-family/spell/drop navigation.
 - Representative home, browse, search, item, stat, recipe, encrustment, skill, ability, spell, and monster pages have no automatically detected axe violations.
 - Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
-- Representative relevance examples still require owner approval before ADR 0003 can be accepted.
+- Detailed zero-result suggestion examples still require acceptance before ADR
+  0003 can be accepted.
 
 ## Current progress
 
 Implemented: versioned split search artifact, versioned source/patch provenance, deterministic query/filter and item/recipe/encrustment/skill/ability/spell/monster-drop relationship APIs, shareable all-entity search with fixed item-modifier facets, bounded static all-entity browse catalogues, collision-safe canonical routes, a version-scoped route registry and source-ID aliases, static stat/recipe/encrustment/skill/ability/spell/monster routes, strict gem classification markers, loss-aware item artifact quality and armour declarations, direct item recovery/wand-charge values and trap activation/targeting/placement source metadata, signed item damage/resistance/primary/secondary modifiers, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, cycle-safe effect traversal, loss-aware spell mana-cost source formulas, animation/impact presentation metadata, ordered buff-local descriptions and halo metadata, spell- and buff-local AI hints, typed effect-list options with reciprocal item/spell links, direct effect damage/scaling/duration metadata, controls, and linked buff-presence conditions, buff source parameters, signed spell-buff direct and sight-radius modifiers, linked target/player hit buff event hooks, item/ability/monster spell-trigger normalization/linking/presentation including measured direct-trigger casing aliases and exact source flags, shared signed ability/encrustment/monster modifier normalization, skill/ability source metadata and dodge hooks, monster core stat/inheritance profiles, reciprocal spell links, local monster dig/dash/charge declarations, behavior spell hooks, and sound/sprite presentation metadata, direct named/type-driven drops, direct encrustment outcomes, the separately modeled shared instability-effect pool, explicit missing-definition/reference/cycle states, and synthetic desktop/mobile browser coverage including a JavaScript-disabled browse flow. Alternate pages are marked `noindex, follow` and expose the canonical in-app URL; final public canonical-link metadata remains part of the hosting/domain work.
 
-Outstanding: approve this statement and search budgets, establish an approved source for official stat definitions absent from the measured game build, complete independently verified monster derived-stat parity, and continue representative comparisons with legacy behavior. Item quality has passed its separate synthetic, official-data, artifact, patch, and responsive UI review.
+Approved direction but not yet implemented: project-owned zero-result
+name/alias suggestions, the inherited route-registry publication lifecycle, and
+incremental local entity-asset import.
+
+Outstanding: approve this statement after parity polish, set search budgets and
+suggestion examples, establish an approved source for official stat definitions
+absent from the measured game build, evaluate engine-derived mechanics
+individually when their implementation is selected, and continue representative
+comparisons with legacy behavior. Item quality has passed its separate
+synthetic, official-data, artifact, patch, and responsive UI review.

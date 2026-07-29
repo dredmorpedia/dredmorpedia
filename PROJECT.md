@@ -47,8 +47,21 @@ The initial canonical source scope is the base game plus all three official expa
 - Support light, dark, and system color modes from the first real UI foundation.
 - Ship the initial application in English only. Keep imported game text distinct from application interface copy so later interface localization or translated-content overlays remain possible without changing canonical records.
 - Keep the first deployment compatible with free static hosting; GitHub Pages is the leading initial candidate.
+- Use `1.1.5 public_beta` as the MVP dataset. Finish that locally before
+  building a version switcher; add versioned routes only after a second
+  complete, verified dataset exists.
+- Build a locally complete official-content experience while publication is
+  postponed. Import only entity assets used by implemented pages into ignored
+  generated output, targeting meaningful preserved-application art parity
+  rather than bulk-copying unrelated resources.
+- Keep ordinary search deterministic and add project-owned, user-selected
+  spelling suggestions only for zero-result name/alias queries.
+- Intend to license independently authored modern code, scripts,
+  documentation, and synthetic fixtures under MIT, with explicit exclusions
+  for legacy, official, generated, mod, and inherited content.
 - Complete legacy coverage before treating quality-of-life additions as the main delivery phase.
-- Prioritize richer filters, crafting/encrusting backlinks, and eventually tagging, favorites, and lists among the first improvements after parity.
+- Choose among richer filters, technical-detail disclosure, tagging, favorites,
+  and lists during parity polish rather than fixing their priority now.
 - Treat live game-progress tracking as a separate later research project; do not constrain the initial architecture around an unproven integration.
 
 ## Out of scope until explicitly approved
@@ -67,7 +80,17 @@ The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_
 
 ## Open product decisions
 
-- May the public deployment host derived game data and art, or must users import data locally?
-- What licenses and attribution obligations apply to the inherited code, bundled mods, and historical assets?
-- Which quality-of-life feature should be implemented first after parity?
+- What documented permission or reviewed legal basis, if any, will eventually
+  permit a public normalized official dataset or official artwork?
+- What copyright-holder wording should the scoped MIT license use, and what
+  licenses or attribution obligations apply to `legacy/`, bundled mods, and
+  inherited assets?
+- Which individual engine mechanics can be verified independently when their
+  final values are not represented in XML? Decide these immediately before the
+  relevant parity implementation rather than through a blanket inclusion or
+  exclusion.
+- How should extra technical information be progressively disclosed during
+  parity polish?
+- Which quality-of-life feature should be implemented first after parity? This
+  is deliberately deferred until parity polish.
 - Can game progress be observed reliably and safely without modifying the game installation or requiring invasive tooling?

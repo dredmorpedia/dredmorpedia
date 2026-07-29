@@ -45,13 +45,16 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | --- | --- |
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
-| Official sources | Support the base game and all three official expansions first. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. |
-| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 are technically validated but remain Proposed until the publication-policy gate passes. |
+| Official sources | Use `1.1.5 public_beta` with the base game and all three official expansions for the MVP. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. Postpone a dataset-version switcher until a second complete, verified dataset exists. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 are Accepted within the local-only product boundary. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
+| Local assets | Build an incremental, read-only importer that copies only assets referenced by entities/features currently presented into an ignored generated-assets output. Aim for the same meaningful entity art the legacy product used for parity; do not bulk-copy unrelated assets. |
+| Publication | Build a locally complete product first. Official XML, generated official datasets, and copied official assets remain ignored and non-public while public-release permission is unresolved. Selected screenshots may support a permission request but do not grant publication rights. |
+| Licensing | New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are excluded. Add scoped license files after the owner supplies exact copyright-holder wording. |
 | Themes | Support light, dark, and system modes from the first real UI foundation. |
 | Language | Ship in English initially. Do not add localized routes, translation catalogs, a language selector, or manually translated game content without a maintained source and plan. Keep canonical game text separate from interface copy so localization can be added later without changing record identity. |
-| First improvements | After parity, prioritize richer filters (including crafting-skill level where relevant), explicit “used to craft” and “used to encrust” relationships, then consider tagging, favorites, and custom lists. |
+| First improvements | Do not choose post-parity improvements yet. Revisit richer filters, technical-detail disclosure, tagging, favorites, and lists during parity polish against concrete pages. |
 | Persistence | Do not choose local storage, accounts, or a database prematurely. Favorites/lists need a later persistence and portability decision. |
 | Community | No community or social features are planned for the initial project. |
 | Live tracking | Potentially valuable, but it is a separate later research track. It must prove what game/save/runtime state is observable and remain read-only, safe, and privacy-preserving. |
@@ -61,7 +64,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 
 The game installation is read-only. Inspection and hashing are allowed; editing, patching, formatting, renaming, moving, deleting, or writing inside it are not. Approved inputs may be copied into a separate gitignored workspace when a task requires it.
 
-Do not commit or publish official databases/assets, local paths, generated derivatives with unresolved rights, credentials, or additional bundled-mod derivatives. The canonical measurement baseline is `1.1.5 public_beta`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with all three official expansions. The legal/publication boundary remains unresolved. The inherited code also lacks a root license, and bundled mods/assets do not have one obvious shared license.
+Do not commit or publish official databases/assets, local paths, generated official derivatives, credentials, or additional bundled-mod derivatives. The canonical measurement baseline is `1.1.5 public_beta`, Steam app `98800`, build `22934623`, internal branch key `public_beta`, with all three official expansions. Local use is the accepted current boundary; any future public release still requires permission evidence. The intended MIT scope excludes inherited code, bundled mods/assets, and official content, whose provenance and license treatment remain separate.
 
 The full policy is in `docs/data-and-assets-policy.md` and overrides any historical mutation instructions preserved under `legacy/`.
 
@@ -78,15 +81,16 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 ## Immediate next milestone
 
-Continue the first parity slice without assuming permission to publish official content:
+Continue toward local parity without assuming permission to publish official content:
 
-1. Decide the generated-data/art publication boundary and inherited code/mod/asset license policy with the owner.
-2. Accept or revise ADRs 0001 and 0002 after that decision.
-3. Review and approve or revise `docs/product/first-parity-slice.md` plus ADR 0003 search response/relevance budgets.
-4. Decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-6. Treat the current 170 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
-7. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 34 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Resume the measured spell backlog; make any further extraction behavior-preserving and tied to the selected parity boundary.
+1. Resume the measured spell-mechanic backlog. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas.
+2. Implement the approved project-owned zero-result spelling suggestions, then settle ADR 0003 response budgets and concrete relevance examples with measurements.
+3. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
+4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
+5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
+6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
+7. Treat the current 170 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
+8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 34 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -208,12 +212,12 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
 
 ## Open decisions and blockers
 
-- Rights and policy for publishing normalized official data and art.
-- License/provenance treatment for inherited code, historical mods, and assets.
+- Permission evidence for publishing normalized official data and art beyond the accepted local-only boundary.
+- Exact modern-project MIT copyright-holder wording and provenance/license treatment for excluded inherited code, historical mods, and assets.
 - Approval or revision of the drafted first parity-slice acceptance statement.
 - Search response-time and relevance acceptance criteria for ADR 0003.
 - Approved source/model for stat definitions absent from the canonical installed build.
-- Priority among the recorded post-parity quality-of-life candidates.
+- Post-parity quality-of-life priorities and extra technical-detail presentation, intentionally deferred until parity polish.
 - Technical feasibility of live progress tracking, deliberately deferred.
 
 Do not resolve these by assumption. Ask the owner when a choice would materially change the implementation or publication boundary.

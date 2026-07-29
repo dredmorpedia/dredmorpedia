@@ -2,9 +2,11 @@
 
 Updated: 2026-07-29
 
-This roadmap optimizes for a trustworthy vertical slice and a reusable data foundation. Dates and estimates should be added only after the owner resolves the Phase 0 decisions and a complete local dataset is measured.
+This roadmap optimizes for a trustworthy vertical slice and a reusable data
+foundation. The local-first policy is decided; public-release estimates remain
+premature until content permissions are documented.
 
-## Phase 0 — Inception and constraints (policy gates in progress)
+## Phase 0 — Inception and constraints (local policy complete)
 
 ### Deliverables
 
@@ -19,16 +21,23 @@ This roadmap optimizes for a trustworthy vertical slice and a reusable data foun
 - [x] Choose a modern game-inspired visual direction with light, dark, and system themes.
 - [x] Choose selective shadcn/ui components backed by Base UI as the accessible component foundation.
 - [x] Set English-only initial scope while preserving a clean boundary between canonical game text and interface copy.
-- [x] Write an interim read-only data and asset policy.
+- [x] Adopt the local-first read-only data and asset policy.
 - [x] Record the exact canonical installed game build/version.
-- [ ] Decide what official/generated data and art may be committed or publicly hosted.
-- [ ] Establish code and bundled-mod license/provenance policy.
-- [ ] Accept technically validated ADR 0001 after the publication boundary is decided.
-- [ ] Choose the first quality-of-life feature after parity from the recorded candidates.
+- [x] Keep official/generated data and imported art local-only until future
+      publication permission is documented.
+- [x] Select MIT for independently authored modern project material with
+      explicit legacy/game/mod/asset exclusions.
+- [ ] Add the scoped license and notice after confirming copyright-holder
+      wording; continue provenance research for excluded material.
+- [x] Accept technically validated ADRs 0001 and 0002 under the local-first
+      boundary.
+- [x] Defer the first quality-of-life feature choice until parity polish.
 
 ### Exit criteria
 
-ADR 0001 is accepted, the exact official source version is recorded, the public data/asset boundary is decided, and the first parity slice has an agreed acceptance statement.
+The architecture is accepted, the exact official source version is recorded,
+and the current local/public boundary is decided. Permission for public
+official content and final first-slice acceptance remain later release gates.
 
 ## Phase 1 — Architecture spike (complete)
 
@@ -56,7 +65,9 @@ Prove the risky boundaries with representative data before building a design sys
 
 Two identical imports produce byte-identical artifacts; invalid/unknown input has source-located diagnostics; one entity route builds statically; CI passes without proprietary data.
 
-Completed on 2026-07-19. The publication and licensing gates remain in Phase 0; they block public official-data deployment, not continued code work on synthetic fixtures and package boundaries.
+Completed on 2026-07-19. The owner subsequently accepted the architecture under
+a local-first boundary. Future public official-data deployment remains blocked
+on permission, not on the technical spike.
 
 ## Phase 2 — Foundation
 
@@ -97,6 +108,11 @@ Web source-token labels now use one tested display helper across item, recipe,
 encrustment, skill, spell, monster, and stat-modifier presentation. This closes
 the review's duplicated `titleCase` finding and makes repeated separators and
 surrounding whitespace consistent.
+
+ADR 0004 now defines the approved shared-route lifecycle: published dataset
+lineages inherit reservations, removed routes remain tombstoned, and invalid
+inheritance must fail publication. The current exact-version registry still
+needs that enforcement and migration coverage.
 
 ## Phase 3 — First vertical product slice
 
@@ -170,7 +186,7 @@ in `docs/analysis/spell-effect-duration-evidence-2026-07-29.md`.
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
-Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.
+Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned, user-selected name/alias spelling suggestions for zero-result queries are approved but not implemented. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.
 
 ## Phase 4 — Legacy parity
 
@@ -185,13 +201,20 @@ Implement in dependency order rather than old-tab order:
 7. meta/derived views;
 8. any remaining valuable legacy navigation/tooltips.
 
+The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
+second complete, verified dataset. Local visual parity should import only
+assets referenced by entities/features that implemented pages display, into
+ignored generated output; specialized sprite treatment is decided per page.
+Engine mechanics absent from XML are evaluated individually immediately before
+implementation and may be supported when repeatable evidence verifies them.
+
 ### Exit criteria
 
 All agreed parity concepts have stable routes, tested relationships, provenance, and diagnostics. Any intentionally dropped legacy feature is documented. The preserved `legacy/` application may then be archived or removed in a dedicated change.
 
 ## Phase 5 — Differentiating tools
 
-Candidate order, subject to owner priority after parity:
+Candidate order is intentionally unprioritized until parity polish:
 
 1. Rich cross-list filtering and reusable filter views.
 2. Expanded crafting/encrusting dependency views and shopping lists.
@@ -210,6 +233,8 @@ Each tool needs a product brief, pure domain logic, URL/persistence policy, mobi
 
 - Select static hosting/CDN based on domain, preview, analytics, and cost needs.
 - Reproducible production data import with an approved publication boundary.
+- Document permission or another reviewed legal basis before any official
+  dataset or imported official asset is deployed.
 - Security headers/dependency review at the chosen hosting layer.
 - Sitemap, robots policy, canonical metadata, 404s, asset caching, and performance budgets.
 - Dataset/version health page and release changelog.

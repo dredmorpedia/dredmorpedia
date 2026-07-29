@@ -12,8 +12,9 @@ ADRs record decisions that are expensive to rediscover or reverse. They compleme
 
 ## Index
 
-- [`0001-platform-and-repository-direction.md`](0001-platform-and-repository-direction.md) — Proposed (technically validated, publication boundary pending): TypeScript workspace, deterministic pipeline, and statically exported Next.js application.
-- [`0002-xml-adapter-and-generated-artifact-boundary.md`](0002-xml-adapter-and-generated-artifact-boundary.md) — Proposed (technically validated, publication boundary pending): isolated XML parsing, deterministic normalization, diagnostics, and atomic generated artifacts.
+- [`0001-platform-and-repository-direction.md`](0001-platform-and-repository-direction.md) — Accepted: TypeScript workspace, deterministic pipeline, and statically exported Next.js application under the local-first official-content boundary.
+- [`0002-xml-adapter-and-generated-artifact-boundary.md`](0002-xml-adapter-and-generated-artifact-boundary.md) — Accepted: isolated XML parsing, deterministic normalization, diagnostics, and atomic generated artifacts.
 - [`0003-initial-search-artifact-and-query-strategy.md`](0003-initial-search-artifact-and-query-strategy.md) — Proposed: generated search documents and project-owned structured filtering before adopting a third-party index.
+- [`0004-published-route-registry-lifecycle.md`](0004-published-route-registry-lifecycle.md) — Accepted (implementation follow-up required): inherited route reservations and tombstones for durably shared dataset versions.
 
 Copy [`template.md`](template.md) for a new decision. Keep records short enough to review, link evidence, and describe migration consequences.

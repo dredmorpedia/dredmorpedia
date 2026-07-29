@@ -1,14 +1,14 @@
 # ADR 0002: XML adapter and generated artifact boundary
 
 Date: 2026-07-19
-Status: Proposed (technical validation complete; publication boundary pending)
+Status: Accepted
 Owners: repository owner + maintainer
 
 ## Context
 
 The legacy browser application loads many XML files directly into mutable UI-facing objects. That makes parse failures silent, source precedence timing-dependent, and domain behavior difficult to test. The replacement needs deterministic imports, actionable diagnostics, provenance, and a legal boundary between read-only local inputs and the public web application.
 
-## Decision under validation
+## Decision
 
 - Parse XML only in `packages/data-pipeline` through a project-owned adapter around `fast-xml-parser`.
 - Reject DOCTYPE declarations and invalid XML before normalization. Treat source content as untrusted and never expose parser-library shapes outside the pipeline.
@@ -19,6 +19,12 @@ The legacy browser application loads many XML files directly into mutable UI-fac
 - Link relationships in a deterministic second pass. Emit missing assets, dangling references, duplicate choices, unsupported elements, and parse failures as stable, source-located diagnostics.
 - Emit schema-versioned JSON and diagnostics into a separate output directory using collision-resistant atomic file replacement, then publish the checksum manifest last as the output-set commit marker. Resolve real output/source paths before rejecting any overlap. The web layer reads only these generated artifacts, verifies their manifest checksums and complete runtime schemas, and never reads raw XML.
 - Keep generated official-data derivatives ignored and non-public until the publication policy explicitly permits them. Tracked tests use independently authored synthetic fixtures.
+
+The implemented registry remains optional for unpublished local datasets.
+Durably shared or published dataset versions must follow the inherited registry
+and tombstone lifecycle accepted in
+[`0004-published-route-registry-lifecycle.md`](0004-published-route-registry-lifecycle.md);
+that publication enforcement is an implementation follow-up.
 
 ## Consequences
 
@@ -43,4 +49,6 @@ The implemented versioned contract is documented in [`../contracts/generated-art
 - [x] Unsupported constructs and performance found in the full dataset are assessed.
 - [x] Versioned source manifests and guarded patch overlays preserve deterministic field-level provenance.
 - [x] A version-scoped route registry preserves canonical and historical routes without partial application.
-- [ ] The generated-artifact publication boundary is approved.
+- [x] The current boundary is approved: generated official artifacts remain
+      ignored and local-only unless a later written decision documents
+      publication rights and safeguards.

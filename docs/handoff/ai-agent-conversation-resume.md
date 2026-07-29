@@ -19,6 +19,16 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - Node is pinned by `.node-version` to `24.18.0`; the workspace uses pnpm through Corepack. On Windows, use `pnpm.cmd` when needed.
 - Development runs on `http://localhost:3001/`.
 
+## Owner decisions recorded on 2026-07-29
+
+- The current target is a locally complete product based on `1.1.5 public_beta`, including only the official assets needed by entities and features the product actually presents. Public deployment and a dataset-version switcher are postponed.
+- Official XML, generated official datasets, and copied official assets stay ignored and non-public. Selected screenshots may be prepared when requesting permission, but a screenshot does not establish permission to publish the underlying material.
+- New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are outside that intended scope. Scoped license files remain pending until the copyright-holder wording is supplied.
+- ADR 0001 and ADR 0002 are Accepted within this local-only boundary. ADR 0004 accepts a permanent inherited route-registry lifecycle for durably shared or published datasets; its enforcement is an implementation follow-up.
+- Search should gain project-owned, name-and-alias-only spelling suggestions when a query has zero results: at most five suggestions, always selected by the user, with no automatic query replacement. Response budgets and concrete relevance examples remain open in ADR 0003.
+- Engine mechanics absent from XML must be evaluated individually immediately before their implementation. Legacy formulas are evidence to test, not automatically authoritative or automatically excluded.
+- Post-parity quality-of-life priorities and presentation of extra technical detail are intentionally deferred until parity polish, when they can be decided against concrete pages.
+
 ## How the work is organized
 
 The owner normally asks to “proceed with the next task.” Treat that as authorization to select and implement one bounded, coherent parity or hardening slice—not an arbitrary cleanup.
@@ -126,7 +136,7 @@ the 43-page synthetic export; all 34 desktop/mobile browser cases pass.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
-Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.
+The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement, the bounded local asset importer, and zero-result spelling suggestions are approved directions but remain implementation work.
 
 ## Git and owner handoff convention
 
