@@ -104,20 +104,6 @@ export default async function StatPage({
         <span aria-current="page">{stat.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {stat.name}
-            </h2>
-          </div>
-          <Link className="entity-link" href={`/stats/${stat.slug}`}>
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">{stat.group} stat</p>
@@ -131,6 +117,20 @@ export default async function StatPage({
           </dd>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {stat.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/stats/${stat.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="stat-items-heading">

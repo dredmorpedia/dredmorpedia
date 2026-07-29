@@ -280,6 +280,7 @@ test("resolves alternate aliases to their canonical item route", async ({
 }) => {
   for (const alias of ["clockwork-blade-plus", "clockwork-sword"]) {
     await page.goto(`/items/${alias}/`);
+    await expect(page.locator("h1, h2").first()).toHaveText("Clockwork Blade");
     await expect(
       page.getByRole("heading", {
         level: 2,

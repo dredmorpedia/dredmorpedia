@@ -149,23 +149,6 @@ export default async function EncrustmentPage({
         <span aria-current="page">{encrustment.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {encrustment.name}
-            </h2>
-          </div>
-          <Link
-            className="entity-link"
-            href={`/encrustments/${encrustment.slug}`}
-          >
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">{tool} encrustment</p>
@@ -222,6 +205,23 @@ export default async function EncrustmentPage({
           </div>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {encrustment.name}
+            </h2>
+          </div>
+          <Link
+            className="entity-link"
+            href={`/encrustments/${encrustment.slug}`}
+          >
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="ingredients-heading">

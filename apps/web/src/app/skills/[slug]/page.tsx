@@ -87,20 +87,6 @@ export default async function SkillPage({
         <span aria-current="page">{skill.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {skill.name}
-            </h2>
-          </div>
-          <Link className="entity-link" href={`/skills/${skill.slug}`}>
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">{titleCase(skill.archetype)} skill</p>
@@ -120,6 +106,20 @@ export default async function SkillPage({
           </div>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {skill.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/skills/${skill.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="loadout-heading">

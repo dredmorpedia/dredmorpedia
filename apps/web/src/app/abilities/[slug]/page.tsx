@@ -78,20 +78,6 @@ export default async function AbilityPage({
         <span aria-current="page">{ability.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {ability.name}
-            </h2>
-          </div>
-          <Link className="entity-link" href={`/abilities/${ability.slug}`}>
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">
@@ -119,6 +105,20 @@ export default async function AbilityPage({
           </div>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {ability.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/abilities/${ability.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section

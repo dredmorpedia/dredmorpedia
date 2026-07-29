@@ -38,6 +38,12 @@ external source root while proving its declared database paths remain
 real-path-contained. Evidence is recorded in
 [`source-root-trust-boundary-evidence-2026-07-29.md`](source-root-trust-boundary-evidence-2026-07-29.md).
 
+Alias notices on all nine entity detail routes now follow their detail headers
+in document order. The entity `<h1>` is therefore the first page heading while
+the visible canonical-route notice remains a labelled `<aside>` with an `<h2>`.
+The existing alias browser flow explicitly guards this heading order alongside
+the canonical link and `noindex` metadata.
+
 ## Priority findings
 
 ### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
@@ -100,7 +106,7 @@ Findings:
 - Search input is URL-controlled with no debounce and no local buffer — MEDIUM. In `apps/web/src/components/search-explorer.tsx` the input is `value={query}` where `query` derives from `searchParams`, and each keystroke calls `router.replace` inside a transition. Fast typing can transiently reset the field when an in-flight transition commits with a stale value (dropped/reordered characters, cursor jump). The e2e uses one-shot `fill()`, so per-keystroke behavior is unverified. Prefer a local `useState` mirror plus `useDeferredValue`/debounce for the URL write.
 - `/search` is a JS-only island with no progressive-enhancement fallback — MEDIUM (design). The exported `/search/index.html` contains only the Suspense fallback, so without JavaScript the page is a dead end, deep-linked filters are not reflected in static HTML, and there is a brief post-hydration content shift. The home page and all detail pages are fully static and work without JS.
 - The "no horizontal overflow at 390px" claim is inaccurate and thinly checked — LOW (claims accuracy). The mobile Playwright project is the Pixel 7 profile (~412px CSS width, `playwright.config.ts:21`), not 390px, and the `scrollWidth <= clientWidth` assertion appears on only three routes; the nineteen-route axe loop does not check overflow. The underlying responsive CSS (`min()`, `clamp()`, `minmax(0,…)`, `overflow-x:auto`, `min-w-0` on the select trigger) is sound, so this is a coverage/wording gap, not a proven overflow.
-- On alias detail pages an `<h2>` precedes the page `<h1>` in DOM order — LOW. Axe's `heading-order` does not flag a decrease, so the sweep passes; a heading-navigation user reaches the alias note before the document title.
+- **Resolved 2026-07-29:** alias detail pages previously placed the alias-note `<h2>` before the page `<h1>` in DOM order. All nine detail routes now render the detail header first, and the alias browser flow asserts that the entity title is the first heading while preserving the notice, canonical link, and `noindex` behavior.
 - The first breadcrumb crumb and the header nav are always labeled "Items" and link to home, even on spell/monster/other pages — LOW (misleading label).
 - No `error.tsx`/`global-error.tsx` boundary — LOW. An uncaught client error in an island would blank the region with no fallback; risk is low given how little client JS ships.
 - **Resolved 2026-07-29:** `loadArtifact` previously asserted unique entity and search-document IDs but not unique canonical/alias slugs. It now rejects same-kind canonical-or-alias ownership collisions independently after schema and checksum validation.

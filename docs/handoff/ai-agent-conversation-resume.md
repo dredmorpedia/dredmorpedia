@@ -113,6 +113,11 @@ contract. A trusted local manifest may name an absolute external read-only
 source root; declared database paths are still real-path-contained beneath that
 root, and generated artifacts never expose the machine-local root.
 
+The low-severity alias heading-order finding is resolved across all nine entity
+detail routes: the entity `<h1>` now precedes the visible alias-note `<h2>`, and
+the existing alias browser flow guards the heading order, canonical link, and
+`noindex` behavior.
+
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.

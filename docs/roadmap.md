@@ -89,6 +89,10 @@ remain real-path-contained beneath it and machine-local roots stay out of
 generated artifacts. A focused regression covers both the allowed root and a
 rejected traversal attempt.
 
+All nine alias detail routes now keep the entity `<h1>` before the alias-note
+`<h2>` in document order. The visible canonical-route notice and `noindex`
+metadata remain intact, with browser coverage for the heading sequence.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

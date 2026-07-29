@@ -160,20 +160,6 @@ export default async function MonsterPage({
         <span aria-current="page">{monster.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {monster.name}
-            </h2>
-          </div>
-          <Link className="entity-link" href={`/monsters/${monster.slug}`}>
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">
@@ -195,6 +181,20 @@ export default async function MonsterPage({
           </div>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {monster.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/monsters/${monster.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="profile-heading">

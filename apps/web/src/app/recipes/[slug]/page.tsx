@@ -134,20 +134,6 @@ export default async function RecipePage({
         <span aria-current="page">{recipe.name}</span>
       </nav>
 
-      {isAlias ? (
-        <aside className="alias-note" aria-labelledby="alias-heading">
-          <div>
-            <p className="eyebrow">Alias route</p>
-            <h2 id="alias-heading" className="font-semibold">
-              This alternate URL resolves to {recipe.name}
-            </h2>
-          </div>
-          <Link className="entity-link" href={`/recipes/${recipe.slug}`}>
-            Open canonical URL
-          </Link>
-        </aside>
-      ) : null}
-
       <header className="detail-header">
         <div>
           <p className="eyebrow">{tool} recipe</p>
@@ -190,6 +176,20 @@ export default async function RecipePage({
           </div>
         </dl>
       </header>
+
+      {isAlias ? (
+        <aside className="alias-note" aria-labelledby="alias-heading">
+          <div>
+            <p className="eyebrow">Alias route</p>
+            <h2 id="alias-heading" className="font-semibold">
+              This alternate URL resolves to {recipe.name}
+            </h2>
+          </div>
+          <Link className="entity-link" href={`/recipes/${recipe.slug}`}>
+            Open canonical URL
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="ingredients-heading">
