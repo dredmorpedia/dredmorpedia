@@ -79,8 +79,19 @@ unknown extensions remain diagnosed. The page exposes reference availability
 and direct values while hiding raw icon, sprite, and sound identifiers.
 Consumers must not infer timing units, animation order, target placement,
 synchronization, sound playback, or other engine behavior. Separate spell
-animation/impact, buff-halo, create-object sprite, and dig-regeneration
-declarations are not conflated with this record.
+animation/impact and buff-halo declarations are not conflated with this
+record.
+
+Every effect separately requires nullable `createdObjectSpritePath` and
+`regenerateGraphics` fields. The created-object reference is normalized only
+for `create` effects from the direct `objectSprite` attribute, must be a safe
+relative concrete asset path, and receives the ordinary existence/input
+registration check. The graphics-regeneration flag is normalized only for
+`dig` effects from the direct `regengfx` attribute and preserves explicit true
+and false. Attributes on other effect types remain diagnostics. Consumers may
+disclose reference availability and the source flag, but must not infer
+created-object type or lifetime, terrain changes, graphics-redraw timing,
+placement, persistence, or runtime success.
 
 Controls retain nullable non-negative effect duration in turns, the direct `after` source flag, source chance from `percent`/`percentage`, caster targeting from both measured casing aliases, self targeting, corpse targeting, resistance, burn, bleed, skip-animation from `skipAnimation`/`skipanimation`, and taxonomy values. Duration is a direct integer source declaration; percentages are integers from 0 through 100; flags preserve explicit true/false while `null` distinguishes absence or malformed input; taxonomy is a non-blank source token or `null`. Dual aliases, invalid values, and blank supplied taxonomy remain diagnosed. Consumers may disclose these direct controls but must not combine them into countdown, evaluation order, delay, scheduling, target eligibility, resistance, ignition, bleeding damage/duration/stacking, animation order/timing/synchronization, or runtime probability behavior.
 
@@ -176,6 +187,11 @@ The source input, published-route registry, and patch-overlay contract is docume
 - Required spell-effect `itemTarget` was subsequently added under the same rule. Current web consumers require the complete loss-aware paired source-target shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `monsterTarget` was subsequently added under the same rule. Current web consumers require the complete loss-aware paired source-target shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `removedBuff` was subsequently added under the same rule. Current web consumers require the complete loss-aware paired source-target shape, so earlier local schema 3 artifacts must be regenerated.
+- Required spell-effect `createdObjectSpritePath` and `regenerateGraphics`
+  fields were subsequently added under the same rule. Current web consumers
+  require safe loss-aware created-object references and boolean-or-null
+  graphics-regeneration metadata, so earlier local schema 3 artifacts must be
+  regenerated.
 - Skill `loadouts`, `sourceFlags`, and `progressionTags` plus ability `level`, `startSkill`, `modifiers`, `sourceFlags`, `recoveryBuffAmounts`, `currencyBuffPercents`, and `triggers` were added to version 3 under the additive rule. Current web consumers require and validate the richer records, so older local schema 3 artifacts must be regenerated. Existing key/ID arrays remain for compatibility and deterministic query use.
 - Monster `depth`, `special`, palette metadata, `archetypeLevels`, `ai`, `sight`, `movement`, `presentation`, `experienceValue`, `modifiers`, `spellChance`, `triggers`, and `drops` were added to version 3 under the additive rule. The AI record was later expanded with loss-aware chicken/charm/paralyze/steal flags and steal percentage; sight preserves loss-aware cone/modifier values; movement preserves local dig/dash/charge declarations; presentation preserves local sound cue and sprite declarations; and trigger kinds now include on-death/dash/charge spell references. Current web consumers require and validate the richer records, including every loss-aware AI, sight, movement, and presentation field plus the exclusive drop shapes, so older local schema 3 artifacts must be regenerated.
 - The `encrustments` collection was added to version 3 under the additive rule and later expanded with direct outcome arrays. Current web consumers require and validate the complete collection, so older local schema 3 artifacts must be regenerated.

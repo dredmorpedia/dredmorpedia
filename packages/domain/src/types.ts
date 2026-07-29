@@ -340,6 +340,8 @@ export interface SpellEffect {
   damage: SpellEffectDamage[];
   scaling: SpellEffectScaling;
   presentation: SpellEffectPresentationMetadata | null;
+  createdObjectSpritePath: string | null;
+  regenerateGraphics: boolean | null;
   controls: SpellEffectControls;
   conditions: SpellEffectConditions;
   options: SpellEffectOption[];

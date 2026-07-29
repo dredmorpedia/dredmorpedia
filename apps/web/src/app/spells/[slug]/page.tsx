@@ -1113,14 +1113,15 @@ export default async function SpellPage({
           <p className="text-sm leading-6 text-muted-foreground">
             Direct and buff-local damage amounts, factor coefficients, scaling
             selectors, item and summon-monster targets, named buff-removal
-            targets, effect presentation, controls, and buff conditions are
-            shown without combining them into final damage, targeting
-            eligibility, buff-presence evaluation, removal eligibility, removal
-            scope, stack handling, trigger timing, resistance, ignition,
-            animation sequencing, random-item selection, inventory placement,
-            summon allegiance, placement, lifetime, AI state, or runtime
-            probability behavior. Detailed effect sprite paths and sound cue IDs
-            remain hidden.
+            targets, effect presentation, created-object sprite availability,
+            graphics-regeneration flags, controls, and buff conditions are shown
+            without combining them into final damage, targeting eligibility,
+            buff-presence evaluation, removal eligibility, removal scope, stack
+            handling, trigger timing, resistance, ignition, animation
+            sequencing, terrain changes, redraw timing, created-object lifetime,
+            random-item selection, inventory placement, summon allegiance,
+            placement, lifetime, AI state, or runtime probability behavior.
+            Detailed effect sprite paths and sound cue IDs remain hidden.
           </p>
           {normalizedEffects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -1382,6 +1383,18 @@ export default async function SpellPage({
                             </dd>
                           </div>
                         </>
+                      ) : null}
+                      {effect.createdObjectSpritePath !== null ? (
+                        <div>
+                          <dt>Created object sprite reference</dt>
+                          <dd>Supplied</dd>
+                        </div>
+                      ) : null}
+                      {effect.regenerateGraphics !== null ? (
+                        <div>
+                          <dt>Regenerate graphics source flag</dt>
+                          <dd>{yesNo(effect.regenerateGraphics)}</dd>
+                        </div>
                       ) : null}
                       {effect.controls.chancePercent !== null ? (
                         <div>

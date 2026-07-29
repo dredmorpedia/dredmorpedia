@@ -3016,6 +3016,8 @@ describe("synthetic dataset import", () => {
         damage: [],
         scaling: noScaling,
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -3043,6 +3045,8 @@ describe("synthetic dataset import", () => {
         damage: [],
         scaling: noScaling,
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -3219,6 +3223,8 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: {
           durationTurns: 3,
           after: true,
@@ -3260,6 +3266,8 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: {
           durationTurns: 0,
           after: false,
@@ -3303,6 +3311,8 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -3344,6 +3354,8 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         presentation: null,
+        createdObjectSpritePath: null,
+        regenerateGraphics: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -3558,6 +3570,154 @@ describe("synthetic dataset import", () => {
         (diagnostic) =>
           diagnostic.entityId === "spell:complete effect presentation" &&
           diagnostic.code === "unknown_attribute",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes created-object sprites and dig graphics flags loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-environment-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    mkdirSync(path.join(sourceRoot, "assets"));
+    writeFileSync(path.join(sourceRoot, "assets", "object.spr"), "synthetic");
+    writeFileSync(
+      path.join(sourceRoot, "assets", "object-two.png"),
+      "synthetic",
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Environmental Effect Metadata" type="target">
+    <effect type="create" objectSprite="assets/object.spr" />
+    <effect type="create" objectSprite="assets\\object-two.png" />
+    <effect type="create" />
+    <effect type="dig" regengfx="1" />
+    <effect type="dig" regengfx="0" />
+    <effect type="dig" />
+  </spell>
+  <spell name="Invalid Environmental Effect Metadata" type="target">
+    <effect type="create" objectSprite="" />
+    <effect type="create" objectSprite="../outside.spr" />
+    <effect type="damage" objectSprite="assets/object.spr" regengfx="1" />
+    <effect type="dig" regengfx="sometimes" future="diagnosed" />
+  </spell>
+</spellDB>`,
+    );
+    const environmentManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      environmentManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-environment-test",
+        sources: [
+          {
+            id: "spell-effect-environment-source",
+            label: "Spell Effect Environment Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: environmentManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells.get("Environmental Effect Metadata")?.effects.map((effect) => ({
+        createdObjectSpritePath: effect.createdObjectSpritePath,
+        regenerateGraphics: effect.regenerateGraphics,
+      })),
+    ).toEqual([
+      {
+        createdObjectSpritePath: "assets/object.spr",
+        regenerateGraphics: null,
+      },
+      {
+        createdObjectSpritePath: "assets/object-two.png",
+        regenerateGraphics: null,
+      },
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+      { createdObjectSpritePath: null, regenerateGraphics: true },
+      { createdObjectSpritePath: null, regenerateGraphics: false },
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+    ]);
+    expect(
+      spells
+        .get("Invalid Environmental Effect Metadata")
+        ?.effects.map((effect) => ({
+          createdObjectSpritePath: effect.createdObjectSpritePath,
+          regenerateGraphics: effect.regenerateGraphics,
+        })),
+    ).toEqual([
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+      { createdObjectSpritePath: null, regenerateGraphics: null },
+    ]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_effect_created_object_sprite",
+          entityId: "spell:invalid environmental effect metadata",
+          details: { effectIndex: 0, effectType: "create" },
+        }),
+        expect.objectContaining({
+          severity: "error",
+          code: "unsafe_asset_path",
+          entityId: "spell:invalid environmental effect metadata",
+          details: { assetPath: "../outside.spr" },
+        }),
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid environmental effect metadata",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid environmental effect metadata",
+          details: {
+            element: "effect",
+            attribute: "objectSprite",
+            value: "assets/object.spr",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid environmental effect metadata",
+          details: {
+            element: "effect",
+            attribute: "regengfx",
+            value: "1",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid environmental effect metadata",
+          details: {
+            element: "effect",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:environmental effect metadata" &&
+          (diagnostic.code === "unknown_attribute" ||
+            diagnostic.code === "missing_asset"),
       ),
     ).toBe(false);
   });

@@ -289,6 +289,27 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .locator("..")
       .getByText("Supplied", { exact: true }),
   ).toBeVisible();
+  const createEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Create effect" })
+    .first();
+  await expect(
+    createEffect
+      .getByText("Created object sprite reference", { exact: true })
+      .locator("..")
+      .getByText("Supplied", { exact: true }),
+  ).toBeVisible();
+  const digEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Dig effect" })
+    .first();
+  await expect(
+    digEffect
+      .getByText("Regenerate graphics source flag", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(effects).not.toContainText("assets/synthetic.svg");
   await expect(
     controlledEffect
       .getByText("Blasting damage", { exact: true })

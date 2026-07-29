@@ -3755,6 +3755,10 @@ const spellEffectMonsterTargetTypes = new Set(["summon", "summonhostile"]);
 const spellEffectMonsterTargetAttributes = ["monsterType"] as const;
 const spellEffectRemovedBuffTypes = new Set(["removebuffbyname"]);
 const spellEffectRemovedBuffAttributes = ["name"] as const;
+const spellEffectCreatedObjectTypes = new Set(["create"]);
+const spellEffectCreatedObjectAttributes = ["objectSprite"] as const;
+const spellEffectGraphicsRegenerationTypes = new Set(["dig"]);
+const spellEffectGraphicsRegenerationAttributes = ["regengfx"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
 const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
 const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
@@ -4199,6 +4203,67 @@ function parseSpellEffectPresentation(
   };
 }
 
+function parseSpellEffectCreatedObjectSprite(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["createdObjectSpritePath"] {
+  if (!spellEffectCreatedObjectTypes.has(effectType)) {
+    return null;
+  }
+
+  const value = xmlAttribute(effect, "objectSprite");
+  if (value === undefined) {
+    return null;
+  }
+
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  if (value.trim() === "") {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_created_object_sprite",
+      message: `Spell effect ${effectIndex + 1} supplies an empty created-object sprite reference.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex, effectType },
+    });
+    return null;
+  }
+
+  return normalizeAssetPath(value, context, effectProvenance, currentEntityId);
+}
+
+function parseSpellEffectRegenerateGraphics(
+  effect: XmlRecord,
+  effectType: string,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["regenerateGraphics"] {
+  if (!spellEffectGraphicsRegenerationTypes.has(effectType)) {
+    return null;
+  }
+
+  return optionalBooleanAttribute(
+    effect,
+    "regengfx",
+    context,
+    {
+      ...provenance,
+      ...context.parsed.locateRecord(effect),
+    },
+    `spell effect ${effectIndex + 1} regenerate-graphics flag`,
+    currentEntityId,
+  );
+}
+
 function parseSpellEffectControls(
   effect: XmlRecord,
   effectIndex: number,
@@ -4527,6 +4592,12 @@ function parseSpellEffects(
           ...(spellEffectRemovedBuffTypes.has(effectType)
             ? spellEffectRemovedBuffAttributes
             : []),
+          ...(spellEffectCreatedObjectTypes.has(effectType)
+            ? spellEffectCreatedObjectAttributes
+            : []),
+          ...(spellEffectGraphicsRegenerationTypes.has(effectType)
+            ? spellEffectGraphicsRegenerationAttributes
+            : []),
           ...(spellEffectDamageTypes.has(effectType)
             ? spellEffectDamageAttributes
             : []),
@@ -4607,6 +4678,22 @@ function parseSpellEffects(
         ),
         presentation: parseSpellEffectPresentation(
           effect,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        createdObjectSpritePath: parseSpellEffectCreatedObjectSprite(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        regenerateGraphics: parseSpellEffectRegenerateGraphics(
+          effect,
+          effectType,
           effectIndex,
           context,
           provenance,

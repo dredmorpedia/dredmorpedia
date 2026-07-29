@@ -683,6 +683,58 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/presentation/);
   });
 
+  it("rejects an unsafe created-object sprite path", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            createdObjectSpritePath: string | null;
+          }[];
+        }[];
+      };
+    };
+    const createdObjectEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.createdObjectSpritePath !== null);
+    if (!createdObjectEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no created-object sprite metadata.",
+      );
+    }
+    createdObjectEffect.createdObjectSpritePath = "../outside.spr";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/createdObjectSpritePath/);
+  });
+
+  it("rejects malformed spell effect graphics-regeneration metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            regenerateGraphics: boolean | null;
+          }[];
+        }[];
+      };
+    };
+    const digEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.regenerateGraphics !== null);
+    if (!digEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no graphics-regeneration metadata.",
+      );
+    }
+    digEffect.regenerateGraphics = 1 as unknown as boolean;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/regenerateGraphics/);
+  });
+
   it("rejects malformed spell effect condition metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {
