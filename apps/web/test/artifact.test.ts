@@ -358,6 +358,32 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/controls/);
   });
 
+  it("rejects a negative spell effect duration", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            controls: { durationTurns: number | null };
+          }[];
+        }[];
+      };
+    };
+    const durationEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.controls.durationTurns !== null);
+    if (!durationEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect duration metadata.",
+      );
+    }
+    durationEffect.controls.durationTurns = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/durationTurns/);
+  });
+
   it("rejects malformed spell effect condition metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

@@ -20,6 +20,12 @@ Output-critical ordering is now independent of ICU/CLDR: every domain and pipeli
 
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
+The next content-parity slice preserves all 69 active direct spell-effect
+`turns` declarations as loss-aware source duration metadata. This reduces the
+measured spell compatibility backlog from 239 to 170 constructs without
+claiming runtime timing behavior. Evidence is recorded in
+[`spell-effect-duration-evidence-2026-07-29.md`](spell-effect-duration-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

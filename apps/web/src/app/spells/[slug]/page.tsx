@@ -876,6 +876,7 @@ export default async function SpellPage({
                   (effect.spellKey && !targetSpell) ||
                   (effect.statKey && !targetStat);
                 const hasSourceControls =
+                  effect.controls.durationTurns !== null ||
                   effect.controls.chancePercent !== null ||
                   effect.controls.affectsCaster !== null ||
                   effect.controls.affectsSelf !== null ||
@@ -1008,6 +1009,17 @@ export default async function SpellPage({
                         <div>
                           <dt>Source chance</dt>
                           <dd>{effect.controls.chancePercent}%</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.durationTurns !== null ? (
+                        <div>
+                          <dt>Declared duration</dt>
+                          <dd>
+                            {effect.controls.durationTurns} source{" "}
+                            {effect.controls.durationTurns === 1
+                              ? "turn"
+                              : "turns"}
+                          </dd>
                         </div>
                       ) : null}
                       {effect.controls.affectsCaster !== null ? (

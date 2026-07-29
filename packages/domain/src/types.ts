@@ -376,6 +376,7 @@ export interface SpellEffectScaling {
 }
 
 export interface SpellEffectControls {
+  durationTurns: number | null;
   chancePercent: number | null;
   affectsCaster: boolean | null;
   affectsSelf: boolean | null;

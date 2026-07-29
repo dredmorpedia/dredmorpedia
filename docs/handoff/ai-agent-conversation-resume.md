@@ -91,14 +91,14 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect damage amounts/factors/scaling selectors, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions and their search text, loss-aware buff-halo presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect damage amounts/factors/scaling selectors and duration declarations, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the spell-effect-damage-scaling slice, the canonical import reports:
+After the spell-effect-duration slice, the canonical import reports:
 
-- 0 errors, 275 warnings, and 71 informational duplicate decisions;
-- 239 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 206 warnings, and 71 informational duplicate decisions;
+- 170 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -125,6 +125,17 @@ Phase 0 policy gates remain open: official/generated publication rights, inherit
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell-effect-duration slice preserves all 69 active direct `turns`
+declarations across 69 effects and 68 spells. Loss-aware normalization,
+strict artifact validation, and the spell page expose non-negative source turn
+counts without inferring runtime countdown or scheduling behavior. Focused
+importer, domain, artifact-boundary, and type checks pass. `pnpm.cmd check`
+passes all 143 unit/artifact tests and the 43-page synthetic export; all 34
+desktop/mobile browser cases pass; and the byte-identical ignored canonical
+dataset exports all 2,857 pages with 763 items, 2,767 search documents, 0
+errors, 206 warnings, and 71 informational decisions. Evidence is recorded in
+`docs/analysis/spell-effect-duration-evidence-2026-07-29.md`.
 
 The source-root trust-boundary checkpoint documents the source manifest as
 trusted local/operator configuration. A focused regression proves an absolute

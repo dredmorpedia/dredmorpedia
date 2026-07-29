@@ -222,6 +222,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .locator("..")
       .getByText("Construct", { exact: true }),
   ).toBeVisible();
+  const durationEffect = effects
+    .getByRole("listitem")
+    .filter({ hasText: "Paralyze effect" })
+    .first();
+  await expect(
+    durationEffect
+      .getByText("Declared duration", { exact: true })
+      .locator("..")
+      .getByText("3 source turns", { exact: true }),
+  ).toBeVisible();
   await expect(
     controlledEffect
       .getByText("Source conditions", { exact: true })

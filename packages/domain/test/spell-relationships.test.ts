@@ -14,6 +14,7 @@ import {
 } from "../src/index";
 
 const noEffectControls: Spell["effects"][number]["controls"] = {
+  durationTurns: null,
   chancePercent: null,
   affectsCaster: null,
   affectsSelf: null,

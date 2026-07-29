@@ -3540,6 +3540,7 @@ function parseSpellEffectOptions(
 }
 
 const spellEffectControlAttributes = [
+  "turns",
   "percent",
   "percentage",
   "affectsCaster",
@@ -3897,6 +3898,16 @@ function parseSpellEffectControls(
   }
 
   return {
+    durationTurns: parseSpellEffectNumberAttribute(
+      effect,
+      "turns",
+      effectIndex,
+      `spell effect ${effectIndex + 1} duration in turns`,
+      "integer",
+      context,
+      provenance,
+      currentEntityId,
+    ),
     chancePercent,
     affectsCaster: optionalControlFlag(
       affectsCasterAttribute,

@@ -2515,6 +2515,7 @@ describe("synthetic dataset import", () => {
     const complete = spells.get("Complete Lists");
     const invalid = spells.get("Invalid Lists");
     const noControls = {
+      durationTurns: null,
       chancePercent: null,
       affectsCaster: null,
       affectsSelf: null,
@@ -2685,7 +2686,7 @@ describe("synthetic dataset import", () => {
     ).toBe(false);
   });
 
-  it("normalizes loss-aware spell effect controls and diagnoses malformed aliases", () => {
+  it("normalizes loss-aware spell effect controls and diagnoses malformed values and aliases", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-effect-controls-"),
     );
@@ -2697,12 +2698,12 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Controls" type="target">
-    <effect type="damage" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" />
-    <effect type="trigger" percentage="25" affectscaster="0" />
+    <effect type="damage" turns="3" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" />
+    <effect type="trigger" turns="0" percentage="25" affectscaster="0" />
   </spell>
   <spell name="Invalid Controls" type="target">
-    <effect type="damage" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" future="diagnosed" />
-    <effect type="trigger" percent="" />
+    <effect type="damage" turns="-1" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" future="diagnosed" />
+    <effect type="trigger" turns="1.5" percent="" />
   </spell>
 </spellDB>`,
     );
@@ -2744,6 +2745,7 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         controls: {
+          durationTurns: 3,
           chancePercent: 35,
           affectsCaster: true,
           affectsSelf: false,
@@ -2777,6 +2779,7 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         controls: {
+          durationTurns: 0,
           chancePercent: 25,
           affectsCaster: false,
           affectsSelf: null,
@@ -2812,6 +2815,7 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         controls: {
+          durationTurns: null,
           chancePercent: null,
           affectsCaster: null,
           affectsSelf: null,
@@ -2845,6 +2849,7 @@ describe("synthetic dataset import", () => {
           secondaryStatId: null,
         },
         controls: {
+          durationTurns: null,
           chancePercent: null,
           affectsCaster: null,
           affectsSelf: null,
@@ -2881,7 +2886,7 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:invalid controls" &&
           diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(2);
+    ).toHaveLength(4);
     expect(
       result.diagnostics.filter(
         (diagnostic) =>
@@ -4124,6 +4129,7 @@ describe("synthetic dataset import", () => {
       clockworkSpark?.effects.find((effect) => effect.type === "damage")
         ?.controls,
     ).toEqual({
+      durationTurns: null,
       chancePercent: 40,
       affectsCaster: true,
       affectsSelf: false,
