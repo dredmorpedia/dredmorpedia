@@ -44,6 +44,13 @@ the visible canonical-route notice remains a labelled `<aside>` with an `<h2>`.
 The existing alias browser flow explicitly guards this heading order alongside
 the canonical link and `noindex` metadata.
 
+The duplicated route-local `titleCase` implementations are also consolidated
+in one web display-label helper. Focused tests define separator, empty-segment,
+whitespace, and source-casing behavior, so item, recipe, encrustment, skill,
+spell, monster, and stat-modifier labels no longer drift independently. The
+full workspace passes 146 unit/artifact tests, the 43-page synthetic export,
+and all 34 desktop/mobile browser cases.
+
 ## Priority findings
 
 ### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, confirmed
@@ -107,10 +114,10 @@ Findings:
 - `/search` is a JS-only island with no progressive-enhancement fallback — MEDIUM (design). The exported `/search/index.html` contains only the Suspense fallback, so without JavaScript the page is a dead end, deep-linked filters are not reflected in static HTML, and there is a brief post-hydration content shift. The home page and all detail pages are fully static and work without JS.
 - The "no horizontal overflow at 390px" claim is inaccurate and thinly checked — LOW (claims accuracy). The mobile Playwright project is the Pixel 7 profile (~412px CSS width, `playwright.config.ts:21`), not 390px, and the `scrollWidth <= clientWidth` assertion appears on only three routes; the nineteen-route axe loop does not check overflow. The underlying responsive CSS (`min()`, `clamp()`, `minmax(0,…)`, `overflow-x:auto`, `min-w-0` on the select trigger) is sound, so this is a coverage/wording gap, not a proven overflow.
 - **Resolved 2026-07-29:** alias detail pages previously placed the alias-note `<h2>` before the page `<h1>` in DOM order. All nine detail routes now render the detail header first, and the alias browser flow asserts that the entity title is the first heading while preserving the notice, canonical link, and `noindex` behavior.
-- The first breadcrumb crumb and the header nav are always labeled "Items" and link to home, even on spell/monster/other pages — LOW (misleading label).
+- **Resolved 2026-07-27:** primary navigation now labels the static directory "Browse", and every entity breadcrumb starts there before linking to its correctly labelled kind catalogue.
 - No `error.tsx`/`global-error.tsx` boundary — LOW. An uncaught client error in an island would blank the region with no fallback; risk is low given how little client JS ships.
 - **Resolved 2026-07-29:** `loadArtifact` previously asserted unique entity and search-document IDs but not unique canonical/alias slugs. It now rejects same-kind canonical-or-alias ownership collisions independently after schema and checksum validation.
-- `titleCase` is duplicated across roughly five route files with subtle divergence (the monster copy filters empty segments; others do not) — LOW, cosmetic.
+- **Resolved 2026-07-29:** `titleCase` was duplicated across six web files with subtle empty-segment divergence. One tested display-label helper now serves all affected entity routes and stat-modifier labels.
 
 ## Domain correctness
 

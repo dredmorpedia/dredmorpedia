@@ -12,6 +12,7 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { titleCase } from "@/lib/display-labels";
 
 export const dynamicParams = false;
 
@@ -19,15 +20,6 @@ export function generateStaticParams() {
   return loadArtifact().entities.recipes.flatMap((recipe) =>
     entityRouteSlugs(recipe).map((slug) => ({ slug })),
   );
-}
-
-function titleCase(value: string): string {
-  return value
-    .split(/[-_ ]+/)
-    .map(
-      (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
-    )
-    .join(" ");
 }
 
 function RecipeReferences({

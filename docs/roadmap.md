@@ -93,6 +93,11 @@ All nine alias detail routes now keep the entity `<h1>` before the alias-note
 `<h2>` in document order. The visible canonical-route notice and `noindex`
 metadata remain intact, with browser coverage for the heading sequence.
 
+Web source-token labels now use one tested display helper across item, recipe,
+encrustment, skill, spell, monster, and stat-modifier presentation. This closes
+the review's duplicated `titleCase` finding and makes repeated separators and
+surrounding whitespace consistent.
+
 ## Phase 3 — First vertical product slice
 
 Recommended slice: **items + stats + source provenance + global search**, followed immediately by crafting backlinks.

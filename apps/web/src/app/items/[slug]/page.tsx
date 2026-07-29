@@ -17,6 +17,7 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { titleCase } from "@/lib/display-labels";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import {
   signedStatModifierValue,
@@ -24,15 +25,6 @@ import {
 } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
-
-function titleCase(value: string): string {
-  return value
-    .split(/[-_ ]+/)
-    .map(
-      (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
-    )
-    .join(" ");
-}
 
 function effectTypeLabel(value: string): string {
   if (value === "spawnitemfromlist") {

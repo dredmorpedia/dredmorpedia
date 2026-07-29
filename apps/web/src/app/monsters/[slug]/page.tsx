@@ -11,18 +11,11 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { titleCase } from "@/lib/display-labels";
 import {
   signedStatModifierValue,
   statModifierLabel,
 } from "@/lib/stat-modifiers";
-
-function titleCase(value: string): string {
-  return value
-    .split(/[\s_-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toLocaleUpperCase("en") + part.slice(1))
-    .join(" ");
-}
 
 function sourceFlagLabel(value: boolean | null): string {
   return value === null ? "Not supplied" : value ? "Enabled" : "Disabled";

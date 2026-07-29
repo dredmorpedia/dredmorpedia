@@ -118,6 +118,12 @@ detail routes: the entity `<h1>` now precedes the visible alias-note `<h2>`, and
 the existing alias browser flow guards the heading order, canonical link, and
 `noindex` behavior.
 
+The low-severity duplicated display-label helper finding is also resolved.
+Item, recipe, encrustment, skill, spell, monster, and stat-modifier labels now
+share one tested `titleCase` implementation with consistent separator and
+empty-segment handling. `pnpm.cmd check` passes all 146 unit/artifact tests and
+the 43-page synthetic export; all 34 desktop/mobile browser cases pass.
+
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
 Phase 0 policy gates remain open: official/generated publication rights, inherited code/mod/asset licensing, formal ADR 0001/0002 acceptance, first-parity acceptance, search budgets/relevance examples, and an approved source for official stat definitions. Do not resolve these by assumption.

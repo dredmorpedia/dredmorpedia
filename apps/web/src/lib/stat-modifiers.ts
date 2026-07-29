@@ -1,13 +1,6 @@
 import type { StatModifier } from "@dredmorpedia/domain";
 
-function titleCase(value: string): string {
-  return value
-    .split(/[-_ ]+/)
-    .map(
-      (part) => `${part.slice(0, 1).toLocaleUpperCase("en")}${part.slice(1)}`,
-    )
-    .join(" ");
-}
+import { titleCase } from "@/lib/display-labels";
 
 export function statModifierLabel(modifier: StatModifier): string {
   switch (modifier.kind) {
