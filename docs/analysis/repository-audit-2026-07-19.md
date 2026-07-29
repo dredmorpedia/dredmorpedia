@@ -50,7 +50,8 @@ Current validation and search evidence are recorded in:
 - [`search-spelling-suggestions-evidence-2026-07-29.md`](search-spelling-suggestions-evidence-2026-07-29.md),
 - [`spell-effect-after-flag-evidence-2026-07-29.md`](spell-effect-after-flag-evidence-2026-07-29.md),
 - [`spell-effect-bleed-evidence-2026-07-29.md`](spell-effect-bleed-evidence-2026-07-29.md),
-- [`spell-effect-skip-animation-evidence-2026-07-29.md`](spell-effect-skip-animation-evidence-2026-07-29.md), and
+- [`spell-effect-skip-animation-evidence-2026-07-29.md`](spell-effect-skip-animation-evidence-2026-07-29.md),
+- [`spell-effect-presentation-evidence-2026-07-29.md`](spell-effect-presentation-evidence-2026-07-29.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -62,7 +63,7 @@ The following audit concerns are still actionable:
    accepted, and modern project material is intended for MIT. Public-content
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
-2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains 137 unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains 104 unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

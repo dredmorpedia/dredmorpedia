@@ -50,6 +50,14 @@ reduces the measured spell compatibility backlog from 142 to 137 constructs.
 Evidence is recorded in
 [`spell-effect-skip-animation-evidence-2026-07-29.md`](spell-effect-skip-animation-evidence-2026-07-29.md).
 
+The direct effect-presentation slice preserves all 33 active `sprite`,
+`frames`, `framerate`, `centerEffect`, and `sfx` attributes across 15 effects.
+It rejects unsafe references, keeps raw sprite/sound identifiers hidden, and
+does not infer timing, placement, playback, synchronization, or other engine
+behavior. This reduces the measured spell compatibility backlog from 137 to
+104 constructs. Evidence is recorded in
+[`spell-effect-presentation-evidence-2026-07-29.md`](spell-effect-presentation-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

@@ -88,6 +88,7 @@ function reference(target: Spell): Spell["effects"][number] {
     spellId: target.id,
     damage: [],
     scaling: noEffectScaling,
+    presentation: null,
     controls: noEffectControls,
     conditions: noEffectConditions,
     options: [],
@@ -145,6 +146,7 @@ describe("spell effect relationships", () => {
       spellName: "Missing Echo",
       damage: [],
       scaling: noEffectScaling,
+      presentation: null,
       controls: noEffectControls,
       conditions: noEffectConditions,
       options: [],
@@ -225,6 +227,7 @@ describe("spell effect relationships", () => {
         amount: 2,
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [],
@@ -285,6 +288,7 @@ describe("spell effect relationships", () => {
         type: "triggerfromlist",
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -302,6 +306,7 @@ describe("spell effect relationships", () => {
         type: "spawnitemfromlist",
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -325,6 +330,7 @@ describe("spell effect relationships", () => {
         type: "triggerfromlist",
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: noEffectConditions,
         options: [
@@ -373,6 +379,7 @@ describe("spell effect relationships", () => {
         type: "trigger",
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: {
           ...noEffectConditions,
@@ -391,6 +398,7 @@ describe("spell effect relationships", () => {
         type: "trigger",
         damage: [],
         scaling: noEffectScaling,
+        presentation: null,
         controls: noEffectControls,
         conditions: {
           ...noEffectConditions,

@@ -192,6 +192,36 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("No", { exact: true }),
   ).toBeVisible();
   await expect(
+    teleportEffect
+      .getByText("Effect sprite reference", { exact: true })
+      .locator("..")
+      .getByText("Supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    teleportEffect
+      .getByText("Effect frame count", { exact: true })
+      .locator("..")
+      .getByText("5", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    teleportEffect
+      .getByText("Effect source frame rate", { exact: true })
+      .locator("..")
+      .getByText("90", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    teleportEffect
+      .getByText("Centered effect presentation", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    teleportEffect
+      .getByText("Effect sound cue", { exact: true })
+      .locator("..")
+      .getByText("Supplied", { exact: true }),
+  ).toBeVisible();
+  await expect(
     controlledEffect
       .getByText("Blasting damage", { exact: true })
       .locator("..")

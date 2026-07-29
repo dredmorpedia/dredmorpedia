@@ -462,6 +462,32 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/controls/);
   });
 
+  it("rejects malformed spell effect presentation metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            presentation: { centered: boolean | null } | null;
+          }[];
+        }[];
+      };
+    };
+    const presentedEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.presentation !== null);
+    if (!presentedEffect?.presentation) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect presentation metadata.",
+      );
+    }
+    presentedEffect.presentation.centered = 1 as unknown as boolean;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/presentation/);
+  });
+
   it("rejects malformed spell effect condition metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

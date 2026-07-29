@@ -853,10 +853,11 @@ export default async function SpellPage({
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
             Direct damage amounts, factor coefficients, scaling selectors,
-            controls, and buff conditions are shown without combining them into
-            final damage, targeting eligibility, buff-presence evaluation,
-            trigger timing, resistance, ignition, animation sequencing, or
-            runtime probability behavior.
+            effect presentation, controls, and buff conditions are shown without
+            combining them into final damage, targeting eligibility,
+            buff-presence evaluation, trigger timing, resistance, ignition,
+            animation sequencing, or runtime probability behavior. Detailed
+            effect sprite paths and sound cue IDs remain hidden.
           </p>
           {spell.effects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -1002,6 +1003,54 @@ export default async function SpellPage({
                           <dt>Damage and scaling</dt>
                           <dd>None declared</dd>
                         </div>
+                      ) : null}
+                      {effect.presentation ? (
+                        <>
+                          <div>
+                            <dt>Effect sprite reference</dt>
+                            <dd>
+                              {effect.presentation.spritePath === null
+                                ? "Not supplied"
+                                : "Supplied"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Effect frame count</dt>
+                            <dd>
+                              {effect.presentation.frameCount === null
+                                ? "Not specified"
+                                : sourceNumber.format(
+                                    effect.presentation.frameCount,
+                                  )}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Effect source frame rate</dt>
+                            <dd>
+                              {effect.presentation.frameRate === null
+                                ? "Not specified"
+                                : sourceNumber.format(
+                                    effect.presentation.frameRate,
+                                  )}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Centered effect presentation</dt>
+                            <dd>
+                              {effect.presentation.centered === null
+                                ? "Not specified"
+                                : yesNo(effect.presentation.centered)}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Effect sound cue</dt>
+                            <dd>
+                              {effect.presentation.soundEffect === null
+                                ? "Not supplied"
+                                : "Supplied"}
+                            </dd>
+                          </div>
+                        </>
                       ) : null}
                       {effect.controls.chancePercent !== null ? (
                         <div>

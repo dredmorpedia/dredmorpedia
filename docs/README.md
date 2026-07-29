@@ -4,6 +4,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/spell-effect-presentation-evidence-2026-07-29.md`](analysis/spell-effect-presentation-evidence-2026-07-29.md) — direct effect sprite/frame/center/sound metadata, canonical counts, and explicit runtime boundaries.
 - [`analysis/spell-effect-skip-animation-evidence-2026-07-29.md`](analysis/spell-effect-skip-animation-evidence-2026-07-29.md) — direct skip-animation flags, casing evidence, canonical counts, and explicit runtime boundaries.
 - [`analysis/spell-effect-bleed-evidence-2026-07-29.md`](analysis/spell-effect-bleed-evidence-2026-07-29.md) — direct bleed flags, preserved-app presentation parity, canonical counts, and explicit runtime boundaries.
 

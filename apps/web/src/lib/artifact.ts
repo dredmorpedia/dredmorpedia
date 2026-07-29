@@ -492,6 +492,16 @@ const spellEffectSchema = z
         secondaryStatId: nullableNonnegativeInteger,
       })
       .strict(),
+    presentation: z
+      .object({
+        spritePath: nullableAssetPathSchema,
+        frameCount: nullableNonnegativeInteger,
+        frameRate: nullableNonnegativeInteger,
+        centered: z.boolean().nullable(),
+        soundEffect: nullableNonblankString,
+      })
+      .strict()
+      .nullable(),
     controls: z
       .object({
         durationTurns: nullableNonnegativeInteger,

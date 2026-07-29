@@ -2552,6 +2552,7 @@ describe("synthetic dataset import", () => {
         type: "spawnitemfromlist",
         damage: [],
         scaling: noScaling,
+        presentation: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -2575,6 +2576,7 @@ describe("synthetic dataset import", () => {
         type: "triggerfromlist",
         damage: [],
         scaling: noScaling,
+        presentation: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -2747,6 +2749,7 @@ describe("synthetic dataset import", () => {
           primaryStatId: null,
           secondaryStatId: null,
         },
+        presentation: null,
         controls: {
           durationTurns: 3,
           after: true,
@@ -2784,6 +2787,7 @@ describe("synthetic dataset import", () => {
           primaryStatId: null,
           secondaryStatId: null,
         },
+        presentation: null,
         controls: {
           durationTurns: 0,
           after: false,
@@ -2823,6 +2827,7 @@ describe("synthetic dataset import", () => {
           primaryStatId: null,
           secondaryStatId: null,
         },
+        presentation: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -2860,6 +2865,7 @@ describe("synthetic dataset import", () => {
           primaryStatId: null,
           secondaryStatId: null,
         },
+        presentation: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -2933,6 +2939,139 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete controls" &&
           (diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "conflicting_spell_effect_control_aliases"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes direct spell effect presentation metadata loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-presentation-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Effect Presentation" type="target">
+    <effect type="confuse" sprite="sprites/sfx/complete/complete" frames="5" framerate="100" centerEffect="1" sfx="psionic cue" />
+    <effect type="targetblink" sfx="teleport cue" />
+    <effect type="heal" sprite="sprites\\sfx\\explicit-false\\explicit-false" frames="0" framerate="0" centerEffect="0" />
+    <effect type="damage" />
+  </spell>
+  <spell name="Invalid Effect Presentation" type="target">
+    <effect type="confuse" sprite="../outside" frames="-1" framerate="1.5" centerEffect="maybe" sfx="  " future="diagnosed" />
+  </spell>
+</spellDB>`,
+    );
+    const presentationManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      presentationManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-presentation-test",
+        sources: [
+          {
+            id: "spell-effect-presentation-source",
+            label: "Spell Effect Presentation Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: presentationManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells
+        .get("Complete Effect Presentation")
+        ?.effects.map((effect) => effect.presentation),
+    ).toEqual([
+      {
+        spritePath: "sprites/sfx/complete/complete",
+        frameCount: 5,
+        frameRate: 100,
+        centered: true,
+        soundEffect: "psionic cue",
+      },
+      null,
+      {
+        spritePath: "sprites/sfx/explicit-false/explicit-false",
+        frameCount: 0,
+        frameRate: 0,
+        centered: false,
+        soundEffect: null,
+      },
+      {
+        spritePath: null,
+        frameCount: null,
+        frameRate: null,
+        centered: null,
+        soundEffect: "teleport cue",
+      },
+    ]);
+    expect(
+      spells.get("Invalid Effect Presentation")?.effects[0]?.presentation,
+    ).toEqual({
+      spritePath: null,
+      frameCount: null,
+      frameRate: null,
+      centered: null,
+      soundEffect: null,
+    });
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "error",
+          code: "unsafe_asset_path",
+          entityId: "spell:invalid effect presentation",
+          details: { assetPath: "../outside" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_effect_sound_cue",
+          entityId: "spell:invalid effect presentation",
+          details: { effectIndex: 0 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid effect presentation",
+          details: {
+            element: "effect",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid effect presentation" &&
+          diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(2);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:invalid effect presentation" &&
+          diagnostic.code === "invalid_boolean",
+      ),
+    ).toHaveLength(1);
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete effect presentation" &&
+          diagnostic.code === "unknown_attribute",
       ),
     ).toBe(false);
   });

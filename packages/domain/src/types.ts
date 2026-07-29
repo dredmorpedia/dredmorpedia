@@ -336,6 +336,7 @@ export interface SpellEffect {
   amount?: number;
   damage: SpellEffectDamage[];
   scaling: SpellEffectScaling;
+  presentation: SpellEffectPresentationMetadata | null;
   controls: SpellEffectControls;
   conditions: SpellEffectConditions;
   options: SpellEffectOption[];
@@ -373,6 +374,14 @@ export interface SpellEffectScaling {
   floorFactor: number | null;
   primaryStatId: number | null;
   secondaryStatId: number | null;
+}
+
+export interface SpellEffectPresentationMetadata {
+  spritePath: string | null;
+  frameCount: number | null;
+  frameRate: number | null;
+  centered: boolean | null;
+  soundEffect: string | null;
 }
 
 export interface SpellEffectControls {

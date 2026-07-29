@@ -3556,6 +3556,14 @@ const spellEffectControlAttributes = [
   "skipanimation",
 ] as const;
 
+const spellEffectPresentationAttributes = [
+  "sprite",
+  "frames",
+  "framerate",
+  "centerEffect",
+  "sfx",
+] as const;
+
 const spellEffectConditionAttributes = [
   "requirebuff",
   "requireBuff",
@@ -3793,6 +3801,80 @@ function parseSpellEffectScaling(
           currentEntityId,
         )
       : null,
+  };
+}
+
+function parseSpellEffectPresentation(
+  effect: XmlRecord,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect["presentation"] {
+  if (
+    !spellEffectPresentationAttributes.some(
+      (attribute) => xmlAttribute(effect, attribute) !== undefined,
+    )
+  ) {
+    return null;
+  }
+
+  const effectProvenance = {
+    ...provenance,
+    ...context.parsed.locateRecord(effect),
+  };
+  const soundEffectValue = xmlAttribute(effect, "sfx");
+  const soundEffect =
+    soundEffectValue === undefined || soundEffectValue.trim() === ""
+      ? null
+      : soundEffectValue.trim();
+  if (soundEffectValue !== undefined && soundEffect === null) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_effect_sound_cue",
+      message: `Spell effect ${effectIndex + 1} supplies an empty sound cue.`,
+      source: effectProvenance,
+      entityId: currentEntityId,
+      details: { effectIndex },
+    });
+  }
+
+  return {
+    spritePath: normalizeAssetReference(
+      xmlAttribute(effect, "sprite"),
+      context,
+      effectProvenance,
+      currentEntityId,
+    ),
+    frameCount: parseSpellEffectNumberAttribute(
+      effect,
+      "frames",
+      effectIndex,
+      `spell effect ${effectIndex + 1} presentation frame count`,
+      "integer",
+      context,
+      provenance,
+      currentEntityId,
+    ),
+    frameRate: parseSpellEffectNumberAttribute(
+      effect,
+      "framerate",
+      effectIndex,
+      `spell effect ${effectIndex + 1} presentation frame rate`,
+      "integer",
+      context,
+      provenance,
+      currentEntityId,
+    ),
+    centered: optionalBooleanAttribute(
+      effect,
+      "centerEffect",
+      context,
+      effectProvenance,
+      `spell effect ${effectIndex + 1} centered-presentation flag`,
+      currentEntityId,
+    ),
+    soundEffect,
   };
 }
 
@@ -4123,6 +4205,7 @@ function parseSpells(
             "stat",
             "amount",
             ...spellEffectControlAttributes,
+            ...spellEffectPresentationAttributes,
             ...(effectType === "trigger" || effectType === "dot"
               ? spellEffectConditionAttributes
               : []),
@@ -4178,6 +4261,13 @@ function parseSpells(
           scaling: parseSpellEffectScaling(
             effect,
             effectType,
+            effectIndex,
+            context,
+            provenance,
+            currentEntityId,
+          ),
+          presentation: parseSpellEffectPresentation(
+            effect,
             effectIndex,
             context,
             provenance,
