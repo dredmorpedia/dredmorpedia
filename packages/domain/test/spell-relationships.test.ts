@@ -156,6 +156,7 @@ function buff(
     invisibilityDeclarations: [],
     muteDeclarations: [],
     polymorphDeclarations,
+    effects: [],
     aiHints: [],
     sourceFlags: [],
     modifiers: [],
@@ -276,6 +277,27 @@ describe("spell effect relationships", () => {
       ["Earlier", 2],
       ["Later", 0],
     ]);
+  });
+
+  it("includes buff-local effects in chains and backlinks", () => {
+    const target = spell("Target");
+    const owner = spell("Owner");
+    owner.buffs = [buff([])];
+    owner.buffs[0]!.effects = [reference(target)];
+
+    expect(
+      spellEffectChain([target, owner], owner.id).map((step) => [
+        step.sourceSpell.name,
+        step.targetSpell?.name,
+        step.effectIndex,
+      ]),
+    ).toEqual([["Owner", "Target", 0]]);
+    expect(
+      spellEffectBacklinks([target, owner], target.id).map((backlink) => [
+        backlink.spell.name,
+        backlink.effectIndex,
+      ]),
+    ).toEqual([["Owner", 0]]);
   });
 
   it("returns buff event-hook backlinks with their buff and hook positions", () => {

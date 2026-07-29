@@ -27,7 +27,7 @@ A useful first prompt on the new machine is:
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
 - Dataset schema 3 separates normalized records from search schema 2; search documents now carry ordered route aliases for project-owned zero-result spelling suggestions. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and an optional version-scoped route registry. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, fixed item-modifier facets, and bounded user-selected typo recovery, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana/buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
-- Synthetic desktop/mobile keyboard and axe checks pass. At the latest checkpoint, all 36 browser tests remain the interaction baseline, while 171 unit/artifact tests in `pnpm check`, deterministic official generation, and the complete 2,857-page local official export pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
+- Synthetic desktop/mobile keyboard and axe checks pass. At the latest checkpoint, all 36 browser tests remain the interaction baseline, while 174 unit/artifact tests in `pnpm check`, deterministic official generation, and the complete 2,857-page local official export pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
 - Direct `summon` and `summonhostile` spell effects now preserve loss-aware `monsterType` targets. All 21 active official declarations resolve to normalized monsters with reciprocal backlinks; two additional summon-family effects intentionally omit a target and remain valid null records. Runtime availability, allegiance, placement, lifetime, AI state, selection, and spawning behavior remain uninterpreted.
 - Direct `removebuffbyname` spell effects now preserve all 23 active named buff targets. Every target resolves to a normalized buff-bearing spell with reciprocal backlinks; removal eligibility, scope, timing, stack handling, and runtime success remain uninterpreted.
 - Buff-local `<invisible>` elements now preserve all nine active declarations. Eight retain amount `1`, one validly omits the amount, and visibility strength, detection, actor scope, breaking, stacking, duration, targeting, AI, and runtime behavior remain uninterpreted.
@@ -96,12 +96,27 @@ Continue toward local parity without assuming permission to publish official con
 4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
 5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-7. Treat the current 32 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Unsupported nested spell mechanics remain explicit. No measured official skill/ability or monster child element remains unsupported.
+7. Treat the current 21 unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Remaining spell mechanics stay explicit. No measured official skill/ability or monster child element remains unsupported.
 8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 34 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
 Targeting-template parity now has static, searchable, accessible routes with strict grid-shape validation. Spell mana-cost, buff source-parameter, and buff hit-event relationship parity subsequently reduced the compatibility backlog to the counts above.
+
+## Buff-local effect slice completed
+
+All 26 active effects nested directly in 11 spell buffs now retain their
+declared scope while using the same strict normalized shape and relationship
+linker as direct effects. The 15 nested spell targets and one named
+buff-removal target resolve; domain chains and reciprocal backlinks include
+both scopes; and nine effects preserve safe hidden presentation metadata,
+including one large/small icon pair. The spell page exposes these declarations
+inside their owning buff without inferring scheduling, trigger order, buff
+lifetime, tick timing, eligibility, or runtime success. This removes all 11
+former nested-effect diagnostics and leaves 21 spell compatibility constructs,
+13 separately tracked spell requirements, and 23 dangling references. Evidence
+is recorded in
+`docs/analysis/spell-buff-effect-evidence-2026-07-29.md`.
 
 ## Item-quality review completed
 

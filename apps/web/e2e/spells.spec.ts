@@ -144,6 +144,19 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     polymorphTargets.getByText(/does not establish duration, stat or ability/i),
   ).toBeVisible();
+  const buffLocalEffects = buffs.getByRole("region", {
+    name: "Buff-local effects",
+  });
+  await expect(
+    buffLocalEffects.getByText("Buff effect", { exact: true }).first(),
+  ).toBeVisible();
+  await expect(
+    buffLocalEffects.getByText(/Icon references supplied/),
+  ).toBeVisible();
+  await expect(buffLocalEffects.getByText(/5 source frames/)).toBeVisible();
+  await expect(
+    buffLocalEffects.getByText(/without inferring scheduling, trigger order/i),
+  ).toBeVisible();
   await expect(buffs.getByText("8 turn duration")).toBeVisible();
   await expect(buffs.getByText("1 mana every 3 turns")).toBeVisible();
   await expect(buffs.getByText("2 hits")).toBeVisible();

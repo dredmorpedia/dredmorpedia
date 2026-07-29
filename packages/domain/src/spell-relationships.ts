@@ -85,6 +85,10 @@ export interface SpellEffectConditionBacklink {
   condition: SpellEffectBuffCondition;
 }
 
+export function allSpellEffects(spell: Spell): SpellEffect[] {
+  return [...spell.effects, ...spell.buffs.flatMap((buff) => buff.effects)];
+}
+
 export function spellEffectChain(
   spells: readonly Spell[],
   rootSpellId: string,
@@ -99,7 +103,7 @@ export function spellEffectChain(
   const expandedSpellIds = new Set([rootSpell.id]);
 
   function visit(sourceSpell: Spell, depth: number, path: Set<string>): void {
-    sourceSpell.effects.forEach((effect, effectIndex) => {
+    allSpellEffects(sourceSpell).forEach((effect, effectIndex) => {
       if (!effect.spellKey) {
         return;
       }
@@ -141,7 +145,7 @@ export function spellEffectBacklinks(
 ): SpellEffectBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.spellId === targetSpellId
           ? [{ spell, effect, effectIndex }]
           : [],
@@ -184,7 +188,7 @@ export function spellEffectOptionSpellBacklinks(
 ): SpellEffectOptionSpellBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.options.flatMap((option, optionIndex) =>
           option.kind === "spell" && option.spellId === targetSpellId
             ? [{ spell, effect, effectIndex, option, optionIndex }]
@@ -207,7 +211,7 @@ export function spellEffectOptionItemBacklinks(
 ): SpellEffectOptionItemBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.options.flatMap((option, optionIndex) =>
           option.kind === "item" && option.itemId === targetItemId
             ? [{ spell, effect, effectIndex, option, optionIndex }]
@@ -230,7 +234,7 @@ export function spellEffectItemTargetBacklinks(
 ): SpellEffectItemTargetBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.itemTarget.itemId === targetItemId
           ? [{ spell, effect, effectIndex }]
           : [],
@@ -250,7 +254,7 @@ export function spellEffectMonsterTargetBacklinks(
 ): SpellEffectMonsterTargetBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.monsterTarget.monsterId === targetMonsterId
           ? [{ spell, effect, effectIndex }]
           : [],
@@ -293,7 +297,7 @@ export function spellEffectRemovedBuffBacklinks(
 ): SpellEffectRemovedBuffBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) =>
+      allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.removedBuff.spellId === targetSpellId
           ? [{ spell, effect, effectIndex }]
           : [],
@@ -313,7 +317,7 @@ export function spellEffectConditionBacklinks(
 ): SpellEffectConditionBacklink[] {
   return spells
     .flatMap((spell) =>
-      spell.effects.flatMap((effect, effectIndex) => {
+      allSpellEffects(spell).flatMap((effect, effectIndex) => {
         const backlinks: SpellEffectConditionBacklink[] = [];
         if (effect.conditions.requiredBuff.spellId === targetSpellId) {
           backlinks.push({

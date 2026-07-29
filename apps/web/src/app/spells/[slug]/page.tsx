@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  allSpellEffects,
   entityRouteSlugs,
   matchesEntityRoute,
   spellBuffEventHookBacklinks,
@@ -165,7 +166,8 @@ export default async function SpellPage({
     artifact.entities.spells,
     spell.id,
   );
-  const listOptionEffects = spell.effects
+  const normalizedEffects = allSpellEffects(spell);
+  const listOptionEffects = normalizedEffects
     .map((effect, effectIndex) => ({ effect, effectIndex }))
     .filter(({ effect }) => effect.options.length > 0);
   const listOptionCount = listOptionEffects.reduce(
@@ -318,6 +320,15 @@ export default async function SpellPage({
             <dd>
               {spell.buffs.reduce(
                 (count, buff) => count + buff.polymorphDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>Buff-local effects</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.effects.length,
                 0,
               )}
             </dd>
@@ -774,6 +785,80 @@ export default async function SpellPage({
                       </p>
                     </section>
                   ) : null}
+                  {buff.effects.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-effects-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-effects-heading`}
+                        className="relationship-title"
+                      >
+                        Buff-local effects
+                      </h3>
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                        These declarations execute from within this buff in the
+                        source data. Their fields and relationships are
+                        preserved without inferring scheduling, trigger order,
+                        buff lifetime, or engine execution behavior.
+                      </p>
+                      <ul className="relation-list">
+                        {buff.effects.map((effect, effectIndex) => {
+                          const targetSpell = effect.spellId
+                            ? spellsById.get(effect.spellId)
+                            : undefined;
+                          const removedBuff = effect.removedBuff.spellId
+                            ? spellsById.get(effect.removedBuff.spellId)
+                            : undefined;
+                          const targetName =
+                            targetSpell?.name ??
+                            effect.spellName ??
+                            removedBuff?.name ??
+                            effect.removedBuff.spellName;
+                          const targetSlug =
+                            targetSpell?.slug ?? removedBuff?.slug;
+                          return (
+                            <li key={`${effect.type}:${effectIndex}`}>
+                              <span>
+                                {targetName && targetSlug ? (
+                                  <Link
+                                    className="entity-link font-semibold"
+                                    href={`/spells/${targetSlug}`}
+                                  >
+                                    {targetName}
+                                  </Link>
+                                ) : (
+                                  <strong>
+                                    {targetName ??
+                                      `${effectTypeLabel(effect.type)} effect`}
+                                  </strong>
+                                )}
+                              </span>
+                              <small className="trigger-resolution">
+                                {effectTypeLabel(effect.type)} effect
+                                {effect.presentation
+                                  ? ` · ${
+                                      effect.presentation.frameCount === null
+                                        ? "Frame count not specified"
+                                        : `${effect.presentation.frameCount} source frames`
+                                    } · ${
+                                      effect.presentation.iconPath !== null ||
+                                      effect.presentation.smallIconPath !== null
+                                        ? "Icon references supplied"
+                                        : "No icon references"
+                                    }`
+                                  : ""}
+                              </small>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        Complete source fields also appear in the combined
+                        Effects section below.
+                      </p>
+                    </section>
+                  ) : null}
                   <dl className="trigger-facts">
                     {buff.timerMode !== null ? (
                       <div>
@@ -1026,20 +1111,20 @@ export default async function SpellPage({
             Effects
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Direct damage amounts, factor coefficients, scaling selectors, item
-            and summon-monster targets, named buff-removal targets, effect
-            presentation, controls, and buff conditions are shown without
-            combining them into final damage, targeting eligibility,
-            buff-presence evaluation, removal eligibility, removal scope, stack
-            handling, trigger timing, resistance, ignition, animation
-            sequencing, random-item selection, inventory placement, summon
-            allegiance, placement, lifetime, AI state, or runtime probability
-            behavior. Detailed effect sprite paths and sound cue IDs remain
-            hidden.
+            Direct and buff-local damage amounts, factor coefficients, scaling
+            selectors, item and summon-monster targets, named buff-removal
+            targets, effect presentation, controls, and buff conditions are
+            shown without combining them into final damage, targeting
+            eligibility, buff-presence evaluation, removal eligibility, removal
+            scope, stack handling, trigger timing, resistance, ignition,
+            animation sequencing, random-item selection, inventory placement,
+            summon allegiance, placement, lifetime, AI state, or runtime
+            probability behavior. Detailed effect sprite paths and sound cue IDs
+            remain hidden.
           </p>
-          {spell.effects.length > 0 ? (
+          {normalizedEffects.length > 0 ? (
             <ul className="trigger-list mt-4">
-              {spell.effects.map((effect, effectIndex) => {
+              {normalizedEffects.map((effect, effectIndex) => {
                 const targetSpell = effect.spellId
                   ? spellsById.get(effect.spellId)
                   : undefined;
@@ -1237,6 +1322,22 @@ export default async function SpellPage({
                       {effect.presentation ? (
                         <>
                           <div>
+                            <dt>Effect icon reference</dt>
+                            <dd>
+                              {effect.presentation.iconPath === null
+                                ? "Not supplied"
+                                : "Supplied"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Small effect icon reference</dt>
+                            <dd>
+                              {effect.presentation.smallIconPath === null
+                                ? "Not supplied"
+                                : "Supplied"}
+                            </dd>
+                          </div>
+                          <div>
                             <dt>Effect sprite reference</dt>
                             <dd>
                               {effect.presentation.spritePath === null
@@ -1428,7 +1529,7 @@ export default async function SpellPage({
             </ul>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No normalized direct effects.
+              No normalized spell effects.
             </p>
           )}
         </section>

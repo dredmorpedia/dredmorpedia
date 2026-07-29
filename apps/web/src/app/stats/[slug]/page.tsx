@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
+import {
+  allSpellEffects,
+  entityRouteSlugs,
+  matchesEntityRoute,
+} from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact } from "@/lib/artifact";
@@ -89,7 +93,7 @@ export default async function StatPage({
     item.stats.some((value) => value.statId === stat.id),
   );
   const spells = artifact.entities.spells.filter((spell) =>
-    spell.effects.some((effect) => effect.statId === stat.id),
+    allSpellEffects(spell).some((effect) => effect.statId === stat.id),
   );
   const referenceCount = items.length + spells.length;
   const isAlias = slug !== stat.slug;

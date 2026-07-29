@@ -28,6 +28,7 @@ import {
   type Skill,
   type SourceLocation,
   type Spell,
+  type SpellEffect,
   type SpellEffectBuffCondition,
   type Stat,
 } from "@dredmorpedia/domain";
@@ -350,6 +351,111 @@ function linkSpells(
     diagnostics.push(danglingDiagnostic(owner, "spell", condition.spellName));
     return condition;
   };
+  const linkSpellEffect = (owner: Spell, effect: SpellEffect): SpellEffect => {
+    const linkedEffect = { ...effect };
+    linkedEffect.conditions = {
+      ...effect.conditions,
+      requiredBuff: linkBuffCondition(owner, effect.conditions.requiredBuff),
+      forbiddenBuff: linkBuffCondition(owner, effect.conditions.forbiddenBuff),
+    };
+    if (effect.spellKey) {
+      const target = spellAliases.get(effect.spellKey);
+      if (target) {
+        linkedEffect.spellId = target.id;
+      } else {
+        diagnostics.push(
+          danglingDiagnostic(
+            owner,
+            "spell",
+            effect.spellName ?? effect.spellKey,
+          ),
+        );
+      }
+    }
+    if (effect.statKey) {
+      const target = statAliases.get(effect.statKey);
+      if (target) {
+        linkedEffect.statId = target.id;
+      } else {
+        diagnostics.push(
+          danglingDiagnostic(owner, "stat", effect.statName ?? effect.statKey),
+        );
+      }
+    }
+    if (effect.itemTarget.itemKey !== null) {
+      const target = itemAliases.get(effect.itemTarget.itemKey);
+      if (target) {
+        linkedEffect.itemTarget = {
+          ...effect.itemTarget,
+          itemId: target.id,
+        };
+      }
+    }
+    if (
+      effect.monsterTarget.monsterKey !== null &&
+      effect.monsterTarget.monsterName !== null
+    ) {
+      const target = monsterAliases.get(effect.monsterTarget.monsterKey);
+      if (target) {
+        linkedEffect.monsterTarget = {
+          ...effect.monsterTarget,
+          monsterId: target.id,
+        };
+      } else {
+        diagnostics.push(
+          danglingDiagnostic(
+            owner,
+            "monster",
+            effect.monsterTarget.monsterName,
+          ),
+        );
+      }
+    }
+    if (
+      effect.removedBuff.spellKey !== null &&
+      effect.removedBuff.spellName !== null
+    ) {
+      const target = spellAliases.get(effect.removedBuff.spellKey);
+      if (target) {
+        linkedEffect.removedBuff = {
+          ...effect.removedBuff,
+          spellId: target.id,
+        };
+      } else {
+        diagnostics.push(
+          danglingDiagnostic(owner, "spell", effect.removedBuff.spellName),
+        );
+      }
+    }
+    linkedEffect.options = effect.options.map((option) => {
+      if (option.kind === "item") {
+        if (option.itemKey === null) {
+          return option;
+        }
+        const target = itemAliases.get(option.itemKey);
+        if (target) {
+          return { ...option, itemId: target.id };
+        }
+        diagnostics.push(
+          danglingDiagnostic(owner, "item", option.itemName ?? option.itemKey),
+        );
+        return option;
+      }
+
+      if (option.spellKey === null) {
+        return option;
+      }
+      const target = spellAliases.get(option.spellKey);
+      if (target) {
+        return { ...option, spellId: target.id };
+      }
+      diagnostics.push(
+        danglingDiagnostic(owner, "spell", option.spellName ?? option.spellKey),
+      );
+      return option;
+    });
+    return linkedEffect;
+  };
   return spells.map((spell) => ({
     ...spell,
     buffs: spell.buffs.map((buff) => ({
@@ -378,127 +484,9 @@ function linkSpells(
         diagnostics.push(danglingDiagnostic(spell, "spell", hook.spellName));
         return hook;
       }),
+      effects: buff.effects.map((effect) => linkSpellEffect(spell, effect)),
     })),
-    effects: spell.effects.map((effect) => {
-      const linkedEffect = { ...effect };
-      linkedEffect.conditions = {
-        ...effect.conditions,
-        requiredBuff: linkBuffCondition(spell, effect.conditions.requiredBuff),
-        forbiddenBuff: linkBuffCondition(
-          spell,
-          effect.conditions.forbiddenBuff,
-        ),
-      };
-      if (effect.spellKey) {
-        const target = spellAliases.get(effect.spellKey);
-        if (target) {
-          linkedEffect.spellId = target.id;
-        } else {
-          diagnostics.push(
-            danglingDiagnostic(
-              spell,
-              "spell",
-              effect.spellName ?? effect.spellKey,
-            ),
-          );
-        }
-      }
-      if (effect.statKey) {
-        const target = statAliases.get(effect.statKey);
-        if (target) {
-          linkedEffect.statId = target.id;
-        } else {
-          diagnostics.push(
-            danglingDiagnostic(
-              spell,
-              "stat",
-              effect.statName ?? effect.statKey,
-            ),
-          );
-        }
-      }
-      if (effect.itemTarget.itemKey !== null) {
-        const target = itemAliases.get(effect.itemTarget.itemKey);
-        if (target) {
-          linkedEffect.itemTarget = {
-            ...effect.itemTarget,
-            itemId: target.id,
-          };
-        }
-      }
-      if (
-        effect.monsterTarget.monsterKey !== null &&
-        effect.monsterTarget.monsterName !== null
-      ) {
-        const target = monsterAliases.get(effect.monsterTarget.monsterKey);
-        if (target) {
-          linkedEffect.monsterTarget = {
-            ...effect.monsterTarget,
-            monsterId: target.id,
-          };
-        } else {
-          diagnostics.push(
-            danglingDiagnostic(
-              spell,
-              "monster",
-              effect.monsterTarget.monsterName,
-            ),
-          );
-        }
-      }
-      if (
-        effect.removedBuff.spellKey !== null &&
-        effect.removedBuff.spellName !== null
-      ) {
-        const target = spellAliases.get(effect.removedBuff.spellKey);
-        if (target) {
-          linkedEffect.removedBuff = {
-            ...effect.removedBuff,
-            spellId: target.id,
-          };
-        } else {
-          diagnostics.push(
-            danglingDiagnostic(spell, "spell", effect.removedBuff.spellName),
-          );
-        }
-      }
-      linkedEffect.options = effect.options.map((option) => {
-        if (option.kind === "item") {
-          if (option.itemKey === null) {
-            return option;
-          }
-          const target = itemAliases.get(option.itemKey);
-          if (target) {
-            return { ...option, itemId: target.id };
-          }
-          diagnostics.push(
-            danglingDiagnostic(
-              spell,
-              "item",
-              option.itemName ?? option.itemKey,
-            ),
-          );
-          return option;
-        }
-
-        if (option.spellKey === null) {
-          return option;
-        }
-        const target = spellAliases.get(option.spellKey);
-        if (target) {
-          return { ...option, spellId: target.id };
-        }
-        diagnostics.push(
-          danglingDiagnostic(
-            spell,
-            "spell",
-            option.spellName ?? option.spellKey,
-          ),
-        );
-        return option;
-      });
-      return linkedEffect;
-    }),
+    effects: spell.effects.map((effect) => linkSpellEffect(spell, effect)),
   }));
 }
 

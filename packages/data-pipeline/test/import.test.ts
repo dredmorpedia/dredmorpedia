@@ -2085,6 +2085,7 @@ describe("synthetic dataset import", () => {
         invisibilityDeclarations: [],
         muteDeclarations: [],
         polymorphDeclarations: [],
+        effects: [],
         sourceFlags: [
           { sourceKey: "affectsCorpses", value: "0" },
           { sourceKey: "tag", value: "measured" },
@@ -2620,6 +2621,129 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete polymorph" &&
           diagnostic.code === "unknown_element" &&
           diagnostic.details?.element === "polymorph",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes and links strict buff-local spell effects", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buff-effects-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(path.join(sourceRoot, "icon.png"), "synthetic icon");
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Buff Effects" type="self">
+    <buff>
+      <effect type="buff" self="1" icon="icon.png" smallicon="icon.png" sprite="sprites/sfx/ward/ward" frames="5" framerate="100" sfx="ward-cue" />
+      <effect type="trigger" spell="Buff Effect Target" amount="2" requirebuff="1" affectsCorpses="0" />
+    </buff>
+  </spell>
+  <spell name="Buff Effect Target" type="self" />
+  <spell name="Invalid Buff Effect" type="self">
+    <buff>
+      <effect type="paralyze" turns="-1" future="diagnosed">unexpected text<futureChild /></effect>
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const buffEffectManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      buffEffectManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-effect-test",
+        sources: [
+          {
+            id: "spell-buff-effect-source",
+            label: "Spell Buff Effect Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: buffEffectManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+    const completeEffects = spells.get("Complete Buff Effects")?.buffs[0]
+      ?.effects;
+
+    expect(completeEffects).toHaveLength(2);
+    expect(completeEffects?.[0]).toEqual(
+      expect.objectContaining({
+        type: "buff",
+        presentation: {
+          iconPath: "icon.png",
+          smallIconPath: "icon.png",
+          spritePath: "sprites/sfx/ward/ward",
+          frameCount: 5,
+          frameRate: 100,
+          centered: null,
+          soundEffect: "ward-cue",
+        },
+        controls: expect.objectContaining({ affectsSelf: true }),
+      }),
+    );
+    expect(completeEffects?.[1]).toEqual(
+      expect.objectContaining({
+        type: "trigger",
+        spellKey: "buff effect target",
+        spellName: "Buff Effect Target",
+        spellId: "spell:buff effect target",
+        amount: 2,
+        controls: expect.objectContaining({ affectsCorpses: false }),
+        conditions: expect.objectContaining({ requiresSourceBuff: true }),
+      }),
+    );
+    expect(
+      spells.get("Invalid Buff Effect")?.buffs[0]?.effects[0]?.controls
+        .durationTurns,
+    ).toBeNull();
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid buff effect",
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff effect",
+          details: {
+            element: "effect",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff effect",
+          details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff effect",
+          details: { element: "#text" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete buff effects" &&
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "effect",
       ),
     ).toBe(false);
   });
@@ -3352,6 +3476,8 @@ describe("synthetic dataset import", () => {
         ?.effects.map((effect) => effect.presentation),
     ).toEqual([
       {
+        iconPath: null,
+        smallIconPath: null,
         spritePath: "sprites/sfx/complete/complete",
         frameCount: 5,
         frameRate: 100,
@@ -3360,6 +3486,8 @@ describe("synthetic dataset import", () => {
       },
       null,
       {
+        iconPath: null,
+        smallIconPath: null,
         spritePath: "sprites/sfx/explicit-false/explicit-false",
         frameCount: 0,
         frameRate: 0,
@@ -3367,6 +3495,8 @@ describe("synthetic dataset import", () => {
         soundEffect: null,
       },
       {
+        iconPath: null,
+        smallIconPath: null,
         spritePath: null,
         frameCount: null,
         frameRate: null,
@@ -3377,6 +3507,8 @@ describe("synthetic dataset import", () => {
     expect(
       spells.get("Invalid Effect Presentation")?.effects[0]?.presentation,
     ).toEqual({
+      iconPath: null,
+      smallIconPath: null,
       spritePath: null,
       frameCount: null,
       frameRate: null,
@@ -4949,6 +5081,21 @@ describe("synthetic dataset import", () => {
             monsterName: "Training Diggle",
             monsterId: "monster:training diggle",
           },
+        ],
+        effects: [
+          expect.objectContaining({
+            type: "buff",
+            presentation: {
+              iconPath: "assets/synthetic.svg",
+              smallIconPath: "assets/synthetic.svg",
+              spritePath:
+                "sprites/sfx/synthetic-buff-effect/synthetic-buff-effect",
+              frameCount: 5,
+              frameRate: 100,
+              centered: null,
+              soundEffect: "synthetic_buff_effect_audio_cue",
+            },
+          }),
         ],
         sourceFlags: [{ sourceKey: "tag", value: "clockwork" }],
         modifiers: [

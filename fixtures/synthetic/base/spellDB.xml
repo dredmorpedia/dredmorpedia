@@ -13,6 +13,7 @@
       <invisible amount="1" />
       <mute amount="1" />
       <polymorph name="Training Diggle" />
+      <effect type="buff" self="1" icon="assets/synthetic.svg" smallicon="assets/synthetic.svg" sprite="sprites/sfx/synthetic-buff-effect/synthetic-buff-effect" frames="5" framerate="100" sfx="synthetic_buff_effect_audio_cue" />
       <damagebuff crushing="2" voltaic="-1" />
       <resistbuff toxic="3" />
       <primaryBuff id="2" amount="1" />

@@ -595,6 +595,8 @@ const spellEffectSchema = z
       .strict(),
     presentation: z
       .object({
+        iconPath: nullableAssetPathSchema,
+        smallIconPath: nullableAssetPathSchema,
         spritePath: nullableAssetPathSchema,
         frameCount: nullableNonnegativeInteger,
         frameRate: nullableNonnegativeInteger,
@@ -690,6 +692,7 @@ const spellBuffSchema = z
         .strict(),
     ),
     polymorphDeclarations: z.array(spellBuffPolymorphDeclarationSchema),
+    effects: z.array(spellEffectSchema),
     aiHints: z.array(spellAiHintSchema),
     sourceFlags: z.array(sourceFlagSchema),
     modifiers: z.array(statModifierSchema),

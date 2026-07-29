@@ -367,6 +367,30 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/polymorphDeclarations/);
   });
 
+  it("rejects spell buffs without their required nested effect collection", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            effects?: unknown[];
+          }[];
+        }[];
+      };
+    };
+    const buff = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .at(0);
+    if (!buff) {
+      throw new Error("Synthetic artifact unexpectedly has no spell buff.");
+    }
+    delete buff.effects;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/effects/);
+  });
+
   it("rejects malformed spell AI hint metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

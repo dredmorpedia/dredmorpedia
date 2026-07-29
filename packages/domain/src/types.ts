@@ -398,6 +398,8 @@ export interface SpellEffectScaling {
 }
 
 export interface SpellEffectPresentationMetadata {
+  iconPath: string | null;
+  smallIconPath: string | null;
   spritePath: string | null;
   frameCount: number | null;
   frameRate: number | null;
@@ -522,6 +524,7 @@ export interface SpellBuff {
   invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
   muteDeclarations: SpellBuffMuteDeclaration[];
   polymorphDeclarations: SpellBuffPolymorphDeclaration[];
+  effects: SpellEffect[];
   aiHints: SpellAiHintMetadata[];
   sourceFlags: SourceFlag[];
   modifiers: StatModifier[];

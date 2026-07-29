@@ -101,15 +101,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, and named polymorph declarations, and search text, loss-aware buff-halo and direct-effect presentation metadata, ordered spell- and buff-local AI hint metadata, typed ordered spell effect-list options with item/spell links and reciprocal backlinks, loss-aware direct effect item and monster targets with reciprocal resolved-entity links, named buff-removal targets with reciprocal spell links, damage amounts/factors/scaling selectors, duration declarations, `after`, bleed, and skip-animation flags, chance/targeting/resistance/burn/taxonomy controls, loss-aware source-buff and paired named buff conditions with reciprocal spell links, all measured skill/ability child elements, monster profile/inheritance/AI/sight/movement/presentation/spell/drop data, verified monster primary attributes, encrustment outcomes/shared instability effects, and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the buff-local polymorph slice, the canonical import
+After the buff-local effect slice, the canonical import
 reports:
 
-- 0 errors, 68 warnings, and 71 informational duplicate decisions;
-- 32 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 57 warnings, and 71 informational duplicate decisions;
+- 21 unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -145,7 +145,8 @@ raises it to 155, the direct item-target slice raises it to 158, the direct
 monster-target slice raises it to 161, the named buff-removal slice raises it
 to 164, the buff-local invisibility slice raises it to 166, and the buff-local
 mute slice raises it to 168, and the buff-local polymorph slice raises it to
-171 while retaining the 36 browser cases.
+171, and the buff-local effect slice raises it to 174 while retaining the 36
+browser cases.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
@@ -160,19 +161,20 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 
 ## Last completed slice validation
 
-The buff-local polymorph slice preserves all four active `<polymorph>`
-declarations across four spells. Every declaration is an empty leaf with only
-the source monster `name`, and all four resolve to normalized monsters with
-reciprocal backlinks. The strict importer and artifact boundary cover
-resolved, missing, blank, dangling, extended, textual, nested, and partial
-normalized records. The preserved application establishes only the
-`Polymorph` label and reads the source name as a monster type; transformation
-duration, stat or ability replacement, equipment behavior, targeting,
-faction, reversibility, and runtime success remain uninterpreted.
-Deterministic official generation is byte-identical with 0 errors, 68
-warnings, and 71 informational decisions. Evidence is recorded in
-`docs/analysis/spell-buff-polymorph-evidence-2026-07-29.md`. `pnpm.cmd check`
-passes all 171 unit/artifact tests and the 43-page synthetic export; all 36
+The buff-local effect slice preserves all 26 active declarations across 11
+buffs without flattening their declared scope. Fifteen nested spell targets
+and the one named buff-removal target resolve through the shared deterministic
+linker, and chains/backlinks include both direct and buff-local effects. Nine
+effects retain safe hidden presentation metadata, including one large/small
+icon pair. Strict importer and artifact coverage exercises resolved
+relationships, presentation, controls, conditions, malformed values, unknown
+extensions, text, nested content, and a missing required normalized
+collection. Scheduling, trigger order, buff lifetime, tick timing,
+eligibility, and runtime success remain uninterpreted. Deterministic official
+generation is byte-identical with 0 errors, 57 warnings, and 71 informational
+decisions. Evidence is recorded in
+`docs/analysis/spell-buff-effect-evidence-2026-07-29.md`. `pnpm.cmd check`
+passes all 174 unit/artifact tests and the 43-page synthetic export; all 36
 desktop/mobile browser cases pass; and the byte-identical canonical dataset
 exports all 2,857 local static pages.
 

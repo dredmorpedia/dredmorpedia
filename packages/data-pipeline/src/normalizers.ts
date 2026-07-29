@@ -3417,6 +3417,7 @@ function parseSpellBuffs(
         ...modifierElementNames,
         "ai",
         "description",
+        "effect",
         "halo",
         "invisible",
         "mute",
@@ -3584,6 +3585,7 @@ function parseSpellBuffs(
         currentEntityId,
         buffIndex,
       ),
+      effects: parseSpellEffects(buff, context, provenance, currentEntityId),
       aiHints: parseSpellAiHints(buff, context, provenance, currentEntityId, {
         buffIndex,
       }),
@@ -3729,6 +3731,8 @@ const spellEffectControlAttributes = [
 ] as const;
 
 const spellEffectPresentationAttributes = [
+  "icon",
+  "smallicon",
   "sprite",
   "frames",
   "framerate",
@@ -4145,6 +4149,18 @@ function parseSpellEffectPresentation(
   }
 
   return {
+    iconPath: normalizeAssetPath(
+      xmlAttribute(effect, "icon"),
+      context,
+      effectProvenance,
+      currentEntityId,
+    ),
+    smallIconPath: normalizeAssetPath(
+      xmlAttribute(effect, "smallicon"),
+      context,
+      effectProvenance,
+      currentEntityId,
+    ),
     spritePath: normalizeAssetReference(
       xmlAttribute(effect, "sprite"),
       context,
@@ -4479,6 +4495,151 @@ function parseSpellEffectConditions(
   };
 }
 
+function parseSpellEffects(
+  parent: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): SpellEffect[] {
+  return xmlChildren(parent, "effect")
+    .map((effect, effectIndex) => {
+      const effectType = xmlAttribute(effect, "type") ?? "unknown";
+      reportUnknownAttributes(
+        context,
+        effect,
+        "effect",
+        new Set([
+          "type",
+          "spell",
+          "stat",
+          "amount",
+          ...spellEffectControlAttributes,
+          ...spellEffectPresentationAttributes,
+          ...(effectType === "trigger" || effectType === "dot"
+            ? spellEffectConditionAttributes
+            : []),
+          ...(spellEffectItemTargetTypes.has(effectType)
+            ? spellEffectItemTargetAttributes
+            : []),
+          ...(spellEffectMonsterTargetTypes.has(effectType)
+            ? spellEffectMonsterTargetAttributes
+            : []),
+          ...(spellEffectRemovedBuffTypes.has(effectType)
+            ? spellEffectRemovedBuffAttributes
+            : []),
+          ...(spellEffectDamageTypes.has(effectType)
+            ? spellEffectDamageAttributes
+            : []),
+          ...spellEffectScalingAttributes(effectType),
+        ]),
+        provenance,
+        currentEntityId,
+        true,
+      );
+      reportUnknownChildren(
+        context,
+        effect,
+        new Set(
+          effectType === "spawnitemfromlist" || effectType === "triggerfromlist"
+            ? ["option"]
+            : [],
+        ),
+        currentEntityId,
+      );
+      const spellName = xmlAttribute(effect, "spell");
+      const statName = xmlAttribute(effect, "stat");
+      const amountText = xmlAttribute(effect, "amount");
+      return {
+        type: effectType,
+        ...(spellName ? { spellName, spellKey: canonicalKey(spellName) } : {}),
+        ...(statName ? { statName, statKey: canonicalKey(statName) } : {}),
+        ...(amountText
+          ? {
+              amount: integerValue(
+                amountText,
+                0,
+                context,
+                provenance,
+                "effect amount",
+                currentEntityId,
+              ),
+            }
+          : {}),
+        itemTarget: parseSpellEffectItemTarget(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        monsterTarget: parseSpellEffectMonsterTarget(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        removedBuff: parseSpellEffectRemovedBuff(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        damage: parseSpellEffectDamage(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        scaling: parseSpellEffectScaling(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        presentation: parseSpellEffectPresentation(
+          effect,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        controls: parseSpellEffectControls(
+          effect,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        conditions: parseSpellEffectConditions(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        options: parseSpellEffectOptions(
+          effect,
+          effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+      };
+    })
+    .sort((left, right) => compareCodeUnits(left.type, right.type));
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -4497,146 +4658,12 @@ function parseSpells(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("spell", name);
-    const effects = xmlChildren(record, "effect")
-      .map((effect, effectIndex) => {
-        const effectType = xmlAttribute(effect, "type") ?? "unknown";
-        reportUnknownAttributes(
-          context,
-          effect,
-          "effect",
-          new Set([
-            "type",
-            "spell",
-            "stat",
-            "amount",
-            ...spellEffectControlAttributes,
-            ...spellEffectPresentationAttributes,
-            ...(effectType === "trigger" || effectType === "dot"
-              ? spellEffectConditionAttributes
-              : []),
-            ...(spellEffectItemTargetTypes.has(effectType)
-              ? spellEffectItemTargetAttributes
-              : []),
-            ...(spellEffectMonsterTargetTypes.has(effectType)
-              ? spellEffectMonsterTargetAttributes
-              : []),
-            ...(spellEffectRemovedBuffTypes.has(effectType)
-              ? spellEffectRemovedBuffAttributes
-              : []),
-            ...(spellEffectDamageTypes.has(effectType)
-              ? spellEffectDamageAttributes
-              : []),
-            ...spellEffectScalingAttributes(effectType),
-          ]),
-          provenance,
-          currentEntityId,
-          true,
-        );
-        reportUnknownChildren(
-          context,
-          effect,
-          new Set(
-            effectType === "spawnitemfromlist" ||
-              effectType === "triggerfromlist"
-              ? ["option"]
-              : [],
-          ),
-          currentEntityId,
-        );
-        const spellName = xmlAttribute(effect, "spell");
-        const statName = xmlAttribute(effect, "stat");
-        const amountText = xmlAttribute(effect, "amount");
-        return {
-          type: effectType,
-          ...(spellName
-            ? { spellName, spellKey: canonicalKey(spellName) }
-            : {}),
-          ...(statName ? { statName, statKey: canonicalKey(statName) } : {}),
-          ...(amountText
-            ? {
-                amount: integerValue(
-                  amountText,
-                  0,
-                  context,
-                  provenance,
-                  "effect amount",
-                  currentEntityId,
-                ),
-              }
-            : {}),
-          itemTarget: parseSpellEffectItemTarget(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          monsterTarget: parseSpellEffectMonsterTarget(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          removedBuff: parseSpellEffectRemovedBuff(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          damage: parseSpellEffectDamage(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          scaling: parseSpellEffectScaling(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          presentation: parseSpellEffectPresentation(
-            effect,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          controls: parseSpellEffectControls(
-            effect,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          conditions: parseSpellEffectConditions(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-          options: parseSpellEffectOptions(
-            effect,
-            effectType,
-            effectIndex,
-            context,
-            provenance,
-            currentEntityId,
-          ),
-        };
-      })
-      .sort((left, right) => compareCodeUnits(left.type, right.type));
+    const effects = parseSpellEffects(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     const spell: Spell = {
       ...baseEntity(
         "spell",

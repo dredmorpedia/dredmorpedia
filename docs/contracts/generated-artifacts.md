@@ -52,6 +52,14 @@ Each buff also contains ordered `invisibilityDeclarations` and `muteDeclarations
 
 Each buff also contains an ordered `polymorphDeclarations` array. A declaration retains nullable paired source monster name/key fields and an optional resolved `monsterId`. Missing or blank targets remain present as a null pair and are diagnosed; named missing targets remain visible with a dangling-reference diagnostic; resolved targets link in both directions. The preserved application establishes only the `Polymorph` label and reads the source `name` as a monster type. Consumers must not infer transformation duration, stat or ability replacement, equipment behavior, targeting, faction, reversibility, or runtime success.
 
+Each buff also contains a required deterministic `effects` array for direct
+`<effect>` children nested inside that buff. Entries use the same strict,
+loss-aware effect shape and relationship linker as the spell's direct
+`effects`, while containment preserves their declared buff scope. Domain effect
+chains and reciprocal backlinks include both scopes. Consumers must not infer
+scheduling, trigger order, buff lifetime, tick timing, eligibility, or runtime
+success from this containment.
+
 Effects preserve their source type, optional numeric amount, optional spell/stat names and canonical keys, required loss-aware `itemTarget`, `monsterTarget`, and `removedBuff` objects, a required ordered `damage` array, a required loss-aware `scaling` object, required nullable loss-aware `presentation`, a required loss-aware `controls` object, a required loss-aware `conditions` object, and a required ordered `options` array.
 
 Direct item targets are normalized only on `spawn` and `spawnitematlocation` effects. The required record retains nullable paired item name/key fields and an optional resolved `itemId`; both the measured `itemname` spelling and validation-schema `itemName` spelling normalize identically. An explicitly blank target and simultaneous aliases remain diagnosed. Absence remains a valid null pair because the canonical data includes an item-spawning effect whose concrete selection is not declared in XML. Resolved targets link in both directions. Source-only labels remain visible without a fabricated entity or dangling-reference warning because they may name engine selectors or hard-coded concepts. Consumers must not infer random selection, inventory placement, availability, timing, or other spawning behavior.
@@ -62,7 +70,17 @@ Named buff-removal targets are normalized only on `removebuffbyname` effects. Th
 
 Damage declarations normalize the 16 measured damage source keys on `damage` and `drain` effects. A declaration exists when its direct amount or matching `F` factor attribute was supplied and preserves each value as a nullable non-negative finite number; `null` distinguishes an absent side of the pair or invalid supplied value. Factor-only declarations remain factor-only. Scaling preserves nullable non-negative `amountF` and `floorScaleF` coefficients on their measured effect types plus nullable non-negative integer primary/secondary source stat IDs. Both measured `primaryScale` casing variants normalize identically. Invalid numbers, simultaneous primary aliases, simultaneous primary/secondary selectors, and attributes on unsupported effect types remain diagnosed. Consumers may disclose the direct values but must not combine damage amounts, factors, selectors, or undeclared engine defaults into a final damage, healing, mana, spawn, or combat formula.
 
-Presentation is `null` when no direct presentation attribute is supplied. Otherwise it retains a safe nullable sprite prefix, nullable non-negative integer frame count/rate, nullable centered flag, and nullable non-blank symbolic sound cue. Unsafe paths, invalid values, blank supplied cues, and unknown extensions remain diagnosed. The page exposes reference availability and direct values while hiding raw sprite/sound identifiers. Consumers must not infer timing units, animation order, target placement, synchronization, sound playback, or other engine behavior. Separate spell animation/impact, buff-halo, create-object sprite, and dig-regeneration declarations are not conflated with this record.
+Presentation is `null` when no modeled effect presentation attribute is
+supplied. Otherwise it retains safe nullable large/small icon paths and sprite
+prefix, nullable non-negative integer frame count/rate, nullable centered flag,
+and nullable non-blank symbolic sound cue. The measured icon pair occurs on a
+buff-local effect. Unsafe paths, invalid values, blank supplied cues, and
+unknown extensions remain diagnosed. The page exposes reference availability
+and direct values while hiding raw icon, sprite, and sound identifiers.
+Consumers must not infer timing units, animation order, target placement,
+synchronization, sound playback, or other engine behavior. Separate spell
+animation/impact, buff-halo, create-object sprite, and dig-regeneration
+declarations are not conflated with this record.
 
 Controls retain nullable non-negative effect duration in turns, the direct `after` source flag, source chance from `percent`/`percentage`, caster targeting from both measured casing aliases, self targeting, corpse targeting, resistance, burn, bleed, skip-animation from `skipAnimation`/`skipanimation`, and taxonomy values. Duration is a direct integer source declaration; percentages are integers from 0 through 100; flags preserve explicit true/false while `null` distinguishes absence or malformed input; taxonomy is a non-blank source token or `null`. Dual aliases, invalid values, and blank supplied taxonomy remain diagnosed. Consumers may disclose these direct controls but must not combine them into countdown, evaluation order, delay, scheduling, target eligibility, resistance, ignition, bleeding damage/duration/stacking, animation order/timing/synchronization, or runtime probability behavior.
 
@@ -148,6 +166,10 @@ The source input, published-route registry, and patch-overlay contract is docume
 - Required buff `invisibilityDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware non-negative integer amount shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `muteDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware non-negative integer amount shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `polymorphDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware paired monster-target shape, so earlier local schema 3 artifacts must be regenerated.
+- Required buff `effects` were subsequently added under the same rule, and
+  effect presentation gained required nullable large/small icon fields. Current
+  web consumers require the scoped nested collection and complete presentation
+  shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `controls` were subsequently added under the same rule. Current web consumers require the complete loss-aware chance/targeting/resistance/burn/bleed/taxonomy shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `conditions` were subsequently added under the same rule. Current web consumers require the complete loss-aware source-buff and paired named-buff shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `damage` and `scaling` fields were subsequently added under the same rule. Current web consumers require the complete ordered damage amount/factor declarations and loss-aware amount/floor/primary/secondary scaling shape, so earlier local schema 3 artifacts must be regenerated.
