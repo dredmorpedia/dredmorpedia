@@ -2516,6 +2516,7 @@ describe("synthetic dataset import", () => {
     const invalid = spells.get("Invalid Lists");
     const noControls = {
       durationTurns: null,
+      after: null,
       chancePercent: null,
       affectsCaster: null,
       affectsSelf: null,
@@ -2698,11 +2699,11 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Controls" type="target">
-    <effect type="damage" turns="3" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" />
-    <effect type="trigger" turns="0" percentage="25" affectscaster="0" />
+    <effect type="damage" turns="3" after="1" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" />
+    <effect type="trigger" turns="0" after="0" percentage="25" affectscaster="0" />
   </spell>
   <spell name="Invalid Controls" type="target">
-    <effect type="damage" turns="-1" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" future="diagnosed" />
+    <effect type="damage" turns="-1" after="maybe" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" future="diagnosed" />
     <effect type="trigger" turns="1.5" percent="" />
   </spell>
 </spellDB>`,
@@ -2746,6 +2747,7 @@ describe("synthetic dataset import", () => {
         },
         controls: {
           durationTurns: 3,
+          after: true,
           chancePercent: 35,
           affectsCaster: true,
           affectsSelf: false,
@@ -2780,6 +2782,7 @@ describe("synthetic dataset import", () => {
         },
         controls: {
           durationTurns: 0,
+          after: false,
           chancePercent: 25,
           affectsCaster: false,
           affectsSelf: null,
@@ -2816,6 +2819,7 @@ describe("synthetic dataset import", () => {
         },
         controls: {
           durationTurns: null,
+          after: null,
           chancePercent: null,
           affectsCaster: null,
           affectsSelf: null,
@@ -2850,6 +2854,7 @@ describe("synthetic dataset import", () => {
         },
         controls: {
           durationTurns: null,
+          after: null,
           chancePercent: null,
           affectsCaster: null,
           affectsSelf: null,
@@ -2893,7 +2898,7 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:invalid controls" &&
           diagnostic.code === "invalid_boolean",
       ),
-    ).toHaveLength(5);
+    ).toHaveLength(6);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -4130,6 +4135,7 @@ describe("synthetic dataset import", () => {
         ?.controls,
     ).toEqual({
       durationTurns: null,
+      after: false,
       chancePercent: 40,
       affectsCaster: true,
       affectsSelf: false,

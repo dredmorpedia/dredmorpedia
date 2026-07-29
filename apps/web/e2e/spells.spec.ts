@@ -168,6 +168,12 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     controlledEffect
+      .getByText("After source flag", { exact: true })
+      .locator("..")
+      .getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect
       .getByText("Blasting damage", { exact: true })
       .locator("..")
       .getByText("+3 base · 0.25 factor", { exact: true }),

@@ -3541,6 +3541,7 @@ function parseSpellEffectOptions(
 
 const spellEffectControlAttributes = [
   "turns",
+  "after",
   "percent",
   "percentage",
   "affectsCaster",
@@ -3908,6 +3909,7 @@ function parseSpellEffectControls(
       provenance,
       currentEntityId,
     ),
+    after: optionalControlFlag("after", "after flag"),
     chancePercent,
     affectsCaster: optionalControlFlag(
       affectsCasterAttribute,

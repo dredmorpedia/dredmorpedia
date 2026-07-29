@@ -26,6 +26,13 @@ measured spell compatibility backlog from 239 to 170 constructs without
 claiming runtime timing behavior. Evidence is recorded in
 [`spell-effect-duration-evidence-2026-07-29.md`](spell-effect-duration-evidence-2026-07-29.md).
 
+The following parity slice preserves all 16 active direct spell-effect `after`
+declarations as loss-aware booleans. Explicit false remains distinct from
+absence, and consumers do not infer evaluation order, delay, scheduling, or
+trigger timing. This reduces the measured spell compatibility backlog from 170
+to 154 constructs. Evidence is recorded in
+[`spell-effect-after-flag-evidence-2026-07-29.md`](spell-effect-after-flag-evidence-2026-07-29.md).
+
 The empty-root asset-path hardening gap is also closed. Asset values are now validated before root probing, and a focused parser regression proves traversal is rejected even when a future caller supplies no lookup roots. Evidence is recorded in [`asset-path-validation-evidence-2026-07-29.md`](asset-path-validation-evidence-2026-07-29.md).
 
 The generated-route consumer boundary is now self-defending. Canonical and alias slugs plus search-document URLs have explicit safe shapes, and the web independently rejects any same-kind canonical-or-alias route collision before static parameter generation. Focused checksummed-tampering regressions cover each failure path. Evidence is recorded in [`web-route-artifact-boundary-evidence-2026-07-29.md`](web-route-artifact-boundary-evidence-2026-07-29.md).

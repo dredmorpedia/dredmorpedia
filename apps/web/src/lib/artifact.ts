@@ -495,6 +495,7 @@ const spellEffectSchema = z
     controls: z
       .object({
         durationTurns: nullableNonnegativeInteger,
+        after: z.boolean().nullable(),
         chancePercent: nullablePercentageInteger,
         affectsCaster: z.boolean().nullable(),
         affectsSelf: z.boolean().nullable(),
