@@ -101,15 +101,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the environmental-effect metadata slice, the canonical import
+After the damage-effect Midas slice, the canonical import
 reports:
 
-- 0 errors, 47 warnings, and 71 informational duplicate decisions;
-- 11 unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 43 warnings, and 71 informational duplicate decisions;
+- seven unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -145,8 +145,9 @@ raises it to 155, the direct item-target slice raises it to 158, the direct
 monster-target slice raises it to 161, the named buff-removal slice raises it
 to 164, the buff-local invisibility slice raises it to 166, and the buff-local
 mute slice raises it to 168, and the buff-local polymorph slice raises it to
-171, the buff-local effect slice raises it to 174, and the environmental-effect
-metadata slice raises it to 177 while retaining the 36 browser cases.
+171, the buff-local effect slice raises it to 174, the environmental-effect
+metadata slice raises it to 177, and the damage-effect Midas slice raises it to
+179 while retaining the 36 browser cases.
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should select one of the remaining measured spell-mechanic families and give it an independently evidenced contract rather than blanket-supporting spell content.
 
@@ -160,6 +161,21 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The damage-effect Midas slice preserves all four active `midas` declarations
+as a required nullable field in the controls record. All four occur on direct
+base-game `damage` effects and are explicit true. Strict importer coverage
+includes true, false, absent, malformed, extended, and unsupported-type
+declarations; the strict checksummed-artifact regression rejects a non-boolean
+value. Gold conversion eligibility or value, target transformation, drops,
+persistence, interaction with damage, and runtime success remain
+uninterpreted. Deterministic official generation is byte-identical with 0
+errors, 43 warnings, and 71 informational decisions. Evidence is recorded in
+`docs/analysis/spell-effect-midas-evidence-2026-07-29.md`. All installed
+workspace check components pass with 179 unit/artifact tests and the 43-page
+synthetic export; all 36 desktop/mobile browser cases report successful before
+a Windows managed-server teardown timeout; and the byte-identical canonical
+dataset exports all 2,857 local static pages. No test server remains running.
 
 The environmental-effect metadata slice preserves six active
 `objectSprite` references on `create` effects and four active `regengfx` flags

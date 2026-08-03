@@ -2972,6 +2972,7 @@ describe("synthetic dataset import", () => {
       resistable: null,
       burnsTarget: null,
       bleedsTarget: null,
+      midas: null,
       skipAnimation: null,
       taxonomy: null,
     };
@@ -3235,6 +3236,7 @@ describe("synthetic dataset import", () => {
           resistable: false,
           burnsTarget: true,
           bleedsTarget: true,
+          midas: null,
           skipAnimation: true,
           taxonomy: "Construct",
         },
@@ -3278,6 +3280,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          midas: null,
           skipAnimation: false,
           taxonomy: null,
         },
@@ -3323,6 +3326,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          midas: null,
           skipAnimation: null,
           taxonomy: null,
         },
@@ -3366,6 +3370,7 @@ describe("synthetic dataset import", () => {
           resistable: null,
           burnsTarget: null,
           bleedsTarget: null,
+          midas: null,
           skipAnimation: null,
           taxonomy: null,
         },
@@ -3718,6 +3723,104 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:environmental effect metadata" &&
           (diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "missing_asset"),
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes damage-effect Midas flags loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-effect-midas-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Midas Effect Metadata" type="target">
+    <effect type="damage" midas="1" />
+    <effect type="damage" midas="0" />
+    <effect type="damage" />
+  </spell>
+  <spell name="Invalid Midas Effect Metadata" type="target">
+    <effect type="damage" midas="sometimes" future="diagnosed" />
+    <effect type="trigger" midas="1" />
+  </spell>
+</spellDB>`,
+    );
+    const midasManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      midasManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-effect-midas-test",
+        sources: [
+          {
+            id: "spell-effect-midas-source",
+            label: "Spell Effect Midas Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: midasManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells
+        .get("Midas Effect Metadata")
+        ?.effects.map((effect) => effect.controls.midas),
+    ).toEqual([true, false, null]);
+    expect(
+      spells
+        .get("Invalid Midas Effect Metadata")
+        ?.effects.map((effect) => effect.controls.midas),
+    ).toEqual([null, null]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid midas effect metadata",
+          details: {
+            field: "spell effect 1 midas flag",
+            value: "sometimes",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid midas effect metadata",
+          details: {
+            element: "effect",
+            attribute: "midas",
+            value: "1",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid midas effect metadata",
+          details: {
+            element: "effect",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:midas effect metadata" &&
+          diagnostic.code === "unknown_attribute",
       ),
     ).toBe(false);
   });
@@ -5302,6 +5405,7 @@ describe("synthetic dataset import", () => {
       resistable: false,
       burnsTarget: true,
       bleedsTarget: false,
+      midas: true,
       skipAnimation: null,
       taxonomy: "Construct",
     });

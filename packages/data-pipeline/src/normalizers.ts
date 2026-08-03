@@ -3759,6 +3759,8 @@ const spellEffectCreatedObjectTypes = new Set(["create"]);
 const spellEffectCreatedObjectAttributes = ["objectSprite"] as const;
 const spellEffectGraphicsRegenerationTypes = new Set(["dig"]);
 const spellEffectGraphicsRegenerationAttributes = ["regengfx"] as const;
+const spellEffectMidasTypes = new Set(["damage"]);
+const spellEffectMidasAttributes = ["midas"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
 const spellEffectAmountFactorTypes = new Set(["heal", "spellpoints"]);
 const spellEffectFloorFactorTypes = new Set(["spawnitematlocation"]);
@@ -4266,6 +4268,7 @@ function parseSpellEffectRegenerateGraphics(
 
 function parseSpellEffectControls(
   effect: XmlRecord,
+  effectType: string,
   effectIndex: number,
   context: NormalizationContext,
   provenance: EntityProvenance,
@@ -4400,6 +4403,9 @@ function parseSpellEffectControls(
     resistable: optionalControlFlag("resistable", "resistable flag"),
     burnsTarget: optionalControlFlag("burn", "burn flag"),
     bleedsTarget: optionalControlFlag("bleed", "bleed flag"),
+    midas: spellEffectMidasTypes.has(effectType)
+      ? optionalControlFlag("midas", "midas flag")
+      : null,
     skipAnimation: optionalControlFlag(
       skipAnimationAttribute,
       "skip-animation flag",
@@ -4598,6 +4604,9 @@ function parseSpellEffects(
           ...(spellEffectGraphicsRegenerationTypes.has(effectType)
             ? spellEffectGraphicsRegenerationAttributes
             : []),
+          ...(spellEffectMidasTypes.has(effectType)
+            ? spellEffectMidasAttributes
+            : []),
           ...(spellEffectDamageTypes.has(effectType)
             ? spellEffectDamageAttributes
             : []),
@@ -4701,6 +4710,7 @@ function parseSpellEffects(
         ),
         controls: parseSpellEffectControls(
           effect,
+          effectType,
           effectIndex,
           context,
           provenance,

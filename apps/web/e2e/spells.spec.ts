@@ -247,6 +247,12 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("No", { exact: true }),
   ).toBeVisible();
   await expect(
+    controlledEffect
+      .getByText("Midas source flag", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
     effects.getByRole("listitem").filter({ hasText: "Starts bleeding effect" }),
   ).toBeVisible();
   const teleportEffect = effects

@@ -1114,14 +1114,15 @@ export default async function SpellPage({
             Direct and buff-local damage amounts, factor coefficients, scaling
             selectors, item and summon-monster targets, named buff-removal
             targets, effect presentation, created-object sprite availability,
-            graphics-regeneration flags, controls, and buff conditions are shown
-            without combining them into final damage, targeting eligibility,
-            buff-presence evaluation, removal eligibility, removal scope, stack
-            handling, trigger timing, resistance, ignition, animation
-            sequencing, terrain changes, redraw timing, created-object lifetime,
-            random-item selection, inventory placement, summon allegiance,
-            placement, lifetime, AI state, or runtime probability behavior.
-            Detailed effect sprite paths and sound cue IDs remain hidden.
+            graphics-regeneration flags, Midas flags, controls, and buff
+            conditions are shown without combining them into final damage, gold
+            conversion or value, targeting eligibility, buff-presence
+            evaluation, removal eligibility, removal scope, stack handling,
+            trigger timing, resistance, ignition, animation sequencing, terrain
+            changes, redraw timing, created-object lifetime, random-item
+            selection, inventory placement, summon allegiance, placement,
+            lifetime, AI state, or runtime probability behavior. Detailed effect
+            sprite paths and sound cue IDs remain hidden.
           </p>
           {normalizedEffects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -1156,6 +1157,7 @@ export default async function SpellPage({
                   effect.controls.resistable !== null ||
                   effect.controls.burnsTarget !== null ||
                   effect.controls.bleedsTarget !== null ||
+                  effect.controls.midas !== null ||
                   effect.controls.skipAnimation !== null ||
                   effect.controls.taxonomy !== null;
                 const requiredBuff = effect.conditions.requiredBuff.spellId
@@ -1453,6 +1455,12 @@ export default async function SpellPage({
                         <div>
                           <dt>Starts bleeding</dt>
                           <dd>{yesNo(effect.controls.bleedsTarget)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.controls.midas !== null ? (
+                        <div>
+                          <dt>Midas source flag</dt>
+                          <dd>{yesNo(effect.controls.midas)}</dd>
                         </div>
                       ) : null}
                       {effect.controls.skipAnimation !== null ? (

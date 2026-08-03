@@ -312,6 +312,17 @@ leaves 11 spell compatibility constructs, 13 separately tracked spell
 requirements, and 23 dangling references. Evidence is recorded in
 `docs/analysis/spell-effect-environment-metadata-evidence-2026-07-29.md`.
 
+Direct damage effects now preserve all four active `midas` declarations as a
+loss-aware source flag. All four declarations come from the base game and are
+explicit true values. The installed validation schema declares the field as a
+game boolean, while the preserved application ignores it when rendering the
+same damage effects. The page exposes the exact flag without inferring gold
+conversion eligibility or value, target transformation, drops, persistence,
+or runtime success. This removes all four former diagnostics and leaves seven
+spell compatibility constructs, 13 separately tracked spell requirements, and
+23 dangling references. Evidence is recorded in
+`docs/analysis/spell-effect-midas-evidence-2026-07-29.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

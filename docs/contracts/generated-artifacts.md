@@ -93,7 +93,22 @@ disclose reference availability and the source flag, but must not infer
 created-object type or lifetime, terrain changes, graphics-redraw timing,
 placement, persistence, or runtime success.
 
-Controls retain nullable non-negative effect duration in turns, the direct `after` source flag, source chance from `percent`/`percentage`, caster targeting from both measured casing aliases, self targeting, corpse targeting, resistance, burn, bleed, skip-animation from `skipAnimation`/`skipanimation`, and taxonomy values. Duration is a direct integer source declaration; percentages are integers from 0 through 100; flags preserve explicit true/false while `null` distinguishes absence or malformed input; taxonomy is a non-blank source token or `null`. Dual aliases, invalid values, and blank supplied taxonomy remain diagnosed. Consumers may disclose these direct controls but must not combine them into countdown, evaluation order, delay, scheduling, target eligibility, resistance, ignition, bleeding damage/duration/stacking, animation order/timing/synchronization, or runtime probability behavior.
+Controls retain nullable non-negative effect duration in turns, the direct
+`after` source flag, source chance from `percent`/`percentage`, caster targeting
+from both measured casing aliases, self targeting, corpse targeting,
+resistance, burn, bleed, the direct damage-effect `midas` source flag,
+skip-animation from `skipAnimation`/`skipanimation`, and taxonomy values.
+Duration is a direct integer source declaration; percentages are integers from
+0 through 100; flags preserve explicit true/false while `null` distinguishes
+absence or malformed input; taxonomy is a non-blank source token or `null`.
+`midas` is recognized only on the measured `damage` effect type, and the same
+attribute on an unrelated type remains diagnosed. Dual aliases, invalid
+values, and blank supplied taxonomy remain diagnosed. Consumers may disclose
+these direct controls but must not combine them into countdown, evaluation
+order, delay, scheduling, target eligibility, resistance, ignition, bleeding
+damage/duration/stacking, gold conversion eligibility or value, target
+transformation, drops, persistence, animation order/timing/synchronization, or
+runtime probability behavior.
 
 Conditions are normalized only on the measured `trigger` and `dot` effect types. They preserve a nullable source-buff requirement from the `requirebuff`/`requireBuff` aliases plus required and forbidden named-buff pairs from `requirebuffontrigger`/`requirebuffontriggername` and `requirebuffonnottrigger`/`requirebuffonnottriggername`. Flags are loss-aware nullable booleans. Named conditions retain nullable paired source/canonical spell names and optional resolved spell IDs; resolved targets link in both directions, while dangling names remain visible and diagnosed. Invalid flags, blank names, incomplete pairs, and simultaneous aliases remain diagnosed. Consumers may disclose these direct declarations but must not infer buff-presence evaluation order, trigger eligibility, duration, consumption, timing, or interaction with other effect controls.
 
@@ -181,7 +196,7 @@ The source input, published-route registry, and patch-overlay contract is docume
   effect presentation gained required nullable large/small icon fields. Current
   web consumers require the scoped nested collection and complete presentation
   shape, so earlier local schema 3 artifacts must be regenerated.
-- Required spell-effect `controls` were subsequently added under the same rule. Current web consumers require the complete loss-aware chance/targeting/resistance/burn/bleed/taxonomy shape, so earlier local schema 3 artifacts must be regenerated.
+- Required spell-effect `controls` were subsequently added under the same rule and later gained the required nullable damage-effect `midas` flag. Current web consumers require the complete loss-aware chance/targeting/resistance/burn/bleed/Midas/taxonomy shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `conditions` were subsequently added under the same rule. Current web consumers require the complete loss-aware source-buff and paired named-buff shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `damage` and `scaling` fields were subsequently added under the same rule. Current web consumers require the complete ordered damage amount/factor declarations and loss-aware amount/floor/primary/secondary scaling shape, so earlier local schema 3 artifacts must be regenerated.
 - Required spell-effect `itemTarget` was subsequently added under the same rule. Current web consumers require the complete loss-aware paired source-target shape, so earlier local schema 3 artifacts must be regenerated.

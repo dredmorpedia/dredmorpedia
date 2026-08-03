@@ -22,7 +22,7 @@
       <targetHitEffectBuff percentage="40" name="Clockwork Echo" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Buff Echo" />
     </buff>
-    <effect type="damage" amount="4" blasting="3" blastingF="0.25" crushingF="0.5" secondaryScale="6" after="0" percent="40" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="0" />
+    <effect type="damage" amount="4" blasting="3" blastingF="0.25" crushingF="0.5" secondaryScale="6" after="0" percent="40" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="0" midas="1" />
     <effect type="bleed" />
     <effect type="teleport" skipanimation="0" sprite="sprites/sfx/synthetic-effect/synthetic-effect" frames="5" framerate="90" centerEffect="0" sfx="synthetic_effect_audio_cue" />
     <effect type="paralyze" turns="3" resistable="0" />

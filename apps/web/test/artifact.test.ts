@@ -735,6 +735,32 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/regenerateGraphics/);
   });
 
+  it("rejects malformed spell effect Midas metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            controls: { midas: boolean | null };
+          }[];
+        }[];
+      };
+    };
+    const midasEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.controls.midas !== null);
+    if (!midasEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect Midas metadata.",
+      );
+    }
+    midasEffect.controls.midas = 1 as unknown as boolean;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/midas/);
+  });
+
   it("rejects malformed spell effect condition metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {
