@@ -1,0 +1,75 @@
+import { readFileSync } from "node:fs";
+
+import { compareCodeUnits, type InputChecksum } from "@dredmorpedia/domain";
+
+import { toPosixPath } from "./safe-path";
+import { sha256 } from "./serialization";
+
+interface InputSnapshot {
+  absolutePath: string;
+  checksum: InputChecksum;
+  textBytes?: Buffer;
+}
+
+export class InputSnapshots {
+  private readonly snapshots = new Map<string, InputSnapshot>();
+
+  readUtf8(absolutePath: string, displayPath: string): string {
+    const file = toPosixPath(displayPath);
+    const existing = this.snapshots.get(file);
+    if (existing) {
+      this.assertSameInput(existing, absolutePath, file);
+      if (existing.textBytes) {
+        return existing.textBytes.toString("utf8");
+      }
+
+      const bytes = readFileSync(absolutePath);
+      if (sha256(bytes) !== existing.checksum.sha256) {
+        throw new Error(`Input changed after it was registered: ${file}`);
+      }
+      existing.textBytes = bytes;
+      return bytes.toString("utf8");
+    }
+
+    const bytes = readFileSync(absolutePath);
+    this.snapshots.set(file, {
+      absolutePath,
+      checksum: { file, sha256: sha256(bytes) },
+      textBytes: bytes,
+    });
+    return bytes.toString("utf8");
+  }
+
+  register(absolutePath: string, displayPath: string): void {
+    const file = toPosixPath(displayPath);
+    const existing = this.snapshots.get(file);
+    if (existing) {
+      this.assertSameInput(existing, absolutePath, file);
+      return;
+    }
+
+    const bytes = readFileSync(absolutePath);
+    this.snapshots.set(file, {
+      absolutePath,
+      checksum: { file, sha256: sha256(bytes) },
+    });
+  }
+
+  list(): InputChecksum[] {
+    return [...this.snapshots.values()]
+      .map(({ checksum }) => ({ ...checksum }))
+      .sort((left, right) => compareCodeUnits(left.file, right.file));
+  }
+
+  private assertSameInput(
+    existing: InputSnapshot,
+    absolutePath: string,
+    displayPath: string,
+  ): void {
+    if (existing.absolutePath !== absolutePath) {
+      throw new Error(
+        `Input display path has multiple sources: ${displayPath}`,
+      );
+    }
+  }
+}

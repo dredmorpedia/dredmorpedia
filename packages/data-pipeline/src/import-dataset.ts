@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 
 import {
@@ -34,15 +34,16 @@ import {
 } from "@dredmorpedia/domain";
 
 import { loadManifest, resolveSourceRoot } from "./manifest";
+import { InputSnapshots } from "./input-snapshots";
 import {
   emptyCandidateCollections,
   mergeCandidateCollections,
   parseDatabase,
   type CandidateCollections,
 } from "./normalizers";
-import { loadPatchDefinition } from "./patches";
+import { parsePatchDefinition } from "./patches";
 import {
-  loadRouteRegistry,
+  parseRouteRegistry,
   resolveRouteRegistry,
   type RouteRegistryDefinition,
 } from "./route-registry";
@@ -874,16 +875,19 @@ export function importDataset(
   options: ImportDatasetOptions,
 ): ImportDatasetResult {
   const repositoryRoot = path.resolve(options.repositoryRoot);
-  const loaded = loadManifest(options.manifestPath, repositoryRoot);
+  const inputSnapshots = new InputSnapshots();
+  const loaded = loadManifest(
+    options.manifestPath,
+    repositoryRoot,
+    inputSnapshots.readUtf8.bind(inputSnapshots),
+  );
   const diagnostics: DiagnosticDraft[] = [];
   const candidates = emptyCandidateCollections();
-  const inputFiles = new Map<string, string>();
   const sourceRoots: string[] = [];
 
   const registerInput = (absolutePath: string, displayPath: string) => {
-    inputFiles.set(toPosixPath(displayPath), absolutePath);
+    inputSnapshots.register(absolutePath, displayPath);
   };
-  registerInput(loaded.manifestPath, loaded.manifestDisplayPath);
 
   const sortedSources = [...loaded.manifest.sources].sort(
     (left, right) =>
@@ -913,8 +917,10 @@ export function importDataset(
         patchReference.path,
       );
       const displayPath = toPosixPath(patchReference.path);
-      registerInput(absolutePath, displayPath);
-      return loadPatchDefinition(absolutePath, displayPath);
+      return parsePatchDefinition(
+        inputSnapshots.readUtf8(absolutePath, displayPath),
+        displayPath,
+      );
     });
   const patchIds = new Set<string>();
   for (const patch of patches) {
@@ -930,8 +936,10 @@ export function importDataset(
           loaded.manifest.routeRegistry,
         );
         const displayPath = toPosixPath(loaded.manifest.routeRegistry);
-        registerInput(absolutePath, displayPath);
-        return loadRouteRegistry(absolutePath, displayPath);
+        return parseRouteRegistry(
+          inputSnapshots.readUtf8(absolutePath, displayPath),
+          displayPath,
+        );
       })()
     : undefined;
 
@@ -972,8 +980,7 @@ export function importDataset(
         continue;
       }
 
-      registerInput(absolutePath, displayPath);
-      const xml = readFileSync(absolutePath, "utf8");
+      const xml = inputSnapshots.readUtf8(absolutePath, displayPath);
       const parsed = parseXml({ xml, sourceId: source.id, file: displayPath });
       if (!parsed.ok) {
         diagnostics.push(parsed.diagnostic);
@@ -1035,12 +1042,7 @@ export function importDataset(
     language: artifact.language,
     documents: createSearchDocuments(entities),
   };
-  const inputs = [...inputFiles.entries()]
-    .map(([file, absolutePath]) => ({
-      file,
-      sha256: sha256(readFileSync(absolutePath)),
-    }))
-    .sort((left, right) => compareCodeUnits(left.file, right.file));
+  const inputs = inputSnapshots.list();
 
   return {
     artifact,

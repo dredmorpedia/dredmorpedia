@@ -148,7 +148,7 @@ Contains the stable, source-located diagnostics array for the same import. Entit
 
 Manifest schema version: `2`
 
-Contains sanitized input paths and checksums plus the byte length and SHA-256 checksum of `artifact.json`, `search.json`, and `diagnostics.json`. Machine-local absolute source paths must never appear in this file. The pipeline publishes this file last as the commit marker for the output set.
+Contains sanitized input paths and checksums plus the byte length and SHA-256 checksum of `artifact.json`, `search.json`, and `diagnostics.json`. Each text-input checksum is calculated from the same byte snapshot decoded for parsing; the source manifest, database XML, patch files, and route registry are not reread during checksum finalization. Referenced assets are checksummed when first registered and are likewise not reread at the end of the import. Machine-local absolute source paths must never appear in this file. The pipeline publishes this file last as the commit marker for the output set.
 
 ## Cross-file invariants
 
@@ -158,6 +158,10 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 - Canonical route slugs are unique within an entity kind, and an alias never resolves to more than one canonical entity of that kind.
 - Serialized asset and presentation references are slash-normalized relative paths. POSIX/Windows absolute paths, Windows drive-relative paths, and `..` traversal are invalid; symbolic sound cue IDs are not path fields.
 - Identical inputs and generator code must produce byte-identical files.
+- One sanitized input path identifies one resolved source for the duration of
+  an import. Conflicting resolutions fail instead of silently replacing a
+  checksum. Repeated text consumption reuses its first byte snapshot; a text
+  input first registered as an asset must still match that captured checksum.
 - Writes use collision-resistant temporary names and per-file atomic replacement, publish the manifest last, and are refused when the real output path overlaps an input source root in either direction. Junctions and symbolic links do not bypass the boundary.
 - Publication can opt into a zero-error diagnostic gate. The official-data commands always enable it and refuse to replace any output file when the import contains one or more error diagnostics. Synthetic generation leaves it disabled because the fixture intentionally covers an invalid XML input.
 - Consumers must read all files from the directory containing the selected manifest and verify every declared byte length and SHA-256 checksum before parsing an output. An interrupted or mixed publication is an error, not a partially usable dataset.

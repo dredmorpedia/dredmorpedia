@@ -118,19 +118,17 @@ No item compatibility diagnostic remains.
 The ordered repository-wide hardening queue is complete. Patch overlays enforce complete normalized field invariants and exclude derived compatibility arrays; XML provenance and diagnostics use record-specific locations; source manifests, patch definitions, and route registries reject unknown fields at every object level; official output publication requires zero error diagnostics; and tool-owned `.claude/worktrees/` checkouts are excluded from both Git status and formatting inputs. The all-entity search slice removed the web-only allow-list that hid 1,969 already-generated official records and made query typing resilient to asynchronous URL updates. The following static-browse slice closed the audit's no-JavaScript discovery gap with 32 bounded canonical catalogue pages plus a directory. A later repository review found no new correctness blocker, but identified concentrated maintenance risk in the spell normalizer/tests, spell detail page, browser spec, and artifact schema. The first bounded extraction is complete: the 355-line spell-detail browser flow now lives in a dedicated spec with every assertion and all 34 desktop/mobile cases preserved. Generated search ordering now has a final entity-ID tiebreaker, regressions cover equal-precedence resolution, missing monster parents, three-level inheritance, and negative derived totals, every persisted domain/pipeline string order uses one ICU-independent UTF-16 comparator, and the remaining diagnostic/resolution/instability comparators have complete stable tiebreakers. Normalized asset values are validated before root probing, including the future empty-root caller edge. The web artifact boundary now validates route-field shapes and unique same-kind canonical/alias ownership before static parameter generation. Route-registry lifecycle is the review's only remaining medium finding. Further extraction should stay behavior-preserving and be selected only when it supports the next parity slice rather than becoming an open-ended cleanup.
 
 The 2026-08-03 full-project review adds a new bounded hardening queue. Its
-high-priority browser-process finding is resolved: Playwright now asks the
-loopback static server to shut down normally, so all 36 desktop/mobile cases
-print their final summary and `pnpm.cmd test:e2e` returns instead of waiting
-indefinitely after a denied Windows `taskkill`. The next provenance finding is
-also resolved: `pnpm.cmd migrate:official-manifest` safely upgraded the ignored
-canonical four-source manifest to schema 2, and deterministic official output
-now carries the exact reviewed game/build version instead of `unversioned`.
-Continue in this order: hash the same source bytes the importer parses; verify
-all manifest outputs eagerly; define strict measured numeric lexemes; then
-render complete multi-step override history. ADR 0004
+browser-process and official-provenance findings are resolved, and generated
+input checksums now come from the exact byte snapshot used for text parsing or
+first referenced-asset registration. The mutation regression proves a source
+change between parsing and checksum listing cannot misdescribe the parsed
+artifact. Continue in this order: verify all manifest outputs eagerly; define
+strict measured numeric lexemes; then render complete multi-step override
+history. ADR 0004
 inheritance/enforcement remains required before a second dataset or durable
 publication. See `docs/analysis/full-project-review-2026-08-03.md` and
-`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`.
+`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`, and
+`docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`.
 
 The asset-reference contract is also host-independent end to end: the pipeline rejects POSIX absolute, Windows absolute/drive-relative, and traversal values, and the web applies one safe-relative-path schema across all item, skill/ability, spell, and monster presentation fields. The ignored canonical artifact's 3,708 non-null references satisfy the boundary.
 

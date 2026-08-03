@@ -138,6 +138,11 @@ export interface LoadedManifest {
   manifestDisplayPath: string;
 }
 
+export type ManifestInputReader = (
+  absolutePath: string,
+  displayPath: string,
+) => string;
+
 export function resolveSourceRoot(
   manifestDirectory: string,
   sourceRoot: string,
@@ -153,10 +158,19 @@ export function resolveSourceRoot(
 export function loadManifest(
   manifestPath: string,
   repositoryRoot: string,
+  readInput: ManifestInputReader = (absolutePath) =>
+    readFileSync(absolutePath, "utf8"),
 ): LoadedManifest {
   const absoluteManifestPath = realpathSync(path.resolve(manifestPath));
+  const resolvedRepositoryRoot = path.resolve(repositoryRoot);
+  const manifestDisplayPath = isPathWithin(
+    resolvedRepositoryRoot,
+    absoluteManifestPath,
+  )
+    ? toPosixPath(path.relative(resolvedRepositoryRoot, absoluteManifestPath))
+    : `manifests/${path.basename(absoluteManifestPath)}`;
   const parsed = JSON.parse(
-    readFileSync(absoluteManifestPath, "utf8"),
+    readInput(absoluteManifestPath, manifestDisplayPath),
   ) as unknown;
   const inputManifest = manifestInputSchema.parse(parsed);
   const manifest: SourceManifest =
@@ -173,8 +187,6 @@ export function loadManifest(
           patches: [],
         };
 
-  const resolvedRepositoryRoot = path.resolve(repositoryRoot);
-
   for (const source of manifest.sources) {
     const sourceRoot = resolveSourceRoot(
       path.dirname(absoluteManifestPath),
@@ -190,13 +202,6 @@ export function loadManifest(
   if (manifest.routeRegistry) {
     resolveExistingWithin(resolvedRepositoryRoot, manifest.routeRegistry);
   }
-
-  const manifestDisplayPath = isPathWithin(
-    resolvedRepositoryRoot,
-    absoluteManifestPath,
-  )
-    ? toPosixPath(path.relative(resolvedRepositoryRoot, absoluteManifestPath))
-    : `manifests/${path.basename(absoluteManifestPath)}`;
 
   return {
     manifest,

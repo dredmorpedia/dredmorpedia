@@ -17,6 +17,12 @@ Lower source precedence is processed first. A higher precedence replaces a lower
 
 Patch references contain an integer `order` and a repository-relative `path`. Patch paths must resolve inside the repository, are included in input checksums, and are sorted by order then path. Duplicate source IDs and duplicate patch paths are rejected.
 
+The manifest, patch files, optional route registry, and declared database XML
+are parsed from the same captured bytes used for their generated input
+checksums. The importer does not reread those files during output-manifest
+assembly, so a concurrent source change cannot make an artifact claim a hash
+for bytes it did not parse.
+
 The source manifest is trusted operator configuration, not an untrusted upload
 format. A source `root` may therefore be absolute so the importer can read a
 game installation outside the repository. The importer canonicalizes that root
