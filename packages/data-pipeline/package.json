@@ -10,6 +10,7 @@
     "generate": "tsx src/cli.ts",
     "generate:check": "tsx src/cli.ts --check",
     "lint": "eslint src test --max-warnings=0",
+    "migrate:official-manifest": "tsx src/migrate-official-manifest-cli.ts",
     "test": "vitest run test",
     "typecheck": "tsc -p tsconfig.json"
   },

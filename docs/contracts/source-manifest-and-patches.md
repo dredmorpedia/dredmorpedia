@@ -40,6 +40,13 @@ A source manifest without `routeRegistry` remains valid for local/import compati
 
 Schema version `1` manifests remain readable as a local migration aid. They produce `unversioned` dataset/source provenance and cannot declare patches or a route registry. New or edited manifests must use version `2`.
 
+For the one reviewed canonical four-source configuration, existing machines may
+run `pnpm migrate:official-manifest`. The project-specific, idempotent command
+preserves ignored source roots/file declarations, adds the exact accepted
+`1.1.5 public_beta` Steam-build label, and refuses a different dataset, source
+set, or existing schema-2 version. It is not a general migration policy for
+mods or other game builds.
+
 Manifest, patch, and route-registry objects are closed at every nesting level. Unknown fields are rejected with their object path instead of being silently removed, so a misspelled key cannot produce a valid but unintended import. Additive input changes must be introduced as explicit optional fields under the applicable versioning policy or through a new schema version.
 
 ## Patch files

@@ -30,13 +30,14 @@ successful, but the Playwright process did not print its summary or terminate.
    connections, bounds active-connection cleanup, and exits normally before
    Playwright attempts process-tree cleanup. The full command now prints
    `36 passed` and returns successfully.
-2. **Official local provenance still uses the schema-1 migration labels
-   (medium).** The ignored canonical manifest is accepted through the legacy
-   source-manifest path, which intentionally emits `unversioned` dataset and
-   source labels. This is safe for local compatibility but conflicts with the
-   exact `1.1.5 public_beta` baseline shown elsewhere. The next provenance task
-   should provide and validate a schema-2 local-manifest migration without
-   committing a machine path or official content.
+2. **Resolved 2026-08-03 — official local provenance used the schema-1
+   migration labels (medium).** An idempotent project command now migrates only
+   the ignored canonical four-source manifest to schema 2, preserves its local
+   roots and database declarations, and records the exact reviewed game/build
+   version. It refuses unexpected datasets/source sets and conflicting existing
+   schema-2 metadata. Deterministic official generation now carries no
+   `unversioned` dataset or source labels. Evidence is in
+   `official-manifest-v2-evidence-2026-08-03.md`.
 3. **Parsed input bytes and recorded input hashes are not one snapshot
    (medium).** Database XML is read for parsing, then every registered input is
    read again later to compute its manifest digest. If a source changes between
@@ -67,7 +68,7 @@ current single-version local MVP.
 
 ## Browser-lifecycle regression evidence
 
-- `pnpm.cmd check` passes formatting, lint, type checking, all 179
+- `pnpm.cmd check` passes formatting, lint, type checking, all 182
   unit/artifact tests, byte-identical synthetic generation, and the 43-page
   synthetic static export.
 - A one-project diagnostic run passed 18 desktop cases and returned with its

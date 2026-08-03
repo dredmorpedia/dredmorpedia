@@ -87,4 +87,10 @@ All official-derived outputs remain ignored and are not approved for commit or p
 
 The existing local official manifest remains readable through the schema version 1 migration path. It activates no patches and reports dataset/source versions as `unversioned`; a reviewed local schema version 2 manifest is required before those labels are used for release provenance.
 
+Update 2026-08-03: the ignored canonical manifest was migrated through the
+reviewed, project-specific schema-2 command and now records the exact accepted
+game/build label for the dataset and all four sources. Schema 1 remains readable
+only as the migration aid described above. See
+`official-manifest-v2-evidence-2026-08-03.md`.
+
 The route-registry mechanism is implemented and verified with synthetic identities. A public release process must populate and review the registry only after the official-data publication policy permits the derived identity/slug inventory.

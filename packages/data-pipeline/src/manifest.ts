@@ -100,6 +100,37 @@ export type PatchReference = z.infer<typeof patchReferenceSchema>;
 export type SourceDefinition = z.infer<typeof sourceV2Schema>;
 export type SourceManifest = z.infer<typeof manifestV2Schema>;
 
+export interface ManifestV1MigrationVersions {
+  datasetVersion: string;
+  sourceVersion: string;
+}
+
+export function parseSourceManifestV2(input: unknown): SourceManifest {
+  return manifestV2Schema.parse(input);
+}
+
+export function migrateSourceManifestV1(
+  input: unknown,
+  versions: ManifestV1MigrationVersions,
+): SourceManifest {
+  const legacy = manifestV1Schema.parse(input);
+  return parseSourceManifestV2({
+    schemaVersion: 2,
+    datasetId: legacy.datasetId,
+    datasetVersion: versions.datasetVersion,
+    sources: legacy.sources.map((source) => ({
+      id: source.id,
+      label: source.label,
+      kind: source.kind,
+      version: versions.sourceVersion,
+      precedence: source.precedence,
+      root: source.root,
+      files: source.files,
+    })),
+    patches: [],
+  });
+}
+
 export interface LoadedManifest {
   manifest: SourceManifest;
   manifestPath: string;

@@ -109,6 +109,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm install --frozen-lockfile` — install the pinned workspace.
 - `pnpm generate:check` — regenerate the synthetic artifact twice and prove byte-identical output.
 - `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic artifact and start the web application on `http://localhost:3001/`.
+- `pnpm migrate:official-manifest` — idempotently migrate the ignored canonical four-source manifest from schema 1 to the reviewed schema-2 game/build provenance without changing source roots.
 - `pnpm dev:official` — regenerate the ignored official artifact with a zero-error publication gate and start the same local application against it.
 - `pnpm generate:official:check` — deterministically regenerate the ignored official artifact with a zero-error publication gate, without starting the web application.
 - `pnpm build:official` — deterministically regenerate the ignored official artifact with a zero-error publication gate and verify the full local static export.

@@ -117,10 +117,12 @@ needs that enforcement and migration coverage.
 The 2026-08-03 full-project review found and resolved a Windows browser-test
 teardown hang by making the loopback test server exit through an explicit,
 bounded Playwright teardown handshake. Remaining ordered hardening work is the
-schema-2 local official-manifest migration, same-buffer input hashing, eager
-whole-artifact-set verification, explicit numeric source grammars, and complete
-multi-step override presentation. Detailed evidence is in
-`docs/analysis/full-project-review-2026-08-03.md`.
+same-buffer input hashing, eager whole-artifact-set verification, explicit
+numeric source grammars, and complete multi-step override presentation. The
+schema-2 local official-manifest migration is complete and records the reviewed
+game/build label without committing local configuration or official content.
+Detailed evidence is in `docs/analysis/full-project-review-2026-08-03.md` and
+`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`.
 
 ## Phase 3 — First vertical product slice
 

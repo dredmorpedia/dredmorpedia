@@ -10,6 +10,17 @@ The committed application reads only `fixtures/synthetic/` by default and writes
 
 Read-only integration measurements may use a machine-specific manifest under ignored `raw/`. Absolute source roots are allowed there, but generated provenance is sanitized to source-relative paths. Official-derived artifacts must remain under ignored `generated/` until the publication policy changes.
 
+An existing canonical four-source manifest created under schema 1 can be
+migrated in place without exposing or changing its local roots:
+
+```powershell
+pnpm migrate:official-manifest
+```
+
+The command is idempotent, applies only the reviewed `1.1.5 public_beta` Steam
+build label, and refuses an unexpected dataset/source set or conflicting
+schema-2 version. New local manifests should use schema 2 directly.
+
 When that ignored manifest exists, the deterministic local measurement command is:
 
 ```powershell

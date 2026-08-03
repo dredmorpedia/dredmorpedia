@@ -121,13 +121,16 @@ The 2026-08-03 full-project review adds a new bounded hardening queue. Its
 high-priority browser-process finding is resolved: Playwright now asks the
 loopback static server to shut down normally, so all 36 desktop/mobile cases
 print their final summary and `pnpm.cmd test:e2e` returns instead of waiting
-indefinitely after a denied Windows `taskkill`. Continue in this order: migrate
-the ignored official manifest to reviewed schema-2 provenance without exposing
-its path; hash the same source bytes the importer parses; verify all manifest
-outputs eagerly; define strict measured numeric lexemes; then render complete
-multi-step override history. ADR 0004 inheritance/enforcement remains required
-before a second dataset or durable publication. See
-`docs/analysis/full-project-review-2026-08-03.md`.
+indefinitely after a denied Windows `taskkill`. The next provenance finding is
+also resolved: `pnpm.cmd migrate:official-manifest` safely upgraded the ignored
+canonical four-source manifest to schema 2, and deterministic official output
+now carries the exact reviewed game/build version instead of `unversioned`.
+Continue in this order: hash the same source bytes the importer parses; verify
+all manifest outputs eagerly; define strict measured numeric lexemes; then
+render complete multi-step override history. ADR 0004
+inheritance/enforcement remains required before a second dataset or durable
+publication. See `docs/analysis/full-project-review-2026-08-03.md` and
+`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`.
 
 The asset-reference contract is also host-independent end to end: the pipeline rejects POSIX absolute, Windows absolute/drive-relative, and traversal values, and the web applies one safe-relative-path schema across all item, skill/ability, spell, and monster presentation fields. The ignored canonical artifact's 3,708 non-null references satisfy the boundary.
 
@@ -184,10 +187,10 @@ persistence, interaction with damage, and runtime success remain
 uninterpreted. Deterministic official generation is byte-identical with 0
 errors, 43 warnings, and 71 informational decisions. Evidence is recorded in
 `docs/analysis/spell-effect-midas-evidence-2026-07-29.md`. All installed
-workspace check components pass with 179 unit/artifact tests and the 43-page
-synthetic export; all 36 desktop/mobile browser cases report successful before
-a Windows managed-server teardown timeout; and the byte-identical canonical
-dataset exports all 2,857 local static pages. No test server remains running.
+workspace check components pass with 182 unit/artifact tests and the 43-page
+synthetic export; all 36 desktop/mobile browser cases pass and the command exits
+cleanly; and the byte-identical canonical dataset exports all 2,857 local
+static pages. No test server remains running.
 
 The environmental-effect metadata slice preserves six active
 `objectSprite` references on `create` effects and four active `regengfx` flags

@@ -23,6 +23,7 @@
     "generate:official": "pnpm --filter @dredmorpedia/data-pipeline generate -- --manifest data/raw/local-official-manifest.json --output data/generated/official-local --fail-on-errors",
     "generate:official:check": "pnpm --filter @dredmorpedia/data-pipeline generate -- --manifest data/raw/local-official-manifest.json --output data/generated/official-local --check --fail-on-errors",
     "lint": "eslint apps packages --max-warnings=0",
+    "migrate:official-manifest": "pnpm --filter @dredmorpedia/data-pipeline migrate:official-manifest",
     "test": "pnpm -r --if-present test",
     "test:e2e": "pnpm run generate && node scripts/run-web-with-artifact.mjs test:e2e spike",
     "typecheck": "pnpm -r --if-present typecheck"

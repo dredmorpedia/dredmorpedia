@@ -4,6 +4,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/official-manifest-v2-evidence-2026-08-03.md`](analysis/official-manifest-v2-evidence-2026-08-03.md) — safe ignored-manifest migration, exact local build provenance, idempotence, and deterministic official verification.
 - [`analysis/full-project-review-2026-08-03.md`](analysis/full-project-review-2026-08-03.md) — repository-wide correctness and lifecycle review, ordered follow-up queue, and browser-shutdown resolution evidence.
 
 - [`analysis/spell-effect-presentation-evidence-2026-07-29.md`](analysis/spell-effect-presentation-evidence-2026-07-29.md) — direct effect sprite/frame/center/sound metadata, canonical counts, and explicit runtime boundaries.

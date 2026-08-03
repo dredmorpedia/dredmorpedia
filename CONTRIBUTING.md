@@ -41,10 +41,17 @@ Start synthetic local development with `pnpm dev` (an alias for `pnpm dev:synthe
 When the ignored `data/raw/local-official-manifest.json` has been configured for the approved read-only installation, use the equivalent official-data commands:
 
 ```powershell
+pnpm migrate:official-manifest
 pnpm dev:official
 pnpm generate:official:check
 pnpm build:official
 ```
+
+`pnpm migrate:official-manifest` is a one-time, idempotent compatibility command
+for the former schema-1 canonical four-source manifest. It preserves every
+ignored source root and file declaration while adding the reviewed dataset and
+source build versions. It refuses unexpected scope or conflicting schema-2
+metadata. New manifests should be created directly as schema 2.
 
 `pnpm dev:official` regenerates `data/generated/official-local/` before starting, so it does not silently serve a stale local artifact. The deterministic generate/check command does the same import twice without starting the app, while the build command additionally verifies the full static export. All three official commands enable the pipeline's `--fail-on-errors` gate: an import with any error diagnostic exits unsuccessfully before replacing the last published output set. Synthetic commands do not enable the gate because their legal fixture deliberately exercises one invalid XML input. Official inputs and generated output remain ignored and non-public.
 
