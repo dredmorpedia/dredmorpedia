@@ -27,8 +27,8 @@ function readJson(name: string): Record<string, unknown> {
 }
 
 function writeOutput(
-  name: "artifact.json" | "search.json",
-  value: Record<string, unknown>,
+  name: "artifact.json" | "diagnostics.json" | "search.json",
+  value: unknown,
   updateChecksum: boolean,
 ): void {
   const contents = `${JSON.stringify(value, null, 2)}\n`;
@@ -40,7 +40,12 @@ function writeOutput(
   const manifest = readJson("manifest.json") as {
     outputs: Record<string, { bytes: number; sha256: string }>;
   };
-  const output = name === "artifact.json" ? "artifact" : "search";
+  const output =
+    name === "artifact.json"
+      ? "artifact"
+      : name === "search.json"
+        ? "search"
+        : "diagnostics";
   manifest.outputs[output] = {
     ...manifest.outputs[output],
     bytes: Buffer.byteLength(contents),
@@ -87,6 +92,53 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/does not match manifest\.json/);
+  });
+
+  it("rejects tampered diagnostics while loading only the main artifact", async () => {
+    const diagnostics = readFileSync(
+      path.join(artifactDirectory, "diagnostics.json"),
+      "utf8",
+    );
+    writeFileSync(
+      path.join(artifactDirectory, "diagnostics.json"),
+      `${diagnostics} `,
+    );
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/diagnostics\.json.*manifest\.json/);
+    writeFileSync(
+      path.join(artifactDirectory, "diagnostics.json"),
+      diagnostics,
+    );
+    expect(loadArtifact().entities.items).toHaveLength(13);
+  });
+
+  it("rejects checksummed diagnostic inconsistencies while loading only the main artifact", async () => {
+    const diagnostics = JSON.parse(
+      readFileSync(path.join(artifactDirectory, "diagnostics.json"), "utf8"),
+    ) as unknown[];
+    diagnostics.pop();
+    writeOutput("diagnostics.json", diagnostics, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/counts do not match/);
+  });
+
+  it("rejects a stale checksummed search index while loading only the main artifact", async () => {
+    const search = readJson("search.json") as {
+      documents: { text: string }[];
+    };
+    const firstDocument = search.documents[0];
+    if (!firstDocument) {
+      throw new Error(
+        "Synthetic search fixture unexpectedly has no documents.",
+      );
+    }
+    firstDocument.text = `${firstDocument.text} stale`;
+    writeOutput("search.json", search, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/not derived/);
   });
 
   it("rejects a checksummed artifact with a missing collection", async () => {

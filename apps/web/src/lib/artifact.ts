@@ -1042,9 +1042,14 @@ const artifactManifestSchema = z
 
 let artifactDirectoryCache: string | undefined;
 let manifestCache: ArtifactManifest | undefined;
-let artifactCache: DatasetArtifact | undefined;
-let diagnosticsCache: Diagnostic[] | undefined;
-let searchCache: SearchArtifact | undefined;
+
+interface LoadedArtifactSet {
+  artifact: DatasetArtifact;
+  diagnostics: Diagnostic[];
+  search: SearchArtifact;
+}
+
+let artifactSetCache: LoadedArtifactSet | undefined;
 
 function artifactDirectory(): string {
   if (artifactDirectoryCache) {
@@ -1148,12 +1153,9 @@ function assertUniqueEntityRouteSlugs(artifact: DatasetArtifact): void {
   }
 }
 
-export function loadArtifact(): DatasetArtifact {
-  if (artifactCache) {
-    return artifactCache;
-  }
+function parseArtifact(contents: string): DatasetArtifact {
   const result = datasetArtifactSchema.safeParse(
-    parseJson(readVerifiedOutput("artifact"), "artifact.json"),
+    parseJson(contents, "artifact.json"),
   );
   if (!result.success) {
     throw validationError("artifact.json", result.error);
@@ -1173,22 +1175,20 @@ export function loadArtifact(): DatasetArtifact {
     "entity IDs",
   );
   assertUniqueEntityRouteSlugs(artifact);
-  artifactCache = artifact;
-  return artifactCache;
+  return artifact;
 }
 
-export function loadSearchArtifact(): SearchArtifact {
-  if (searchCache) {
-    return searchCache;
-  }
+function parseSearchArtifact(
+  contents: string,
+  artifact: DatasetArtifact,
+): SearchArtifact {
   const result = searchArtifactSchema.safeParse(
-    parseJson(readVerifiedOutput("search"), "search.json"),
+    parseJson(contents, "search.json"),
   );
   if (!result.success) {
     throw validationError("search.json", result.error);
   }
   const search = result.data as SearchArtifact;
-  const artifact = loadArtifact();
   if (
     search.datasetId !== artifact.datasetId ||
     search.datasetSchemaVersion !== artifact.schemaVersion ||
@@ -1206,24 +1206,20 @@ export function loadSearchArtifact(): SearchArtifact {
     search.documents.map((document) => document.id),
     "search document IDs",
   );
-  searchCache = search;
-  return searchCache;
+  return search;
 }
 
-export function loadDiagnostics(): Diagnostic[] {
-  if (diagnosticsCache) {
-    return diagnosticsCache;
-  }
+function parseDiagnostics(
+  contents: string,
+  artifact: DatasetArtifact,
+): Diagnostic[] {
   const result = z
     .array(diagnosticSchema)
-    .safeParse(
-      parseJson(readVerifiedOutput("diagnostics"), "diagnostics.json"),
-    );
+    .safeParse(parseJson(contents, "diagnostics.json"));
   if (!result.success) {
     throw validationError("diagnostics.json", result.error);
   }
   const diagnostics = result.data as Diagnostic[];
-  const artifact = loadArtifact();
   const counts = { info: 0, warning: 0, error: 0 };
   for (const diagnostic of diagnostics) {
     counts[diagnostic.severity] += 1;
@@ -1245,6 +1241,33 @@ export function loadDiagnostics(): Diagnostic[] {
       );
     }
   }
-  diagnosticsCache = diagnostics;
-  return diagnosticsCache;
+  return diagnostics;
+}
+
+function loadArtifactSet(): LoadedArtifactSet {
+  if (artifactSetCache) {
+    return artifactSetCache;
+  }
+
+  const artifactContents = readVerifiedOutput("artifact");
+  const searchContents = readVerifiedOutput("search");
+  const diagnosticContents = readVerifiedOutput("diagnostics");
+  const artifact = parseArtifact(artifactContents);
+  const search = parseSearchArtifact(searchContents, artifact);
+  const diagnostics = parseDiagnostics(diagnosticContents, artifact);
+
+  artifactSetCache = { artifact, diagnostics, search };
+  return artifactSetCache;
+}
+
+export function loadArtifact(): DatasetArtifact {
+  return loadArtifactSet().artifact;
+}
+
+export function loadSearchArtifact(): SearchArtifact {
+  return loadArtifactSet().search;
+}
+
+export function loadDiagnostics(): Diagnostic[] {
+  return loadArtifactSet().diagnostics;
 }

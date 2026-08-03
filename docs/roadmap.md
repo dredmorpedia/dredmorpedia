@@ -120,12 +120,14 @@ bounded Playwright teardown handshake. The schema-2 local official-manifest
 migration records the reviewed game/build label without committing local
 configuration or official content. Input checksums now also come from the exact
 byte snapshots used for parsing or first asset registration, eliminating the
-old end-of-import reread race. Remaining ordered hardening work is eager
-whole-artifact-set verification, explicit numeric source grammars, and complete
+old end-of-import reread race. The web now eagerly verifies all three generated
+outputs and their cross-file invariants before any loader returns. Remaining
+ordered hardening work is explicit numeric source grammars and complete
 multi-step override presentation. Detailed evidence is in
 `docs/analysis/full-project-review-2026-08-03.md`,
-`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`, and
-`docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`.
+`docs/analysis/official-manifest-v2-evidence-2026-08-03.md`,
+`docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`, and
+`docs/analysis/eager-artifact-set-verification-evidence-2026-08-04.md`.
 
 ## Phase 3 — First vertical product slice
 

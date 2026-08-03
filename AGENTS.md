@@ -28,6 +28,9 @@ Read these files before making a substantial change:
 - Generated input checksums are captured from the exact byte snapshot used by
   parsing or, for referenced assets, from the first registration read. Do not
   reintroduce end-of-import source rereads.
+- The web initializes generated output as one verified artifact set. It checks
+  every declared output checksum, schema, and cross-file invariant before
+  caching or returning even the main artifact.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
 - Buff-local spell effects use the same strict effect contract and deterministic
   relationship linker as direct effects while retaining their owning buff

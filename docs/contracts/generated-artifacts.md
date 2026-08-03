@@ -165,6 +165,11 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 - Writes use collision-resistant temporary names and per-file atomic replacement, publish the manifest last, and are refused when the real output path overlaps an input source root in either direction. Junctions and symbolic links do not bypass the boundary.
 - Publication can opt into a zero-error diagnostic gate. The official-data commands always enable it and refuse to replace any output file when the import contains one or more error diagnostics. Synthetic generation leaves it disabled because the fixture intentionally covers an invalid XML input.
 - Consumers must read all files from the directory containing the selected manifest and verify every declared byte length and SHA-256 checksum before parsing an output. An interrupted or mixed publication is an error, not a partially usable dataset.
+- The web consumer initializes `artifact.json`, `search.json`, and
+  `diagnostics.json` as one atomic in-memory set. It verifies every checksum and
+  schema plus dataset identity, search derivation, diagnostic counts/IDs, and
+  entity diagnostic references before any public loader returns. No
+  independently valid member is cached after another member fails.
 - The web layer validates every required top-level, entity, search-document, provenance, and diagnostic field; enforces safe route and asset-reference shapes plus unique same-kind canonical/alias ownership; checks dataset/search/diagnostic cross-file invariants; and fails its build on unsupported, incomplete, or stale artifacts rather than guessing at compatibility.
 
 The source input, published-route registry, and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).

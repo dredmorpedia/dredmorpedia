@@ -90,9 +90,9 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Continue the 2026-08-03 review queue by eagerly verifying the complete
-   generated artifact set. Exact-byte input snapshot hashing is complete and
-   covered by a source-mutation regression.
+1. Continue the 2026-08-03 review queue by defining and testing the accepted
+   numeric source grammar before tightening scalar parsing. Exact-byte input
+   snapshots and eager complete-artifact-set verification are complete.
 2. Resume the measured spell-mechanic backlog. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas.
 3. Settle ADR 0003 response budgets and broader concrete relevance examples
    with desktop/mobile measurements; the approved spelling-suggestion behavior
