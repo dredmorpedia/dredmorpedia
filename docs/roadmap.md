@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-07-29
+Updated: 2026-08-03
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -113,6 +113,14 @@ ADR 0004 now defines the approved shared-route lifecycle: published dataset
 lineages inherit reservations, removed routes remain tombstoned, and invalid
 inheritance must fail publication. The current exact-version registry still
 needs that enforcement and migration coverage.
+
+The 2026-08-03 full-project review found and resolved a Windows browser-test
+teardown hang by making the loopback test server exit through an explicit,
+bounded Playwright teardown handshake. Remaining ordered hardening work is the
+schema-2 local official-manifest migration, same-buffer input hashing, eager
+whole-artifact-set verification, explicit numeric source grammars, and complete
+multi-step override presentation. Detailed evidence is in
+`docs/analysis/full-project-review-2026-08-03.md`.
 
 ## Phase 3 — First vertical product slice
 

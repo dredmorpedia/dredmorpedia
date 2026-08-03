@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const host = "127.0.0.1";
 const port = 3100;
+const shutdownPath = "/__dredmorpedia-e2e-shutdown__";
 const outputRoot = realpathSync(
   path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../out"),
 );
@@ -57,6 +58,21 @@ function fileForRequest(requestUrl) {
 }
 
 const server = createServer((request, response) => {
+  let pathname;
+  try {
+    pathname = new URL(request.url ?? "/", `http://${host}:${port}`).pathname;
+  } catch {
+    pathname = undefined;
+  }
+  if (request.method === "POST" && pathname === shutdownPath) {
+    response.writeHead(204, {
+      "Cache-Control": "no-store",
+      Connection: "close",
+    });
+    response.end(close);
+    return;
+  }
+
   const requestedFile = fileForRequest(request.url);
   const file = requestedFile ?? path.join(outputRoot, "404.html");
   const status = requestedFile ? 200 : 404;
@@ -77,8 +93,25 @@ server.listen(port, host, () => {
   process.stdout.write(`Static test server: http://${host}:${port}\n`);
 });
 
+let shutdownStarted = false;
+
 function close() {
-  server.close(() => process.exit(0));
+  if (shutdownStarted) {
+    return;
+  }
+  shutdownStarted = true;
+
+  const forcedExit = setTimeout(() => {
+    server.closeAllConnections();
+    process.exit(0);
+  }, 1_000);
+  forcedExit.unref();
+
+  server.close(() => {
+    clearTimeout(forcedExit);
+    process.exit(0);
+  });
+  server.closeIdleConnections();
 }
 
 process.on("SIGINT", close);
