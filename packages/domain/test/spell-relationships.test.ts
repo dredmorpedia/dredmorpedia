@@ -15,6 +15,7 @@ import {
   spellEffectOptionSpellBacklinks,
   spellEffectRemovedBuffBacklinks,
   type Spell,
+  type SpellBuffEventHookKind,
 } from "../src/index";
 
 const noEffectControls: Spell["effects"][number]["controls"] = {
@@ -122,7 +123,7 @@ function reference(target: Spell): Spell["effects"][number] {
 
 function buffEventHookReference(
   target: Spell,
-  kind: "target-hit" | "player-hit",
+  kind: SpellBuffEventHookKind,
 ): Spell["buffs"][number]["eventHooks"][number] {
   return {
     kind,
@@ -324,7 +325,7 @@ describe("spell effect relationships", () => {
           sourceFlags: [],
         },
       ]),
-      buff([buffEventHookReference(target, "player-hit")]),
+      buff([buffEventHookReference(target, "dodge")]),
     ];
 
     expect(
@@ -338,7 +339,7 @@ describe("spell effect relationships", () => {
       ),
     ).toEqual([
       ["Earlier", 0, 0, "target-hit"],
-      ["Earlier", 1, 0, "player-hit"],
+      ["Earlier", 1, 0, "dodge"],
       ["Later", 0, 0, "player-hit"],
     ]);
   });

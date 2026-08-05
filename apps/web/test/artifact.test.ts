@@ -416,6 +416,31 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/senseWallsDeclarations/);
   });
 
+  it("rejects an unknown spell buff event-hook kind", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: { eventHooks: { kind: string }[] }[];
+        }[];
+      };
+    };
+    const hook = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.eventHooks)
+      .find((candidate) => candidate.kind === "dodge");
+    if (!hook) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no dodge event hook.",
+      );
+    }
+    hook.kind = "near-miss";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/eventHooks/);
+  });
+
   it("rejects malformed spell buff polymorph metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

@@ -86,6 +86,7 @@ const monsterBacklinkLabels: Readonly<Record<MonsterSpellTriggerKind, string>> =
 const buffEventHookLabels: Readonly<Record<SpellBuffEventHookKind, string>> = {
   "target-hit": "When you hit in melee",
   "player-hit": "When you are hit in melee",
+  dodge: "When you dodge",
 };
 
 export function generateStaticParams() {
@@ -1111,9 +1112,10 @@ export default async function SpellPage({
                         })}
                       </dl>
                       <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                        Conditions and percentages are source declarations. The
-                        additional after flag is retained without inferring
-                        engine timing.
+                        Conditions and percentages are source declarations. They
+                        do not establish event eligibility, evaluation order,
+                        timing, or runtime success. The additional after flag is
+                        retained without inferring engine timing.
                       </p>
                     </section>
                   ) : null}

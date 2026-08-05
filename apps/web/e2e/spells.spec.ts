@@ -188,6 +188,14 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(buffEventHooks.getByText("When you hit in melee")).toBeVisible();
   await expect(buffEventHooks.getByText("40% chance")).toBeVisible();
   await expect(buffEventHooks.getByText("After: Enabled")).toBeVisible();
+  await expect(buffEventHooks.getByText("When you dodge")).toBeVisible();
+  await expect(
+    buffEventHooks.getByRole("link", { name: "Clockwork Spark" }),
+  ).toBeVisible();
+  await expect(buffEventHooks.getByText("100% chance")).toBeVisible();
+  await expect(
+    buffEventHooks.getByText(/do not establish event eligibility/i),
+  ).toBeVisible();
   await expect(
     buffEventHooks.getByText("Missing Buff Echo", { exact: true }),
   ).toBeVisible();

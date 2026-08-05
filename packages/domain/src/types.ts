@@ -473,7 +473,11 @@ export interface SpellFramePresentationMetadata {
 export type SpellAnimationMetadata = SpellFramePresentationMetadata;
 export type SpellImpactMetadata = SpellFramePresentationMetadata;
 
-export const spellBuffEventHookKinds = ["target-hit", "player-hit"] as const;
+export const spellBuffEventHookKinds = [
+  "target-hit",
+  "player-hit",
+  "dodge",
+] as const;
 
 export type SpellBuffEventHookKind = (typeof spellBuffEventHookKinds)[number];
 

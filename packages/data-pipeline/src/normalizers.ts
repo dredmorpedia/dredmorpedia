@@ -2901,8 +2901,17 @@ const spellBuffModifierElementNames = new Set([
 ]);
 
 const spellBuffEventHookSpecs = [
-  { childName: "targetHitEffectBuff", kind: "target-hit" },
-  { childName: "playerHitEffectBuff", kind: "player-hit" },
+  {
+    childName: "targetHitEffectBuff",
+    kind: "target-hit",
+    supportsAfter: true,
+  },
+  {
+    childName: "playerHitEffectBuff",
+    kind: "player-hit",
+    supportsAfter: true,
+  },
+  { childName: "dodgebuff", kind: "dodge", supportsAfter: false },
 ] as const;
 
 function spellBuffSightModifierRecords(buff: XmlRecord): XmlRecord[] {
@@ -3414,20 +3423,36 @@ function parseSpellBuffEventHooks(
   currentEntityId: string,
   buffIndex: number,
 ): SpellBuffEventHook[] {
-  return spellBuffEventHookSpecs.flatMap(({ childName, kind }) =>
+  return spellBuffEventHookSpecs.flatMap(({ childName, kind, supportsAfter }) =>
     xmlChildren(buff, childName).flatMap((hook, hookIndex) => {
+      const hookProvenance = {
+        ...provenance,
+        ...context.parsed.locateRecord(hook),
+      };
       reportUnknownLeafContent(
         context,
         hook,
         childName,
-        new Set(["name", "percentage", "after"]),
-        provenance,
+        new Set(["name", "percentage", ...(supportsAfter ? ["after"] : [])]),
+        hookProvenance,
         currentEntityId,
+        true,
       );
+      const sourceChance = xmlAttribute(hook, "percentage");
+      if (sourceChance === undefined) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_spell_buff_hook_chance",
+          message: `Spell buff ${buffIndex + 1} ${kind} hook ${hookIndex + 1} is missing its required chance percentage.`,
+          source: hookProvenance,
+          entityId: currentEntityId,
+          details: { buffIndex, hookIndex, hookKind: kind },
+        });
+      }
       const chance = optionalIntegerValue(
-        xmlAttribute(hook, "percentage"),
+        sourceChance,
         context,
-        provenance,
+        hookProvenance,
         `spell buff ${buffIndex + 1} ${kind} hook ${hookIndex + 1} chance`,
         currentEntityId,
         0,
@@ -3439,13 +3464,13 @@ function parseSpellBuffEventHooks(
           severity: "warning",
           code: "missing_spell_buff_hook_target",
           message: `Spell buff ${buffIndex + 1} ${kind} hook ${hookIndex + 1} is missing its spell reference.`,
-          source: provenance,
+          source: hookProvenance,
           entityId: currentEntityId,
           details: { buffIndex, hookIndex, hookKind: kind },
         });
         return [];
       }
-      const after = xmlAttribute(hook, "after");
+      const after = supportsAfter ? xmlAttribute(hook, "after") : undefined;
       return [
         {
           kind,

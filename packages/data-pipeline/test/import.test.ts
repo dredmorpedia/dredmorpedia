@@ -2068,6 +2068,7 @@ describe("synthetic dataset import", () => {
       <sightbuff amount="-3" />
       <targetHitEffectBuff percentage="75" name="Invalid Buff" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Hook Spell" />
+      <dodgebuff percentage="100" name="Complete Buff" />
     </buff>
     <buff usetimer="1" time="1" manaupkeep="2" allowStacking="1" />
   </spell>
@@ -2082,6 +2083,8 @@ describe("synthetic dataset import", () => {
       <sightbuff />
       <targetHitEffectBuff percentage="101" name="Complete Buff" future="diagnosed"><futureChild /></targetHitEffectBuff>
       <playerHitEffectBuff percentage="bad" future="diagnosed" />
+      <dodgebuff percentage="bad" name="Complete Buff" future="diagnosed"><futureDodgeChild /></dodgebuff>
+      <dodgebuff name="" />
     </buff>
   </spell>
 </spellDB>`,
@@ -2183,6 +2186,14 @@ describe("synthetic dataset import", () => {
             chance: 25,
             sourceFlags: [],
           },
+          {
+            kind: "dodge",
+            spellKey: "complete buff",
+            spellName: "Complete Buff",
+            spellId: "spell:complete buff",
+            chance: 100,
+            sourceFlags: [],
+          },
         ],
       },
       expect.objectContaining({
@@ -2234,6 +2245,14 @@ describe("synthetic dataset import", () => {
             chance: null,
             sourceFlags: [],
           },
+          {
+            kind: "dodge",
+            spellKey: "complete buff",
+            spellName: "Complete Buff",
+            spellId: "spell:complete buff",
+            chance: null,
+            sourceFlags: [],
+          },
         ],
       }),
     ]);
@@ -2241,7 +2260,7 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(10);
+    ).toHaveLength(11);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
@@ -2328,12 +2347,32 @@ describe("synthetic dataset import", () => {
           details: {
             element: "targetHitEffectBuff",
             attribute: "future",
+            value: "diagnosed",
           },
         }),
         expect.objectContaining({
           code: "missing_spell_buff_hook_target",
           entityId: "spell:invalid buff",
           details: { buffIndex: 0, hookIndex: 0, hookKind: "player-hit" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_hook_chance",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, hookIndex: 1, hookKind: "dodge" },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_hook_target",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, hookIndex: 1, hookKind: "dodge" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: {
+            element: "dodgebuff",
+            attribute: "future",
+            value: "diagnosed",
+          },
         }),
         expect.objectContaining({
           code: "dangling_reference",
@@ -2355,13 +2394,19 @@ describe("synthetic dataset import", () => {
           entityId: "spell:invalid buff",
           details: { element: "futureChild" },
         }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "futureDodgeChild" },
+        }),
       ]),
     );
     expect(
       result.diagnostics.some(
         (diagnostic) =>
-          ["halo", "sightbuff"].includes(String(diagnostic.details?.element)) &&
-          diagnostic.code === "unknown_element",
+          ["dodgebuff", "halo", "sightbuff"].includes(
+            String(diagnostic.details?.element),
+          ) && diagnostic.code === "unknown_element",
       ),
     ).toBe(false);
     expect(
@@ -5556,6 +5601,14 @@ describe("synthetic dataset import", () => {
             spellKey: "missing buff echo",
             spellName: "Missing Buff Echo",
             chance: 25,
+            sourceFlags: [],
+          },
+          {
+            kind: "dodge",
+            spellKey: "clockwork spark",
+            spellName: "Clockwork Spark",
+            spellId: "spell:clockwork spark",
+            chance: 100,
             sourceFlags: [],
           },
         ],
