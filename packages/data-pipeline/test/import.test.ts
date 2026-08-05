@@ -36,6 +36,75 @@ afterEach(() => {
 });
 
 describe("synthetic dataset import", () => {
+  it("applies strict numeric lexemes to normalized integer and decimal fields", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-numeric-lexemes-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      [
+        "<items>",
+        '  <item name="Accepted Numbers" type="0" level="02">',
+        '    <weapon crushing=".5" slashing="-2.75" />',
+        "  </item>",
+        '  <item name="Rejected Numbers" type="0" level="1e2">',
+        '    <weapon crushing="0x10" slashing="+2" toxic="1." />',
+        "  </item>",
+        "</items>",
+      ].join("\n"),
+    );
+    const numericManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      numericManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "numeric-lexeme-test",
+        sources: [
+          {
+            id: "fixture",
+            label: "Fixture",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "items", path: "itemDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: numericManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const items = new Map(
+      result.artifact.entities.items.map((item) => [item.name, item]),
+    );
+
+    expect(items.get("Accepted Numbers")).toMatchObject({
+      quality: 2,
+      modifiers: [
+        { sourceKey: "crushing", amount: 0.5 },
+        { sourceKey: "slashing", amount: -2.75 },
+      ],
+    });
+    expect(items.get("Rejected Numbers")).toMatchObject({
+      quality: 0,
+      modifiers: [
+        { sourceKey: "crushing", amount: 0 },
+        { sourceKey: "slashing", amount: 0 },
+        { sourceKey: "toxic", amount: 0 },
+      ],
+    });
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "invalid_number",
+      ),
+    ).toHaveLength(4);
+  });
+
   it("supports an absolute read-only source root without exposing local paths", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-external-source-"),

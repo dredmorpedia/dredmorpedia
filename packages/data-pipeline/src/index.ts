@@ -1,5 +1,6 @@
 export * from "./import-dataset";
 export * from "./manifest";
+export * from "./numeric-lexemes";
 export * from "./output";
 export * from "./patches";
 export * from "./route-registry";

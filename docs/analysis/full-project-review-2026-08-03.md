@@ -58,12 +58,16 @@ successful, but the Playwright process did not print its summary or terminate.
    checksummed diagnostic inconsistencies, and a stale checksummed search
    index. Evidence is in
    `eager-artifact-set-verification-evidence-2026-08-04.md`.
-5. **Scalar validation accepts non-canonical numeric lexemes (low).** The
-   shared integer and number helpers use `Number(value)`, so whitespace,
-   exponent notation, and other JavaScript numeric forms can pass even though
-   review evidence describes complete game-number tokens. Define the accepted
-   source grammar explicitly and add adversarial fixture coverage before
-   tightening it, so genuine measured decimal forms remain supported.
+5. **Resolved 2026-08-05 — scalar validation accepted non-canonical numeric
+   lexemes (low).** Shared parsers now require explicit ASCII integer or
+   finite-number tokens before conversion. The contract retains measured
+   negative/leading-zero integers, conventional decimals, fractional trailing
+   zeros, and leading-dot decimals while rejecting exponent/radix notation,
+   explicit plus signs, trailing dots, separators, Unicode digits, direct
+   whitespace, unsafe integers, and non-finite conversions. Unit tests cover
+   adversarial forms, and an import fixture proves the grammar reaches real
+   integer and decimal fields with source-located diagnostics. Evidence is in
+   `numeric-source-lexeme-evidence-2026-08-05.md`.
 6. **The provenance card compresses a multi-step override chain into its first
    predecessor and final source (low).** The artifact retains the full ordered
    `appliedOverrides` history, but the UI reads only the first entry and points
@@ -77,7 +81,7 @@ current single-version local MVP.
 
 ## Browser-lifecycle regression evidence
 
-- `pnpm.cmd check` passes formatting, lint, type checking, all 189
+- `pnpm.cmd check` passes formatting, lint, type checking, all 193
   unit/artifact tests, byte-identical synthetic generation, and the 43-page
   synthetic static export.
 - A one-project diagnostic run passed 18 desktop cases and returned with its
@@ -110,3 +114,16 @@ current single-version local MVP.
   and the eager loader completes the full 2,857-page local static export.
 - No generated schema or route behavior changed; the change closes acceptance
   of partial or mixed output sets.
+
+## Numeric source-lexeme evidence
+
+- A broad canonical lexical census found 20,710 integer, 388 conventional
+  decimal, and 69 leading-dot decimal occurrences, with no exponent,
+  radix-prefix, explicit-plus, or trailing-dot forms.
+- The data-pipeline suite passes all 69 tests, including direct adversarial
+  grammar coverage and a temporary XML import fixture exercising integer and
+  decimal normalization.
+- The full repository gate passes all 193 unit/artifact tests and the 43-page
+  synthetic static export.
+- The ignored canonical official import remains byte-identical with 0 errors,
+  proving the tightened grammar changes no normalized official value.

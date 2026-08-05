@@ -124,13 +124,17 @@ first referenced-asset registration. The mutation regression proves a source
 change between parsing and checksum listing cannot misdescribe the parsed
 artifact. The web also initializes all manifest outputs as one eagerly verified
 set, including exact search derivation and diagnostic cross-file integrity,
-before any public loader returns. Continue in this order: define strict measured
-numeric lexemes; then render complete multi-step override history. ADR 0004
+before any public loader returns. Numeric XML fields now use the explicit
+measured integer/decimal grammar in
+`docs/contracts/numeric-source-lexemes.md`; JavaScript-only coercion forms are
+rejected without changing canonical output. Continue by rendering complete
+multi-step override history. ADR 0004
 inheritance/enforcement remains required before a second dataset or durable
 publication. See `docs/analysis/full-project-review-2026-08-03.md`,
 `docs/analysis/official-manifest-v2-evidence-2026-08-03.md`,
-`docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`, and
-`docs/analysis/eager-artifact-set-verification-evidence-2026-08-04.md`.
+`docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`,
+`docs/analysis/eager-artifact-set-verification-evidence-2026-08-04.md`, and
+`docs/analysis/numeric-source-lexeme-evidence-2026-08-05.md`.
 
 The asset-reference contract is also host-independent end to end: the pipeline rejects POSIX absolute, Windows absolute/drive-relative, and traversal values, and the web applies one safe-relative-path schema across all item, skill/ability, spell, and monster presentation fields. The ignored canonical artifact's 3,708 non-null references satisfy the boundary.
 

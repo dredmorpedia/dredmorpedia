@@ -55,6 +55,7 @@ import {
 } from "@dredmorpedia/domain";
 
 import type { DatabaseKind, SourceDefinition } from "./manifest";
+import { parseSourceInteger, parseSourceNumber } from "./numeric-lexemes";
 import {
   assertSafeRelativePath,
   PathBoundaryError,
@@ -1303,9 +1304,9 @@ function integerValue(
     return fallback;
   }
 
-  const parsed = Number(value);
+  const parsed = parseSourceInteger(value);
   if (
-    Number.isInteger(parsed) &&
+    parsed !== null &&
     (minimum === undefined || parsed >= minimum) &&
     (maximum === undefined || parsed <= maximum)
   ) {
@@ -1336,9 +1337,9 @@ function optionalIntegerValue(
     return null;
   }
 
-  const parsed = Number(value);
+  const parsed = parseSourceInteger(value);
   if (
-    Number.isInteger(parsed) &&
+    parsed !== null &&
     (minimum === undefined || parsed >= minimum) &&
     (maximum === undefined || parsed <= maximum)
   ) {
@@ -1370,9 +1371,9 @@ function numberValue(
     return fallback;
   }
 
-  const parsed = Number(value);
+  const parsed = parseSourceNumber(value);
   if (
-    Number.isFinite(parsed) &&
+    parsed !== null &&
     (minimum === undefined || parsed >= minimum) &&
     (maximum === undefined || parsed <= maximum)
   ) {
@@ -1403,9 +1404,9 @@ function optionalNumberValue(
     return null;
   }
 
-  const parsed = Number(value);
+  const parsed = parseSourceNumber(value);
   if (
-    Number.isFinite(parsed) &&
+    parsed !== null &&
     (minimum === undefined || parsed >= minimum) &&
     (maximum === undefined || parsed <= maximum)
   ) {

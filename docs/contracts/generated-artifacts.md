@@ -174,6 +174,10 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 
 The source input, published-route registry, and patch-overlay contract is documented separately in [`source-manifest-and-patches.md`](source-manifest-and-patches.md).
 
+The shared integer and finite-number token grammar used before numeric artifact
+fields are constructed is documented in
+[`numeric-source-lexemes.md`](numeric-source-lexemes.md).
+
 ## Evolution rules
 
 - Increment the affected schema version for removed or reinterpreted fields, changed identity/ordering behavior, or any change that makes an older consumer unsafe.
