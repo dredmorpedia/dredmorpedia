@@ -701,6 +701,14 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    paybackDeclarations: z.array(
+      z
+        .object({
+          secondaryScale: z.boolean().nullable(),
+          factor: nullableNumber,
+        })
+        .strict(),
+    ),
     polymorphDeclarations: z.array(spellBuffPolymorphDeclarationSchema),
     effects: z.array(spellEffectSchema),
     aiHints: z.array(spellAiHintSchema),

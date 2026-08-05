@@ -59,7 +59,10 @@ Current validation and search evidence are recorded in:
 - [`spell-buff-mute-evidence-2026-07-29.md`](spell-buff-mute-evidence-2026-07-29.md),
 - [`spell-buff-polymorph-evidence-2026-07-29.md`](spell-buff-polymorph-evidence-2026-07-29.md),
 - [`spell-buff-effect-evidence-2026-07-29.md`](spell-buff-effect-evidence-2026-07-29.md),
-- [`spell-effect-environment-metadata-evidence-2026-07-29.md`](spell-effect-environment-metadata-evidence-2026-07-29.md), and
+- [`spell-effect-environment-metadata-evidence-2026-07-29.md`](spell-effect-environment-metadata-evidence-2026-07-29.md),
+- [`spell-buff-sense-walls-evidence-2026-08-05.md`](spell-buff-sense-walls-evidence-2026-08-05.md),
+- [`spell-buff-dodge-hook-evidence-2026-08-05.md`](spell-buff-dodge-hook-evidence-2026-08-05.md),
+- [`spell-buff-payback-evidence-2026-08-05.md`](spell-buff-payback-evidence-2026-08-05.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -71,7 +74,7 @@ The following audit concerns are still actionable:
    accepted, and modern project material is intended for MIT. Public-content
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
-2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains five unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains four unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

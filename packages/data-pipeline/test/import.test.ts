@@ -2066,6 +2066,8 @@ describe("synthetic dataset import", () => {
       <secondarybuff id="6" amount="-4" />
       <sightbuff amount="2.5" />
       <sightbuff amount="-3" />
+      <payback secondaryScale="0" paybackF="0.1" />
+      <payback secondaryScale="1" paybackF="-0.25" />
       <targetHitEffectBuff percentage="75" name="Invalid Buff" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Hook Spell" />
       <dodgebuff percentage="100" name="Complete Buff" />
@@ -2081,6 +2083,8 @@ describe("synthetic dataset import", () => {
       <primarybuff amount="1" future="diagnosed" />
       <sightbuff amount="bad" future="diagnosed"><futureChild /></sightbuff>
       <sightbuff />
+      <payback secondaryScale="maybe" paybackF="bad" future="diagnosed"><futurePaybackChild /></payback>
+      <payback />
       <targetHitEffectBuff percentage="101" name="Complete Buff" future="diagnosed"><futureChild /></targetHitEffectBuff>
       <playerHitEffectBuff percentage="bad" future="diagnosed" />
       <dodgebuff percentage="bad" name="Complete Buff" future="diagnosed"><futureDodgeChild /></dodgebuff>
@@ -2157,6 +2161,10 @@ describe("synthetic dataset import", () => {
         invisibilityDeclarations: [],
         muteDeclarations: [],
         senseWallsDeclarations: [],
+        paybackDeclarations: [
+          { secondaryScale: false, factor: 0.1 },
+          { secondaryScale: true, factor: -0.25 },
+        ],
         polymorphDeclarations: [],
         effects: [],
         sourceFlags: [
@@ -2236,6 +2244,10 @@ describe("synthetic dataset import", () => {
         ],
         modifiers: [],
         sightModifiers: [{ amount: null }, { amount: null }],
+        paybackDeclarations: [
+          { secondaryScale: null, factor: null },
+          { secondaryScale: null, factor: null },
+        ],
         eventHooks: [
           {
             kind: "target-hit",
@@ -2260,12 +2272,12 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(11);
+    ).toHaveLength(12);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
       ),
-    ).toHaveLength(7);
+    ).toHaveLength(8);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -2345,6 +2357,25 @@ describe("synthetic dataset import", () => {
           code: "unknown_attribute",
           entityId: "spell:invalid buff",
           details: {
+            element: "payback",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_payback_secondary_scale",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, declarationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_payback_factor",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, declarationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: {
             element: "targetHitEffectBuff",
             attribute: "future",
             value: "diagnosed",
@@ -2399,12 +2430,17 @@ describe("synthetic dataset import", () => {
           entityId: "spell:invalid buff",
           details: { element: "futureDodgeChild" },
         }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "futurePaybackChild" },
+        }),
       ]),
     );
     expect(
       result.diagnostics.some(
         (diagnostic) =>
-          ["dodgebuff", "halo", "sightbuff"].includes(
+          ["dodgebuff", "halo", "payback", "sightbuff"].includes(
             String(diagnostic.details?.element),
           ) && diagnostic.code === "unknown_element",
       ),
@@ -5556,6 +5592,7 @@ describe("synthetic dataset import", () => {
         invisibilityDeclarations: [{ amount: 1 }],
         muteDeclarations: [{ amount: 1 }],
         senseWallsDeclarations: [{ enabled: true }],
+        paybackDeclarations: [{ secondaryScale: false, factor: 0.1 }],
         polymorphDeclarations: [
           {
             monsterKey: "training diggle",

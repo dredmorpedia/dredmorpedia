@@ -326,6 +326,15 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff payback declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.paybackDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>Buff polymorph declarations</dt>
             <dd>
               {spell.buffs.reduce(
@@ -1013,6 +1022,54 @@ export default async function SpellPage({
                         marker. It is retained without inferring detection
                         range, revealed terrain, actor scope, interaction with
                         sight radius, stacking, duration, or runtime success.
+                      </p>
+                    </section>
+                  ) : null}
+                  {buff.paybackDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-payback-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-payback-heading`}
+                        className="relationship-title"
+                      >
+                        Payback source parameters
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.paybackDeclarations.flatMap(
+                          (declaration, declarationIndex) => [
+                            <div key={`${declarationIndex}:secondary-scale`}>
+                              <dt>
+                                Declaration {declarationIndex + 1}{" "}
+                                secondaryScale flag
+                              </dt>
+                              <dd>
+                                {declaration.secondaryScale === null
+                                  ? "Unavailable"
+                                  : yesNo(declaration.secondaryScale)}
+                              </dd>
+                            </div>,
+                            <div key={`${declarationIndex}:factor`}>
+                              <dt>
+                                Declaration {declarationIndex + 1} paybackF
+                                factor
+                              </dt>
+                              <dd>
+                                {declaration.factor === null
+                                  ? "Unavailable"
+                                  : declaration.factor}
+                              </dd>
+                            </div>,
+                          ],
+                        )}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The source supplies a game-boolean secondaryScale flag
+                        and decimal paybackF factor. These values are retained
+                        without inferring a base amount or source stat, health
+                        relationship, damage return, trigger or event timing,
+                        caps, stacking, eligibility, or a final formula.
                       </p>
                     </section>
                   ) : null}

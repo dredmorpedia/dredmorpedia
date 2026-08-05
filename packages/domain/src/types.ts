@@ -531,6 +531,7 @@ export interface SpellBuff {
   invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
   muteDeclarations: SpellBuffMuteDeclaration[];
   senseWallsDeclarations: SpellBuffSenseWallsDeclaration[];
+  paybackDeclarations: SpellBuffPaybackDeclaration[];
   polymorphDeclarations: SpellBuffPolymorphDeclaration[];
   effects: SpellEffect[];
   aiHints: SpellAiHintMetadata[];
@@ -550,6 +551,11 @@ export interface SpellBuffMuteDeclaration {
 
 export interface SpellBuffSenseWallsDeclaration {
   enabled: boolean | null;
+}
+
+export interface SpellBuffPaybackDeclaration {
+  secondaryScale: boolean | null;
+  factor: number | null;
 }
 
 export interface SpellBuffPolymorphDeclaration {

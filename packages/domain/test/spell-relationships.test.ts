@@ -160,6 +160,7 @@ function buff(
     invisibilityDeclarations: [],
     muteDeclarations: [],
     senseWallsDeclarations: [],
+    paybackDeclarations: [],
     polymorphDeclarations,
     effects: [],
     aiHints: [],

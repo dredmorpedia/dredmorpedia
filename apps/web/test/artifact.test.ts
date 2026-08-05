@@ -416,6 +416,36 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/senseWallsDeclarations/);
   });
 
+  it("rejects malformed spell buff payback metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            paybackDeclarations: {
+              secondaryScale: boolean | null;
+              factor: number | string | null;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.paybackDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no buff payback declaration.",
+      );
+    }
+    declaration.factor = "0.1";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/paybackDeclarations/);
+  });
+
   it("rejects an unknown spell buff event-hook kind", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

@@ -39,6 +39,7 @@ import {
   type SpellBuffDescription,
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
+  type SpellBuffPaybackDeclaration,
   type SpellBuffPolymorphDeclaration,
   type SpellBuffSenseWallsDeclaration,
   type SpellBuffSightModifier,
@@ -3074,6 +3075,90 @@ function parseSpellBuffSenseWallsDeclarations(
   );
 }
 
+function spellBuffPaybackRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.payback;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffPaybackDeclarations(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffPaybackDeclaration[] {
+  return spellBuffPaybackRecords(buff).map((declaration, declarationIndex) => {
+    const declarationLocation =
+      Object.keys(declaration).length === 0
+        ? context.parsed.locateChildElement(buff, "payback")
+        : context.parsed.locateRecord(declaration);
+    const declarationProvenance = {
+      ...provenance,
+      ...declarationLocation,
+    };
+    reportUnknownLeafContent(
+      context,
+      declaration,
+      "payback",
+      new Set(["secondaryScale", "paybackF"]),
+      declarationProvenance,
+      currentEntityId,
+      true,
+    );
+
+    const sourceSecondaryScale = xmlAttribute(declaration, "secondaryScale");
+    if (sourceSecondaryScale === undefined) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_buff_payback_secondary_scale",
+        message: `Spell buff ${buffIndex + 1} payback declaration ${declarationIndex + 1} is missing its required secondaryScale source flag.`,
+        source: declarationProvenance,
+        entityId: currentEntityId,
+        details: { buffIndex, declarationIndex },
+      });
+    }
+
+    const sourceFactor = xmlAttribute(declaration, "paybackF");
+    if (sourceFactor === undefined) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "missing_spell_buff_payback_factor",
+        message: `Spell buff ${buffIndex + 1} payback declaration ${declarationIndex + 1} is missing its required paybackF source factor.`,
+        source: declarationProvenance,
+        entityId: currentEntityId,
+        details: { buffIndex, declarationIndex },
+      });
+    }
+
+    return {
+      secondaryScale: optionalBooleanAttribute(
+        declaration,
+        "secondaryScale",
+        context,
+        declarationProvenance,
+        `spell buff ${buffIndex + 1} payback declaration ${declarationIndex + 1} secondaryScale source flag`,
+        currentEntityId,
+      ),
+      factor: optionalNumberValue(
+        sourceFactor,
+        context,
+        declarationProvenance,
+        `spell buff ${buffIndex + 1} payback declaration ${declarationIndex + 1} paybackF source factor`,
+        currentEntityId,
+      ),
+    };
+  });
+}
+
 function spellBuffPolymorphRecords(buff: XmlRecord): XmlRecord[] {
   const value = buff.polymorph;
   const entries = Array.isArray(value) ? value : [value];
@@ -3516,6 +3601,7 @@ function parseSpellBuffs(
         "halo",
         "invisible",
         "mute",
+        "payback",
         "polymorph",
         "senseWallsFlag",
         "sightbuff",
@@ -3675,6 +3761,13 @@ function parseSpellBuffs(
         "mute",
       ),
       senseWallsDeclarations: parseSpellBuffSenseWallsDeclarations(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
+      ),
+      paybackDeclarations: parseSpellBuffPaybackDeclarations(
         buff,
         context,
         provenance,

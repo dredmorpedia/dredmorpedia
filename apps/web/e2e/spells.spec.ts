@@ -173,6 +173,21 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     wallSensing.getByText(/without inferring detection range/i),
   ).toBeVisible();
+  const payback = buffs.getByRole("region", {
+    name: "Payback source parameters",
+  });
+  await expect(
+    payback.getByText("Declaration 1 secondaryScale flag", { exact: true }),
+  ).toBeVisible();
+  await expect(payback.getByText("No", { exact: true })).toBeVisible();
+  await expect(
+    payback.getByText("Declaration 1 paybackF factor", { exact: true }),
+  ).toBeVisible();
+  await expect(payback.getByText("0.1", { exact: true })).toBeVisible();
+  await expect(
+    payback.getByText(/without inferring a base amount or source stat/i),
+  ).toBeVisible();
+  await expect(payback.getByRole("link")).toHaveCount(0);
   const sightModifiers = buffs.getByRole("region", {
     name: "Sight modifiers",
   });
