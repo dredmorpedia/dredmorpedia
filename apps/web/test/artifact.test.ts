@@ -82,7 +82,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(13);
     expect(loadSearchArtifact().documents).toHaveLength(25);
-    expect(loadDiagnostics()).toHaveLength(23);
+    expect(loadDiagnostics()).toHaveLength(24);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {

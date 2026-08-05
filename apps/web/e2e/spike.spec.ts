@@ -104,15 +104,38 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade" }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Provenance" })).toBeVisible();
+  const provenance = page.getByRole("region", { name: "Provenance" });
+  await expect(provenance).toBeVisible();
   await expect(
-    page.getByText("Synthetic Expansion", { exact: true }),
+    provenance
+      .locator(".provenance-list")
+      .getByText("Synthetic Override", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("Dataset version")).toBeVisible();
   await expect(page.getByText("Source version")).toBeVisible();
-  await expect(page.getByText("Quality", { exact: true })).toBeVisible();
-  await expect(page.getByText("3", { exact: true })).toBeVisible();
+  const overrideHistory = page.getByRole("region", {
+    name: "Override history",
+  });
+  await expect(overrideHistory).toBeVisible();
+  const overrideSteps = overrideHistory.locator(".override-step");
+  await expect(overrideSteps).toHaveCount(2);
+  await expect(
+    overrideSteps.nth(0).getByText("Synthetic Base", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    overrideSteps.nth(0).getByText("Synthetic Expansion", { exact: true }),
+  ).toBeVisible();
+  await expect(overrideSteps.nth(0).getByText("quality")).toBeVisible();
+  await expect(
+    overrideSteps.nth(1).getByText("Synthetic Expansion", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    overrideSteps.nth(1).getByText("Synthetic Override", { exact: true }),
+  ).toBeVisible();
+  await expect(overrideSteps.nth(1).getByText("description")).toBeVisible();
   const itemFacts = page.locator(".price-block");
+  await expect(itemFacts.getByText("Quality", { exact: true })).toBeVisible();
+  await expect(itemFacts.getByText("3", { exact: true })).toBeVisible();
   await expect(itemFacts.getByText("Artifact quality")).toBeVisible();
   await expect(itemFacts.getByText("8", { exact: true })).toBeVisible();
   await expect(page.getByText("Sword weapon", { exact: true })).toBeVisible();

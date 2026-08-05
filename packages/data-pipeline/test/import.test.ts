@@ -5602,13 +5602,13 @@ describe("synthetic dataset import", () => {
     expect(blade).toMatchObject({
       price: 160,
       quality: 3,
-      provenance: { sourceId: "synthetic-expansion" },
+      provenance: { sourceId: "synthetic-override" },
       slugAliases: ["clockwork-blade-plus", "clockwork-sword"],
       appliedPatches: [
         {
           id: "synthetic-clockwork-blade-value",
           file: "fixtures/synthetic/patches/clockwork-blade-value.json",
-          sourceId: "synthetic-expansion",
+          sourceId: "synthetic-override",
           sourceVersion: "1.0.0",
           changes: [{ field: "price", previousValue: 155, value: 160 }],
         },
@@ -5617,12 +5617,19 @@ describe("synthetic dataset import", () => {
     expect(blade?.variants.map((variant) => variant.sourceId)).toEqual([
       "synthetic-base",
       "synthetic-expansion",
+      "synthetic-override",
     ]);
+    expect(blade?.appliedOverrides).toHaveLength(2);
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("quality");
     expect(blade?.appliedOverrides[0]?.changedFields).toContain("triggers");
     expect(blade?.appliedOverrides[0]?.changedFields).toContain(
       "weaponDeclarations",
     );
+    expect(blade?.appliedOverrides[1]).toMatchObject({
+      previous: { sourceId: "synthetic-expansion" },
+      replacement: { sourceId: "synthetic-override" },
+      changedFields: ["description"],
+    });
     expect(blade?.triggers).toEqual([
       {
         kind: "item-hit",

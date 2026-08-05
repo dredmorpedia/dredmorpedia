@@ -7,7 +7,7 @@
       "entityKind": "item",
       "target": {
         "type": "source-id",
-        "sourceId": "synthetic-expansion",
+        "sourceId": "synthetic-override",
         "originalId": "clockwork-blade-plus"
       },
       "canonicalSlug": "clockwork-blade",

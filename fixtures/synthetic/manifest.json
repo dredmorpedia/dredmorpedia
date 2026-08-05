@@ -31,6 +31,15 @@
       "files": [{ "kind": "items", "path": "itemDB.xml" }]
     },
     {
+      "id": "synthetic-override",
+      "label": "Synthetic Override",
+      "kind": "fixture",
+      "version": "1.0.0",
+      "precedence": 15,
+      "root": "override",
+      "files": [{ "kind": "items", "path": "itemDB.xml" }]
+    },
+    {
       "id": "synthetic-broken-mod",
       "label": "Synthetic Broken Mod",
       "kind": "mod",

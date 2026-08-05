@@ -10,7 +10,7 @@ The data pipeline writes a coordinated set of deterministic JSON files. Consumer
 
 Dataset schema version: `3`
 
-Contains the dataset ID/version, language, ordered versioned source summaries, normalized entity collections, and diagnostic counts. Search documents were removed from version 2 so normal page generation does not load the search payload. Version 3 requires source-version provenance and field-level `appliedPatches` history.
+Contains the dataset ID/version, language, ordered versioned source summaries, normalized entity collections, and diagnostic counts. Search documents were removed from version 2 so normal page generation does not load the search payload. Version 3 requires source-version provenance, ordered `appliedOverrides` history, and field-level `appliedPatches` history. Each override step retains its previous and replacement provenance plus the sorted normalized fields that differ; consumers must present the actual sequence rather than collapsing its endpoints.
 
 Every normalized entity has one canonical `slug` and a deterministically ordered `slugAliases` array. A valid version-scoped route registry may pin a canonical slug and historical aliases to an active entity; those routes are reserved before automatic allocation. Unregistered name collisions retain the unsuffixed route for the first entity in canonical identity order and assign stable identity-derived suffixes to the others. Unambiguous source original IDs become aliases. An automatic alias claimed by multiple entities, by another entity's canonical slug, or by a registered owner is omitted and reported as `slug_alias_conflict`; a reassigned colliding route is reported as `slug_collision`. Registry aliases remain authoritative.
 

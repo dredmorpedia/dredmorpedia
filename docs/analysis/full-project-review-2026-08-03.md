@@ -68,11 +68,14 @@ successful, but the Playwright process did not print its summary or terminate.
    adversarial forms, and an import fixture proves the grammar reaches real
    integer and decimal fields with source-located diagnostics. Evidence is in
    `numeric-source-lexeme-evidence-2026-08-05.md`.
-6. **The provenance card compresses a multi-step override chain into its first
-   predecessor and final source (low).** The artifact retains the full ordered
-   `appliedOverrides` history, but the UI reads only the first entry and points
-   directly to the active source. Render the actual ordered chain, including
-   per-step changed fields, when the next provenance UI slice is taken.
+6. **Resolved 2026-08-05 — the provenance card compressed a multi-step
+   override chain into its first predecessor and final source (low).** The card
+   now renders every ordered `appliedOverrides` step with its previous and
+   replacement source labels, exact source IDs and locations, and normalized
+   changed fields. A three-source synthetic collision proves two-step ordering,
+   responsive presentation, accessibility, and separation from the later
+   reviewed patch. Evidence is in
+   `provenance-override-history-evidence-2026-08-05.md`.
 
 ADR 0004 route-registry inheritance/enforcement remains a separate accepted
 architecture commitment from the earlier review. It should be completed before
@@ -127,3 +130,15 @@ current single-version local MVP.
   synthetic static export.
 - The ignored canonical official import remains byte-identical with 0 errors,
   proving the tightened grammar changes no normalized official value.
+
+## Complete override-history evidence
+
+- The data-pipeline suite passes all 69 tests, including exact two-step source
+  order and per-step changed-field coverage.
+- The full repository gate passes all 193 unit/artifact tests and the 43-page
+  synthetic static export.
+- Desktop/mobile browser checks exercise both override steps, the following
+  reviewed patch, and the representative axe scan; a 375-pixel manual viewport
+  has no horizontal overflow.
+- The ignored canonical official import remains byte-identical with 0 errors,
+  and all 2,857 local static pages export successfully.

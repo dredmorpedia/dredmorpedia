@@ -90,20 +90,16 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Complete the final ordered 2026-08-03 review fix by rendering the full
-   ordered override chain and per-step changed fields in provenance UI. Strict
-   numeric source grammar, exact-byte input snapshots, and eager
-   complete-artifact-set verification are complete.
-2. Resume the measured spell-mechanic backlog. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas.
-3. Settle ADR 0003 response budgets and broader concrete relevance examples
+1. Resume the measured spell-mechanic backlog. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas. The ordered 2026-08-03 review queue, including complete multi-step provenance override presentation, is finished.
+2. Settle ADR 0003 response budgets and broader concrete relevance examples
    with desktop/mobile measurements; the approved spelling-suggestion behavior
    is implemented.
-4. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
-5. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
-6. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-7. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-8. Treat the current seven unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Remaining spell mechanics stay explicit. No measured official skill/ability or monster child element remains unsupported.
-9. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 34 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
+3. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
+4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
+5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
+6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
+7. Treat the current seven unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Remaining spell mechanics stay explicit. No measured official skill/ability or monster child element remains unsupported.
+8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 36 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 

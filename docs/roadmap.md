@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-03
+Updated: 2026-08-05
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -123,13 +123,16 @@ byte snapshots used for parsing or first asset registration, eliminating the
 old end-of-import reread race. The web now eagerly verifies all three generated
 outputs and their cross-file invariants before any loader returns. Numeric XML
 fields now use an explicit measured integer/decimal grammar instead of general
-JavaScript coercion. The remaining ordered review fix is complete multi-step
-override presentation. Detailed evidence is in
+JavaScript coercion. Provenance pages now render the complete ordered override
+chain, including both source sides and per-step changed fields. This completes
+the ordered review queue; work returns to the measured parity roadmap. Detailed
+evidence is in
 `docs/analysis/full-project-review-2026-08-03.md`,
 `docs/analysis/official-manifest-v2-evidence-2026-08-03.md`,
 `docs/analysis/input-byte-snapshot-evidence-2026-08-03.md`,
 `docs/analysis/eager-artifact-set-verification-evidence-2026-08-04.md`, and
-`docs/analysis/numeric-source-lexeme-evidence-2026-08-05.md`.
+`docs/analysis/numeric-source-lexeme-evidence-2026-08-05.md`, and
+`docs/analysis/provenance-override-history-evidence-2026-08-05.md`.
 
 ## Phase 3 — First vertical product slice
 
