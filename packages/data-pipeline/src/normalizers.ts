@@ -43,6 +43,7 @@ import {
   type SpellBuffPolymorphDeclaration,
   type SpellBuffSenseWallsDeclaration,
   type SpellBuffSightModifier,
+  type SpellBuffZorkmidAbsorptionDeclaration,
   type SpellEffect,
   type SpellEffectOption,
   type SpellImpactMetadata,
@@ -3159,6 +3160,100 @@ function parseSpellBuffPaybackDeclarations(
   });
 }
 
+function spellBuffZorkmidAbsorptionRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.zorkmidAbsorption;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffZorkmidAbsorptionDeclarations(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffZorkmidAbsorptionDeclaration[] {
+  return spellBuffZorkmidAbsorptionRecords(buff).map(
+    (declaration, declarationIndex) => {
+      const declarationLocation =
+        Object.keys(declaration).length === 0
+          ? context.parsed.locateChildElement(buff, "zorkmidAbsorption")
+          : context.parsed.locateRecord(declaration);
+      const declarationProvenance = {
+        ...provenance,
+        ...declarationLocation,
+      };
+      reportUnknownLeafContent(
+        context,
+        declaration,
+        "zorkmidAbsorption",
+        new Set(["zorkmidsPerDamage", "damageCap", "maxRatio"]),
+        declarationProvenance,
+        currentEntityId,
+        true,
+      );
+
+      const requiredAttribute = (attribute: string, field: string) => {
+        const value = xmlAttribute(declaration, attribute);
+        if (value === undefined) {
+          context.diagnostics.push({
+            severity: "warning",
+            code: `missing_spell_buff_zorkmid_absorption_${field}`,
+            message: `Spell buff ${buffIndex + 1} zorkmid-absorption declaration ${declarationIndex + 1} is missing its required ${attribute} source value.`,
+            source: declarationProvenance,
+            entityId: currentEntityId,
+            details: { buffIndex, declarationIndex },
+          });
+        }
+        return value;
+      };
+
+      const zorkmidsPerDamage = requiredAttribute(
+        "zorkmidsPerDamage",
+        "zorkmids_per_damage",
+      );
+      const damageCap = requiredAttribute("damageCap", "damage_cap");
+      const maxRatio = requiredAttribute("maxRatio", "max_ratio");
+
+      return {
+        zorkmidsPerDamage: optionalIntegerValue(
+          zorkmidsPerDamage,
+          context,
+          declarationProvenance,
+          `spell buff ${buffIndex + 1} zorkmid-absorption declaration ${declarationIndex + 1} zorkmidsPerDamage source value`,
+          currentEntityId,
+          -128,
+          127,
+        ),
+        damageCap: optionalIntegerValue(
+          damageCap,
+          context,
+          declarationProvenance,
+          `spell buff ${buffIndex + 1} zorkmid-absorption declaration ${declarationIndex + 1} damageCap source value`,
+          currentEntityId,
+          -128,
+          127,
+        ),
+        maxRatio: optionalNumberValue(
+          maxRatio,
+          context,
+          declarationProvenance,
+          `spell buff ${buffIndex + 1} zorkmid-absorption declaration ${declarationIndex + 1} maxRatio source value`,
+          currentEntityId,
+        ),
+      };
+    },
+  );
+}
+
 function spellBuffPolymorphRecords(buff: XmlRecord): XmlRecord[] {
   const value = buff.polymorph;
   const entries = Array.isArray(value) ? value : [value];
@@ -3605,6 +3700,7 @@ function parseSpellBuffs(
         "polymorph",
         "senseWallsFlag",
         "sightbuff",
+        "zorkmidAbsorption",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
       currentEntityId,
@@ -3774,6 +3870,14 @@ function parseSpellBuffs(
         currentEntityId,
         buffIndex,
       ),
+      zorkmidAbsorptionDeclarations:
+        parseSpellBuffZorkmidAbsorptionDeclarations(
+          buff,
+          context,
+          provenance,
+          currentEntityId,
+          buffIndex,
+        ),
       polymorphDeclarations: parseSpellBuffPolymorphDeclarations(
         buff,
         context,

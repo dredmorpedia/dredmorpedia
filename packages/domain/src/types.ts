@@ -532,6 +532,7 @@ export interface SpellBuff {
   muteDeclarations: SpellBuffMuteDeclaration[];
   senseWallsDeclarations: SpellBuffSenseWallsDeclaration[];
   paybackDeclarations: SpellBuffPaybackDeclaration[];
+  zorkmidAbsorptionDeclarations: SpellBuffZorkmidAbsorptionDeclaration[];
   polymorphDeclarations: SpellBuffPolymorphDeclaration[];
   effects: SpellEffect[];
   aiHints: SpellAiHintMetadata[];
@@ -556,6 +557,12 @@ export interface SpellBuffSenseWallsDeclaration {
 export interface SpellBuffPaybackDeclaration {
   secondaryScale: boolean | null;
   factor: number | null;
+}
+
+export interface SpellBuffZorkmidAbsorptionDeclaration {
+  zorkmidsPerDamage: number | null;
+  damageCap: number | null;
+  maxRatio: number | null;
 }
 
 export interface SpellBuffPolymorphDeclaration {

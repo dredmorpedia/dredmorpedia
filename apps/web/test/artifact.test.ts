@@ -446,6 +446,37 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/paybackDeclarations/);
   });
 
+  it("rejects malformed spell buff zorkmid-absorption metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            zorkmidAbsorptionDeclarations: {
+              zorkmidsPerDamage: number | null;
+              damageCap: number | null;
+              maxRatio: number | null;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.zorkmidAbsorptionDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no buff zorkmid-absorption declaration.",
+      );
+    }
+    declaration.zorkmidsPerDamage = 128;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/zorkmidAbsorptionDeclarations/);
+  });
+
   it("rejects an unknown spell buff event-hook kind", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

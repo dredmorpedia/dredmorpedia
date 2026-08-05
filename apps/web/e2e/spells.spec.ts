@@ -188,6 +188,33 @@ test("navigates spell details and stops recursive effect cycles", async ({
     payback.getByText(/without inferring a base amount or source stat/i),
   ).toBeVisible();
   await expect(payback.getByRole("link")).toHaveCount(0);
+  const zorkmidAbsorption = buffs.getByRole("region", {
+    name: "Zorkmid absorption source parameters",
+  });
+  await expect(
+    zorkmidAbsorption.getByText("Declaration 1 zorkmidsPerDamage", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText("30", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText("Declaration 1 damageCap", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText("20", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText("Declaration 1 maxRatio", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText("0.5", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidAbsorption.getByText(/without deriving a currency cost/i),
+  ).toBeVisible();
+  await expect(zorkmidAbsorption.getByRole("link")).toHaveCount(0);
   const sightModifiers = buffs.getByRole("region", {
     name: "Sight modifiers",
   });

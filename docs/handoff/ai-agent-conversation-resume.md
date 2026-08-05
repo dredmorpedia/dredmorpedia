@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-08-03
+Updated: 2026-08-06
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -101,15 +101,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, target-hit/player-hit/dodge buff event hooks, ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, target-hit/player-hit/dodge buff event hooks, ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback and zorkmid-absorption source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the buff-local payback slice, the canonical import
+After the buff-local zorkmid-absorption slice, the canonical import
 reports:
 
-- 0 errors, 40 warnings, and 71 informational duplicate decisions;
-- four unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 39 warnings, and 71 informational duplicate decisions;
+- three unsupported constructs, all spell attributes;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -171,7 +171,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family is now complete. The next content-parity task should address the one measured `zorkmidAbsorption` buff declaration, then separately evaluate the remaining `buffTag` effect attribute and two `level` requirement attributes rather than blanket-supporting spell content.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family and buff child family is now complete. The next content-parity task should separately evaluate the remaining `buffTag` effect attribute, then the two `level` requirement attributes and broader non-mana requirements rather than blanket-supporting spell content.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
@@ -183,6 +183,23 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The buff-local zorkmid-absorption slice preserves the one active
+`<zorkmidAbsorption>` declaration on Fiscal Hedge as an ordered, loss-aware
+record. The installed schema requires signed-byte `zorkmidsPerDamage` and
+`damageCap` values plus decimal `maxRatio`; the canonical values normalize as
+`30`, `20`, and `0.5`. The preserved application does not parse this child, so
+the modern page exposes only those source values and withholds a currency cost
+or damage-mitigation formula, cap application, target, timing, eligibility,
+stacking, duration, and runtime success. Missing, malformed, out-of-range, and
+extended declarations remain source-located diagnostics, while the strict web
+guard rejects malformed normalized records. Deterministic official generation
+is byte-identical with 0 errors, 39 warnings, and 71 informational decisions.
+Evidence is recorded in
+`docs/analysis/spell-buff-zorkmid-absorption-evidence-2026-08-06.md`. The full
+workspace passes 198 unit/artifact tests and the 43-page synthetic export.
+
+## Buff-local payback slice validation
 
 The buff-local payback slice preserves the one active `<payback>` declaration
 on Insurance Fraud as an ordered loss-aware record. The installed schema

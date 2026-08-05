@@ -709,6 +709,15 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    zorkmidAbsorptionDeclarations: z.array(
+      z
+        .object({
+          zorkmidsPerDamage: z.number().int().min(-128).max(127).nullable(),
+          damageCap: z.number().int().min(-128).max(127).nullable(),
+          maxRatio: nullableNumber,
+        })
+        .strict(),
+    ),
     polymorphDeclarations: z.array(spellBuffPolymorphDeclarationSchema),
     effects: z.array(spellEffectSchema),
     aiHints: z.array(spellAiHintSchema),

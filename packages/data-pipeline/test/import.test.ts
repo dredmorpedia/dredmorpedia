@@ -2068,6 +2068,8 @@ describe("synthetic dataset import", () => {
       <sightbuff amount="-3" />
       <payback secondaryScale="0" paybackF="0.1" />
       <payback secondaryScale="1" paybackF="-0.25" />
+      <zorkmidAbsorption zorkmidsPerDamage="30" damageCap="20" maxRatio="0.5" />
+      <zorkmidAbsorption zorkmidsPerDamage="-128" damageCap="127" maxRatio="-0.25" />
       <targetHitEffectBuff percentage="75" name="Invalid Buff" after="1" />
       <playerHitEffectBuff percentage="25" name="Missing Hook Spell" />
       <dodgebuff percentage="100" name="Complete Buff" />
@@ -2085,6 +2087,8 @@ describe("synthetic dataset import", () => {
       <sightbuff />
       <payback secondaryScale="maybe" paybackF="bad" future="diagnosed"><futurePaybackChild /></payback>
       <payback />
+      <zorkmidAbsorption zorkmidsPerDamage="128" damageCap="-129" maxRatio="bad" future="diagnosed"><futureZorkmidAbsorptionChild /></zorkmidAbsorption>
+      <zorkmidAbsorption />
       <targetHitEffectBuff percentage="101" name="Complete Buff" future="diagnosed"><futureChild /></targetHitEffectBuff>
       <playerHitEffectBuff percentage="bad" future="diagnosed" />
       <dodgebuff percentage="bad" name="Complete Buff" future="diagnosed"><futureDodgeChild /></dodgebuff>
@@ -2164,6 +2168,10 @@ describe("synthetic dataset import", () => {
         paybackDeclarations: [
           { secondaryScale: false, factor: 0.1 },
           { secondaryScale: true, factor: -0.25 },
+        ],
+        zorkmidAbsorptionDeclarations: [
+          { zorkmidsPerDamage: 30, damageCap: 20, maxRatio: 0.5 },
+          { zorkmidsPerDamage: -128, damageCap: 127, maxRatio: -0.25 },
         ],
         polymorphDeclarations: [],
         effects: [],
@@ -2248,6 +2256,10 @@ describe("synthetic dataset import", () => {
           { secondaryScale: null, factor: null },
           { secondaryScale: null, factor: null },
         ],
+        zorkmidAbsorptionDeclarations: [
+          { zorkmidsPerDamage: null, damageCap: null, maxRatio: null },
+          { zorkmidsPerDamage: null, damageCap: null, maxRatio: null },
+        ],
         eventHooks: [
           {
             kind: "target-hit",
@@ -2272,7 +2284,7 @@ describe("synthetic dataset import", () => {
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(12);
+    ).toHaveLength(15);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_boolean",
@@ -2376,6 +2388,30 @@ describe("synthetic dataset import", () => {
           code: "unknown_attribute",
           entityId: "spell:invalid buff",
           details: {
+            element: "zorkmidAbsorption",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_zorkmid_absorption_zorkmids_per_damage",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, declarationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_zorkmid_absorption_damage_cap",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, declarationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_buff_zorkmid_absorption_max_ratio",
+          entityId: "spell:invalid buff",
+          details: { buffIndex: 0, declarationIndex: 1 },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid buff",
+          details: {
             element: "targetHitEffectBuff",
             attribute: "future",
             value: "diagnosed",
@@ -2435,14 +2471,24 @@ describe("synthetic dataset import", () => {
           entityId: "spell:invalid buff",
           details: { element: "futurePaybackChild" },
         }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid buff",
+          details: { element: "futureZorkmidAbsorptionChild" },
+        }),
       ]),
     );
     expect(
       result.diagnostics.some(
         (diagnostic) =>
-          ["dodgebuff", "halo", "payback", "sightbuff"].includes(
-            String(diagnostic.details?.element),
-          ) && diagnostic.code === "unknown_element",
+          [
+            "dodgebuff",
+            "halo",
+            "payback",
+            "sightbuff",
+            "zorkmidAbsorption",
+          ].includes(String(diagnostic.details?.element)) &&
+          diagnostic.code === "unknown_element",
       ),
     ).toBe(false);
     expect(
@@ -5593,6 +5639,9 @@ describe("synthetic dataset import", () => {
         muteDeclarations: [{ amount: 1 }],
         senseWallsDeclarations: [{ enabled: true }],
         paybackDeclarations: [{ secondaryScale: false, factor: 0.1 }],
+        zorkmidAbsorptionDeclarations: [
+          { zorkmidsPerDamage: 30, damageCap: 20, maxRatio: 0.5 },
+        ],
         polymorphDeclarations: [
           {
             monsterKey: "training diggle",

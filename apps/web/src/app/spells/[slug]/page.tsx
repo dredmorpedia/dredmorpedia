@@ -335,6 +335,16 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff zorkmid-absorption declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) =>
+                  count + buff.zorkmidAbsorptionDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>Buff polymorph declarations</dt>
             <dd>
               {spell.buffs.reduce(
@@ -1070,6 +1080,67 @@ export default async function SpellPage({
                         without inferring a base amount or source stat, health
                         relationship, damage return, trigger or event timing,
                         caps, stacking, eligibility, or a final formula.
+                      </p>
+                    </section>
+                  ) : null}
+                  {buff.zorkmidAbsorptionDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-zorkmid-absorption-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-zorkmid-absorption-heading`}
+                        className="relationship-title"
+                      >
+                        Zorkmid absorption source parameters
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.zorkmidAbsorptionDeclarations.flatMap(
+                          (declaration, declarationIndex) => [
+                            <div
+                              key={`${declarationIndex}:zorkmids-per-damage`}
+                            >
+                              <dt>
+                                Declaration {declarationIndex + 1}{" "}
+                                zorkmidsPerDamage
+                              </dt>
+                              <dd>
+                                {declaration.zorkmidsPerDamage === null
+                                  ? "Unavailable"
+                                  : sourceNumber.format(
+                                      declaration.zorkmidsPerDamage,
+                                    )}
+                              </dd>
+                            </div>,
+                            <div key={`${declarationIndex}:damage-cap`}>
+                              <dt>
+                                Declaration {declarationIndex + 1} damageCap
+                              </dt>
+                              <dd>
+                                {declaration.damageCap === null
+                                  ? "Unavailable"
+                                  : sourceNumber.format(declaration.damageCap)}
+                              </dd>
+                            </div>,
+                            <div key={`${declarationIndex}:max-ratio`}>
+                              <dt>
+                                Declaration {declarationIndex + 1} maxRatio
+                              </dt>
+                              <dd>
+                                {declaration.maxRatio === null
+                                  ? "Unavailable"
+                                  : sourceNumber.format(declaration.maxRatio)}
+                              </dd>
+                            </div>,
+                          ],
+                        )}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The source supplies two signed-byte values and a decimal
+                        ratio. They are retained without deriving a currency
+                        cost or damage-mitigation formula, cap application,
+                        target, timing, eligibility, stacking, duration, or
+                        runtime success.
                       </p>
                     </section>
                   ) : null}

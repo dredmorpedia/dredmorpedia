@@ -161,6 +161,7 @@ function buff(
     muteDeclarations: [],
     senseWallsDeclarations: [],
     paybackDeclarations: [],
+    zorkmidAbsorptionDeclarations: [],
     polymorphDeclarations,
     effects: [],
     aiHints: [],

@@ -379,6 +379,19 @@ and leaves four spell compatibility constructs, 13 separately tracked spell
 requirements, and 23 dangling references. Evidence is recorded in
 `docs/analysis/spell-buff-payback-evidence-2026-08-05.md`.
 
+Buff-local zorkmid-absorption parity now preserves the one active
+`<zorkmidAbsorption>` declaration as ordered, loss-aware
+`zorkmidsPerDamage`, `damageCap`, and `maxRatio` source parameters. The
+installed validation schema establishes two required signed-byte values and a
+required decimal, while the preserved application does not parse the child.
+The spell page exposes only the direct values and does not derive a currency
+cost or damage-mitigation formula, cap application, target, timing,
+eligibility, stacking, duration, or runtime success. This removes the former
+`zorkmidAbsorption` diagnostic and leaves three spell compatibility
+constructs, all unknown attributes, plus 13 separately tracked spell
+requirements and 23 dangling references. Evidence is recorded in
+`docs/analysis/spell-buff-zorkmid-absorption-evidence-2026-08-06.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

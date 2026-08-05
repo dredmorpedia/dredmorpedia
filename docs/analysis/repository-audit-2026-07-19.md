@@ -2,13 +2,13 @@
 
 Date: 2026-07-19
 Scope: commit `68ee565` on `master`, before modernization documentation was added
-Status: baseline evidence for the rebuild; current resolution summary updated 2026-07-29
+Status: baseline evidence for the rebuild; current resolution summary updated 2026-08-06
 
 > Repository update: commit `ed71652` subsequently relocated all 1,450 tracked baseline files into `legacy/` as exact renames with no content changes. Measurements and observations below describe commit `68ee565`; paths should now be read relative to `legacy/` unless historical root placement is the subject.
 
 > Modernization update: the original audit remains intentionally commit-specific rather than being rewritten as if the modern workspace existed in 2026-07-19. The current implementation status and remaining work are summarized below. Use `docs/handoff/ai-agent-conversation-resume.md` for the latest operational checkpoint.
 
-## Modern rebuild status as of 2026-07-29
+## Modern rebuild status as of 2026-08-06
 
 The audit's main architectural recommendations have been implemented. The modern workspace is split into `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked tests use independently authored fixtures under `fixtures/synthetic`; and the preserved application remains under `legacy/` as a behavioral reference.
 
@@ -17,7 +17,7 @@ The audit's main architectural recommendations have been implemented. The modern
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; local-only policy accepted, future public permission open |
 | Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and an optional published-route registry are deterministic domain/pipeline contracts. | Generation resolved; ADR 0004 lifecycle accepted, enforcement pending |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 166 unit/artifact tests, and 36 desktop/mobile Playwright tests are established. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 198 unit/artifact tests, and 36 desktop/mobile Playwright tests are established. | Resolved |
 | Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,857 pages. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
 | Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,767 canonical documents. `/search/` exposes every kind, caps rendering at 50 results, and offers bounded user-selected name/route-alias spelling suggestions after zero results; `/browse/` provides bounded static discovery without JavaScript. | Core reach, typo recovery, and discovery resolved; broader stat facets and ADR 0003 budgets remain |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates asset paths host-independently before root probing, checks filesystem references against real source roots, and emits strict normalized schemas. The web verifies safe route/asset-reference shapes and unique same-kind canonical/alias ownership, while React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
@@ -62,7 +62,8 @@ Current validation and search evidence are recorded in:
 - [`spell-effect-environment-metadata-evidence-2026-07-29.md`](spell-effect-environment-metadata-evidence-2026-07-29.md),
 - [`spell-buff-sense-walls-evidence-2026-08-05.md`](spell-buff-sense-walls-evidence-2026-08-05.md),
 - [`spell-buff-dodge-hook-evidence-2026-08-05.md`](spell-buff-dodge-hook-evidence-2026-08-05.md),
-- [`spell-buff-payback-evidence-2026-08-05.md`](spell-buff-payback-evidence-2026-08-05.md), and
+- [`spell-buff-payback-evidence-2026-08-05.md`](spell-buff-payback-evidence-2026-08-05.md),
+- [`spell-buff-zorkmid-absorption-evidence-2026-08-06.md`](spell-buff-zorkmid-absorption-evidence-2026-08-06.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -74,7 +75,7 @@ The following audit concerns are still actionable:
    accepted, and modern project material is intended for MIT. Public-content
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
-2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains four unsupported or partially supported spell constructs, 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+2. **Content parity:** the current canonical measurement has no remaining item compatibility diagnostic. It retains three unsupported spell attributes (`buffTag` once and requirement `level` twice), 13 spell-requirement diagnostics, and 23 dangling references. Each supported spell family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

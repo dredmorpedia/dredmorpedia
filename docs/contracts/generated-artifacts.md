@@ -62,6 +62,16 @@ amount or source stat, health relationship, damage return, trigger or event
 timing, caps, stacking, eligibility, or a final formula, and must not fabricate
 a relationship to the separate spell named `Payback`.
 
+Each buff also contains an ordered `zorkmidAbsorptionDeclarations` array for
+direct `<zorkmidAbsorption>` children. Every declaration preserves nullable
+signed-byte `zorkmidsPerDamage` and `damageCap` source values plus a nullable
+finite decimal `maxRatio`. Missing, malformed, or out-of-range required values
+become `null` with diagnostics, and unknown content remains diagnosed. The
+installed schema establishes only this source shape; the preserved application
+does not parse the child. Consumers must not derive a currency cost or
+damage-mitigation formula, cap application, target, timing, eligibility,
+stacking, duration, or runtime success from these parameters.
+
 Each buff also contains an ordered `polymorphDeclarations` array. A declaration retains nullable paired source monster name/key fields and an optional resolved `monsterId`. Missing or blank targets remain present as a null pair and are diagnosed; named missing targets remain visible with a dangling-reference diagnostic; resolved targets link in both directions. The preserved application establishes only the `Polymorph` label and reads the source `name` as a monster type. Consumers must not infer transformation duration, stat or ability replacement, equipment behavior, targeting, faction, reversibility, or runtime success.
 
 Each buff also contains a required deterministic `effects` array for direct
@@ -218,6 +228,7 @@ fields are constructed is documented in
 - Required buff `muteDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware non-negative integer amount shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `senseWallsDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware game-boolean shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `paybackDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware boolean-and-decimal shape, so earlier local schema 3 artifacts must be regenerated.
+- Required buff `zorkmidAbsorptionDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware signed-byte-and-decimal shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `polymorphDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware paired monster-target shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `effects` were subsequently added under the same rule, and
   effect presentation gained required nullable large/small icon fields. Current
