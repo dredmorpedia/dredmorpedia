@@ -694,6 +694,13 @@ const spellBuffSchema = z
         })
         .strict(),
     ),
+    senseWallsDeclarations: z.array(
+      z
+        .object({
+          enabled: z.boolean().nullable(),
+        })
+        .strict(),
+    ),
     polymorphDeclarations: z.array(spellBuffPolymorphDeclarationSchema),
     effects: z.array(spellEffectSchema),
     aiHints: z.array(spellAiHintSchema),

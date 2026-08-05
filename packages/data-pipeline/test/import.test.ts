@@ -2153,6 +2153,7 @@ describe("synthetic dataset import", () => {
         ],
         invisibilityDeclarations: [],
         muteDeclarations: [],
+        senseWallsDeclarations: [],
         polymorphDeclarations: [],
         effects: [],
         sourceFlags: [
@@ -2567,6 +2568,108 @@ describe("synthetic dataset import", () => {
           diagnostic.entityId === "spell:complete mute" &&
           diagnostic.code === "unknown_element" &&
           diagnostic.details?.element === "mute",
+      ),
+    ).toBe(false);
+  });
+
+  it("normalizes ordered buff-local wall-sensing declarations loss-aware", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-buff-sense-walls-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Complete Wall Sense" type="self">
+    <buff>
+      <senseWallsFlag amount="1" />
+      <senseWallsFlag amount="0" />
+    </buff>
+  </spell>
+  <spell name="Invalid Wall Sense" type="self">
+    <buff>
+      <senseWallsFlag />
+      <senseWallsFlag amount="maybe" />
+      <senseWallsFlag amount="1" future="diagnosed">unexpected text<futureChild /></senseWallsFlag>
+    </buff>
+  </spell>
+</spellDB>`,
+    );
+    const senseWallsManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      senseWallsManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-buff-sense-walls-test",
+        sources: [
+          {
+            id: "spell-buff-sense-walls-source",
+            label: "Spell Buff Wall Sense Source",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [{ kind: "spells", path: "spellDB.xml" }],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: senseWallsManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(
+      spells.get("Complete Wall Sense")?.buffs[0]?.senseWallsDeclarations,
+    ).toEqual([{ enabled: true }, { enabled: false }]);
+    expect(
+      spells.get("Invalid Wall Sense")?.buffs[0]?.senseWallsDeclarations,
+    ).toEqual([{ enabled: null }, { enabled: null }, { enabled: true }]);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_spell_buff_sense_walls_amount",
+          entityId: "spell:invalid wall sense",
+          details: { buffIndex: 0, declarationIndex: 0 },
+        }),
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid wall sense",
+          details: expect.objectContaining({ value: "maybe" }),
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:invalid wall sense",
+          details: {
+            element: "senseWallsFlag",
+            attribute: "future",
+            value: "diagnosed",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid wall sense",
+          details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:invalid wall sense",
+          details: { element: "#text" },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.entityId === "spell:complete wall sense" &&
+          diagnostic.code === "unknown_element" &&
+          diagnostic.details?.element === "senseWallsFlag",
       ),
     ).toBe(false);
   });
@@ -5407,6 +5510,7 @@ describe("synthetic dataset import", () => {
         ],
         invisibilityDeclarations: [{ amount: 1 }],
         muteDeclarations: [{ amount: 1 }],
+        senseWallsDeclarations: [{ enabled: true }],
         polymorphDeclarations: [
           {
             monsterKey: "training diggle",

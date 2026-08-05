@@ -168,6 +168,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(buffs.getByText("Toxic resistance")).toBeVisible();
   await expect(buffs.getByText("Primary attribute 2")).toBeVisible();
   await expect(buffs.getByText("Secondary stat 6")).toBeVisible();
+  const wallSensing = buffs.getByRole("region", { name: "Wall sensing" });
+  await expect(wallSensing.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(
+    wallSensing.getByText(/without inferring detection range/i),
+  ).toBeVisible();
   const sightModifiers = buffs.getByRole("region", {
     name: "Sight modifiers",
   });

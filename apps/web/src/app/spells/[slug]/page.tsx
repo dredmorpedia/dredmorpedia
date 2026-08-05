@@ -316,6 +316,15 @@ export default async function SpellPage({
             </dd>
           </div>
           <div>
+            <dt>Buff wall-sensing declarations</dt>
+            <dd>
+              {spell.buffs.reduce(
+                (count, buff) => count + buff.senseWallsDeclarations.length,
+                0,
+              )}
+            </dd>
+          </div>
+          <div>
             <dt>Buff polymorph declarations</dt>
             <dd>
               {spell.buffs.reduce(
@@ -971,6 +980,39 @@ export default async function SpellPage({
                           stat-definition source is selected.
                         </p>
                       ) : null}
+                    </section>
+                  ) : null}
+                  {buff.senseWallsDeclarations.length > 0 ? (
+                    <section
+                      className="mt-4"
+                      aria-labelledby={`buff-${buffIndex}-wall-sensing-heading`}
+                    >
+                      <h3
+                        id={`buff-${buffIndex}-wall-sensing-heading`}
+                        className="relationship-title"
+                      >
+                        Wall sensing
+                      </h3>
+                      <dl className="stat-list">
+                        {buff.senseWallsDeclarations.map(
+                          (declaration, declarationIndex) => (
+                            <div key={declarationIndex}>
+                              <dt>Declaration {declarationIndex + 1}</dt>
+                              <dd>
+                                {declaration.enabled === null
+                                  ? "Unavailable"
+                                  : yesNo(declaration.enabled)}
+                              </dd>
+                            </div>
+                          ),
+                        )}
+                      </dl>
+                      <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                        The source defines this as a game-boolean wall-sensing
+                        marker. It is retained without inferring detection
+                        range, revealed terrain, actor scope, interaction with
+                        sight radius, stacking, duration, or runtime success.
+                      </p>
                     </section>
                   ) : null}
                   {buff.sightModifiers.length > 0 ? (

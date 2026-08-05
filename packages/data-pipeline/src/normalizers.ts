@@ -40,6 +40,7 @@ import {
   type SpellBuffEventHook,
   type SpellBuffHaloMetadata,
   type SpellBuffPolymorphDeclaration,
+  type SpellBuffSenseWallsDeclaration,
   type SpellBuffSightModifier,
   type SpellEffect,
   type SpellEffectOption,
@@ -2996,6 +2997,74 @@ function parseSpellBuffAmountMarkerDeclarations(
   );
 }
 
+function spellBuffSenseWallsRecords(buff: XmlRecord): XmlRecord[] {
+  const value = buff.senseWallsFlag;
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.flatMap((entry) => {
+    if (isXmlRecord(entry)) {
+      return [entry];
+    }
+    if (typeof entry === "string") {
+      return [entry === "" ? {} : { "#text": entry }];
+    }
+    return [];
+  });
+}
+
+function parseSpellBuffSenseWallsDeclarations(
+  buff: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+  buffIndex: number,
+): SpellBuffSenseWallsDeclaration[] {
+  return spellBuffSenseWallsRecords(buff).map(
+    (declaration, declarationIndex) => {
+      const declarationLocation =
+        Object.keys(declaration).length === 0
+          ? context.parsed.locateChildElement(buff, "senseWallsFlag")
+          : context.parsed.locateRecord(declaration);
+      const declarationProvenance = {
+        ...provenance,
+        ...declarationLocation,
+      };
+      reportUnknownLeafContent(
+        context,
+        declaration,
+        "senseWallsFlag",
+        new Set(["amount"]),
+        declarationProvenance,
+        currentEntityId,
+        true,
+      );
+
+      const sourceAmount = xmlAttribute(declaration, "amount");
+      if (sourceAmount === undefined) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_spell_buff_sense_walls_amount",
+          message: `Spell buff ${buffIndex + 1} wall-sensing declaration ${declarationIndex + 1} is missing its required source flag.`,
+          source: declarationProvenance,
+          entityId: currentEntityId,
+          details: { buffIndex, declarationIndex },
+        });
+        return { enabled: null };
+      }
+
+      return {
+        enabled: optionalBooleanAttribute(
+          declaration,
+          "amount",
+          context,
+          declarationProvenance,
+          `spell buff ${buffIndex + 1} wall-sensing declaration ${declarationIndex + 1} source flag`,
+          currentEntityId,
+        ),
+      };
+    },
+  );
+}
+
 function spellBuffPolymorphRecords(buff: XmlRecord): XmlRecord[] {
   const value = buff.polymorph;
   const entries = Array.isArray(value) ? value : [value];
@@ -3423,6 +3492,7 @@ function parseSpellBuffs(
         "invisible",
         "mute",
         "polymorph",
+        "senseWallsFlag",
         "sightbuff",
         ...spellBuffEventHookSpecs.map(({ childName }) => childName),
       ]),
@@ -3578,6 +3648,13 @@ function parseSpellBuffs(
         buffIndex,
         "mute",
         "mute",
+      ),
+      senseWallsDeclarations: parseSpellBuffSenseWallsDeclarations(
+        buff,
+        context,
+        provenance,
+        currentEntityId,
+        buffIndex,
       ),
       polymorphDeclarations: parseSpellBuffPolymorphDeclarations(
         buff,

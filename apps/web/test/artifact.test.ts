@@ -389,6 +389,33 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/muteDeclarations/);
   });
 
+  it("rejects malformed spell buff wall-sensing metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          buffs: {
+            senseWallsDeclarations: { enabled: boolean | string | null }[];
+          }[];
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells
+      .flatMap((spell) => spell.buffs)
+      .flatMap((buff) => buff.senseWallsDeclarations)
+      .at(0);
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no buff wall-sensing declaration.",
+      );
+    }
+    declaration.enabled = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/senseWallsDeclarations/);
+  });
+
   it("rejects malformed spell buff polymorph metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

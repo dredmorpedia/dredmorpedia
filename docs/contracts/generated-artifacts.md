@@ -50,6 +50,8 @@ Each buff also contains an ordered `sightModifiers` array for direct `<sightbuff
 
 Each buff also contains ordered `invisibilityDeclarations` and `muteDeclarations` arrays. Both retain a nullable non-negative integer source amount; absence is valid and malformed supplied values become `null` with diagnostics. The preserved application establishes the `Invisibility` and `Prevents Casting` labels but does not interpret either amount. Consumers must not infer visibility/detection behavior or affected actor/spell selection, strength, amount meaning, immunity, resistance, stacking, duration, removal, or runtime success from these source markers.
 
+Each buff also contains an ordered `senseWallsDeclarations` array for direct `<senseWallsFlag>` children. Every declaration preserves a nullable game-boolean `enabled` value; missing required or malformed source flags become `null` with diagnostics. The preserved application does not interpret this element. Consumers must not infer detection range, revealed terrain, actor scope, interaction with sight modifiers, stacking, duration, or runtime success from the source marker.
+
 Each buff also contains an ordered `polymorphDeclarations` array. A declaration retains nullable paired source monster name/key fields and an optional resolved `monsterId`. Missing or blank targets remain present as a null pair and are diagnosed; named missing targets remain visible with a dangling-reference diagnostic; resolved targets link in both directions. The preserved application establishes only the `Polymorph` label and reads the source `name` as a monster type. Consumers must not infer transformation duration, stat or ability replacement, equipment behavior, targeting, faction, reversibility, or runtime success.
 
 Each buff also contains a required deterministic `effects` array for direct
@@ -204,6 +206,7 @@ fields are constructed is documented in
 - Required buff `sightModifiers` were subsequently added under the same rule. Current web consumers require the ordered nullable finite-number shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `invisibilityDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware non-negative integer amount shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `muteDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware non-negative integer amount shape, so earlier local schema 3 artifacts must be regenerated.
+- Required buff `senseWallsDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware game-boolean shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `polymorphDeclarations` were subsequently added under the same rule. Current web consumers require the ordered loss-aware paired monster-target shape, so earlier local schema 3 artifacts must be regenerated.
 - Required buff `effects` were subsequently added under the same rule, and
   effect presentation gained required nullable large/small icon fields. Current

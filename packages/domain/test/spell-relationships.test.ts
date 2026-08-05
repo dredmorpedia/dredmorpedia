@@ -158,6 +158,7 @@ function buff(
     halos: [],
     invisibilityDeclarations: [],
     muteDeclarations: [],
+    senseWallsDeclarations: [],
     polymorphDeclarations,
     effects: [],
     aiHints: [],

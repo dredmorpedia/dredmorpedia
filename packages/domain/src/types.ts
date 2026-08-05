@@ -526,6 +526,7 @@ export interface SpellBuff {
   halos: SpellBuffHaloMetadata[];
   invisibilityDeclarations: SpellBuffInvisibilityDeclaration[];
   muteDeclarations: SpellBuffMuteDeclaration[];
+  senseWallsDeclarations: SpellBuffSenseWallsDeclaration[];
   polymorphDeclarations: SpellBuffPolymorphDeclaration[];
   effects: SpellEffect[];
   aiHints: SpellAiHintMetadata[];
@@ -541,6 +542,10 @@ export interface SpellBuffInvisibilityDeclaration {
 
 export interface SpellBuffMuteDeclaration {
   amount: number | null;
+}
+
+export interface SpellBuffSenseWallsDeclaration {
+  enabled: boolean | null;
 }
 
 export interface SpellBuffPolymorphDeclaration {

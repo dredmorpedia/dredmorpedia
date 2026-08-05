@@ -101,15 +101,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
+Other completed areas include spell mana/buff/presentation/effect relationships, ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite and dig graphics-regeneration metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
-After the damage-effect Midas slice, the canonical import
+After the buff-local wall-sensing slice, the canonical import
 reports:
 
-- 0 errors, 43 warnings, and 71 informational duplicate decisions;
-- seven unsupported/partially-supported constructs, all spell diagnostics;
+- 0 errors, 42 warnings, and 71 informational duplicate decisions;
+- six unsupported/partially-supported constructs, all spell diagnostics;
 - 23 dangling references tracked separately; and
 - 13 spell requirement diagnostics tracked separately.
 
@@ -183,6 +183,19 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The buff-local wall-sensing slice preserves the one active `senseWallsFlag`
+declaration as an ordered required nullable game-boolean marker. The strict
+importer diagnoses missing, malformed, and extended declarations; the web
+artifact boundary rejects a non-boolean normalized value; and the spell page
+exposes the exact flag while withholding detection range, revealed terrain,
+actor scope, interaction with sight modifiers, stacking, duration, and runtime
+success. Deterministic official generation is byte-identical with 0 errors, 42
+warnings, and 71 informational decisions. Evidence is recorded in
+`docs/analysis/spell-buff-sense-walls-evidence-2026-08-05.md`. The full
+workspace passes 195 unit/artifact tests and the 43-page synthetic export.
+
+## Damage-effect Midas slice validation
 
 The damage-effect Midas slice preserves all four active `midas` declarations
 as a required nullable field in the controls record. All four occur on direct
