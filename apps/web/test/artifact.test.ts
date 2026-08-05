@@ -900,6 +900,32 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/regenerateGraphics/);
   });
 
+  it("rejects malformed spell effect buff-tag metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            buffTag: string | number | null;
+          }[];
+        }[];
+      };
+    };
+    const taggedEffect = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .find((effect) => effect.buffTag !== null);
+    if (!taggedEffect) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell effect buff-tag metadata.",
+      );
+    }
+    taggedEffect.buffTag = 42;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/buffTag/);
+  });
+
   it("rejects malformed spell effect Midas metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

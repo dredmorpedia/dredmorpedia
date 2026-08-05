@@ -607,6 +607,7 @@ const spellEffectSchema = z
       .nullable(),
     createdObjectSpritePath: nullableAssetPathSchema,
     regenerateGraphics: z.boolean().nullable(),
+    buffTag: nullableNonblankString,
     controls: z
       .object({
         durationTurns: nullableNonnegativeInteger,

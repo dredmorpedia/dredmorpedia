@@ -168,6 +168,9 @@ export default async function SpellPage({
     spell.id,
   );
   const normalizedEffects = allSpellEffects(spell);
+  const buffTagEffectCount = normalizedEffects.filter(
+    (effect) => effect.buffTag !== null,
+  ).length;
   const listOptionEffects = normalizedEffects
     .map((effect, effectIndex) => ({ effect, effectIndex }))
     .filter(({ effect }) => effect.options.length > 0);
@@ -271,6 +274,10 @@ export default async function SpellPage({
           <div>
             <dt>Direct effects</dt>
             <dd>{spell.effects.length}</dd>
+          </div>
+          <div>
+            <dt>Effect buff tags</dt>
+            <dd>{buffTagEffectCount}</dd>
           </div>
           <div>
             <dt>List options</dt>
@@ -1287,14 +1294,15 @@ export default async function SpellPage({
             selectors, item and summon-monster targets, named buff-removal
             targets, effect presentation, created-object sprite availability,
             graphics-regeneration flags, Midas flags, controls, and buff
-            conditions are shown without combining them into final damage, gold
-            conversion or value, targeting eligibility, buff-presence
-            evaluation, removal eligibility, removal scope, stack handling,
-            trigger timing, resistance, ignition, animation sequencing, terrain
-            changes, redraw timing, created-object lifetime, random-item
-            selection, inventory placement, summon allegiance, placement,
-            lifetime, AI state, or runtime probability behavior. Detailed effect
-            sprite paths and sound cue IDs remain hidden.
+            conditions, plus buff-tag source tokens, are shown without combining
+            them into final damage, gold conversion or value, buff-tag matching
+            or selection, targeting eligibility, buff-presence evaluation,
+            removal eligibility, removal scope, stack handling, trigger timing,
+            resistance, ignition, animation sequencing, terrain changes, redraw
+            timing, created-object lifetime, random-item selection, inventory
+            placement, summon allegiance, placement, lifetime, AI state, or
+            runtime probability behavior. Detailed effect sprite paths and sound
+            cue IDs remain hidden.
           </p>
           {normalizedEffects.length > 0 ? (
             <ul className="trigger-list mt-4">
@@ -1568,6 +1576,12 @@ export default async function SpellPage({
                         <div>
                           <dt>Regenerate graphics source flag</dt>
                           <dd>{yesNo(effect.regenerateGraphics)}</dd>
+                        </div>
+                      ) : null}
+                      {effect.buffTag !== null ? (
+                        <div>
+                          <dt>Buff tag source token</dt>
+                          <dd>{effect.buffTag}</dd>
                         </div>
                       ) : null}
                       {effect.controls.chancePercent !== null ? (

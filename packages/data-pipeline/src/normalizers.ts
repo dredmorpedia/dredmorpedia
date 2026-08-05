@@ -4059,6 +4059,7 @@ const spellEffectCreatedObjectTypes = new Set(["create"]);
 const spellEffectCreatedObjectAttributes = ["objectSprite"] as const;
 const spellEffectGraphicsRegenerationTypes = new Set(["dig"]);
 const spellEffectGraphicsRegenerationAttributes = ["regengfx"] as const;
+const spellEffectBuffTagAttributes = ["buffTag"] as const;
 const spellEffectMidasTypes = new Set(["damage"]);
 const spellEffectMidasAttributes = ["midas"] as const;
 const spellEffectDamageTypes = new Set(["damage", "drain"]);
@@ -4714,6 +4715,34 @@ function parseSpellEffectControls(
   };
 }
 
+function parseSpellEffectBuffTag(
+  effect: XmlRecord,
+  effectIndex: number,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): string | null {
+  const value = xmlAttribute(effect, "buffTag");
+  if (value === undefined) {
+    return null;
+  }
+  if (value.trim().length > 0) {
+    return value;
+  }
+  context.diagnostics.push({
+    severity: "warning",
+    code: "missing_spell_effect_buff_tag",
+    message: `Spell effect ${effectIndex + 1} supplies an empty buffTag source token.`,
+    source: {
+      ...provenance,
+      ...context.parsed.locateRecord(effect),
+    },
+    entityId: currentEntityId,
+    details: { effectIndex },
+  });
+  return null;
+}
+
 function emptySpellEffectBuffCondition(): SpellEffect["conditions"]["requiredBuff"] {
   return {
     enabled: null,
@@ -4904,6 +4933,7 @@ function parseSpellEffects(
           ...(spellEffectGraphicsRegenerationTypes.has(effectType)
             ? spellEffectGraphicsRegenerationAttributes
             : []),
+          ...spellEffectBuffTagAttributes,
           ...(spellEffectMidasTypes.has(effectType)
             ? spellEffectMidasAttributes
             : []),
@@ -5003,6 +5033,13 @@ function parseSpellEffects(
         regenerateGraphics: parseSpellEffectRegenerateGraphics(
           effect,
           effectType,
+          effectIndex,
+          context,
+          provenance,
+          currentEntityId,
+        ),
+        buffTag: parseSpellEffectBuffTag(
+          effect,
           effectIndex,
           context,
           provenance,

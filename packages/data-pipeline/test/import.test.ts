@@ -3318,6 +3318,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -3347,6 +3348,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: null,
         controls: noControls,
         conditions: noConditions,
         options: [
@@ -3473,11 +3475,11 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Controls" type="target">
-    <effect type="damage" turns="3" after="1" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="1" skipanimation="1" />
+    <effect type="damage" turns="3" after="1" percent="35" affectsCaster="1" self="0" affectsCorpses="1" resistable="0" taxa="Construct" burn="1" bleed="1" skipanimation="1" buffTag="bankster" />
     <effect type="trigger" turns="0" after="0" percentage="25" affectscaster="0" skipAnimation="0" />
   </spell>
   <spell name="Invalid Controls" type="target">
-    <effect type="damage" turns="-1" after="maybe" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" bleed="maybe" skipAnimation="maybe" skipanimation="1" future="diagnosed" />
+    <effect type="damage" turns="-1" after="maybe" percent="101" percentage="40" affectsCaster="maybe" affectscaster="1" self="-1" affectsCorpses="2" resistable="yes" taxa="  " burn="nope" bleed="maybe" skipAnimation="maybe" skipanimation="1" buffTag="   " future="diagnosed" />
     <effect type="trigger" turns="1.5" percent="" />
   </spell>
 </spellDB>`,
@@ -3525,6 +3527,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: "bankster",
         controls: {
           durationTurns: 3,
           after: true,
@@ -3569,6 +3572,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: null,
         controls: {
           durationTurns: 0,
           after: false,
@@ -3615,6 +3619,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -3659,6 +3664,7 @@ describe("synthetic dataset import", () => {
         presentation: null,
         createdObjectSpritePath: null,
         regenerateGraphics: null,
+        buffTag: null,
         controls: {
           durationTurns: null,
           after: null,
@@ -3713,6 +3719,11 @@ describe("synthetic dataset import", () => {
       expect.arrayContaining([
         expect.objectContaining({
           code: "missing_spell_effect_taxonomy",
+          entityId: "spell:invalid controls",
+          details: { effectIndex: 0 },
+        }),
+        expect.objectContaining({
+          code: "missing_spell_effect_buff_tag",
           entityId: "spell:invalid controls",
           details: { effectIndex: 0 },
         }),

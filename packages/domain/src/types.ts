@@ -342,6 +342,7 @@ export interface SpellEffect {
   presentation: SpellEffectPresentationMetadata | null;
   createdObjectSpritePath: string | null;
   regenerateGraphics: boolean | null;
+  buffTag: string | null;
   controls: SpellEffectControls;
   conditions: SpellEffectConditions;
   options: SpellEffectOption[];

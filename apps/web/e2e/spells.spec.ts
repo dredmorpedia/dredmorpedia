@@ -308,6 +308,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByText("Yes", { exact: true }),
   ).toBeVisible();
   await expect(
+    controlledEffect.getByText("Buff tag source token", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    controlledEffect.getByText("synthetic-bankster", { exact: true }),
+  ).toBeVisible();
+  await expect(controlledEffect.getByRole("link")).toHaveCount(0);
+  await expect(
+    effects.getByText(/without combining them into.*buff-tag matching/i),
+  ).toBeVisible();
+  await expect(
     effects.getByRole("listitem").filter({ hasText: "Starts bleeding effect" }),
   ).toBeVisible();
   const teleportEffect = effects

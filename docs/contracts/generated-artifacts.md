@@ -115,6 +115,15 @@ disclose reference availability and the source flag, but must not infer
 created-object type or lifetime, terrain changes, graphics-redraw timing,
 placement, persistence, or runtime success.
 
+Every effect also requires a nullable `buffTag` field. A supplied value retains
+the exact non-blank source token; an absent attribute is `null`, and a supplied
+blank token becomes `null` with a source-located diagnostic. The installed
+schema permits the attribute on the general effect shape, so direct and
+buff-local effects share the same contract. The token is not resolved to an
+entity or relationship. Consumers may disclose it but must not infer tag
+matching, buff or curse selection, removal behavior, target scope, evaluation
+order, timing, or runtime success.
+
 Controls retain nullable non-negative effect duration in turns, the direct
 `after` source flag, source chance from `percent`/`percentage`, caster targeting
 from both measured casing aliases, self targeting, corpse targeting,
@@ -245,6 +254,9 @@ fields are constructed is documented in
   require safe loss-aware created-object references and boolean-or-null
   graphics-regeneration metadata, so earlier local schema 3 artifacts must be
   regenerated.
+- Required spell-effect `buffTag` was subsequently added under the same rule.
+  Current web consumers require the non-blank-string-or-null shape, so earlier
+  local schema 3 artifacts must be regenerated.
 - Skill `loadouts`, `sourceFlags`, and `progressionTags` plus ability `level`, `startSkill`, `modifiers`, `sourceFlags`, `recoveryBuffAmounts`, `currencyBuffPercents`, and `triggers` were added to version 3 under the additive rule. Current web consumers require and validate the richer records, so older local schema 3 artifacts must be regenerated. Existing key/ID arrays remain for compatibility and deterministic query use.
 - Monster `depth`, `special`, palette metadata, `archetypeLevels`, `ai`, `sight`, `movement`, `presentation`, `experienceValue`, `modifiers`, `spellChance`, `triggers`, and `drops` were added to version 3 under the additive rule. The AI record was later expanded with loss-aware chicken/charm/paralyze/steal flags and steal percentage; sight preserves loss-aware cone/modifier values; movement preserves local dig/dash/charge declarations; presentation preserves local sound cue and sprite declarations; and trigger kinds now include on-death/dash/charge spell references. Current web consumers require and validate the richer records, including every loss-aware AI, sight, movement, and presentation field plus the exclusive drop shapes, so older local schema 3 artifacts must be regenerated.
 - The `encrustments` collection was added to version 3 under the additive rule and later expanded with direct outcome arrays. Current web consumers require and validate the complete collection, so older local schema 3 artifacts must be regenerated.
