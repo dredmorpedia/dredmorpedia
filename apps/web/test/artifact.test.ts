@@ -926,6 +926,30 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/buffTag/);
   });
 
+  it("rejects spell requirement source levels outside the schema byte range", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          manaCosts: { sourceLevel: number | null }[];
+        }[];
+      };
+    };
+    const leveledRequirement = typedArtifact.entities.spells
+      .flatMap((spell) => spell.manaCosts)
+      .find((manaCost) => manaCost.sourceLevel !== null);
+    if (!leveledRequirement) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell requirement source level.",
+      );
+    }
+    leveledRequirement.sourceLevel = 128;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceLevel/);
+  });
+
   it("rejects malformed spell effect Midas metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

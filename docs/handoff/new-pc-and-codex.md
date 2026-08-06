@@ -98,7 +98,7 @@ Continue toward local parity without assuming permission to publish official con
 4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
 5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-7. Treat the current five unsupported/partially-supported spell constructs and 23 dangling references as the measured compatibility backlog, not as silently completed parity. Thirteen non-mana/extra-attribute requirement diagnostics are tracked separately. No item compatibility diagnostic remains after the fixed-modifier, artifact, trigger, use/trap, gem, armour, weapon, macguffin, and toolkit slices. Remaining spell mechanics stay explicit. No measured official skill/ability or monster child element remains unsupported.
+7. No measured item or spell compatibility diagnostic remains. Treat the 13 non-mana spell requirement diagnostics and 23 dangling references as explicit remaining parity evidence, not as silently completed behavior. No measured official skill/ability or monster child element remains unsupported.
 8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 36 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
@@ -216,6 +216,20 @@ leaves two compatibility attributes, both `level` on spell requirements, plus
 13 separately tracked requirements and 23 dangling references. Evidence is
 recorded in
 `docs/analysis/spell-effect-buff-tag-evidence-2026-08-06.md`.
+
+## Spell requirement-level slice completed
+
+The two active `level="1"` attributes on Oil Slick and Oil Slick2 mana
+declarations now normalize as nullable signed-byte `sourceLevel` values.
+Malformed or out-of-range supplied values remain unavailable with
+source-located diagnostics, and the strict web artifact boundary rejects
+invalid normalized shapes. The installed validation schema establishes the
+optional signed-byte source shape, while the preserved application ignores the
+attribute. The spell page exposes the exact source value without inferring an
+actor, unlock, eligibility, progression, or other engine rule. This removes the
+final two compatibility diagnostics. Thirteen non-mana spell requirements and
+23 dangling references remain explicit. Evidence is recorded in
+`docs/analysis/spell-requirement-level-evidence-2026-08-06.md`.
 
 ## Item-quality review completed
 

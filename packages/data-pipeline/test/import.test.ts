@@ -1743,7 +1743,7 @@ describe("synthetic dataset import", () => {
       `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Mana Cost" type="self">
-    <requirements mp="12" savvyBonus="0.25" mincost="4" future="kept as a diagnostic">
+    <requirements mp="12" savvyBonus="0.25" mincost="4" level="1" future="kept as a diagnostic">
       <futureChild />
     </requirements>
     <effect type="stat" stat="Savvy" amount="12junk" scaling="1.5">
@@ -1751,11 +1751,11 @@ describe("synthetic dataset import", () => {
     </effect>
   </spell>
   <spell name="Invalid Mana Cost" type="self">
-    <requirements mp="-1" savvyBonus="invalid" mincost="-2" />
+    <requirements mp="-1" savvyBonus="invalid" mincost="-2" level="128" />
   </spell>
   <spell name="Multiple Mana Costs" type="self">
-    <requirements mp="8" />
-    <requirements mp="6" savvybonus="0.1" mincost="3" />
+    <requirements mp="8" level="-128" />
+    <requirements mp="6" savvybonus="0.1" mincost="3" level="127" />
   </spell>
   <spell name="Unsupported Requirement" type="self">
     <requirements shield="1" />
@@ -1790,27 +1790,40 @@ describe("synthetic dataset import", () => {
     );
 
     expect(spells.get("Complete Mana Cost")?.manaCosts).toEqual([
-      { base: 12, savvyReduction: 0.25, minimum: 4 },
+      { base: 12, savvyReduction: 0.25, minimum: 4, sourceLevel: 1 },
     ]);
     expect(spells.get("Invalid Mana Cost")?.manaCosts).toEqual([
-      { base: null, savvyReduction: null, minimum: null },
+      {
+        base: null,
+        savvyReduction: null,
+        minimum: null,
+        sourceLevel: null,
+      },
     ]);
     expect(spells.get("Multiple Mana Costs")?.manaCosts).toEqual([
-      { base: 8, savvyReduction: null, minimum: null },
-      { base: 6, savvyReduction: 0.1, minimum: 3 },
+      { base: 8, savvyReduction: null, minimum: null, sourceLevel: -128 },
+      { base: 6, savvyReduction: 0.1, minimum: 3, sourceLevel: 127 },
     ]);
     expect(spells.get("Unsupported Requirement")?.manaCosts).toEqual([]);
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(4);
+    ).toHaveLength(5);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           code: "unknown_attribute",
           entityId: "spell:complete mana cost",
           details: { element: "requirements", attribute: "future" },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid mana cost",
+          details: {
+            field: "spell requirement level source value",
+            value: "128",
+          },
         }),
         expect.objectContaining({
           code: "unknown_attribute",
@@ -5596,7 +5609,7 @@ describe("synthetic dataset import", () => {
       slug: "small-cross",
     });
     expect(clockworkSpark?.manaCosts).toEqual([
-      { base: 12, savvyReduction: 0.25, minimum: 4 },
+      { base: 12, savvyReduction: 0.25, minimum: 4, sourceLevel: 1 },
     ]);
     expect(clockworkSpark?.animations).toEqual([
       {

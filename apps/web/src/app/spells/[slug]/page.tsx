@@ -433,13 +433,22 @@ export default async function SpellPage({
                             : sourceNumber.format(manaCost.minimum)}
                         </dd>
                       </div>
+                      <div>
+                        <dt>Requirement level source value</dt>
+                        <dd>
+                          {manaCost.sourceLevel === null
+                            ? "Not specified"
+                            : sourceNumber.format(manaCost.sourceLevel)}
+                        </dd>
+                      </div>
                     </dl>
                   </li>
                 ))}
               </ul>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 These are source parameters. Final in-game rounding is not
-                inferred.
+                inferred. A declared level remains uninterpreted metadata; no
+                actor, unlock, eligibility, or progression rule is inferred.
               </p>
             </>
           ) : (

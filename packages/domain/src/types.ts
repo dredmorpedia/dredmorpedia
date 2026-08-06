@@ -459,6 +459,7 @@ export interface SpellManaCost {
   base: number | null;
   savvyReduction: number | null;
   minimum: number | null;
+  sourceLevel: number | null;
 }
 
 export interface SpellFramePresentationMetadata {

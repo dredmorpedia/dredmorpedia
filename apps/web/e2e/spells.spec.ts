@@ -24,9 +24,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
     manaCost.getByText("0.25 × Savvy", { exact: true }),
   ).toBeVisible();
   await expect(
-    manaCost.getByText(
-      "These are source parameters. Final in-game rounding is not inferred.",
-    ),
+    manaCost.getByText("Requirement level source value", { exact: true }),
+  ).toBeVisible();
+  await expect(manaCost.getByText("1", { exact: true })).toBeVisible();
+  await expect(
+    manaCost.getByText(/no actor, unlock, eligibility, or progression rule/i),
   ).toBeVisible();
 
   const presentation = page.getByRole("region", {

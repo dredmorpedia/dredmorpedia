@@ -105,13 +105,13 @@ Other completed areas include spell mana/buff/presentation/effect relationships,
 
 ## Current measured backlog and likely next work
 
-After the spell effect buff-tag slice, the canonical import
+After the spell requirement-level slice, the canonical import
 reports:
 
-- 0 errors, 38 warnings, and 71 informational duplicate decisions;
-- two unsupported constructs, both spell requirement `level` attributes;
+- 0 errors, 36 warnings, and 71 informational duplicate decisions;
+- zero measured item or spell compatibility constructs;
 - 23 dangling references tracked separately; and
-- 13 spell requirement diagnostics tracked separately.
+- 13 non-mana spell requirement diagnostics tracked separately.
 
 No item compatibility diagnostic remains.
 
@@ -171,7 +171,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, and direct effect attribute is now complete. The next content-parity task should separately evaluate the two remaining `level` requirement attributes before the broader non-mana requirement family rather than blanket-supporting spell content.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and mana-requirement attribute is now complete. The next content-parity task should evaluate the 13 non-mana spell requirement declarations one source shape at a time rather than blanket-supporting spell content.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
@@ -183,6 +183,21 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell requirement-level slice preserves the two active `level="1"`
+attributes on Oil Slick and Oil Slick2 as nullable signed-byte `sourceLevel`
+values attached to their mana declarations. The installed schema defines the
+attribute as an optional `xs:byte`; the preserved application ignores it. The
+modern page exposes the source value but does not infer an actor, unlock,
+eligibility, progression, or other engine rule. Invalid or out-of-range values
+remain unavailable with source-located diagnostics, and the strict web guard
+rejects malformed normalized records. Deterministic official generation is
+byte-identical with 0 errors, 36 warnings, and 71 informational decisions.
+Evidence is recorded in
+`docs/analysis/spell-requirement-level-evidence-2026-08-06.md`. The full
+workspace passes 200 unit/artifact tests and the 43-page synthetic export.
+
+## Spell effect buff-tag slice validation
 
 The spell effect buff-tag slice preserves the one active `buffTag="bankster"`
 source token on the `moverandomcurse` effect in Dump Toxic Assets. The

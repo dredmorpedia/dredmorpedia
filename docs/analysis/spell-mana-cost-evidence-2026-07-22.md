@@ -20,13 +20,13 @@ The active normalized dataset contains:
 - 6 mana declarations without a Savvy coefficient;
 - 27 mana declarations without a minimum.
 
-The sources use both `savvyBonus` and `savvybonus`; the adapter normalizes both spell-requirement spellings. Two mana declarations also carry a `level` attribute. That attribute remains diagnosed because the legacy mana-cost model does not establish its semantics. The 13 non-mana declarations likewise remain `unsupported_spell_requirement` diagnostics instead of being converted into invented requirements.
+The sources use both `savvyBonus` and `savvybonus`; the adapter normalizes both spell-requirement spellings. Two mana declarations also carry a `level` attribute. This original slice left that attribute diagnosed because the legacy mana-cost model did not establish its semantics; the later evidence in `spell-requirement-level-evidence-2026-08-06.md` preserves it only as uninterpreted signed-byte source metadata. The 13 non-mana declarations remain `unsupported_spell_requirement` diagnostics instead of being converted into invented requirements.
 
 After this slice, the deterministic canonical import reports no errors, 2,595 warnings, and 71 informational duplicate decisions. The measured compatibility backlog falls from 2,679 to 2,576 constructs: 1,510 item diagnostics and 1,066 spell diagnostics. Nineteen dangling references remain separately reported.
 
 ## Artifact and presentation boundary
 
-Each supported declaration produces an ordered `SpellManaCost` record with nullable `base`, `savvyReduction`, and `minimum` fields. Supplied invalid numbers emit `invalid_number` and become `null`; absent optional fields also remain `null`. The runtime artifact guard requires finite, non-negative values or `null` for every field.
+Each supported declaration produces an ordered `SpellManaCost` record with nullable `base`, `savvyReduction`, and `minimum` fields. The later requirement-level slice adds nullable signed-byte `sourceLevel`. Supplied invalid numbers emit `invalid_number` and become `null`; absent optional fields also remain `null`. The runtime artifact guard requires each field's documented numeric range or `null`.
 
 The spell page renders the source expression and its three parameters. It explicitly states that final in-game rounding is not inferred. Spells without a supported mana declaration show an empty state, and any unsupported requirement remains visible through the entity diagnostics.
 

@@ -404,6 +404,17 @@ constructs, both `level` attributes on spell requirements, plus 13 separately
 tracked spell requirements and 23 dangling references. Evidence is recorded
 in `docs/analysis/spell-effect-buff-tag-evidence-2026-08-06.md`.
 
+Spell requirement-level parity now preserves the two active `level="1"`
+attributes on the Oil Slick and Oil Slick2 mana declarations as nullable
+signed-byte `sourceLevel` values. The installed validation schema establishes
+the source shape, while the preserved application ignores the attribute. The
+spell page therefore exposes the exact source value without inferring an actor,
+unlock, eligibility, progression, or other engine rule. This removes the final
+two compatibility diagnostics: zero measured item/spell compatibility
+constructs remain, while 13 non-mana spell requirement diagnostics and 23
+dangling references remain explicit. Evidence is recorded in
+`docs/analysis/spell-requirement-level-evidence-2026-08-06.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

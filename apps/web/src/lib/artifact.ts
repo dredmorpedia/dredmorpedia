@@ -764,6 +764,7 @@ const spellSchema = z
           base: nullableNonnegativeNumber,
           savvyReduction: nullableNonnegativeNumber,
           minimum: nullableNonnegativeNumber,
+          sourceLevel: z.number().int().min(-128).max(127).nullable(),
         })
         .strict(),
     ),

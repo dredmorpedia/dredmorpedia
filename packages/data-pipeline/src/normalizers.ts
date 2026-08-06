@@ -2639,7 +2639,7 @@ function parseSpellManaCosts(
       context,
       requirements,
       "requirements",
-      new Set(["mp", "savvyBonus", "savvybonus", "mincost"]),
+      new Set(["mp", "savvyBonus", "savvybonus", "mincost", "level"]),
       provenance,
       currentEntityId,
     );
@@ -2669,6 +2669,15 @@ function parseSpellManaCosts(
           "spell minimum mana cost",
           currentEntityId,
           0,
+        ),
+        sourceLevel: optionalIntegerValue(
+          xmlAttribute(requirements, "level"),
+          context,
+          provenance,
+          "spell requirement level source value",
+          currentEntityId,
+          -128,
+          127,
         ),
       },
     ];

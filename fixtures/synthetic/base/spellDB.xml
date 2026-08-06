@@ -2,7 +2,7 @@
 <spells>
   <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg">
     <description text="Starts a synthetic effect chain with a dangling reference." />
-    <requirements mp="12" savvyBonus="0.25" mincost="4" />
+    <requirements mp="12" savvyBonus="0.25" mincost="4" level="1" />
     <anim sprite="sprites/sfx/synthetic/synthetic" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="clockwork_animation_audio_cue" />
     <impact sprite="sprites/sfx/synthetic-impact/synthetic-impact" frames="5" framerate="70" firstframe="0" centerEffect="0" sync="1" sfx="clockwork_impact_audio_cue" />
     <ai hint="target" />
