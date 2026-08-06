@@ -974,6 +974,30 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/sourceValue/);
   });
 
+  it("rejects malformed spell weapon requirement source flags", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          weaponRequirements: { sourceValue: boolean | number | null }[];
+        }[];
+      };
+    };
+    const weaponRequirement = typedArtifact.entities.spells
+      .flatMap((spell) => spell.weaponRequirements)
+      .find((requirement) => requirement.sourceValue !== null);
+    if (!weaponRequirement) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell weapon requirement.",
+      );
+    }
+    weaponRequirement.sourceValue = 0;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceValue/);
+  });
+
   it("rejects malformed spell effect Midas metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

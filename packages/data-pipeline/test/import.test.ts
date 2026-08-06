@@ -1731,7 +1731,7 @@ describe("synthetic dataset import", () => {
     ).toEqual([]);
   });
 
-  it("normalizes loss-aware spell mana and shield requirements", () => {
+  it("normalizes loss-aware spell mana, shield, and weapon requirements", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-mana-costs-"),
     );
@@ -1768,8 +1768,19 @@ describe("synthetic dataset import", () => {
   <spell name="Invalid Shield Requirement" type="self">
     <requirements shield="true" />
   </spell>
-  <spell name="Unsupported Requirement" type="self">
+  <spell name="Weapon Requirement" type="self">
     <requirements weapon="0" />
+  </spell>
+  <spell name="True Weapon Requirement" type="self">
+    <requirements weapon="1" futureWeapon="kept as a diagnostic">
+      <futureWeaponChild />
+    </requirements>
+  </spell>
+  <spell name="Invalid Weapon Requirement" type="self">
+    <requirements weapon="false" />
+  </spell>
+  <spell name="Unsupported Requirement" type="self">
+    <requirements shield="1" weapon="0" />
   </spell>
 </spellDB>`,
     );
@@ -1826,6 +1837,18 @@ describe("synthetic dataset import", () => {
       spells.get("Invalid Shield Requirement")?.shieldRequirements,
     ).toEqual([{ sourceValue: null }]);
     expect(spells.get("Unsupported Requirement")?.shieldRequirements).toEqual(
+      [],
+    );
+    expect(spells.get("Weapon Requirement")?.weaponRequirements).toEqual([
+      { sourceValue: false },
+    ]);
+    expect(spells.get("True Weapon Requirement")?.weaponRequirements).toEqual([
+      { sourceValue: true },
+    ]);
+    expect(
+      spells.get("Invalid Weapon Requirement")?.weaponRequirements,
+    ).toEqual([{ sourceValue: null }]);
+    expect(spells.get("Unsupported Requirement")?.weaponRequirements).toEqual(
       [],
     );
     expect(
@@ -1886,6 +1909,27 @@ describe("synthetic dataset import", () => {
           details: {
             field: "spell shield requirement source flag",
             value: "true",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:true weapon requirement",
+          details: {
+            element: "requirements",
+            attribute: "futureWeapon",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:true weapon requirement",
+          details: { element: "futureWeaponChild" },
+        }),
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid weapon requirement",
+          details: {
+            field: "spell weapon requirement source flag",
+            value: "false",
           },
         }),
         expect.objectContaining({
@@ -5770,6 +5814,7 @@ describe("synthetic dataset import", () => {
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
     expect(clockworkEcho?.shieldRequirements).toEqual([{ sourceValue: true }]);
+    expect(clockworkEcho?.weaponRequirements).toEqual([{ sourceValue: false }]);
     expect(clockworkEcho?.animations).toEqual([]);
     expect(clockworkEcho?.impacts).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);

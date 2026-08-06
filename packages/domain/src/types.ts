@@ -466,6 +466,10 @@ export interface SpellShieldRequirement {
   sourceValue: boolean | null;
 }
 
+export interface SpellWeaponRequirement {
+  sourceValue: boolean | null;
+}
+
 export interface SpellFramePresentationMetadata {
   spritePath: string | null;
   frameCount: number | null;
@@ -583,6 +587,7 @@ export interface Spell extends NormalizedEntityBase {
   iconPath: string | null;
   manaCosts: SpellManaCost[];
   shieldRequirements: SpellShieldRequirement[];
+  weaponRequirements: SpellWeaponRequirement[];
   animations: SpellAnimationMetadata[];
   impacts: SpellImpactMetadata[];
   aiHints: SpellAiHintMetadata[];

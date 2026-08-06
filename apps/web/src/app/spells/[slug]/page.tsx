@@ -268,6 +268,10 @@ export default async function SpellPage({
             <dd>{spell.shieldRequirements.length}</dd>
           </div>
           <div>
+            <dt>Weapon requirement declarations</dt>
+            <dd>{spell.weaponRequirements.length}</dd>
+          </div>
+          <div>
             <dt>Animation declarations</dt>
             <dd>{spell.animations.length}</dd>
           </div>
@@ -510,6 +514,59 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized shield requirement.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="weapon-requirement-heading"
+        >
+          <h2 id="weapon-requirement-heading" className="section-title-sm">
+            Weapon requirement
+          </h2>
+          {spell.weaponRequirements.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.weaponRequirements.map(
+                  (weaponRequirement, requirementIndex) => (
+                    <li key={requirementIndex}>
+                      <div className="trigger-summary">
+                        <span className="relationship-title">
+                          Declaration {requirementIndex + 1}
+                        </span>
+                        <strong>
+                          {weaponRequirement.sourceValue === null
+                            ? "Source flag unavailable"
+                            : `Source flag: ${yesNo(weaponRequirement.sourceValue)}`}
+                        </strong>
+                        <small className="trigger-resolution">
+                          Direct requirement source metadata
+                        </small>
+                      </div>
+                      <dl className="trigger-facts">
+                        <div>
+                          <dt>Weapon source flag</dt>
+                          <dd>
+                            {weaponRequirement.sourceValue === null
+                              ? "Unavailable"
+                              : yesNo(weaponRequirement.sourceValue)}
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                This preserves the source flag without inferring an actor,
+                equipped item state, weapon category, eligibility rule, timing,
+                or runtime success.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized weapon requirement.
             </p>
           )}
         </section>

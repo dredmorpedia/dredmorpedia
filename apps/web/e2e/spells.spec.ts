@@ -35,6 +35,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByRole("region", { name: "Shield requirement" })
       .getByText("No normalized shield requirement."),
   ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Weapon requirement" })
+      .getByText("No normalized weapon requirement."),
+  ).toBeVisible();
 
   const presentation = page.getByRole("region", {
     name: "Presentation",
@@ -589,6 +594,20 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     shieldRequirement.getByText(/without inferring an actor, equipment state/i),
+  ).toBeVisible();
+  const weaponRequirement = page.getByRole("region", {
+    name: "Weapon requirement",
+  });
+  await expect(
+    weaponRequirement.getByText("Weapon source flag", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    weaponRequirement.getByText("No", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    weaponRequirement.getByText(
+      /without inferring an actor, equipped item state/i,
+    ),
   ).toBeVisible();
   await expect(
     page

@@ -426,6 +426,16 @@ weapon, six booze, and three zorkmid shapes), alongside 23 dangling references.
 Evidence is recorded in
 `docs/analysis/spell-shield-requirement-evidence-2026-08-06.md`.
 
+Spell weapon-requirement parity now preserves the one active exact
+`weapon="0"` declaration on Liechtenauer's Overhau as an ordered nullable
+source flag. The installed schema restricts `dredbool` to `0` or `1`, while
+the preserved application does not read or present the weapon attribute. The
+spell page exposes the exact flag without inferring an actor, equipped item
+state, weapon category, eligibility rule, timing, or runtime success. This
+removes one non-mana requirement diagnostic; nine remain (six booze and three
+zorkmid shapes), alongside 23 dangling references. Evidence is recorded in
+`docs/analysis/spell-weapon-requirement-evidence-2026-08-06.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

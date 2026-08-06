@@ -2650,9 +2650,10 @@ function parseSpellRequirements(
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-): Pick<Spell, "manaCosts" | "shieldRequirements"> {
+): Pick<Spell, "manaCosts" | "shieldRequirements" | "weaponRequirements"> {
   const manaCosts: SpellManaCost[] = [];
   const shieldRequirements: Spell["shieldRequirements"] = [];
+  const weaponRequirements: Spell["weaponRequirements"] = [];
   for (const requirements of xmlChildren(record, "requirements")) {
     const baseText = xmlAttribute(requirements, "mp");
     if (baseText !== undefined) {
@@ -2704,7 +2705,8 @@ function parseSpellRequirements(
     }
 
     const shieldText = xmlAttribute(requirements, "shield");
-    const hasOtherKnownRequirementAttribute = [
+    const weaponText = xmlAttribute(requirements, "weapon");
+    const hasOtherKnownShieldRequirementAttribute = [
       "savvyBonus",
       "savvybonus",
       "mincost",
@@ -2714,7 +2716,7 @@ function parseSpellRequirements(
       "zorkmids",
       "zorkmidScaleF",
     ].some((attribute) => xmlAttribute(requirements, attribute) !== undefined);
-    if (shieldText !== undefined && !hasOtherKnownRequirementAttribute) {
+    if (shieldText !== undefined && !hasOtherKnownShieldRequirementAttribute) {
       const requirementProvenance = {
         ...provenance,
         ...context.parsed.locateRecord(requirements),
@@ -2740,6 +2742,42 @@ function parseSpellRequirements(
       continue;
     }
 
+    const hasOtherKnownWeaponRequirementAttribute = [
+      "savvyBonus",
+      "savvybonus",
+      "mincost",
+      "level",
+      "shield",
+      "booze",
+      "zorkmids",
+      "zorkmidScaleF",
+    ].some((attribute) => xmlAttribute(requirements, attribute) !== undefined);
+    if (weaponText !== undefined && !hasOtherKnownWeaponRequirementAttribute) {
+      const requirementProvenance = {
+        ...provenance,
+        ...context.parsed.locateRecord(requirements),
+      };
+      reportUnknownLeafContent(
+        context,
+        requirements,
+        "requirements",
+        new Set(["weapon"]),
+        requirementProvenance,
+        currentEntityId,
+      );
+      weaponRequirements.push({
+        sourceValue: optionalBinaryBooleanAttribute(
+          requirements,
+          "weapon",
+          context,
+          requirementProvenance,
+          "spell weapon requirement source flag",
+          currentEntityId,
+        ),
+      });
+      continue;
+    }
+
     context.diagnostics.push({
       severity: "warning",
       code: "unsupported_spell_requirement",
@@ -2749,7 +2787,7 @@ function parseSpellRequirements(
       details: { element: "requirements" },
     });
   }
-  return { manaCosts, shieldRequirements };
+  return { manaCosts, shieldRequirements, weaponRequirements };
 }
 
 const spellFramePresentationAttributes = new Set([
