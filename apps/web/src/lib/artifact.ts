@@ -768,6 +768,13 @@ const spellSchema = z
         })
         .strict(),
     ),
+    shieldRequirements: z.array(
+      z
+        .object({
+          sourceValue: z.boolean().nullable(),
+        })
+        .strict(),
+    ),
     animations: z.array(spellFramePresentationSchema),
     impacts: z.array(spellFramePresentationSchema),
     aiHints: z.array(spellAiHintSchema),

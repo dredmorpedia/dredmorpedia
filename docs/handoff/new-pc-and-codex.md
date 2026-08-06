@@ -98,7 +98,7 @@ Continue toward local parity without assuming permission to publish official con
 4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
 5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-7. No measured item or spell compatibility diagnostic remains. Treat the 13 non-mana spell requirement diagnostics and 23 dangling references as explicit remaining parity evidence, not as silently completed behavior. No measured official skill/ability or monster child element remains unsupported.
+7. No measured item or spell compatibility diagnostic remains. The three exact shield requirements are preserved; treat the ten remaining non-mana spell requirement diagnostics (one weapon, six booze, and three zorkmid shapes) and 23 dangling references as explicit parity evidence, not as silently completed behavior. No measured official skill/ability or monster child element remains unsupported.
 8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 36 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
@@ -230,6 +230,20 @@ actor, unlock, eligibility, progression, or other engine rule. This removes the
 final two compatibility diagnostics. Thirteen non-mana spell requirements and
 23 dangling references remain explicit. Evidence is recorded in
 `docs/analysis/spell-requirement-level-evidence-2026-08-06.md`.
+
+## Spell shield-requirement slice completed
+
+The three active exact `shield="1"` declarations on Tortoise Maneuver,
+Defensive Bash, and Duck And Cover! now normalize as ordered nullable
+`shieldRequirements` source flags. Malformed values remain unavailable with
+source-located diagnostics, and the strict web artifact boundary rejects
+non-boolean normalized shapes. The installed validation schema restricts
+`dredbool` to `0` and `1`, while the preserved application ignores the shield
+attribute. The spell page exposes the exact flag without inferring an actor,
+equipment state, eligibility rule, timing, or runtime success. Ten non-mana
+spell requirements and 23 dangling references remain explicit. Evidence is
+recorded in
+`docs/analysis/spell-shield-requirement-evidence-2026-08-06.md`.
 
 ## Item-quality review completed
 

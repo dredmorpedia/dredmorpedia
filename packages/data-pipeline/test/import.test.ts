@@ -1731,7 +1731,7 @@ describe("synthetic dataset import", () => {
     ).toEqual([]);
   });
 
-  it("normalizes loss-aware spell mana costs and diagnoses unsupported requirements", () => {
+  it("normalizes loss-aware spell mana and shield requirements", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-mana-costs-"),
     );
@@ -1757,8 +1757,19 @@ describe("synthetic dataset import", () => {
     <requirements mp="8" level="-128" />
     <requirements mp="6" savvybonus="0.1" mincost="3" level="127" />
   </spell>
+  <spell name="Shield Requirement" type="self">
+    <requirements shield="1" futureShield="kept as a diagnostic">
+      <futureShieldChild />
+    </requirements>
+  </spell>
+  <spell name="False Shield Requirement" type="self">
+    <requirements shield="0" />
+  </spell>
+  <spell name="Invalid Shield Requirement" type="self">
+    <requirements shield="true" />
+  </spell>
   <spell name="Unsupported Requirement" type="self">
-    <requirements shield="1" />
+    <requirements weapon="0" />
   </spell>
 </spellDB>`,
     );
@@ -1805,6 +1816,18 @@ describe("synthetic dataset import", () => {
       { base: 6, savvyReduction: 0.1, minimum: 3, sourceLevel: 127 },
     ]);
     expect(spells.get("Unsupported Requirement")?.manaCosts).toEqual([]);
+    expect(spells.get("Shield Requirement")?.shieldRequirements).toEqual([
+      { sourceValue: true },
+    ]);
+    expect(spells.get("False Shield Requirement")?.shieldRequirements).toEqual([
+      { sourceValue: false },
+    ]);
+    expect(
+      spells.get("Invalid Shield Requirement")?.shieldRequirements,
+    ).toEqual([{ sourceValue: null }]);
+    expect(spells.get("Unsupported Requirement")?.shieldRequirements).toEqual(
+      [],
+    );
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
@@ -1843,6 +1866,27 @@ describe("synthetic dataset import", () => {
           code: "unknown_element",
           entityId: "spell:complete mana cost",
           details: { element: "futureChild" },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:shield requirement",
+          details: {
+            element: "requirements",
+            attribute: "futureShield",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:shield requirement",
+          details: { element: "futureShieldChild" },
+        }),
+        expect.objectContaining({
+          code: "invalid_boolean",
+          entityId: "spell:invalid shield requirement",
+          details: {
+            field: "spell shield requirement source flag",
+            value: "true",
+          },
         }),
         expect.objectContaining({
           code: "unsupported_spell_requirement",
@@ -5725,6 +5769,7 @@ describe("synthetic dataset import", () => {
       }),
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
+    expect(clockworkEcho?.shieldRequirements).toEqual([{ sourceValue: true }]);
     expect(clockworkEcho?.animations).toEqual([]);
     expect(clockworkEcho?.impacts).toEqual([]);
     expect(clockworkEcho?.buffs).toEqual([]);
@@ -5790,7 +5835,7 @@ describe("synthetic dataset import", () => {
       { kind: "primary", sourceKey: "2", amount: 1 },
       { kind: "secondary", sourceKey: "6", amount: 5 },
     ]);
-    expect(result.diagnostics).toContainEqual(
+    expect(result.diagnostics).not.toContainEqual(
       expect.objectContaining({
         code: "unsupported_spell_requirement",
         entityId: "spell:clockwork echo",

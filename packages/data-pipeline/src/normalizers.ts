@@ -1293,6 +1293,36 @@ function optionalBooleanAttribute(
   return null;
 }
 
+function optionalBinaryBooleanAttribute(
+  record: XmlRecord,
+  name: string,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+): boolean | null {
+  const value = xmlAttribute(record, name);
+  if (value === undefined) {
+    return null;
+  }
+  if (value === "1") {
+    return true;
+  }
+  if (value === "0") {
+    return false;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_boolean",
+    message: `Expected 0 or 1 for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
+}
+
 function integerValue(
   value: string | undefined,
   fallback: number,
@@ -2615,36 +2645,26 @@ function parseSkills(
   }
 }
 
-function parseSpellManaCosts(
+function parseSpellRequirements(
   record: XmlRecord,
   context: NormalizationContext,
   provenance: EntityProvenance,
   currentEntityId: string,
-): SpellManaCost[] {
-  return xmlChildren(record, "requirements").flatMap((requirements) => {
+): Pick<Spell, "manaCosts" | "shieldRequirements"> {
+  const manaCosts: SpellManaCost[] = [];
+  const shieldRequirements: Spell["shieldRequirements"] = [];
+  for (const requirements of xmlChildren(record, "requirements")) {
     const baseText = xmlAttribute(requirements, "mp");
-    if (baseText === undefined) {
-      context.diagnostics.push({
-        severity: "warning",
-        code: "unsupported_spell_requirement",
-        message: "A spell requirement without a mana cost remains unsupported.",
-        source: provenance,
-        entityId: currentEntityId,
-        details: { element: "requirements" },
-      });
-      return [];
-    }
-
-    reportUnknownLeafContent(
-      context,
-      requirements,
-      "requirements",
-      new Set(["mp", "savvyBonus", "savvybonus", "mincost", "level"]),
-      provenance,
-      currentEntityId,
-    );
-    return [
-      {
+    if (baseText !== undefined) {
+      reportUnknownLeafContent(
+        context,
+        requirements,
+        "requirements",
+        new Set(["mp", "savvyBonus", "savvybonus", "mincost", "level"]),
+        provenance,
+        currentEntityId,
+      );
+      manaCosts.push({
         base: optionalNumberValue(
           baseText,
           context,
@@ -2679,9 +2699,57 @@ function parseSpellManaCosts(
           -128,
           127,
         ),
-      },
-    ];
-  });
+      });
+      continue;
+    }
+
+    const shieldText = xmlAttribute(requirements, "shield");
+    const hasOtherKnownRequirementAttribute = [
+      "savvyBonus",
+      "savvybonus",
+      "mincost",
+      "level",
+      "weapon",
+      "booze",
+      "zorkmids",
+      "zorkmidScaleF",
+    ].some((attribute) => xmlAttribute(requirements, attribute) !== undefined);
+    if (shieldText !== undefined && !hasOtherKnownRequirementAttribute) {
+      const requirementProvenance = {
+        ...provenance,
+        ...context.parsed.locateRecord(requirements),
+      };
+      reportUnknownLeafContent(
+        context,
+        requirements,
+        "requirements",
+        new Set(["shield"]),
+        requirementProvenance,
+        currentEntityId,
+      );
+      shieldRequirements.push({
+        sourceValue: optionalBinaryBooleanAttribute(
+          requirements,
+          "shield",
+          context,
+          requirementProvenance,
+          "spell shield requirement source flag",
+          currentEntityId,
+        ),
+      });
+      continue;
+    }
+
+    context.diagnostics.push({
+      severity: "warning",
+      code: "unsupported_spell_requirement",
+      message: "This non-mana spell requirement shape remains unsupported.",
+      source: provenance,
+      entityId: currentEntityId,
+      details: { element: "requirements" },
+    });
+  }
+  return { manaCosts, shieldRequirements };
 }
 
 const spellFramePresentationAttributes = new Set([
@@ -5101,6 +5169,12 @@ function parseSpells(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("spell", name);
+    const requirements = parseSpellRequirements(
+      record,
+      context,
+      provenance,
+      currentEntityId,
+    );
     const effects = parseSpellEffects(
       record,
       context,
@@ -5121,12 +5195,7 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
-      manaCosts: parseSpellManaCosts(
-        record,
-        context,
-        provenance,
-        currentEntityId,
-      ),
+      ...requirements,
       animations: parseSpellAnimations(
         record,
         context,

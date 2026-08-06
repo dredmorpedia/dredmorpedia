@@ -82,7 +82,7 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(13);
     expect(loadSearchArtifact().documents).toHaveLength(25);
-    expect(loadDiagnostics()).toHaveLength(24);
+    expect(loadDiagnostics()).toHaveLength(23);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -948,6 +948,30 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourceLevel/);
+  });
+
+  it("rejects malformed spell shield requirement source flags", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          shieldRequirements: { sourceValue: boolean | number | null }[];
+        }[];
+      };
+    };
+    const shieldRequirement = typedArtifact.entities.spells
+      .flatMap((spell) => spell.shieldRequirements)
+      .find((requirement) => requirement.sourceValue !== null);
+    if (!shieldRequirement) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell shield requirement.",
+      );
+    }
+    shieldRequirement.sourceValue = 1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceValue/);
   });
 
   it("rejects malformed spell effect Midas metadata", async () => {

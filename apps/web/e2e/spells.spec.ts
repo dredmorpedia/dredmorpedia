@@ -30,6 +30,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     manaCost.getByText(/no actor, unlock, eligibility, or progression rule/i),
   ).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Shield requirement" })
+      .getByText("No normalized shield requirement."),
+  ).toBeVisible();
 
   const presentation = page.getByRole("region", {
     name: "Presentation",
@@ -573,6 +578,18 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .getByRole("region", { name: "Mana cost" })
       .getByText("No normalized mana requirement."),
   ).toBeVisible();
+  const shieldRequirement = page.getByRole("region", {
+    name: "Shield requirement",
+  });
+  await expect(
+    shieldRequirement.getByText("Shield source flag", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    shieldRequirement.getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    shieldRequirement.getByText(/without inferring an actor, equipment state/i),
+  ).toBeVisible();
   await expect(
     page
       .getByRole("region", { name: "Presentation" })
@@ -627,11 +644,7 @@ test("navigates spell details and stops recursive effect cycles", async ({
       .locator("..")
       .getByRole("link", { name: "Clockwork Spark" }),
   ).toBeVisible();
-  await expect(
-    page.getByText(
-      "A spell requirement without a mana cost remains unsupported.",
-    ),
-  ).toBeVisible();
+  await expect(page.getByText(/unsupported spell requirement/i)).toHaveCount(0);
   await expect(
     echoEffects.getByText(
       /removal eligibility, removal scope, stack handling/i,

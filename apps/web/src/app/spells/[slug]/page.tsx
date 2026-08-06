@@ -264,6 +264,10 @@ export default async function SpellPage({
             <dd>{spell.manaCosts.length}</dd>
           </div>
           <div>
+            <dt>Shield requirement declarations</dt>
+            <dd>{spell.shieldRequirements.length}</dd>
+          </div>
+          <div>
             <dt>Animation declarations</dt>
             <dd>{spell.animations.length}</dd>
           </div>
@@ -454,6 +458,58 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="shield-requirement-heading"
+        >
+          <h2 id="shield-requirement-heading" className="section-title-sm">
+            Shield requirement
+          </h2>
+          {spell.shieldRequirements.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.shieldRequirements.map(
+                  (shieldRequirement, requirementIndex) => (
+                    <li key={requirementIndex}>
+                      <div className="trigger-summary">
+                        <span className="relationship-title">
+                          Declaration {requirementIndex + 1}
+                        </span>
+                        <strong>
+                          {shieldRequirement.sourceValue === null
+                            ? "Source flag unavailable"
+                            : `Source flag: ${yesNo(shieldRequirement.sourceValue)}`}
+                        </strong>
+                        <small className="trigger-resolution">
+                          Direct requirement source metadata
+                        </small>
+                      </div>
+                      <dl className="trigger-facts">
+                        <div>
+                          <dt>Shield source flag</dt>
+                          <dd>
+                            {shieldRequirement.sourceValue === null
+                              ? "Unavailable"
+                              : yesNo(shieldRequirement.sourceValue)}
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                This preserves the source flag without inferring an actor,
+                equipment state, eligibility rule, timing, or runtime success.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized shield requirement.
             </p>
           )}
         </section>
