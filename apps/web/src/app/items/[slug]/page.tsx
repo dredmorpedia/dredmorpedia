@@ -17,14 +17,12 @@ import {
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
+import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { itemIconUrl } from "@/lib/presented-assets";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
-import {
-  signedStatModifierValue,
-  statModifierLabel,
-} from "@/lib/stat-modifiers";
+import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -662,20 +660,25 @@ export default async function ItemPage({
                       <div
                         key={`${modifier.kind}:${modifier.sourceKey}:${index}`}
                       >
-                        <dt>{statModifierLabel(modifier)}</dt>
+                        <dt>
+                          <StatModifierLink
+                            modifier={modifier}
+                            stats={artifact.entities.stats}
+                          />
+                        </dt>
                         <dd>{signedStatModifierValue(modifier.amount)}</dd>
                       </div>
                     ))}
                   </dl>
                   {item.modifiers.some(
                     (modifier) =>
-                      modifier.kind === "primary" ||
-                      modifier.kind === "secondary",
+                      (modifier.kind === "primary" ||
+                        modifier.kind === "secondary") &&
+                      modifier.statId === undefined,
                   ) ? (
                     <p className="supporting-note">
-                      Primary and secondary modifiers retain their numeric game
-                      stat IDs because this dataset has no approved standalone
-                      definitions for them.
+                      Unmapped primary and secondary modifiers retain their
+                      numeric game stat IDs.
                     </p>
                   ) : null}
                 </section>

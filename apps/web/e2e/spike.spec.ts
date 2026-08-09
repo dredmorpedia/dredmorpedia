@@ -170,6 +170,11 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(page.getByText("Dataset version")).toBeVisible();
   await expect(page.getByText("Source version")).toBeVisible();
   await expect(
+    page.getByRole("heading", { name: "Reference mapping" }),
+  ).toBeVisible();
+  await expect(page.getByText("secondary", { exact: true })).toBeVisible();
+  await expect(page.getByText("2", { exact: true })).toBeVisible();
+  await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
 });

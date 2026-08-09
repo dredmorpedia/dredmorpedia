@@ -4,8 +4,8 @@ Status: owner-approved direction; scoped license files pending
 Updated: 2026-07-29
 
 The project intends to license the independently authored modern application,
-domain and data-pipeline packages, supporting scripts, documentation, and
-synthetic fixtures under the MIT License.
+domain and data-pipeline packages, supporting scripts, documentation, synthetic
+fixtures, and factual project reference catalogues under the MIT License.
 
 That license must not be presented as covering:
 

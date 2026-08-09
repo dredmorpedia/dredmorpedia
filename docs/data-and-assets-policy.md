@@ -61,6 +61,13 @@ Generated output is not automatically safe to publish merely because it is trans
 4. whether users instead need a local import workflow;
 5. a repeatable check preventing restricted inputs from entering the deployment artifact.
 
+The tracked Dredmorpedia stat reference is independently authored project data,
+not an extraction of an official database. It contains only reviewed
+modifier-selector/name/category mappings and intentionally excludes preserved
+legacy prose, legacy icon references, and gameplay formulas. Importing it as a
+separately versioned `reference` source does not broaden permission to publish
+official entity values or assets.
+
 ## Local product and asset scope
 
 The current product target is a locally complete `1.1.5 public_beta` build. Its

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Independently authored Dredmorpedia reference mappings for the canonical
+  1.1.5 public_beta modifier vocabulary. This catalog intentionally contains
+  no copied tooltip prose, icon paths, or derived-stat formulas.
+-->
+<stats>
+  <stat id="damage-acidic" name="Acidic Damage" group="damage" modifierKind="damage" sourceKey="acidic" />
+  <stat id="damage-aethereal" name="Aethereal Damage" group="damage" modifierKind="damage" sourceKey="aethereal" />
+  <stat id="damage-asphyxiative" name="Asphyxiative Damage" group="damage" modifierKind="damage" sourceKey="asphyxiative" />
+  <stat id="damage-blasting" name="Blasting Damage" group="damage" modifierKind="damage" sourceKey="blasting" />
+  <stat id="damage-conflagratory" name="Conflagratory Damage" group="damage" modifierKind="damage" sourceKey="conflagratory" />
+  <stat id="damage-crushing" name="Crushing Damage" group="damage" modifierKind="damage" sourceKey="crushing" />
+  <stat id="damage-existential" name="Existential Damage" group="damage" modifierKind="damage" sourceKey="existential" />
+  <stat id="damage-hyperborean" name="Hyperborean Damage" group="damage" modifierKind="damage" sourceKey="hyperborean" />
+  <stat id="damage-necromantic" name="Necromantic Damage" group="damage" modifierKind="damage" sourceKey="necromantic" />
+  <stat id="damage-piercing" name="Piercing Damage" group="damage" modifierKind="damage" sourceKey="piercing" />
+  <stat id="damage-putrefying" name="Putrefying Damage" group="damage" modifierKind="damage" sourceKey="putrefying" />
+  <stat id="damage-righteous" name="Righteous Damage" group="damage" modifierKind="damage" sourceKey="righteous" />
+  <stat id="damage-slashing" name="Slashing Damage" group="damage" modifierKind="damage" sourceKey="slashing" />
+  <stat id="damage-toxic" name="Toxic Damage" group="damage" modifierKind="damage" sourceKey="toxic" />
+  <stat id="damage-transmutative" name="Transmutative Damage" group="damage" modifierKind="damage" sourceKey="transmutative" />
+  <stat id="damage-voltaic" name="Voltaic Damage" group="damage" modifierKind="damage" sourceKey="voltaic" />
+
+  <stat id="resistance-acidic" name="Acidic Resistance" group="resistance" modifierKind="resistance" sourceKey="acidic" />
+  <stat id="resistance-aethereal" name="Aethereal Resistance" group="resistance" modifierKind="resistance" sourceKey="aethereal" />
+  <stat id="resistance-asphyxiative" name="Asphyxiative Resistance" group="resistance" modifierKind="resistance" sourceKey="asphyxiative" />
+  <stat id="resistance-blasting" name="Blasting Resistance" group="resistance" modifierKind="resistance" sourceKey="blasting" />
+  <stat id="resistance-conflagratory" name="Conflagratory Resistance" group="resistance" modifierKind="resistance" sourceKey="conflagratory" />
+  <stat id="resistance-crushing" name="Crushing Resistance" group="resistance" modifierKind="resistance" sourceKey="crushing" />
+  <stat id="resistance-existential" name="Existential Resistance" group="resistance" modifierKind="resistance" sourceKey="existential" />
+  <stat id="resistance-hyperborean" name="Hyperborean Resistance" group="resistance" modifierKind="resistance" sourceKey="hyperborean" />
+  <stat id="resistance-necromantic" name="Necromantic Resistance" group="resistance" modifierKind="resistance" sourceKey="necromantic" />
+  <stat id="resistance-piercing" name="Piercing Resistance" group="resistance" modifierKind="resistance" sourceKey="piercing" />
+  <stat id="resistance-putrefying" name="Putrefying Resistance" group="resistance" modifierKind="resistance" sourceKey="putrefying" />
+  <stat id="resistance-righteous" name="Righteous Resistance" group="resistance" modifierKind="resistance" sourceKey="righteous" />
+  <stat id="resistance-slashing" name="Slashing Resistance" group="resistance" modifierKind="resistance" sourceKey="slashing" />
+  <stat id="resistance-toxic" name="Toxic Resistance" group="resistance" modifierKind="resistance" sourceKey="toxic" />
+  <stat id="resistance-transmutative" name="Transmutative Resistance" group="resistance" modifierKind="resistance" sourceKey="transmutative" />
+  <stat id="resistance-voltaic" name="Voltaic Resistance" group="resistance" modifierKind="resistance" sourceKey="voltaic" />
+
+  <stat id="primary-0" name="Burliness" group="primary" modifierKind="primary" sourceKey="0" />
+  <stat id="primary-1" name="Sagacity" group="primary" modifierKind="primary" sourceKey="1" />
+  <stat id="primary-2" name="Nimbleness" group="primary" modifierKind="primary" sourceKey="2" />
+  <stat id="primary-3" name="Caddishness" group="primary" modifierKind="primary" sourceKey="3" />
+  <stat id="primary-4" name="Stubbornness" group="primary" modifierKind="primary" sourceKey="4" />
+  <stat id="primary-5" name="Savvy" group="primary" modifierKind="primary" sourceKey="5" />
+
+  <stat id="secondary-0" name="Life" group="secondary" modifierKind="secondary" sourceKey="0" />
+  <stat id="secondary-1" name="Mana" group="secondary" modifierKind="secondary" sourceKey="1" />
+  <stat id="secondary-2" name="Melee Power" group="secondary" modifierKind="secondary" sourceKey="2" />
+  <stat id="secondary-3" name="Magic Power" group="secondary" modifierKind="secondary" sourceKey="3" />
+  <stat id="secondary-4" name="Critical Chance" group="secondary" modifierKind="secondary" sourceKey="4" />
+  <stat id="secondary-5" name="Haywire Chance" group="secondary" modifierKind="secondary" sourceKey="5" />
+  <stat id="secondary-6" name="Dodge Chance" group="secondary" modifierKind="secondary" sourceKey="6" />
+  <stat id="secondary-7" name="Block Chance" group="secondary" modifierKind="secondary" sourceKey="7" />
+  <stat id="secondary-8" name="Counter Chance" group="secondary" modifierKind="secondary" sourceKey="8" />
+  <stat id="secondary-9" name="Enemy Dodge Reduction" group="secondary" modifierKind="secondary" sourceKey="9" />
+  <stat id="secondary-10" name="Armour Absorption" group="secondary" modifierKind="secondary" sourceKey="10" />
+  <stat id="secondary-11" name="Magic Resistance" group="secondary" modifierKind="secondary" sourceKey="11" />
+  <stat id="secondary-12" name="Sneakiness" group="secondary" modifierKind="secondary" sourceKey="12" />
+  <stat id="secondary-13" name="Life Regeneration" group="secondary" modifierKind="secondary" sourceKey="13" />
+  <stat id="secondary-14" name="Mana Regeneration" group="secondary" modifierKind="secondary" sourceKey="14" />
+  <stat id="secondary-15" name="Wand Affinity" group="secondary" modifierKind="secondary" sourceKey="15" />
+  <stat id="secondary-16" name="Trap Affinity" group="secondary" modifierKind="secondary" sourceKey="16" />
+  <stat id="secondary-17" name="Trap Sight Radius" group="secondary" modifierKind="secondary" sourceKey="17" />
+  <stat id="secondary-18" name="Sight Radius" group="secondary" modifierKind="secondary" sourceKey="18" />
+  <stat id="secondary-19" name="Smithing" group="secondary" modifierKind="secondary" sourceKey="19" />
+  <stat id="secondary-20" name="Tinkering" group="secondary" modifierKind="secondary" sourceKey="20" />
+  <stat id="secondary-21" name="Alchemy" group="secondary" modifierKind="secondary" sourceKey="21" />
+  <stat id="secondary-22" name="Magic Reflection" group="secondary" modifierKind="secondary" sourceKey="22" />
+  <stat id="secondary-23" name="Wand Crafting" group="secondary" modifierKind="secondary" sourceKey="23" />
+</stats>

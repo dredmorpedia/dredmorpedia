@@ -105,12 +105,18 @@ Read these files before making a substantial change:
 - Direct macguffin declarations preserve spell, class-name, and consumable source values; consumers must not infer activation, targeting, or actual-consumption behavior.
 - Direct toolkit declarations preserve crafting tags, slot counts, symbolic sound cues, safe presentation references, and old game-interface coordinates. Matching recipe/encrustment tags link bidirectionally, but detailed cue/reference/coordinate values stay hidden; consumers must not use the coordinates for the modern UI or infer a complete crafting runtime formula.
 - Trap activation, caster-targeting, and placement fields remain direct source metadata; consumers must not infer reset timing, target selection, or placement behavior, and raw origin asset paths stay hidden while publication rights are unresolved.
+- The canonical project-authored stat reference maps 62 verified modifier
+  selectors as a separately versioned `reference` source. It supplies only
+  names/categories and exact kind/key mappings; modifier values retain official
+  entity provenance, and consumers must not import legacy prose, icons, or
+  formulas through this catalogue.
 - ADR 0001, ADR 0002, and ADR 0003 are accepted under the owner-approved
   local-first official-content boundary. ADR 0003's split artifact/query path,
   bounded user-selected zero-result name/alias suggestions, concrete relevance
   examples, and local desktop/slowed-mobile response budgets are implemented.
   ADR 0004's inherited reservations, tombstones, stable-identity reappearance,
-  and publication enforcement are implemented. Evidence is recorded under
+  and publication enforcement are implemented. ADR 0005's separately versioned
+  project stat reference is accepted and implemented. Evidence is recorded under
   `docs/analysis/`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
@@ -161,7 +167,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm install --frozen-lockfile` — install the pinned workspace.
 - `pnpm generate:check` — regenerate the synthetic dataset and presented-asset set twice and prove byte-identical output.
 - `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic dataset and presented-asset fallback set, then start the web application on `http://localhost:3001/`.
-- `pnpm migrate:official-manifest` — idempotently migrate the ignored canonical four-source manifest from schema 1 to the reviewed schema-2 game/build provenance without changing source roots.
+- `pnpm migrate:official-manifest` — idempotently preserve the four ignored game sources, migrate reviewed schema-2 game/build provenance when needed, and add the tracked versioned Dredmorpedia stat reference.
 - `pnpm dev:official` — regenerate the ignored official dataset plus referenced item icons with a zero-error dataset gate and start the same local application against them.
 - `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate, without starting the web application.
 - `pnpm build:official` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate and verify the full local static export.

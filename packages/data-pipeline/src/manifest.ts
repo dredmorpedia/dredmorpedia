@@ -23,7 +23,7 @@ const databaseFileSchema = z.strictObject({
 const sourceV1Schema = z.strictObject({
   id: z.string().min(1),
   label: z.string().min(1),
-  kind: z.enum(["base", "expansion", "mod", "fixture"]),
+  kind: z.enum(["base", "expansion", "mod", "fixture", "reference"]),
   precedence: z.number().int(),
   root: z.string().min(1),
   files: z.array(databaseFileSchema).min(1),
@@ -32,6 +32,7 @@ const sourceV1Schema = z.strictObject({
 const sourceV2Schema = z.strictObject({
   ...sourceV1Schema.shape,
   version: z.string().min(1),
+  rootBase: z.enum(["manifest", "repository"]).optional(),
 });
 
 const patchReferenceSchema = z.strictObject({
@@ -157,6 +158,16 @@ export interface LoadedManifest {
   manifestPath: string;
   manifestDirectory: string;
   manifestDisplayPath: string;
+  repositoryRoot: string;
+}
+
+export function sourceRootBase(
+  loaded: Pick<LoadedManifest, "manifestDirectory" | "repositoryRoot">,
+  source: Pick<SourceDefinition, "rootBase">,
+): string {
+  return source.rootBase === "repository"
+    ? loaded.repositoryRoot
+    : loaded.manifestDirectory;
 }
 
 export type ManifestInputReader = (
@@ -210,7 +221,9 @@ export function loadManifest(
 
   for (const source of manifest.sources) {
     const sourceRoot = resolveSourceRoot(
-      path.dirname(absoluteManifestPath),
+      source.rootBase === "repository"
+        ? resolvedRepositoryRoot
+        : path.dirname(absoluteManifestPath),
       source.root,
     );
     for (const file of source.files) {
@@ -240,5 +253,6 @@ export function loadManifest(
     manifestPath: absoluteManifestPath,
     manifestDirectory: path.dirname(absoluteManifestPath),
     manifestDisplayPath,
+    repositoryRoot: resolvedRepositoryRoot,
   };
 }

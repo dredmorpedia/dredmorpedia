@@ -8,7 +8,9 @@ import {
 import {
   migrateOfficialSourceManifest,
   officialDatasetVersion,
+  officialStatReferenceVersion,
   parseCurrentOfficialSourceManifest,
+  upgradeCurrentOfficialSourceManifest,
 } from "../src/official-manifest";
 
 const legacyManifest = {
@@ -168,19 +170,41 @@ describe("source manifest migration", () => {
     const migrated = migrateOfficialSourceManifest(legacyOfficialManifest);
 
     expect(migrated.datasetVersion).toBe(officialDatasetVersion);
+    expect(migrated.sources).toHaveLength(5);
     expect(
-      migrated.sources.every(
-        (source) => source.version === officialDatasetVersion,
-      ),
+      migrated.sources
+        .filter((source) => source.kind !== "reference")
+        .every((source) => source.version === officialDatasetVersion),
     ).toBe(true);
+    expect(
+      migrated.sources.find((source) => source.kind === "reference"),
+    ).toMatchObject({
+      id: "dredmorpedia-stat-reference",
+      version: officialStatReferenceVersion,
+      precedence: -10,
+      rootBase: "repository",
+      root: "reference-data/dredmor-1.1.5-public-beta",
+      files: [{ kind: "stats", path: "statDB.xml" }],
+    });
     expect(parseCurrentOfficialSourceManifest(migrated)).toEqual(migrated);
+
+    const currentWithoutReference = {
+      ...migrated,
+      sources: migrated.sources.filter((source) => source.kind !== "reference"),
+    };
+    expect(
+      upgradeCurrentOfficialSourceManifest(currentWithoutReference),
+    ).toEqual(migrated);
+    expect(() =>
+      parseCurrentOfficialSourceManifest(currentWithoutReference),
+    ).toThrow(/stat-reference metadata/);
 
     expect(() =>
       migrateOfficialSourceManifest({
         ...legacyOfficialManifest,
         sources: legacyOfficialManifest.sources.slice(0, 3),
       }),
-    ).toThrow(/3 sources instead of 4/);
+    ).toThrow(/3 game sources instead of 4/);
     expect(() =>
       parseCurrentOfficialSourceManifest({
         ...migrated,

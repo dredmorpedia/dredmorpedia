@@ -17,6 +17,13 @@ Source manifest schema version `2` requires:
 
 Lower source precedence is processed first. A higher precedence replaces a lower candidate with the same entity kind and canonical key. Equal precedence is resolved by source ID, source file, and source location so the result never depends on input enumeration or asynchronous timing.
 
+Source kind `reference` identifies independently maintained project reference
+data rather than official game content, a mod, or a test fixture. It follows
+the same version, checksum, precedence, containment, provenance, and closed
+schema rules. A reference source does not change the provenance of values read
+from another source. Reference roots are also excluded from entity-asset
+fallback probing.
+
 Patch references contain an integer `order` and a repository-relative `path`. Patch paths must resolve inside the repository, are included in input checksums, and are sorted by order then path. Duplicate source IDs and duplicate patch paths are rejected.
 
 The manifest, patch files, optional current and previous route registries, and declared database XML
@@ -31,8 +38,12 @@ game installation outside the repository. The importer canonicalizes that root
 without modifying it, then requires every declared `files[].path` to be a safe
 relative path whose real filesystem target remains inside the source root,
 including through symbolic links. Machine-local roots are never copied into
-generated artifacts. Patch and route-registry paths do not share this exception:
-they remain repository-relative and repository-contained.
+generated artifacts. Schema-2 sources may set `rootBase: "repository"` to
+resolve a safe relative root from the repository rather than from the manifest
+directory; traversal and real-path escape remain forbidden. Omitted
+`rootBase`/`"manifest"` preserves the ordinary manifest-relative behavior.
+Patch and route-registry paths do not share the absolute-root exception: they
+remain repository-relative and repository-contained.
 
 ## Published-route registry
 
@@ -87,12 +98,15 @@ identity/slug inventory.
 
 Schema version `1` manifests remain readable as a local migration aid. They produce `unversioned` dataset/source provenance and cannot declare patches or a route registry. New or edited manifests must use version `2`.
 
-For the one reviewed canonical four-source configuration, existing machines may
-run `pnpm migrate:official-manifest`. The project-specific, idempotent command
-preserves ignored source roots/file declarations, adds the exact accepted
-`1.1.5 public_beta` Steam-build label, and refuses a different dataset, source
-set, or existing schema-2 version. It is not a general migration policy for
-mods or other game builds.
+For the reviewed canonical configuration, existing machines may run `pnpm
+migrate:official-manifest`. The project-specific, idempotent command preserves
+the four ignored game source roots/file declarations, adds the exact accepted
+`1.1.5 public_beta` Steam-build label when migrating schema 1, and adds the
+tracked versioned Dredmorpedia stat-reference source. It refuses a different
+dataset, game source set, or schema-2 version. Every official generation command
+runs this migration first so restored machines cannot silently build without
+the approved catalogue. It is not a general migration policy for mods or other
+game builds.
 
 Manifest, patch, and route-registry objects are closed at every nesting level. Unknown fields are rejected with their object path instead of being silently removed, so a misspelled key cannot produce a valid but unintended import. Additive input changes must be introduced as explicit optional fields under the applicable versioning policy or through a new schema version.
 

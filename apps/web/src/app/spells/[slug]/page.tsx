@@ -17,13 +17,11 @@ import {
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
+import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
-import {
-  signedStatModifierValue,
-  statModifierLabel,
-} from "@/lib/stat-modifiers";
+import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
 
@@ -1248,20 +1246,25 @@ export default async function SpellPage({
                           <div
                             key={`${modifier.kind}:${modifier.sourceKey}:${modifierIndex}`}
                           >
-                            <dt>{statModifierLabel(modifier)}</dt>
+                            <dt>
+                              <StatModifierLink
+                                modifier={modifier}
+                                stats={artifact.entities.stats}
+                              />
+                            </dt>
                             <dd>{signedStatModifierValue(modifier.amount)}</dd>
                           </div>
                         ))}
                       </dl>
                       {buff.modifiers.some(
                         (modifier) =>
-                          modifier.kind === "primary" ||
-                          modifier.kind === "secondary",
+                          (modifier.kind === "primary" ||
+                            modifier.kind === "secondary") &&
+                          modifier.statId === undefined,
                       ) ? (
                         <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                          Primary and secondary modifiers retain their numeric
-                          game stat IDs until an approved standalone
-                          stat-definition source is selected.
+                          Unmapped primary and secondary modifiers retain their
+                          numeric game stat IDs.
                         </p>
                       ) : null}
                     </section>

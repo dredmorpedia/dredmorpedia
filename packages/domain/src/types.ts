@@ -11,7 +11,7 @@ export const entityKinds = [
 ] as const;
 
 export type EntityKind = (typeof entityKinds)[number];
-export type SourceKind = "base" | "expansion" | "mod" | "fixture";
+export type SourceKind = "base" | "expansion" | "mod" | "fixture" | "reference";
 export type DiagnosticSeverity = "info" | "warning" | "error";
 export type PatchValue = string | number | boolean | null | string[];
 
@@ -274,6 +274,7 @@ export interface StatModifier {
   kind: StatModifierKind;
   sourceKey: string;
   amount: number;
+  statId?: string;
 }
 
 export const encrustmentModifierKinds = statModifierKinds;
@@ -822,6 +823,10 @@ export interface Monster extends NormalizedEntityBase {
 export interface Stat extends NormalizedEntityBase {
   kind: "stat";
   group: string;
+  modifier: {
+    kind: StatModifierKind;
+    sourceKey: string;
+  } | null;
 }
 
 export interface Template extends NormalizedEntityBase {

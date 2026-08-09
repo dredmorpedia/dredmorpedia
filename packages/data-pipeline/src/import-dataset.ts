@@ -34,9 +34,10 @@ import {
   type SpellEffect,
   type SpellEffectBuffCondition,
   type Stat,
+  type StatModifier,
 } from "@dredmorpedia/domain";
 
-import { loadManifest, resolveSourceRoot } from "./manifest";
+import { loadManifest, resolveSourceRoot, sourceRootBase } from "./manifest";
 import {
   InputSnapshots,
   type RegisteredInputSnapshot,
@@ -149,6 +150,9 @@ function collectPresentedAssetInputs(
       for (const resolvedSource of resolvedSources
         .slice(0, sourceIndex + 1)
         .reverse()) {
+        if (resolvedSource.source.kind === "reference") {
+          continue;
+        }
         const displayPath = toPosixPath(
           `${resolvedSource.displayPath}/${item.iconPath}`,
         );
@@ -204,6 +208,55 @@ function danglingDiagnostic(
     entityId: entity.id,
     details: { targetKind, reference },
   };
+}
+
+function statModifierSelectorKey(selector: {
+  kind: StatModifier["kind"];
+  sourceKey: string;
+}): string {
+  return `${selector.kind}:${selector.sourceKey}`;
+}
+
+function statModifierDefinitions(
+  stats: readonly Stat[],
+  diagnostics: DiagnosticDraft[],
+): ReadonlyMap<string, Stat> {
+  const definitions = new Map<string, Stat>();
+  const ambiguousSelectors = new Set<string>();
+  for (const stat of stats) {
+    if (stat.modifier === null) {
+      continue;
+    }
+    const selector = statModifierSelectorKey(stat.modifier);
+    const previous = definitions.get(selector);
+    if (previous) {
+      definitions.delete(selector);
+      ambiguousSelectors.add(selector);
+      diagnostics.push({
+        severity: "error",
+        code: "duplicate_stat_modifier_selector",
+        message: `${stat.name} and ${previous.name} both define modifier selector ${selector}.`,
+        source: sourceLocation(stat.provenance),
+        entityId: stat.id,
+        details: { selector, conflictingEntityId: previous.id },
+      });
+      continue;
+    }
+    if (!ambiguousSelectors.has(selector)) {
+      definitions.set(selector, stat);
+    }
+  }
+  return definitions;
+}
+
+function linkStatModifiers(
+  modifiers: readonly StatModifier[],
+  definitions: ReadonlyMap<string, Stat>,
+): StatModifier[] {
+  return modifiers.map((modifier) => {
+    const stat = definitions.get(statModifierSelectorKey(modifier));
+    return stat ? { ...modifier, statId: stat.id } : modifier;
+  });
 }
 
 interface RelationshipReviewContext {
@@ -1081,10 +1134,36 @@ function resolveCollections(
   }
 
   const linkedStats = routed.stats.entities;
+  const modifierDefinitions = statModifierDefinitions(linkedStats, diagnostics);
+  const routedItems = routed.items.entities.map((item) => ({
+    ...item,
+    modifiers: linkStatModifiers(item.modifiers, modifierDefinitions),
+  }));
+  const routedEncrustments = routed.encrustments.entities.map(
+    (encrustment) => ({
+      ...encrustment,
+      modifiers: linkStatModifiers(encrustment.modifiers, modifierDefinitions),
+    }),
+  );
+  const routedSpells = routed.spells.entities.map((spell) => ({
+    ...spell,
+    buffs: spell.buffs.map((buff) => ({
+      ...buff,
+      modifiers: linkStatModifiers(buff.modifiers, modifierDefinitions),
+    })),
+  }));
+  const routedAbilities = routed.abilities.entities.map((ability) => ({
+    ...ability,
+    modifiers: linkStatModifiers(ability.modifiers, modifierDefinitions),
+  }));
+  const routedMonsters = routed.monsters.entities.map((monster) => ({
+    ...monster,
+    modifiers: linkStatModifiers(monster.modifiers, modifierDefinitions),
+  }));
   const linkedItems = linkItems(
-    routed.items.entities,
+    routedItems,
     linkedStats,
-    routed.spells.entities,
+    routedSpells,
     diagnostics,
   );
   const linkedRecipes = linkRecipes(
@@ -1093,12 +1172,12 @@ function resolveCollections(
     diagnostics,
   );
   const linkedEncrustments = linkEncrustments(
-    routed.encrustments.entities,
+    routedEncrustments,
     linkedItems,
     diagnostics,
   );
   const linkedSpells = linkSpells(
-    routed.spells.entities,
+    routedSpells,
     linkedStats,
     linkedItems,
     routed.monsters.entities,
@@ -1106,7 +1185,7 @@ function resolveCollections(
     { datasetId, datasetVersion, sourceVersions },
   );
   const linkedAbilities = linkAbilities(
-    routed.abilities.entities,
+    routedAbilities,
     routed.skills.entities,
     linkedSpells,
     diagnostics,
@@ -1127,7 +1206,7 @@ function resolveCollections(
     abilities: linkedAbilities,
     spells: linkedSpells,
     monsters: linkMonsters(
-      routed.monsters.entities,
+      routedMonsters,
       linkedSpells,
       linkedItems,
       diagnostics,
@@ -1162,7 +1241,7 @@ export function importDataset(
 
   const resolvedSources: ResolvedSource[] = sortedSources.map((source) => {
     const absolutePath = resolveSourceRoot(
-      loaded.manifestDirectory,
+      sourceRootBase(loaded, source),
       source.root,
     );
     const displayPath = isPathWithin(repositoryRoot, absolutePath)
@@ -1252,6 +1331,9 @@ export function importDataset(
     const assetRoots = resolvedSources
       .slice(0, sourceIndex + 1)
       .reverse()
+      .filter(({ source: candidateSource }) =>
+        candidateSource.kind === "reference" ? false : true,
+      )
       .map(({ absolutePath, displayPath }) => ({
         absolutePath,
         displayPath,

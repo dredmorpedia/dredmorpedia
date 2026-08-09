@@ -27,6 +27,7 @@ function searchStat(id: string, slug: string): Stat {
     name: "Shared Name",
     description: "",
     group: "secondary",
+    modifier: null,
     provenance,
     variants: [provenance],
     appliedOverrides: [],

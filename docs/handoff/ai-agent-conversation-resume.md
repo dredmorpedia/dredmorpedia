@@ -24,7 +24,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - The current target is a locally complete product based on `1.1.5 public_beta`, including only the official assets needed by entities and features the product actually presents. Public deployment and a dataset-version switcher are postponed.
 - Official XML, generated official datasets, and copied official assets stay ignored and non-public. Selected screenshots may be prepared when requesting permission, but a screenshot does not establish permission to publish the underlying material.
 - New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are outside that intended scope. Scoped license files remain pending until the copyright-holder wording is supplied.
-- ADR 0001 through ADR 0004 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented.
+- ADR 0001 through ADR 0005 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented. ADR 0005 supplies an independently authored, separately versioned 62-selector stat reference without legacy prose, icons, or formulas.
 - Engine mechanics absent from XML must be evaluated individually immediately before their implementation. Legacy formulas are evidence to test, not automatically authoritative or automatically excluded.
 - Post-parity quality-of-life priorities and presentation of extra technical detail are intentionally deferred until parity polish, when they can be decided against concrete pages.
 
@@ -180,7 +180,7 @@ metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. These 18 declarations emit informational audit records and create no entity or route. The owner subsequently approved the exact Luckier Find `Acidium Salis` item-list declaration as a reviewed correction to `item:acidum salis`; it retains the original source label, adds stable review provenance and a backlink, and does not patch game data or create a global alias. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus one reviewed correction plus two source-only item-list options. Four dangling warnings remain: the Satanic Locator placeholder and three ambiguous monster spells. Do not alias them without new evidence. The canonical diagnostic set is 0 errors, 4 warnings, and 90 info. See `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
-The local product boundary and the technical direction in ADR 0001–0004 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, and an approved source for official stat definitions. The bounded item-icon importer is implemented; future asset families remain page-driven. The immediate next milestone is owner review of the first-parity statement and the official stat-definition source decision. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
+The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, and first-parity acceptance. The bounded item-icon importer is implemented; future asset families remain page-driven. The immediate next milestone is owner review of the first-parity statement. Stat names/categories now come from the versioned project reference, while disputed formulas remain separate evidence decisions. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
 
 ## Git and owner handoff convention
 
@@ -190,6 +190,17 @@ The local product boundary and the technical direction in ADR 0001–0004 are no
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The stat-reference slice adds a separately versioned, project-authored
+62-selector catalogue for the canonical game version. Exact selector linking
+resolves all 4,309 canonical item, encrustment, ability, spell-buff, and monster
+modifiers without changing their raw source values. Modifier labels link to
+stat pages, which expose reciprocal backlinks, exact mapping metadata,
+reference provenance, and an explicit no-formula boundary. The complete
+workspace passes 246 unit/artifact tests and all 36 browser cases; deterministic
+official generation contains 2,829 search documents with 0 errors, 4 warnings,
+and 90 informational records, and exports 2,980 local pages. Evidence is
+recorded in `docs/analysis/stat-reference-catalog-evidence-2026-08-09.md`.
 
 The ADR 0004 lifecycle is implemented through schema-2 route registries with
 explicit root or checksum-bound inherited lineage, stable source-identity

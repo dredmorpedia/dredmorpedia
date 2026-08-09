@@ -1328,6 +1328,26 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/modifiers/);
   });
 
+  it("rejects a stat modifier linked to a missing definition", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { modifiers: { statId?: string }[] }[];
+      };
+    };
+    const modifier = typedArtifact.entities.items
+      .flatMap((item) => item.modifiers)
+      .at(0);
+    if (!modifier) {
+      throw new Error("Synthetic artifact unexpectedly has no item modifier.");
+    }
+    modifier.statId = "stat:missing-definition";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/invalid definition reference/);
+  });
+
   it("rejects malformed item artifact metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

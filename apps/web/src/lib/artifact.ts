@@ -233,6 +233,7 @@ const statModifierSchema = z
     kind: z.enum(statModifierKinds),
     sourceKey: z.string(),
     amount: z.number(),
+    statId: optionalString,
   })
   .strict();
 
@@ -1086,7 +1087,18 @@ const monsterSchema = z
   .strict();
 
 const statSchema = z
-  .object({ ...entityBaseShape, kind: z.literal("stat"), group: z.string() })
+  .object({
+    ...entityBaseShape,
+    kind: z.literal("stat"),
+    group: z.string(),
+    modifier: z
+      .object({
+        kind: z.enum(statModifierKinds),
+        sourceKey: z.string().min(1),
+      })
+      .strict()
+      .nullable(),
+  })
   .strict();
 
 const templateSchema = z
@@ -1111,7 +1123,7 @@ const datasetArtifactSchema = z
         .object({
           id: z.string(),
           label: z.string(),
-          kind: z.enum(["base", "expansion", "mod", "fixture"]),
+          kind: z.enum(["base", "expansion", "mod", "fixture", "reference"]),
           version: z.string(),
           precedence: z.number().int(),
         })
@@ -1330,6 +1342,49 @@ function assertUniqueEntityRouteSlugs(artifact: DatasetArtifact): void {
   }
 }
 
+function assertStatModifierReferences(artifact: DatasetArtifact): void {
+  const statsById = new Map(
+    artifact.entities.stats.map((stat) => [stat.id, stat]),
+  );
+  const modifierOwners = [
+    ...artifact.entities.items.map((entity) => ({
+      entity,
+      modifiers: entity.modifiers,
+    })),
+    ...artifact.entities.encrustments.map((entity) => ({
+      entity,
+      modifiers: entity.modifiers,
+    })),
+    ...artifact.entities.abilities.map((entity) => ({
+      entity,
+      modifiers: entity.modifiers,
+    })),
+    ...artifact.entities.monsters.map((entity) => ({
+      entity,
+      modifiers: entity.modifiers,
+    })),
+    ...artifact.entities.spells.flatMap((entity) =>
+      entity.buffs.map((buff) => ({ entity, modifiers: buff.modifiers })),
+    ),
+  ];
+  for (const { entity, modifiers } of modifierOwners) {
+    for (const modifier of modifiers) {
+      if (modifier.statId === undefined) {
+        continue;
+      }
+      const stat = statsById.get(modifier.statId);
+      if (
+        stat?.modifier?.kind !== modifier.kind ||
+        stat.modifier.sourceKey !== modifier.sourceKey
+      ) {
+        throw new Error(
+          `Generated entity ${entity.id} contains a stat modifier with an invalid definition reference.`,
+        );
+      }
+    }
+  }
+}
+
 function parseArtifact(contents: string): DatasetArtifact {
   const result = datasetArtifactSchema.safeParse(
     parseJson(contents, "artifact.json"),
@@ -1352,6 +1407,7 @@ function parseArtifact(contents: string): DatasetArtifact {
     "entity IDs",
   );
   assertUniqueEntityRouteSlugs(artifact);
+  assertStatModifierReferences(artifact);
   return artifact;
 }
 

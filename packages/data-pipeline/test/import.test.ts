@@ -109,6 +109,122 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(4);
   });
 
+  it("links exact stat modifier selectors and rejects ambiguous definitions", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-stat-reference-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      '<items><item name="Reference Item" type="material"><primarybuff id="0" amount="2"/><secondarybuff id="1" amount="3"/></item></items>',
+    );
+    writeFileSync(
+      path.join(sourceRoot, "statDB.xml"),
+      '<stats><stat id="burliness" name="Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="duplicate-burliness" name="Duplicate Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="mana" name="Mana" group="secondary" modifierKind="secondary" sourceKey="1"/></stats>',
+    );
+    const referenceManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      referenceManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "stat-reference-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "reference",
+            label: "Reference",
+            kind: "reference",
+            version: "1.0.0",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "items", path: "itemDB.xml" },
+              { kind: "stats", path: "statDB.xml" },
+            ],
+          },
+        ],
+        patches: [],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: referenceManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+
+    expect(result.artifact.sources[0]?.kind).toBe("reference");
+    expect(result.artifact.entities.items[0]?.modifiers).toEqual([
+      { kind: "primary", sourceKey: "0", amount: 2 },
+      {
+        kind: "secondary",
+        sourceKey: "1",
+        amount: 3,
+        statId: "stat:mana",
+      },
+    ]);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "duplicate_stat_modifier_selector",
+        details: expect.objectContaining({ selector: "primary:0" }),
+      }),
+    );
+  });
+
+  it("loads the complete project-authored canonical stat reference", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-canonical-stat-reference-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const referenceManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      referenceManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: "canonical-stat-reference-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "dredmorpedia-stat-reference",
+            label: "Dredmorpedia stat reference",
+            kind: "reference",
+            version: "1.0.0",
+            precedence: 0,
+            root: path.join(
+              repositoryRoot,
+              "reference-data/dredmor-1.1.5-public-beta",
+            ),
+            files: [{ kind: "stats", path: "statDB.xml" }],
+          },
+        ],
+        patches: [],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: referenceManifestPath,
+      repositoryRoot,
+    });
+    const selectors = result.artifact.entities.stats.map(
+      (stat) => `${stat.modifier?.kind}:${stat.modifier?.sourceKey}`,
+    );
+
+    expect(result.artifact.entities.stats).toHaveLength(62);
+    expect(new Set(selectors).size).toBe(62);
+    expect(selectors).toEqual(
+      expect.arrayContaining([
+        "damage:acidic",
+        "resistance:voltaic",
+        "primary:0",
+        "primary:5",
+        "secondary:0",
+        "secondary:23",
+      ]),
+    );
+    expect(result.diagnostics).toEqual([]);
+  });
+
   it("supports an absolute read-only source root without exposing local paths", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-external-source-"),

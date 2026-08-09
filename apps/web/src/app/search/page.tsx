@@ -39,7 +39,7 @@ export default function SearchPage() {
     for (const modifier of item.modifiers) {
       statLabels.set(
         statModifierSearchKey(modifier),
-        statModifierLabel(modifier),
+        statModifierLabel(modifier, artifact.entities.stats),
       );
     }
   }

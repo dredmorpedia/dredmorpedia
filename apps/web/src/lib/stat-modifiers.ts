@@ -1,8 +1,24 @@
-import type { StatModifier } from "@dredmorpedia/domain";
+import type { Stat, StatModifier } from "@dredmorpedia/domain";
 
 import { titleCase } from "@/lib/display-labels";
 
-export function statModifierLabel(modifier: StatModifier): string {
+export function statDefinitionForModifier(
+  modifier: StatModifier,
+  stats: readonly Stat[],
+): Stat | undefined {
+  return modifier.statId === undefined
+    ? undefined
+    : stats.find((stat) => stat.id === modifier.statId);
+}
+
+export function statModifierLabel(
+  modifier: StatModifier,
+  stats: readonly Stat[] = [],
+): string {
+  const definition = statDefinitionForModifier(modifier, stats);
+  if (definition) {
+    return definition.name;
+  }
   switch (modifier.kind) {
     case "damage":
       return `${titleCase(modifier.sourceKey)} damage`;

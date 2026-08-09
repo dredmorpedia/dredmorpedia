@@ -13,6 +13,7 @@ import {
   migrateOfficialSourceManifest,
   officialDatasetVersion,
   parseCurrentOfficialSourceManifest,
+  upgradeCurrentOfficialSourceManifest,
 } from "./official-manifest";
 
 const repositoryRoot = path.resolve(
@@ -59,14 +60,24 @@ const schemaVersion =
     : undefined;
 
 if (schemaVersion === 2) {
-  parseCurrentOfficialSourceManifest(input);
-  process.stdout.write(
-    `Official manifest is already schema 2 at ${officialDatasetVersion}; no changes made.\n`,
-  );
+  const manifest = upgradeCurrentOfficialSourceManifest(input);
+  const currentContents = `${JSON.stringify(input, null, 2)}\n`;
+  const upgradedContents = `${JSON.stringify(manifest, null, 2)}\n`;
+  if (currentContents === upgradedContents) {
+    parseCurrentOfficialSourceManifest(input);
+    process.stdout.write(
+      `Official manifest is current at ${officialDatasetVersion}; no changes made.\n`,
+    );
+  } else {
+    writeAtomically(upgradedContents);
+    process.stdout.write(
+      `Added the versioned Dredmorpedia stat reference to the current official manifest at ${officialDatasetVersion}.\n`,
+    );
+  }
 } else {
   const manifest = migrateOfficialSourceManifest(input);
   writeAtomically(`${JSON.stringify(manifest, null, 2)}\n`);
   process.stdout.write(
-    `Migrated official manifest from schema 1 to schema 2 at ${officialDatasetVersion}; preserved ${manifest.sources.length} local source roots.\n`,
+    `Migrated official manifest from schema 1 to schema 2 at ${officialDatasetVersion}; preserved four local game roots and added the versioned Dredmorpedia stat reference.\n`,
   );
 }

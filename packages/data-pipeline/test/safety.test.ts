@@ -682,4 +682,50 @@ describe("input safety", () => {
       rmSync(externalSourceRoot, { recursive: true, force: true });
     }
   });
+
+  it("resolves repository-based source roots without allowing traversal", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-repository-source-"),
+    );
+    try {
+      const referenceRoot = path.join(repositoryRoot, "reference-data");
+      const manifestDirectory = path.join(repositoryRoot, "data", "raw");
+      mkdirSync(referenceRoot, { recursive: true });
+      mkdirSync(manifestDirectory, { recursive: true });
+      writeFileSync(path.join(referenceRoot, "statDB.xml"), "<stats />");
+      const manifestPath = path.join(manifestDirectory, "manifest.json");
+      const manifest = {
+        schemaVersion: 2,
+        datasetId: "repository-source-test",
+        datasetVersion: "1.0.0",
+        sources: [
+          {
+            id: "reference",
+            label: "Reference",
+            kind: "reference",
+            version: "1.0.0",
+            precedence: 0,
+            rootBase: "repository",
+            root: "reference-data",
+            files: [{ kind: "stats", path: "statDB.xml" }],
+          },
+        ],
+        patches: [],
+      };
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+
+      expect(
+        loadManifest(manifestPath, repositoryRoot).manifest.sources[0]
+          ?.rootBase,
+      ).toBe("repository");
+
+      manifest.sources[0]!.root = "../outside";
+      writeFileSync(manifestPath, JSON.stringify(manifest));
+      expect(() => loadManifest(manifestPath, repositoryRoot)).toThrow(
+        /Unsafe relative path/,
+      );
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
 });

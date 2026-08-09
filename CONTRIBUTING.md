@@ -48,10 +48,12 @@ pnpm build:official
 pnpm benchmark:search:official
 ```
 
-`pnpm migrate:official-manifest` is a one-time, idempotent compatibility command
-for the former schema-1 canonical four-source manifest. It preserves every
-ignored source root and file declaration while adding the reviewed dataset and
-source build versions. It refuses unexpected scope or conflicting schema-2
+`pnpm migrate:official-manifest` is an idempotent compatibility command for the
+canonical ignored manifest. It preserves all four ignored game source roots and
+file declarations, adds reviewed dataset/source version metadata when migrating
+schema 1, and adds the tracked versioned Dredmorpedia stat reference to schema 1
+or earlier schema-2 configurations. Official generate/dev/build commands run it
+automatically. It refuses unexpected game scope or conflicting schema-2
 metadata. New manifests should be created directly as schema 2.
 
 `pnpm dev:official` regenerates `data/generated/official-local/` plus the matching item-icon set under `apps/web/public/generated-assets/current/` before starting, so it does not silently serve stale or mismatched local output. The importer copies only supported PNG icons referenced by normalized items, from the exact first-registration byte snapshots; it content-addresses and checksums the copies, records fallback diagnostics, atomically replaces its managed directory, and never writes to the installation. The deterministic generate/check command performs the same import twice without starting the app, while the build command additionally verifies the full static export. All three official commands enable the dataset pipeline's `--fail-on-errors` gate: an import with any error diagnostic exits unsuccessfully before replacing the last published dataset output set. Synthetic commands do not enable the gate because their legal fixture deliberately exercises one invalid XML input. Official inputs and both generated output locations remain ignored and non-public.

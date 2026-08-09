@@ -83,6 +83,11 @@ All 249 former sound/sprite diagnostics are now typed presentation metadata: 60 
 
 The measured game build has no standalone `statDB.xml`. The product therefore must identify an approved definition source or model referenced-only stats explicitly; the implementation does not infer descriptions or provenance that the source did not supply.
 
+Update 2026-08-09: ADR 0005 resolves this open source decision with a
+separately versioned, project-authored catalogue containing names, categories,
+and exact selector mappings only. It deliberately excludes legacy prose, icons,
+and formulas. See `stat-reference-catalog-evidence-2026-08-09.md`.
+
 All official-derived outputs remain ignored and are not approved for commit or publication.
 
 The existing local official manifest remains readable through the schema version 1 migration path. It activates no patches and reports dataset/source versions as `unversioned`; a reviewed local schema version 2 manifest is required before those labels are used for release provenance.

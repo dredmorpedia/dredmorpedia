@@ -9,6 +9,7 @@ import {
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   slugify,
+  statModifierKinds,
   unresolvedRelationship,
   type Ability,
   type Encrustment,
@@ -5990,6 +5991,45 @@ function parseStats(
     }
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, record, name, originalId);
+    const currentEntityId = entityId("stat", name);
+    const modifierKind = xmlAttribute(record, "modifierKind");
+    const modifierSourceKey = xmlAttribute(record, "sourceKey");
+    const hasModifierKind = modifierKind !== undefined;
+    const hasModifierSourceKey = modifierSourceKey !== undefined;
+    let modifier: Stat["modifier"] = null;
+    if (hasModifierKind !== hasModifierSourceKey) {
+      context.diagnostics.push({
+        severity: "error",
+        code: "incomplete_stat_modifier_selector",
+        message: `${name} must declare modifierKind and sourceKey together.`,
+        source: provenance,
+        entityId: currentEntityId,
+      });
+    } else if (modifierKind !== undefined && modifierSourceKey !== undefined) {
+      if (!(statModifierKinds as readonly string[]).includes(modifierKind)) {
+        context.diagnostics.push({
+          severity: "error",
+          code: "invalid_stat_modifier_kind",
+          message: `${name} declares an unsupported modifier kind: ${modifierKind}.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { modifierKind },
+        });
+      } else if (modifierSourceKey.trim().length === 0) {
+        context.diagnostics.push({
+          severity: "error",
+          code: "invalid_stat_modifier_source_key",
+          message: `${name} declares an empty modifier source key.`,
+          source: provenance,
+          entityId: currentEntityId,
+        });
+      } else {
+        modifier = {
+          kind: modifierKind as StatModifierKind,
+          sourceKey: modifierSourceKey,
+        };
+      }
+    }
     const stat: Stat = {
       ...baseEntity(
         "stat",
@@ -5998,8 +6038,24 @@ function parseStats(
         provenance,
       ),
       group: xmlAttribute(record, "group") ?? "unknown",
+      modifier,
     };
-    reportUnknownChildren(context, record, new Set(), stat.id);
+    reportUnknownLeafContent(
+      context,
+      record,
+      "stat",
+      new Set([
+        "id",
+        "name",
+        "group",
+        "description",
+        "modifierKind",
+        "sourceKey",
+      ]),
+      provenance,
+      stat.id,
+      true,
+    );
     addCandidate(result.stats, stat, context.source.precedence);
   }
 }
