@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { statModifierSearchKey } from "@dredmorpedia/domain";
-
 import { SearchExplorer } from "@/components/search-explorer";
 import { loadArtifact, loadSearchArtifact } from "@/lib/artifact";
-import { statModifierLabel } from "@/lib/stat-modifiers";
+import { createSearchStatFilterOptions } from "@/lib/search-stat-facets";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -28,24 +26,10 @@ export default function SearchPage() {
   const sources = artifact.sources
     .filter((source) => sourceIds.has(source.id))
     .map((source) => ({ value: source.id, label: source.label }));
-  const statLabels = new Map<string, string>();
-  for (const stat of artifact.entities.stats) {
-    statLabels.set(stat.canonicalKey, stat.name);
-  }
-  for (const item of artifact.entities.items) {
-    for (const stat of item.stats) {
-      statLabels.set(stat.statKey, stat.statName);
-    }
-    for (const modifier of item.modifiers) {
-      statLabels.set(
-        statModifierSearchKey(modifier),
-        statModifierLabel(modifier, artifact.entities.stats),
-      );
-    }
-  }
-  const stats = [...statLabels]
-    .sort((left, right) => left[1].localeCompare(right[1], "en"))
-    .map(([value, label]) => ({ value, label }));
+  const stats = createSearchStatFilterOptions(
+    artifact.entities.stats,
+    search.documents,
+  );
   return (
     <Suspense
       fallback={

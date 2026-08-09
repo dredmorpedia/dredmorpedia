@@ -300,9 +300,18 @@ test("searches reference entities with shareable structured filters", async ({
     .getByRole("option", { name: "Crushing damage", exact: true })
     .press("Enter");
   await expect(page).toHaveURL(/stat=modifier%3Adamage%3Acrushing/);
-  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(page.getByText("4 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Synthetic Gear Polish" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Measured Strike" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Spark" }),
   ).toBeVisible();
 });
 

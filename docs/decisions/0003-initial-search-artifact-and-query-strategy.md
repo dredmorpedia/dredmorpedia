@@ -58,6 +58,14 @@ route loads the search payload, applies project-owned text/facet and spelling
 logic, preserves filters in the URL, and renders at most 50 results. This
 implementation is not permission to publish official content.
 
+The stat facet now covers direct item, ability, spell, and encrustment
+declarations. Resolved selectors share one canonical stat key; raw historical
+selector URLs remain accepted aliases, and unresolved selectors retain their
+collision-safe source identity. Inherited monster bonuses remain available as
+stat-page backlinks rather than being duplicated in search. This extension
+passes the same accepted artifact, query, relevance, and browser budgets
+without changing them.
+
 ## Consequences
 
 This avoids an early dependency and keeps domain filtering explicit. It also means the project owns token normalization, ranking, result grouping, and later typo/prefix behavior until evidence justifies a specialized index.
@@ -71,6 +79,8 @@ the implemented suggestion contract is in
 [`../analysis/search-spelling-suggestions-evidence-2026-07-29.md`](../analysis/search-spelling-suggestions-evidence-2026-07-29.md),
 and the accepted response/relevance measurements are in
 [`../analysis/search-response-budgets-evidence-2026-08-09.md`](../analysis/search-response-budgets-evidence-2026-08-09.md).
+Cross-entity stat-filter evidence is in
+[`../analysis/cross-entity-stat-search-evidence-2026-08-09.md`](../analysis/cross-entity-stat-search-evidence-2026-08-09.md).
 
 ## Acceptance checklist
 

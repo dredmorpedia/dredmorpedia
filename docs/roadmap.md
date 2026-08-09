@@ -497,7 +497,7 @@ warnings and 90 informational records. Evidence is recorded in
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
-Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. ADR 0003 is accepted with reproducible transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets plus concrete exact, multi-token, typo, and filter-isolation examples. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md` and `docs/analysis/search-response-budgets-evidence-2026-08-09.md`. Broader non-item stat facets remain a separate evidenced-contract decision.
+Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter now covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases. It deliberately leaves inherited monster bonuses on stat-page backlinks and does not infer a cross-scope strength ranking. The 1,477,801-byte canonical search artifact remains inside ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, and `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`.
 
 ## Phase 4 — Legacy parity
 
@@ -531,6 +531,13 @@ across entity kinds. The ignored canonical dataset has 36 affected records and
 between complete datasets and broad mod workflows remain later capabilities.
 Evidence is in
 `docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
+
+The remaining valuable legacy stat-search navigation is implemented without
+adopting the preserved app's loosely typed amount ranking. The canonical
+filter exposes 61 used definitions across 1,350 item, ability, spell, and
+encrustment records, stays within the accepted search budgets, and preserves
+raw selector URL aliases. The single legacy Meta view still depends on the
+separate disputed monster-damage formula decision.
 
 ### Exit criteria
 

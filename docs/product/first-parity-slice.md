@@ -24,7 +24,12 @@ A player can find an item or stat, understand normalized game values and sources
 - Every normalized ability has a stable static detail route with its resolved or explicitly unresolved parent skill, starting/level position, resolved or explicitly unresolved spell triggers, source/file provenance, and attached diagnostics. Supported direct event-trigger shapes retain chance, delay, duration, resistance, and taxonomy metadata.
 - Every normalized monster has a stable static detail route with taxonomy, dungeon-depth/special classification, source archetype levels and experience, inherited stat bonuses and AI casting chance, palette metadata, local loss-aware AI/sight/dig/dash/charge source metadata, resolved or explicitly unresolved on-hit/cast/on-death/dash/charge spell hooks, direct named or type-driven drops, resolved parent/direct-variant navigation, source/file provenance, and attached diagnostics. Exact one-in odds remain visible, resolved spells and named drop items link both ways, type-driven drops do not fabricate items, and the page does not present unverified derived combat totals or inherited sight/movement/drop behavior.
 - A dataset with no standalone stat definitions exports successfully and explains that limitation without fabricating definitions.
-- Search covers all nine generated entity kinds and supports shareable text, entity-type, source, item-category, and item-stat filters, including source-defined item modifiers when standalone stat definitions are unavailable.
+- Search covers all nine generated entity kinds and supports shareable text,
+  entity-type, source, category, and stat filters. Stat facets cover item,
+  ability, spell, and encrustment declarations, use canonical reference keys
+  where definitions exist, retain unresolved selectors loss-aware, and do not
+  infer a cross-scope strength formula. Monster stat relationships remain on
+  stat detail pages instead of duplicating inherited bonuses in search.
 - Text matching requires every normalized query token. Exact and prefix name matches rank above description-only matches; ties are deterministic.
 - A zero-result query offers at most five deterministic, user-selected spelling
   suggestions derived from entity names and aliases. Suggestions do not

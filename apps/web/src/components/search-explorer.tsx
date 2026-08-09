@@ -25,6 +25,7 @@ import {
 interface FilterOption {
   value: string;
   label: string;
+  aliases?: string[];
 }
 
 interface SearchExplorerProps {
@@ -163,9 +164,12 @@ export function SearchExplorer({
     ? requestedCategory
     : "all";
   const requestedStat = searchParams.get("stat") ?? "all";
-  const stat = statOptions.some((option) => option.value === requestedStat)
-    ? requestedStat
-    : "all";
+  const stat =
+    statOptions.find(
+      (option) =>
+        option.value === requestedStat ||
+        option.aliases?.includes(requestedStat),
+    )?.value ?? "all";
   const searchQuery = {
     query,
     ...(kind === "all" ? {} : { kinds: [kind as EntityKind] }),
@@ -257,7 +261,7 @@ export function SearchExplorer({
           onChange={(value) => updateFilter("category", value)}
         />
         <FilterSelect
-          label="Item stat"
+          label="Stat"
           value={stat}
           options={statOptions}
           onChange={(value) => updateFilter("stat", value)}

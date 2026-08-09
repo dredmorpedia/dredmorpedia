@@ -17,9 +17,9 @@ The audit's main architectural recommendations have been implemented. The modern
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; local-only policy accepted, future public permission open |
 | Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and checksum-bound inherited route registries with tombstones are deterministic domain/pipeline contracts. `/dataset/` now makes ordered sources, diagnostics, affected records, override steps, and reviewed patches discoverable from one static surface. | Resolved; publication gate and active-dataset explorer implemented |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 249 unit/artifact tests, and 38 desktop/mobile Playwright tests are established. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 250 unit/artifact tests, and 38 desktop/mobile Playwright tests are established. | Resolved |
 | Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,981 pages including dataset health. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
-| Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,829 canonical documents, including 62 project-authored stat definitions. `/search/` exposes every kind, caps rendering at 50 results, and offers bounded user-selected name/route-alias spelling suggestions after zero results; `/browse/` provides bounded static discovery without JavaScript. ADR 0003 now carries enforced transfer, parse, query, relevance, and desktop/slowed-mobile browser budgets. | Resolved for current search; broader non-item stat facets require their own evidenced contract |
+| Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,829 canonical documents, including 62 project-authored stat definitions. `/search/` exposes every kind, caps rendering at 50 results, offers bounded user-selected name/route-alias spelling suggestions after zero results, and filters direct item/ability/spell/encrustment stat declarations through canonical keys; `/browse/` provides bounded static discovery without JavaScript. ADR 0003's unchanged transfer, parse, query, relevance, and desktop/slowed-mobile browser budgets pass. | Resolved for current search and legacy stat discovery; heterogeneous amount ranking is intentionally not inferred |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates asset paths host-independently before root probing, checks filesystem references against real source roots, and emits strict normalized schemas. The web verifies safe route/asset-reference shapes and unique same-kind canonical/alias ownership, while React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
 | Useful legacy content rules needed verified parity rather than a blind port | Static details and deterministic relationships now cover items, recipes, encrustments, skills, abilities, spells, monsters, stats, and templates. Verified slices preserve provenance and explicitly withhold unsupported behavior/formulas. | In progress |
 | Code, mod, official-data, and asset redistribution rights were unclear | The accepted local-only policy keeps official/generated derivatives ignored and blocks public official-content deployment. The first importer copies only referenced item PNGs into an ignored, checksummed local set. Modern-project material is intended for a scoped MIT license. | Current boundary selected; license wording, excluded provenance, and public permission remain |
@@ -76,7 +76,8 @@ Current validation and search evidence are recorded in:
 - [`search-response-budgets-evidence-2026-08-09.md`](search-response-budgets-evidence-2026-08-09.md),
 - [`item-icon-import-evidence-2026-08-09.md`](item-icon-import-evidence-2026-08-09.md),
 - [`stat-reference-catalog-evidence-2026-08-09.md`](stat-reference-catalog-evidence-2026-08-09.md),
-- [`dataset-health-and-source-decisions-evidence-2026-08-09.md`](dataset-health-and-source-decisions-evidence-2026-08-09.md), and
+- [`dataset-health-and-source-decisions-evidence-2026-08-09.md`](dataset-health-and-source-decisions-evidence-2026-08-09.md),
+- [`cross-entity-stat-search-evidence-2026-08-09.md`](cross-entity-stat-search-evidence-2026-08-09.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -105,8 +106,9 @@ The following audit concerns are still actionable:
 3. **Formula decisions:** the missing stat-definition source is resolved by ADR
    0005's independently authored 62-selector reference catalogue. Resolve or
    intentionally exclude disputed monster Life, Mana, secondary-stat, and
-   damage formulas individually. Broader non-item stat facets may now be
-   evaluated against the evidenced definition/reference contract.
+   damage formulas individually. Direct non-item stat facets are implemented;
+   inherited monster bonuses remain discoverable on stat pages rather than
+   being duplicated or ranked in search.
 4. **Release hardening:** complete static-hosting policy, sitemap/robots/canonical behavior, dependency/update policy, general page performance budgets, dataset health reporting, and rollback procedures.
 
 ## Executive assessment

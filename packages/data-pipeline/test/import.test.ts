@@ -6360,6 +6360,46 @@ describe("synthetic dataset import", () => {
     ]);
     expect(
       result.search.documents.find(
+        (document) => document.id === "encrustment:synthetic gear polish",
+      )?.statKeys,
+    ).toEqual([
+      "modifier:damage:crushing",
+      "modifier:damage:voltaic",
+      "modifier:primary:2",
+      "modifier:resistance:toxic",
+      "modifier:secondary:6",
+    ]);
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "ability:measured strike",
+      )?.statKeys,
+    ).toEqual([
+      "modifier:damage:crushing",
+      "modifier:damage:voltaic",
+      "modifier:primary:2",
+      "modifier:resistance:toxic",
+      "modifier:secondary:6",
+    ]);
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "spell:clockwork spark",
+      )?.statKeys,
+    ).toEqual(
+      expect.arrayContaining([
+        "modifier:damage:crushing",
+        "modifier:damage:voltaic",
+        "modifier:primary:2",
+        "modifier:resistance:toxic",
+        "modifier:secondary:6",
+      ]),
+    );
+    expect(
+      result.search.documents.find(
+        (document) => document.id === "monster:armored training diggle",
+      )?.statKeys,
+    ).toEqual([]);
+    expect(
+      result.search.documents.find(
         (document) => document.id === "item:clockwork blade",
       )?.aliases,
     ).toEqual(["clockwork-blade-plus", "clockwork-sword"]);

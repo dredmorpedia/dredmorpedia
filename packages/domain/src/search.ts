@@ -1,4 +1,5 @@
 import { compareCodeUnits } from "./ordering";
+import { allSpellEffects } from "./spell-relationships";
 import type {
   DatasetArtifact,
   EntityKind,
@@ -43,24 +44,124 @@ function categoryFor(entity: NormalizedEntity): string | null {
   return null;
 }
 
-export function statModifierSearchKey(modifier: StatModifier): string {
+export function statModifierSearchKey(
+  modifier: Pick<StatModifier, "kind" | "sourceKey">,
+): string {
   return `modifier:${modifier.kind}:${modifier.sourceKey}`;
 }
 
-export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
+interface SearchStatKeyIndex {
+  byId: ReadonlyMap<string, string>;
+  byModifierKey: ReadonlyMap<string, string>;
+}
+
+function searchStatKeyIndex(
+  entities: DatasetArtifact["entities"],
+): SearchStatKeyIndex {
+  return {
+    byId: new Map(entities.stats.map((stat) => [stat.id, stat.canonicalKey])),
+    byModifierKey: new Map(
+      entities.stats.flatMap((stat) =>
+        stat.modifier
+          ? [[statModifierSearchKey(stat.modifier), stat.canonicalKey]]
+          : [],
+      ),
+    ),
+  };
+}
+
+function referencedStatKey(
+  sourceKey: string,
+  statId: string | undefined,
+  index: SearchStatKeyIndex,
+): string {
+  return (
+    (statId === undefined ? undefined : index.byId.get(statId)) ?? sourceKey
+  );
+}
+
+function modifierStatKey(
+  modifier: Pick<StatModifier, "kind" | "sourceKey" | "statId">,
+  index: SearchStatKeyIndex,
+): string {
+  const sourceKey = statModifierSearchKey(modifier);
+  return (
+    (modifier.statId === undefined
+      ? undefined
+      : index.byId.get(modifier.statId)) ??
+    index.byModifierKey.get(sourceKey) ??
+    sourceKey
+  );
+}
+
+function modifierStatKeys(
+  modifiers: readonly StatModifier[],
+  index: SearchStatKeyIndex,
+): string[] {
+  return modifiers.map((modifier) => modifierStatKey(modifier, index));
+}
+
+function statKeysForEntity(
+  entity: NormalizedEntity,
+  index: SearchStatKeyIndex,
+): string[] {
+  let keys: string[] = [];
+
+  switch (entity.kind) {
+    case "item":
+      keys = [
+        ...entity.stats.map((stat) =>
+          referencedStatKey(stat.statKey, stat.statId, index),
+        ),
+        ...modifierStatKeys(entity.modifiers, index),
+      ];
+      break;
+    case "encrustment":
+    case "ability":
+      keys = modifierStatKeys(entity.modifiers, index);
+      break;
+    case "spell": {
+      const effects = allSpellEffects(entity);
+      keys = [
+        ...entity.buffs.flatMap((buff) =>
+          modifierStatKeys(buff.modifiers, index),
+        ),
+        ...effects.flatMap((effect) => [
+          ...(effect.statKey
+            ? [referencedStatKey(effect.statKey, effect.statId, index)]
+            : []),
+          ...effect.damage.map((damage) =>
+            modifierStatKey(
+              {
+                kind: "damage",
+                sourceKey: damage.sourceKey,
+              },
+              index,
+            ),
+          ),
+        ]),
+      ];
+      break;
+    }
+  }
+
+  return [...new Set(keys)].sort((left, right) =>
+    compareCodeUnits(left, right),
+  );
+}
+
+export function createSearchDocument(
+  entity: NormalizedEntity,
+  index: SearchStatKeyIndex = {
+    byId: new Map(),
+    byModifierKey: new Map(),
+  },
+): SearchDocument {
   const category = categoryFor(entity);
   const aliases = [...new Set(entity.slugAliases)].sort((left, right) =>
     compareCodeUnits(left, right),
   );
-  const statKeys =
-    entity.kind === "item"
-      ? [
-          ...new Set([
-            ...entity.stats.map((stat) => stat.statKey),
-            ...entity.modifiers.map(statModifierSearchKey),
-          ]),
-        ].sort((left, right) => compareCodeUnits(left, right))
-      : [];
+  const statKeys = statKeysForEntity(entity, index);
   const statText =
     entity.kind === "item"
       ? [
@@ -132,9 +233,10 @@ export function createSearchDocument(entity: NormalizedEntity): SearchDocument {
 export function createSearchDocuments(
   entities: DatasetArtifact["entities"],
 ): SearchDocument[] {
+  const index = searchStatKeyIndex(entities);
   return Object.values(entities)
     .flat()
-    .map((entity) => createSearchDocument(entity))
+    .map((entity) => createSearchDocument(entity, index))
     .sort(
       (left, right) =>
         compareCodeUnits(left.kind, right.kind) ||
