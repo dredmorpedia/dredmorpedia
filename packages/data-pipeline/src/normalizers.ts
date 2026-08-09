@@ -47,7 +47,6 @@ import {
   type SpellEffect,
   type SpellEffectOption,
   type SpellImpactMetadata,
-  type SpellManaCost,
   type SpellTrigger,
   type SourceFlag,
   type StatModifier,
@@ -57,7 +56,8 @@ import {
   type Template,
 } from "@dredmorpedia/domain";
 
-import type { DatabaseKind, SourceDefinition } from "./manifest";
+import type { DatabaseKind } from "./manifest";
+import type { NormalizationContext } from "./normalization-context";
 import { parseSourceInteger, parseSourceNumber } from "./numeric-lexemes";
 import {
   assertSafeRelativePath,
@@ -65,7 +65,8 @@ import {
   resolveExistingWithin,
   toPosixPath,
 } from "./safe-path";
-import type { DiagnosticDraft, ParsedXml, XmlRecord } from "./xml-adapter";
+import { parseSpellRequirements } from "./spell-requirements";
+import type { XmlRecord } from "./xml-adapter";
 import {
   collectElements,
   collectNestedElements,
@@ -85,18 +86,6 @@ export interface CandidateCollections {
   monsters: EntityCandidate<Monster>[];
   stats: EntityCandidate<Stat>[];
   templates: EntityCandidate<Template>[];
-}
-
-export interface NormalizationContext {
-  source: SourceDefinition;
-  assetRoots: readonly {
-    absolutePath: string;
-    displayPath: string;
-  }[];
-  file: string;
-  parsed: ParsedXml;
-  diagnostics: DiagnosticDraft[];
-  registerInput: (absolutePath: string, displayPath: string) => void;
 }
 
 export function emptyCandidateCollections(): CandidateCollections {
@@ -2645,151 +2634,6 @@ function parseSkills(
   }
 }
 
-function parseSpellRequirements(
-  record: XmlRecord,
-  context: NormalizationContext,
-  provenance: EntityProvenance,
-  currentEntityId: string,
-): Pick<Spell, "manaCosts" | "shieldRequirements" | "weaponRequirements"> {
-  const manaCosts: SpellManaCost[] = [];
-  const shieldRequirements: Spell["shieldRequirements"] = [];
-  const weaponRequirements: Spell["weaponRequirements"] = [];
-  for (const requirements of xmlChildren(record, "requirements")) {
-    const baseText = xmlAttribute(requirements, "mp");
-    if (baseText !== undefined) {
-      reportUnknownLeafContent(
-        context,
-        requirements,
-        "requirements",
-        new Set(["mp", "savvyBonus", "savvybonus", "mincost", "level"]),
-        provenance,
-        currentEntityId,
-      );
-      manaCosts.push({
-        base: optionalNumberValue(
-          baseText,
-          context,
-          provenance,
-          "spell mana base cost",
-          currentEntityId,
-          0,
-        ),
-        savvyReduction: optionalNumberValue(
-          xmlAttribute(requirements, "savvyBonus") ??
-            xmlAttribute(requirements, "savvybonus"),
-          context,
-          provenance,
-          "spell mana Savvy reduction",
-          currentEntityId,
-          0,
-        ),
-        minimum: optionalNumberValue(
-          xmlAttribute(requirements, "mincost"),
-          context,
-          provenance,
-          "spell minimum mana cost",
-          currentEntityId,
-          0,
-        ),
-        sourceLevel: optionalIntegerValue(
-          xmlAttribute(requirements, "level"),
-          context,
-          provenance,
-          "spell requirement level source value",
-          currentEntityId,
-          -128,
-          127,
-        ),
-      });
-      continue;
-    }
-
-    const shieldText = xmlAttribute(requirements, "shield");
-    const weaponText = xmlAttribute(requirements, "weapon");
-    const hasOtherKnownShieldRequirementAttribute = [
-      "savvyBonus",
-      "savvybonus",
-      "mincost",
-      "level",
-      "weapon",
-      "booze",
-      "zorkmids",
-      "zorkmidScaleF",
-    ].some((attribute) => xmlAttribute(requirements, attribute) !== undefined);
-    if (shieldText !== undefined && !hasOtherKnownShieldRequirementAttribute) {
-      const requirementProvenance = {
-        ...provenance,
-        ...context.parsed.locateRecord(requirements),
-      };
-      reportUnknownLeafContent(
-        context,
-        requirements,
-        "requirements",
-        new Set(["shield"]),
-        requirementProvenance,
-        currentEntityId,
-      );
-      shieldRequirements.push({
-        sourceValue: optionalBinaryBooleanAttribute(
-          requirements,
-          "shield",
-          context,
-          requirementProvenance,
-          "spell shield requirement source flag",
-          currentEntityId,
-        ),
-      });
-      continue;
-    }
-
-    const hasOtherKnownWeaponRequirementAttribute = [
-      "savvyBonus",
-      "savvybonus",
-      "mincost",
-      "level",
-      "shield",
-      "booze",
-      "zorkmids",
-      "zorkmidScaleF",
-    ].some((attribute) => xmlAttribute(requirements, attribute) !== undefined);
-    if (weaponText !== undefined && !hasOtherKnownWeaponRequirementAttribute) {
-      const requirementProvenance = {
-        ...provenance,
-        ...context.parsed.locateRecord(requirements),
-      };
-      reportUnknownLeafContent(
-        context,
-        requirements,
-        "requirements",
-        new Set(["weapon"]),
-        requirementProvenance,
-        currentEntityId,
-      );
-      weaponRequirements.push({
-        sourceValue: optionalBinaryBooleanAttribute(
-          requirements,
-          "weapon",
-          context,
-          requirementProvenance,
-          "spell weapon requirement source flag",
-          currentEntityId,
-        ),
-      });
-      continue;
-    }
-
-    context.diagnostics.push({
-      severity: "warning",
-      code: "unsupported_spell_requirement",
-      message: "This non-mana spell requirement shape remains unsupported.",
-      source: provenance,
-      entityId: currentEntityId,
-      details: { element: "requirements" },
-    });
-  }
-  return { manaCosts, shieldRequirements, weaponRequirements };
-}
-
 const spellFramePresentationAttributes = new Set([
   "sprite",
   "frames",
@@ -5189,6 +5033,13 @@ function parseSpellEffects(
     .sort((left, right) => compareCodeUnits(left.type, right.type));
 }
 
+const spellRequirementDependencies = {
+  optionalNumberValue,
+  optionalIntegerValue,
+  optionalBinaryBooleanAttribute,
+  reportUnknownLeafContent,
+};
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -5212,6 +5063,7 @@ function parseSpells(
       context,
       provenance,
       currentEntityId,
+      spellRequirementDependencies,
     );
     const effects = parseSpellEffects(
       record,

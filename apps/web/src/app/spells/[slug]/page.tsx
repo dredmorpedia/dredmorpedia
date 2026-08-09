@@ -264,6 +264,10 @@ export default async function SpellPage({
             <dd>{spell.manaCosts.length}</dd>
           </div>
           <div>
+            <dt>Booze requirement declarations</dt>
+            <dd>{spell.boozeRequirements.length}</dd>
+          </div>
+          <div>
             <dt>Shield requirement declarations</dt>
             <dd>{spell.shieldRequirements.length}</dd>
           </div>
@@ -462,6 +466,61 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="booze-requirement-heading"
+        >
+          <h2 id="booze-requirement-heading" className="section-title-sm">
+            Booze requirement
+          </h2>
+          {spell.boozeRequirements.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.boozeRequirements.map(
+                  (boozeRequirement, requirementIndex) => (
+                    <li key={requirementIndex}>
+                      <div className="trigger-summary">
+                        <span className="relationship-title">
+                          Declaration {requirementIndex + 1}
+                        </span>
+                        <strong>
+                          {boozeRequirement.sourceValue === null
+                            ? "Source value unavailable"
+                            : `Source value: ${sourceNumber.format(boozeRequirement.sourceValue)}`}
+                        </strong>
+                        <small className="trigger-resolution">
+                          Direct requirement source metadata
+                        </small>
+                      </div>
+                      <dl className="trigger-facts">
+                        <div>
+                          <dt>Booze source value</dt>
+                          <dd>
+                            {boozeRequirement.sourceValue === null
+                              ? "Unavailable"
+                              : sourceNumber.format(
+                                  boozeRequirement.sourceValue,
+                                )}
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                This preserves the source value without inferring an actor,
+                inventory or consumption state, eligibility rule, timing, or
+                runtime success.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized booze requirement.
             </p>
           )}
         </section>

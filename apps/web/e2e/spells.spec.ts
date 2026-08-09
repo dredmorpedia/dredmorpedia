@@ -32,6 +32,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     page
+      .getByRole("region", { name: "Booze requirement" })
+      .getByText("No normalized booze requirement."),
+  ).toBeVisible();
+  await expect(
+    page
       .getByRole("region", { name: "Shield requirement" })
       .getByText("No normalized shield requirement."),
   ).toBeVisible();
@@ -582,6 +587,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page
       .getByRole("region", { name: "Mana cost" })
       .getByText("No normalized mana requirement."),
+  ).toBeVisible();
+  const boozeRequirement = page.getByRole("region", {
+    name: "Booze requirement",
+  });
+  await expect(
+    boozeRequirement.getByText("Booze source value", { exact: true }),
+  ).toBeVisible();
+  await expect(boozeRequirement.getByText("10", { exact: true })).toBeVisible();
+  await expect(
+    boozeRequirement.getByText(/without inferring an actor, inventory/i),
   ).toBeVisible();
   const shieldRequirement = page.getByRole("region", {
     name: "Shield requirement",

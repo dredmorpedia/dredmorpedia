@@ -1,6 +1,6 @@
 # New PC and Codex handoff
 
-Updated: 2026-08-06
+Updated: 2026-08-09
 
 This is the durable handoff for moving Dredmorpedia to another computer or opening it in a new Codex task with no chat history. Canonical product and architecture documents remain authoritative; this guide summarizes the state needed to resume safely.
 
@@ -90,7 +90,7 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Resume the measured spell-mechanic backlog. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas. The ordered 2026-08-03 review queue, including complete multi-step provenance override presentation, is finished.
+1. Resume the measured spell-mechanic backlog with the three zorkmid requirement declarations. For engine behavior absent from XML, establish an individual evidence-backed contract immediately before implementation rather than blanket-accepting or rejecting legacy formulas. The ordered 2026-08-03 review queue, including complete multi-step provenance override presentation, is finished.
 2. Settle ADR 0003 response budgets and broader concrete relevance examples
    with desktop/mobile measurements; the approved spelling-suggestion behavior
    is implemented.
@@ -98,8 +98,8 @@ Continue toward local parity without assuming permission to publish official con
 4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
 5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
 6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-7. No measured item or spell compatibility diagnostic remains. The three exact shield requirements and one exact weapon requirement are preserved; treat the nine remaining non-mana spell requirement diagnostics (six booze and three zorkmid shapes) and 23 dangling references as explicit parity evidence, not as silently completed behavior. No measured official skill/ability or monster child element remains unsupported.
-8. The first bounded maintenance extraction is complete: the unchanged spell-detail browser flow now has a dedicated spec, all 36 desktop/mobile cases still pass, and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
+7. No measured item or spell compatibility diagnostic remains. The three exact shield requirements, one exact weapon requirement, and six exact booze requirements are preserved; treat the three remaining zorkmid requirement diagnostics and 23 dangling references as explicit parity evidence, not as silently completed behavior. No measured official skill/ability or monster child element remains unsupported.
+8. Two bounded maintenance extractions are complete: the unchanged spell-detail browser flow has a dedicated spec, and spell-requirement parsing now has a focused pipeline module with exact requirement-level diagnostics. All 36 desktop/mobile cases and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -257,6 +257,19 @@ flag without inferring an actor, equipped item state, weapon category,
 eligibility rule, timing, or runtime success. Nine non-mana spell requirements
 and 23 dangling references remain explicit. Evidence is recorded in
 `docs/analysis/spell-weapon-requirement-evidence-2026-08-06.md`.
+
+## Spell booze-requirement slice completed
+
+The six active exact `booze="..."` declarations now normalize as ordered
+nullable signed-byte `boozeRequirements` source values. Malformed, empty, or
+out-of-range values remain unavailable with requirement-located diagnostics,
+and the strict web artifact boundary rejects invalid normalized shapes. The
+installed schema establishes only the signed-byte source shape, while the
+preserved application ignores the attribute. The spell page exposes each
+exact value without inferring an actor, inventory or consumption state,
+eligibility rule, timing, or runtime success. Three zorkmid requirement
+diagnostics and 23 dangling references remain explicit. Evidence is recorded
+in `docs/analysis/spell-booze-requirement-evidence-2026-08-09.md`.
 
 ## Item-quality review completed
 

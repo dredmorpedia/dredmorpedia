@@ -2,7 +2,7 @@
 
 Date: 2026-07-19
 Scope: commit `68ee565` on `master`, before modernization documentation was added
-Status: baseline evidence for the rebuild; current resolution summary updated 2026-08-06
+Status: baseline evidence for the rebuild; current resolution summary updated 2026-08-09
 
 > Repository update: commit `ed71652` subsequently relocated all 1,450 tracked baseline files into `legacy/` as exact renames with no content changes. Measurements and observations below describe commit `68ee565`; paths should now be read relative to `legacy/` unless historical root placement is the subject.
 
@@ -67,7 +67,8 @@ Current validation and search evidence are recorded in:
 - [`spell-effect-buff-tag-evidence-2026-08-06.md`](spell-effect-buff-tag-evidence-2026-08-06.md),
 - [`spell-requirement-level-evidence-2026-08-06.md`](spell-requirement-level-evidence-2026-08-06.md),
 - [`spell-shield-requirement-evidence-2026-08-06.md`](spell-shield-requirement-evidence-2026-08-06.md),
-- [`spell-weapon-requirement-evidence-2026-08-06.md`](spell-weapon-requirement-evidence-2026-08-06.md), and
+- [`spell-weapon-requirement-evidence-2026-08-06.md`](spell-weapon-requirement-evidence-2026-08-06.md),
+- [`spell-booze-requirement-evidence-2026-08-09.md`](spell-booze-requirement-evidence-2026-08-09.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -79,7 +80,7 @@ The following audit concerns are still actionable:
    accepted, and modern project material is intended for MIT. Public-content
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
-2. **Content parity:** the current canonical measurement has no remaining item or spell compatibility diagnostic. Exact shield and weapon requirement slices preserve all four measured declarations; nine non-mana requirement diagnostics (six booze and three zorkmid shapes) and 23 dangling references remain. Each remaining requirement family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
+2. **Content parity:** the current canonical measurement has no remaining item or spell compatibility diagnostic. Exact shield, weapon, and booze requirement slices preserve all ten measured declarations; three zorkmid requirement diagnostics and 23 dangling references remain. The remaining requirement family still needs source/legacy evidence, strict normalization, synthetic coverage, UI disclosure, and deterministic official verification.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

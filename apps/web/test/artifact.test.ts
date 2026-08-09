@@ -950,6 +950,30 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/sourceLevel/);
   });
 
+  it("rejects spell booze requirement values outside the schema byte range", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          boozeRequirements: { sourceValue: number | null }[];
+        }[];
+      };
+    };
+    const boozeRequirement = typedArtifact.entities.spells
+      .flatMap((spell) => spell.boozeRequirements)
+      .find((requirement) => requirement.sourceValue !== null);
+    if (!boozeRequirement) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell booze requirement.",
+      );
+    }
+    boozeRequirement.sourceValue = 128;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceValue/);
+  });
+
   it("rejects malformed spell shield requirement source flags", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

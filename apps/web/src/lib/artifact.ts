@@ -29,6 +29,7 @@ const nullableNumber = z.number().nullable();
 const nullableNonnegativeNumber = z.number().nonnegative().nullable();
 const nullableNonnegativeInteger = nonnegativeInteger.nullable();
 const nullablePercentageInteger = percentageInteger.nullable();
+const nullableSignedByte = z.number().int().min(-128).max(127).nullable();
 const optionalString = z.string().optional();
 const entitySlugSchema = z
   .string()
@@ -764,7 +765,14 @@ const spellSchema = z
           base: nullableNonnegativeNumber,
           savvyReduction: nullableNonnegativeNumber,
           minimum: nullableNonnegativeNumber,
-          sourceLevel: z.number().int().min(-128).max(127).nullable(),
+          sourceLevel: nullableSignedByte,
+        })
+        .strict(),
+    ),
+    boozeRequirements: z.array(
+      z
+        .object({
+          sourceValue: nullableSignedByte,
         })
         .strict(),
     ),

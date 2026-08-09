@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-08-06
+Updated: 2026-08-09
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -105,14 +105,13 @@ Other completed areas include spell mana, requirement-level, shield-requirement,
 
 ## Current measured backlog and likely next work
 
-After the spell weapon-requirement slice, the canonical import
+After the spell booze-requirement slice, the canonical import
 reports:
 
-- 0 errors, 32 warnings, and 71 informational duplicate decisions;
+- 0 errors, 26 warnings, and 71 informational duplicate decisions;
 - zero measured item or spell compatibility constructs;
 - 23 dangling references tracked separately; and
-- nine non-mana spell requirement diagnostics tracked separately: six booze
-  and three zorkmid declarations.
+- three non-mana zorkmid spell requirement diagnostics tracked separately.
 
 No item compatibility diagnostic remains.
 
@@ -172,7 +171,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and mana-requirement attribute is now complete. The first two non-mana requirement slices preserve all three exact shield declarations and the one exact weapon declaration. The next content-parity task should evaluate the six booze declarations as their own source shape rather than blanket-supporting spell content.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and mana-requirement attribute is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, and all six exact booze declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives unsupported requirement shapes their declaring source location. The next content-parity task should evaluate the three zorkmid declarations as their own source shape rather than blanket-supporting spell content.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
@@ -185,17 +184,20 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 
 ## Last completed slice validation
 
-The spell weapon-requirement slice preserves the one active exact `weapon="0"`
-declaration on Liechtenauer's Overhau as an ordered nullable source flag. The
-installed schema restricts `dredbool` to `0` and `1`; the preserved application
-ignores the attribute. The modern page exposes the value but does not infer an
-actor, equipped item state, weapon category, eligibility, timing, or runtime
-success. Invalid values remain unavailable with source-located diagnostics,
-and the strict web guard rejects malformed normalized records. Deterministic
-official generation is byte-identical with 0 errors, 32 warnings, and 71
-informational decisions. Evidence is recorded in
-`docs/analysis/spell-weapon-requirement-evidence-2026-08-06.md`.
-The full workspace passes 202 unit/artifact tests and the 43-page synthetic
+The spell booze-requirement slice preserves all six active exact
+`booze="..."` declarations as ordered nullable signed-byte source values. The
+installed schema establishes the byte shape, while the preserved application
+ignores the attribute. The modern page exposes each value but does not infer an
+actor, inventory or consumption state, eligibility, timing, or runtime
+success. Invalid values remain unavailable with requirement-located
+diagnostics, and the strict web guard rejects malformed normalized records.
+The bounded implementation extracts spell-requirement parsing from the
+monolithic normalizer and locates remaining generic requirement diagnostics at
+their declaring element. Deterministic official generation is byte-identical
+with 0 errors, 26 warnings, and 71 informational decisions. Evidence is
+recorded in
+`docs/analysis/spell-booze-requirement-evidence-2026-08-09.md`.
+The full workspace passes 203 unit/artifact tests and the 43-page synthetic
 export; all 36 desktop/mobile browser cases pass, and the full ignored official
 export produces all 2,857 pages.
 

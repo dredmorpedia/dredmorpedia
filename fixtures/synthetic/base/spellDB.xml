@@ -49,6 +49,7 @@
   </spell>
   <spell id="clockwork-echo" name="Clockwork Echo" type="self" icon="assets/synthetic.svg">
     <description text="Continues the synthetic effect chain and closes its deliberate cycle." />
+    <requirements booze="10" />
     <requirements shield="1" />
     <requirements weapon="0" />
     <effect type="stat" stat="Savvy" amount="1" />

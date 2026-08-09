@@ -66,6 +66,10 @@ Read these files before making a substantial change:
 - Mana-bearing spell requirements preserve the optional `level` attribute as
   an exact loss-aware signed-byte source value. Consumers must not infer the
   actor, unlock, eligibility, progression, or any other engine rule from it.
+- Exact booze-only spell requirements preserve their loss-aware signed-byte
+  source value. Consumers must not infer an actor, inventory or consumption
+  state, eligibility, timing, runtime success, or any other engine rule from
+  it.
 - Exact shield-only and weapon-only spell requirements preserve their
   loss-aware binary source flags. Consumers must not infer an actor, equipped
   item state, weapon category, eligibility rule, timing, or runtime success.

@@ -1738,9 +1738,7 @@ describe("synthetic dataset import", () => {
     temporaryDirectories.push(temporaryRoot);
     const sourceRoot = path.join(temporaryRoot, "source");
     mkdirSync(sourceRoot);
-    writeFileSync(
-      path.join(sourceRoot, "spellDB.xml"),
-      `<?xml version="1.0"?>
+    const spellRequirementXml = `<?xml version="1.0"?>
 <spellDB>
   <spell name="Complete Mana Cost" type="self">
     <requirements mp="12" savvyBonus="0.25" mincost="4" level="1" future="kept as a diagnostic">
@@ -1779,11 +1777,31 @@ describe("synthetic dataset import", () => {
   <spell name="Invalid Weapon Requirement" type="self">
     <requirements weapon="false" />
   </spell>
+  <spell name="Booze Requirement" type="self">
+    <requirements booze="10" futureBooze="kept as a diagnostic">
+      <futureBoozeChild />
+    </requirements>
+  </spell>
+  <spell name="Minimum Booze Requirement" type="self">
+    <requirements booze="-128" />
+  </spell>
+  <spell name="Maximum Booze Requirement" type="self">
+    <requirements booze="127" />
+  </spell>
+  <spell name="Invalid Booze Requirement" type="self">
+    <requirements booze="128" />
+  </spell>
+  <spell name="Empty Booze Requirement" type="self">
+    <requirements booze="" />
+  </spell>
+  <spell name="Combined Booze Requirement" type="self">
+    <requirements booze="10" weapon="1" />
+  </spell>
   <spell name="Unsupported Requirement" type="self">
     <requirements shield="1" weapon="0" />
   </spell>
-</spellDB>`,
-    );
+</spellDB>`;
+    writeFileSync(path.join(sourceRoot, "spellDB.xml"), spellRequirementXml);
     const manaManifestPath = path.join(temporaryRoot, "manifest.json");
     writeFileSync(
       manaManifestPath,
@@ -1851,11 +1869,32 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Unsupported Requirement")?.weaponRequirements).toEqual(
       [],
     );
+    expect(spells.get("Booze Requirement")?.boozeRequirements).toEqual([
+      { sourceValue: 10 },
+    ]);
+    expect(spells.get("Minimum Booze Requirement")?.boozeRequirements).toEqual([
+      { sourceValue: -128 },
+    ]);
+    expect(spells.get("Maximum Booze Requirement")?.boozeRequirements).toEqual([
+      { sourceValue: 127 },
+    ]);
+    expect(spells.get("Invalid Booze Requirement")?.boozeRequirements).toEqual([
+      { sourceValue: null },
+    ]);
+    expect(spells.get("Empty Booze Requirement")?.boozeRequirements).toEqual([
+      { sourceValue: null },
+    ]);
+    expect(spells.get("Combined Booze Requirement")?.boozeRequirements).toEqual(
+      [],
+    );
+    expect(spells.get("Unsupported Requirement")?.boozeRequirements).toEqual(
+      [],
+    );
     expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(5);
+    ).toHaveLength(7);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -1933,12 +1972,58 @@ describe("synthetic dataset import", () => {
           },
         }),
         expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:booze requirement",
+          details: {
+            element: "requirements",
+            attribute: "futureBooze",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:booze requirement",
+          details: { element: "futureBoozeChild" },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid booze requirement",
+          details: {
+            field: "spell booze requirement source value",
+            value: "128",
+          },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:empty booze requirement",
+          details: {
+            field: "spell booze requirement source value",
+            value: "",
+          },
+        }),
+        expect.objectContaining({
+          code: "unsupported_spell_requirement",
+          entityId: "spell:combined booze requirement",
+          details: { element: "requirements" },
+        }),
+        expect.objectContaining({
           code: "unsupported_spell_requirement",
           entityId: "spell:unsupported requirement",
           details: { element: "requirements" },
         }),
       ]),
     );
+    const combinedBoozeLine =
+      spellRequirementXml
+        .split("\n")
+        .findIndex((line) =>
+          line.includes('<requirements booze="10" weapon="1" />'),
+        ) + 1;
+    const combinedBoozeDiagnostic = result.diagnostics.find(
+      (diagnostic) =>
+        diagnostic.code === "unsupported_spell_requirement" &&
+        diagnostic.entityId === "spell:combined booze requirement",
+    );
+    expect(combinedBoozeDiagnostic?.source?.line).toBe(combinedBoozeLine);
     expect(
       result.diagnostics.some(
         (diagnostic) =>
@@ -5813,6 +5898,7 @@ describe("synthetic dataset import", () => {
       }),
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
+    expect(clockworkEcho?.boozeRequirements).toEqual([{ sourceValue: 10 }]);
     expect(clockworkEcho?.shieldRequirements).toEqual([{ sourceValue: true }]);
     expect(clockworkEcho?.weaponRequirements).toEqual([{ sourceValue: false }]);
     expect(clockworkEcho?.animations).toEqual([]);

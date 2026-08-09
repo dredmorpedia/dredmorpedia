@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-05
+Updated: 2026-08-09
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -435,6 +435,17 @@ state, weapon category, eligibility rule, timing, or runtime success. This
 removes one non-mana requirement diagnostic; nine remain (six booze and three
 zorkmid shapes), alongside 23 dangling references. Evidence is recorded in
 `docs/analysis/spell-weapon-requirement-evidence-2026-08-06.md`.
+
+Spell booze-requirement parity now preserves all six active exact
+`booze="..."` declarations as ordered nullable signed-byte source values. The
+installed schema establishes the byte shape, while the preserved application
+does not read or present the attribute. The spell page exposes the exact value
+without inferring an actor, inventory or consumption state, eligibility rule,
+timing, or runtime success. Supporting this family also moves generic
+unsupported-requirement diagnostics to the declaring requirement location.
+Six non-mana requirement diagnostics are removed; three zorkmid shapes remain,
+alongside 23 dangling references. Evidence is recorded in
+`docs/analysis/spell-booze-requirement-evidence-2026-08-09.md`.
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
