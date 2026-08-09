@@ -459,6 +459,18 @@ the canonical warnings are now exactly 23 dangling references. Evidence is
 recorded in
 `docs/analysis/spell-zorkmid-requirement-evidence-2026-08-09.md`.
 
+The complete dangling-reference warning set is now classified before any
+correction is applied. Twenty-three source declarations reduce to nine
+owner/reference pairs and seven labels: 16 `lockpick` loadouts plus two
+`Spores` options are engine/source-only candidates; `Acidium Salis` is a
+probable source typo for the active `Acidum Salis` item; the Satanic Locator
+target is a deliberate placeholder; and the two `Strong Lingering ...`
+monster spells plus Deep Raven's `Eye Lasers` spell label remain ambiguous.
+The next implementation must preserve the original labels and use an explicit
+reviewed resolution status or source-scoped correction rather than fuzzy
+aliases. Evidence and the owner decision gates are recorded in
+`docs/analysis/dangling-reference-classification-2026-08-09.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

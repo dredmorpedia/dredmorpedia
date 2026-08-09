@@ -111,7 +111,8 @@ reports:
 - 0 errors, 23 warnings, and 71 informational duplicate decisions;
 - zero measured item or spell compatibility constructs;
 - zero unsupported spell requirements; and
-- 23 dangling references, which are the complete warning set.
+- 23 dangling-reference declarations, which are the complete warning set and
+  reduce to nine owner/reference pairs across seven distinct labels.
 
 No item compatibility diagnostic remains.
 
@@ -171,7 +172,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The next content-parity task should classify the 23 remaining dangling references with source/legacy evidence rather than blindly fabricating aliases or entities.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The 23 remaining dangling-reference declarations are now classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`: they form nine owner/reference pairs and seven labels. Sixteen `lockpick` loadouts and two `Spores` options are engine/source-only candidates, `Acidium Salis` is a probable typo for `Acidum Salis`, the Satanic Locator target is a deliberate placeholder, and three monster spell labels remain ambiguous. No mapping or diagnostic reclassification has been applied. Before the next implementation, ask the owner separately whether to approve the source-only class and the narrowly scoped typo correction; do not alias the placeholder or ambiguous spells without new evidence.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 

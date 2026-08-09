@@ -69,7 +69,8 @@ Current validation and search evidence are recorded in:
 - [`spell-shield-requirement-evidence-2026-08-06.md`](spell-shield-requirement-evidence-2026-08-06.md),
 - [`spell-weapon-requirement-evidence-2026-08-06.md`](spell-weapon-requirement-evidence-2026-08-06.md),
 - [`spell-booze-requirement-evidence-2026-08-09.md`](spell-booze-requirement-evidence-2026-08-09.md),
-- [`spell-zorkmid-requirement-evidence-2026-08-09.md`](spell-zorkmid-requirement-evidence-2026-08-09.md), and
+- [`spell-zorkmid-requirement-evidence-2026-08-09.md`](spell-zorkmid-requirement-evidence-2026-08-09.md),
+- [`dangling-reference-classification-2026-08-09.md`](dangling-reference-classification-2026-08-09.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -84,9 +85,12 @@ The following audit concerns are still actionable:
 2. **Content parity:** the current canonical measurement has no remaining item,
    spell, or spell-requirement compatibility diagnostic. Exact shield, weapon,
    booze, and zorkmid requirement slices preserve all 13 measured non-mana
-   declarations. Twenty-three dangling references remain and should be
-   classified with source/legacy evidence before any alias, patch, or explicit
-   source-only decision is made.
+   declarations. The 23 dangling-reference warnings are now classified as 23
+   declarations, nine owner/reference pairs, and seven distinct labels: 18
+   declarations are engine/source-only candidates, one is a probable typo, one
+   is a deliberate placeholder, and three spell declarations remain ambiguous.
+   No alias, patch, or source-only status has been applied without the owner's
+   per-class decision.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

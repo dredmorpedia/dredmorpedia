@@ -35,6 +35,12 @@ Read these files before making a substantial change:
   `docs/contracts/numeric-source-lexemes.md`; never restore general JavaScript
   string-to-number coercion.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
+- The canonical 23 dangling-reference warnings are 23 declarations, nine
+  owner/reference pairs, and seven labels. Evidence classifies 18 declarations
+  as engine/source-only candidates, one as a probable typo, one as a deliberate
+  placeholder, and three spell declarations as ambiguous. Do not invent
+  entities or apply fuzzy aliases; obtain the owner's per-class decision before
+  introducing a source-only status or a scoped correction.
 - Buff-local spell effects use the same strict effect contract and deterministic
   relationship linker as direct effects while retaining their owning buff
   scope. Consumers must not infer scheduling, trigger order, buff lifetime,

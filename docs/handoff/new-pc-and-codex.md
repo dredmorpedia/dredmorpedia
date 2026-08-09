@@ -288,6 +288,21 @@ remains; the canonical warning set is exactly 23 dangling references. Evidence
 is recorded in
 `docs/analysis/spell-zorkmid-requirement-evidence-2026-08-09.md`.
 
+## Dangling-reference classification completed
+
+The canonical 23 `dangling_reference` warnings are now measured as 23 source
+declarations, nine owner/reference pairs, and seven distinct labels. Sixteen
+`lockpick` skill loadouts and two `Spores` spell-list options are
+engine/source-only candidates. `Acidium Salis` is a probable source typo for
+the active `Acidum Salis` item. The Satanic Locator spell label is a deliberate
+placeholder. Tougher Lord Dredmor's two `Strong Lingering ...` labels and Deep
+Raven's `Eye Lasers` spell label remain ambiguous. No entity, alias, link, or
+diagnostic severity changed. Resume by asking the owner separately about the
+source-only classification and the narrowly scoped typo correction; keep the
+placeholder and ambiguous spells unresolved absent new evidence. Details are
+in
+`docs/analysis/dangling-reference-classification-2026-08-09.md`.
+
 ## Item-quality review completed
 
 The item-quality slice passed its separate code review on 2026-07-21. Read-only comparison against all 763 official item records found zero mismatches: 257 weapon records use root `level`, 268 armour records use nested `<armour level>`, 54 trap records use nested `<trap level>`, and 184 other records use zero. The last group includes 68 food/potion records with unrelated root levels that must not be displayed as quality. Patch validation now permits only non-negative integers, current web consumers reject stale schema 3 artifacts without valid quality, and the reviewed card/detail layouts have no horizontal overflow at desktop or 390-pixel mobile widths. Synthetic generation, full workspace checks, desktop/mobile Playwright flows, and axe checks remain the repeatable regression evidence.
