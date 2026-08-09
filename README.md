@@ -56,7 +56,7 @@ pnpm dev
 
 The modern application is then available at `http://localhost:3001/` using the legal synthetic fixture. Generation also replaces the ignored local presented-asset set; the synthetic SVG icon deliberately exercises the item-page fallback, while `pnpm dev:official` copies and displays only referenced official item PNG icons. If the ignored local official manifest is configured, run `pnpm dev:official` to regenerate and serve that read-only dataset and its item icons. `pnpm dev:synthetic` switches explicitly back to fixture data. Optional direct web commands can use an ignored `apps/web/.env.local` copied from `apps/web/.env.example`; canonical root commands select their matching artifact and asset set explicitly and do not require an environment file.
 
-Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. When the ignored official manifest is configured, `pnpm benchmark:search:official` verifies the accepted local search budgets. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
+Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. When the ignored official manifest is configured, `pnpm benchmark:search:official` verifies the accepted local search budgets. A future intentionally shared dataset generation must also pass the pipeline's `--publication-routes` gate with a complete schema-2 route registry; ordinary local generation remains optional-registry. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
 
 ## Data and legal boundary
 

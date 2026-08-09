@@ -556,6 +556,88 @@ describe("input safety", () => {
     }
   });
 
+  it("rejects previous route-registry paths outside the repository root", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-previous-route-path-"),
+    );
+    try {
+      const sourceRoot = path.join(repositoryRoot, "source");
+      mkdirSync(sourceRoot);
+      writeFileSync(path.join(sourceRoot, "itemDB.xml"), "<items />");
+      writeFileSync(path.join(repositoryRoot, "routes.json"), "{}");
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          schemaVersion: 2,
+          datasetId: "previous-route-path-test",
+          datasetVersion: "2.0.0",
+          routeRegistry: "routes.json",
+          previousRouteRegistry: "../outside-routes.json",
+          sources: [
+            {
+              id: "fixture",
+              label: "Fixture",
+              kind: "fixture",
+              version: "2.0.0",
+              precedence: 0,
+              root: "source",
+              files: [{ kind: "items", path: "itemDB.xml" }],
+            },
+          ],
+          patches: [],
+        }),
+      );
+
+      expect(() => loadManifest(manifestPath, repositoryRoot)).toThrow(
+        /Unsafe relative path/,
+      );
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects two route-registry paths that resolve to the same file", () => {
+    const repositoryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-same-route-path-"),
+    );
+    try {
+      const sourceRoot = path.join(repositoryRoot, "source");
+      mkdirSync(sourceRoot);
+      writeFileSync(path.join(sourceRoot, "itemDB.xml"), "<items />");
+      writeFileSync(path.join(repositoryRoot, "routes.json"), "{}");
+      const manifestPath = path.join(repositoryRoot, "manifest.json");
+      writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          schemaVersion: 2,
+          datasetId: "same-route-path-test",
+          datasetVersion: "2.0.0",
+          routeRegistry: "routes.json",
+          previousRouteRegistry: "./routes.json",
+          sources: [
+            {
+              id: "fixture",
+              label: "Fixture",
+              kind: "fixture",
+              version: "2.0.0",
+              precedence: 0,
+              root: "source",
+              files: [{ kind: "items", path: "itemDB.xml" }],
+            },
+          ],
+          patches: [],
+        }),
+      );
+
+      expect(() => loadManifest(manifestPath, repositoryRoot)).toThrow(
+        /must resolve to different files/,
+      );
+    } finally {
+      rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
+
   it("allows a trusted absolute source root while containing declared files", () => {
     const repositoryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-manifest-trust-"),

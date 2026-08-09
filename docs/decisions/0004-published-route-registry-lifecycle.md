@@ -1,7 +1,7 @@
 # ADR 0004: Published route registry lifecycle
 
 Date: 2026-07-29
-Status: Accepted (implementation follow-up required)
+Status: Accepted (implemented 2026-08-09)
 Owners: repository owner + maintainer
 
 ## Context
@@ -34,9 +34,11 @@ deliberately deferred until a second complete, verified dataset exists.
   receive version-prefixed routes such as `/versions/<version>/items/...`.
   Unversioned routes represent the selected primary dataset.
 
-The current exact-version registry does not yet enforce all of these rules.
-Implementation and migration tests remain required before any dataset is
-treated as published or durably shared.
+Schema-2 registries now encode an explicit root or checksum-bound inherited
+lineage, stable source-identity entries, active/tombstone state, and complete
+publication coverage. The `--publication-routes` gate rejects missing,
+mismatched, stale, incomplete, or conflicting state atomically. This removes
+the engineering blocker; content permission remains a separate release gate.
 
 ## Consequences
 
@@ -65,8 +67,8 @@ treated as published or durably shared.
 
 ## Validation / follow-up
 
-- Add insertion, deletion, tombstone, reappearance, and inherited-registry
-  tests.
-- Add a publication mode that requires valid inherited registry state.
+- [x] Add insertion, deletion, tombstone, reappearance, and inherited-registry
+      tests.
+- [x] Add a publication mode that requires valid inherited registry state.
 - Design the versioned artifact and route layout only after a second verified
   dataset is available.

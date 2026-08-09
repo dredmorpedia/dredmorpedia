@@ -59,4 +59,5 @@ The spike supports retaining the proposed Node/pnpm/strict TypeScript, Next.js s
 2. Add scoped MIT license files after the copyright-holder wording is supplied, without claiming inherited code/mod/asset or official-content rights.
 3. Agree the first parity-slice acceptance statement and search response/relevance budgets.
 4. Implement missing domain normalizers incrementally from synthetic fixtures; the current full-data artifact is structural evidence, not parity-complete content.
-5. Implement ADR 0004's inherited route-registry lifecycle before treating a dataset as durably shared or published.
+5. **Completed 2026-08-09:** implement ADR 0004's inherited route-registry
+   lifecycle before treating a dataset as durably shared or published.

@@ -15,9 +15,9 @@ The audit's main architectural recommendations have been implemented. The modern
 | Baseline finding | Current implementation | Status |
 | --- | --- | --- |
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; local-only policy accepted, future public permission open |
-| Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and an optional published-route registry are deterministic domain/pipeline contracts. | Generation resolved; ADR 0004 lifecycle accepted, enforcement pending |
+| Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and checksum-bound inherited route registries with tombstones are deterministic domain/pipeline contracts. | Resolved; publication gate implemented |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 234 unit/artifact tests, and 36 desktop/mobile Playwright tests are established. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 242 unit/artifact tests, and 36 desktop/mobile Playwright tests are established. | Resolved |
 | Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,857 pages. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
 | Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,767 canonical documents. `/search/` exposes every kind, caps rendering at 50 results, and offers bounded user-selected name/route-alias spelling suggestions after zero results; `/browse/` provides bounded static discovery without JavaScript. ADR 0003 now carries enforced transfer, parse, query, relevance, and desktop/slowed-mobile browser budgets. | Resolved for current search; broader non-item stat facets require their own evidenced contract |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates asset paths host-independently before root probing, checks filesystem references against real source roots, and emits strict normalized schemas. The web verifies safe route/asset-reference shapes and unique same-kind canonical/alias ownership, while React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
@@ -100,12 +100,8 @@ The following audit concerns are still actionable:
    dangling warnings remain: one deliberate placeholder and three ambiguous
    spell declarations. A loss-aware resolution contract is integrated for
    named skill loadouts and named spell item-list options.
-3. **Versioned release routes:** ADR 0004 now requires inherited reservations,
-   tombstones, and publication failure on invalid registry state. Implement and
-   test that lifecycle before sharing a second dataset; the switcher remains
-   deferred until a second verified dataset exists.
-4. **Formula/source decisions:** approve a stat-definition source absent from the canonical build and resolve or intentionally exclude disputed monster Life, Mana, secondary-stat, and damage formulas. Broaden non-item stat facets only after that shared definition/reference contract is evidenced.
-5. **Release hardening:** complete static-hosting policy, sitemap/robots/canonical behavior, dependency/update policy, general page performance budgets, dataset health reporting, and rollback procedures.
+3. **Formula/source decisions:** approve a stat-definition source absent from the canonical build and resolve or intentionally exclude disputed monster Life, Mana, secondary-stat, and damage formulas. Broaden non-item stat facets only after that shared definition/reference contract is evidenced.
+4. **Release hardening:** complete static-hosting policy, sitemap/robots/canonical behavior, dependency/update policy, general page performance budgets, dataset health reporting, and rollback procedures.
 
 ## Executive assessment
 

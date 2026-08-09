@@ -18,6 +18,11 @@ The broader parity recommendations to expose every entity kind, buffer search in
 
 Output-critical ordering is now independent of ICU/CLDR: every domain and pipeline `localeCompare` call was replaced by one tested UTF-16 code-unit comparator, including stable JSON key serialization. The current canonical artifact remains byte-identical. The owner has now decided the route-registry lifecycle; implementing its inherited reservations, tombstones, and publication failure gate is the remaining work for the only medium finding. Minor UI cleanup remains available low-severity work.
 
+Resolution update 2026-08-09: the schema-2 inherited route registry and
+publication gate now close that remaining medium finding. Insertion, deletion,
+tombstones, reappearance, complete active coverage, and invalid predecessor
+state have dedicated regressions.
+
 The remaining low-severity comparator gaps are also closed. Diagnostics now end on severity, source ID, and stable structured details; equal-precedence entity candidates and instability effects include source columns; and entity resolution has a stable full-record fallback. Focused reversed-input tests cover every changed path. Evidence is recorded in [`comparator-totality-evidence-2026-07-29.md`](comparator-totality-evidence-2026-07-29.md).
 
 The next content-parity slice preserves all 69 active direct spell-effect
@@ -93,7 +98,7 @@ and all 34 desktop/mobile browser cases.
 
 ## Priority findings
 
-### 1. Canonical slug ownership is not stable under entity insertion or deletion — MEDIUM, policy decided; implementation pending
+### 1. Canonical slug ownership is not stable under entity insertion or deletion — RESOLVED 2026-08-09 (originally MEDIUM)
 
 `packages/domain/src/identity.ts:137-148`. Within a slug-collision group the owner of the un-suffixed base slug is the collation-first entity (`compareEntities`: canonicalKey, then id). The collision _suffixes_ are stable — `stableSlugSuffix` (`identity.ts:73-80`) is FNV-1a over each entity's own `id`, so a hashed slug is a pure function of that entity — but _ownership of the clean slug_ is decided by group membership. Two entities can share a base slug while differing in `canonicalKey` (they differ only in characters that `slugify` strips but `canonicalKey` keeps, e.g. punctuation), so adding or removing a group member can move ownership.
 
@@ -107,7 +112,8 @@ Resolution direction accepted 2026-07-29: ADR 0004 makes inherited registries
 mandatory for durably shared dataset lineages, retains removed routes as
 tombstones, and requires invalid inheritance to fail publication. The
 single-version `public_beta` MVP and unpublished experiments may continue
-without a version switcher. Code and migration coverage remain pending.
+without a version switcher. Schema-2 lineage, tombstone, reappearance, and
+publication-failure coverage was completed on 2026-08-09.
 
 ### 2. Output ordering depends on ICU-version collation, and `--check` cannot detect divergence — RESOLVED 2026-07-28 (originally MEDIUM)
 
@@ -203,9 +209,9 @@ Legacy behaviors that are traps and should not be replicated: the Flash/Download
 Independent of the blocked owner decisions and safe to implement as small vertical slices (change plus test plus doc note):
 
 1. **Completed 2026-07-28:** append the `id` tiebreaker to `createSearchDocuments` and add a regression test (finding 3).
-2. Implement ADR 0004: add insertion/deletion/tombstone/reappearance tests,
-   inherit registries across shared dataset versions, and fail
-   publication-oriented builds on invalid registry state (finding 1).
+2. **Completed 2026-08-09:** implement ADR 0004 with
+   insertion/deletion/tombstone/reappearance tests, inherited registries, and
+   publication failure on invalid state (finding 1).
 3. **Completed 2026-07-27:** widen the search kind allow-list to expose all entity kinds and add per-kind static catalogue routes plus navigation (parity gap 1).
 4. **Completed 2026-07-28:** use code-unit comparison for every output-critical domain and pipeline order (finding 2).
 5. **Comparator portion completed 2026-07-29:** complete the non-total comparators and add reversed-input regressions (finding 4). Zod charset regexes at the web boundary remain optional hardening.

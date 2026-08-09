@@ -62,6 +62,14 @@ production-static desktop/slowed-mobile Chromium budgets. It needs the ignored
 official manifest and installed Chromium, and it never commits or publishes the
 measured artifact.
 
+The pipeline-only `--publication-routes` flag is reserved for an intentionally
+shared dataset release. It requires a complete schema-2 registry with explicit
+root or checksum-bound inherited lineage, stable source-identity entries, and
+valid tombstones. Missing, mismatched, stale, incomplete, or conflicting state
+fails before output publication. Do not add this flag to the local official
+commands until publication permission exists; the flag is an engineering URL
+continuity gate, not permission to publish official-derived content.
+
 The root development, build, and browser-test commands set `DREDMORPEDIA_ARTIFACT_DIRECTORY`, `DREDMORPEDIA_ASSET_DIRECTORY`, and the safe public asset base path only for their web subprocess and explicitly select matching output. For optional direct commands inside `apps/web`, copy `apps/web/.env.example` to the ignored `apps/web/.env.local` and uncomment its generated-output settings. Relative filesystem values there resolve from `apps/web`; point only to generated output, never to the game installation. A configured path is strict: missing, mismatched, or checksum-invalid files fail with an actionable error instead of falling back to another dataset.
 
 Generated output under `data/generated/` and `apps/web/public/generated-assets/` is ignored and must remain outside source roots. The asset writer refuses to replace an existing directory without its ownership marker. Stop and restart the dev server when switching datasets because loaded artifacts and asset mappings are cached for that process.

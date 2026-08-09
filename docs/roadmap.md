@@ -109,10 +109,13 @@ encrustment, skill, spell, monster, and stat-modifier presentation. This closes
 the review's duplicated `titleCase` finding and makes repeated separators and
 surrounding whitespace consistent.
 
-ADR 0004 now defines the approved shared-route lifecycle: published dataset
-lineages inherit reservations, removed routes remain tombstoned, and invalid
-inheritance must fail publication. The current exact-version registry still
-needs that enforcement and migration coverage.
+ADR 0004's shared-route lifecycle is implemented. Schema-2 registries declare
+an explicit root or checksum-bound predecessor, retain canonical routes and
+historical aliases by stable source identity, protect removed-route tombstones,
+and let the same identity reclaim them on reappearance. Publication mode
+requires complete active-entity coverage and rejects missing, mismatched,
+stale, incomplete, or conflicting state atomically. A version switcher remains
+deferred until a second complete dataset exists.
 
 The 2026-08-03 full-project review found and resolved a Windows browser-test
 teardown hang by making the loopback test server exit through an explicit,

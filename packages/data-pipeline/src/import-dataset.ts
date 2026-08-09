@@ -69,6 +69,7 @@ import { parseXml, type DiagnosticDraft } from "./xml-adapter";
 export interface ImportDatasetOptions {
   manifestPath: string;
   repositoryRoot: string;
+  requirePublishedRoutes?: boolean;
 }
 
 export interface ImportDatasetResult {
@@ -827,6 +828,9 @@ function resolveCollections(
   candidates: CandidateCollections,
   patches: readonly EntityPatchDefinition[],
   routeRegistry: RouteRegistryDefinition | undefined,
+  previousRouteRegistry: RouteRegistryDefinition | undefined,
+  previousRouteRegistrySha256: string | undefined,
+  requirePublishedRoutes: boolean,
   datasetId: string,
   datasetVersion: string,
   sourceVersions: ReadonlyMap<string, string>,
@@ -949,6 +953,15 @@ function resolveCollections(
         routeRegistry,
         datasetId,
         datasetVersion,
+        {
+          ...(previousRouteRegistry
+            ? { previousRegistry: previousRouteRegistry }
+            : {}),
+          ...(previousRouteRegistrySha256
+            ? { previousRegistrySha256: previousRouteRegistrySha256 }
+            : {}),
+          requirePublication: requirePublishedRoutes,
+        },
       )
     : undefined;
   if (routeRegistry && routeReservations) {
@@ -985,42 +998,56 @@ function resolveCollections(
     }
   }
 
+  const protectedRoutes = (kind: NormalizedEntity["kind"]): string[] =>
+    (routeReservations?.tombstones ?? [])
+      .filter((tombstone) => tombstone.entityKind === kind)
+      .flatMap((tombstone) => [tombstone.canonicalSlug, ...tombstone.aliases]);
+
   const routed = {
     items: allocateEntityRoutes(
       patchedEntities.items,
       routeReservations?.reservations,
+      protectedRoutes("item"),
     ),
     recipes: allocateEntityRoutes(
       patchedEntities.recipes,
       routeReservations?.reservations,
+      protectedRoutes("recipe"),
     ),
     encrustments: allocateEntityRoutes(
       patchedEntities.encrustments,
       routeReservations?.reservations,
+      protectedRoutes("encrustment"),
     ),
     skills: allocateEntityRoutes(
       patchedEntities.skills,
       routeReservations?.reservations,
+      protectedRoutes("skill"),
     ),
     abilities: allocateEntityRoutes(
       patchedEntities.abilities,
       routeReservations?.reservations,
+      protectedRoutes("ability"),
     ),
     spells: allocateEntityRoutes(
       patchedEntities.spells,
       routeReservations?.reservations,
+      protectedRoutes("spell"),
     ),
     monsters: allocateEntityRoutes(
       patchedEntities.monsters,
       routeReservations?.reservations,
+      protectedRoutes("monster"),
     ),
     stats: allocateEntityRoutes(
       patchedEntities.stats,
       routeReservations?.reservations,
+      protectedRoutes("stat"),
     ),
     templates: allocateEntityRoutes(
       patchedEntities.templates,
       routeReservations?.reservations,
+      protectedRoutes("template"),
     ),
   };
 
@@ -1181,6 +1208,40 @@ export function importDataset(
         );
       })()
     : undefined;
+  const previousRouteRegistryInput = loaded.manifest.previousRouteRegistry
+    ? (() => {
+        const absolutePath = resolveExistingWithin(
+          repositoryRoot,
+          loaded.manifest.previousRouteRegistry,
+        );
+        const displayPath = toPosixPath(loaded.manifest.previousRouteRegistry);
+        const registry = parseRouteRegistry(
+          inputSnapshots.readUtf8(absolutePath, displayPath),
+          displayPath,
+        );
+        const snapshot = inputSnapshots.get(displayPath);
+        if (!snapshot) {
+          throw new Error(
+            `Previous route registry snapshot was not captured: ${displayPath}`,
+          );
+        }
+        return { registry, sha256: snapshot.checksum.sha256 };
+      })()
+    : undefined;
+  if (options.requirePublishedRoutes && !routeRegistry) {
+    diagnostics.push({
+      severity: "error",
+      code: "route_registry_publication_missing",
+      message:
+        "Publication mode requires a schema-2 route registry with explicit lineage.",
+      source: {
+        sourceId: "source-manifest",
+        file: loaded.manifestDisplayPath,
+        line: 1,
+        column: 1,
+      },
+    });
+  }
 
   for (const [sourceIndex, resolvedSource] of resolvedSources.entries()) {
     const {
@@ -1244,6 +1305,9 @@ export function importDataset(
     candidates,
     patches,
     routeRegistry,
+    previousRouteRegistryInput?.registry,
+    previousRouteRegistryInput?.sha256,
+    options.requirePublishedRoutes ?? false,
     loaded.manifest.datasetId,
     loaded.manifest.datasetVersion,
     new Map(

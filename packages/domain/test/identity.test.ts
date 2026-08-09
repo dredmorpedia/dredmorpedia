@@ -135,6 +135,31 @@ describe("stable identity", () => {
     ]);
   });
 
+  it("keeps tombstoned routes unavailable to new canonical and alias claims", () => {
+    const canonicalClaim = routeItem("Retired Wand", "new-wand");
+    const aliasClaim = routeItem("Fresh Wand", "retired-wand");
+
+    const result = allocateEntityRoutes(
+      [canonicalClaim, aliasClaim],
+      [],
+      ["retired-wand"],
+    );
+
+    expect(
+      result.entities.find((entity) => entity.id === canonicalClaim.id)?.slug,
+    ).toMatch(/^retired-wand-[a-z0-9]{7}$/);
+    expect(
+      result.entities.find((entity) => entity.id === aliasClaim.id)
+        ?.slugAliases,
+    ).toEqual([]);
+    expect(result.aliasConflicts).toMatchObject([
+      {
+        entityId: aliasClaim.id,
+        alias: "retired-wand",
+      },
+    ]);
+  });
+
   it("omits aliases claimed by another entity or canonical route", () => {
     const first = routeItem("First Wand", "second-wand");
     const second = routeItem("Second Wand", "second-wand");

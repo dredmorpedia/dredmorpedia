@@ -77,10 +77,10 @@ successful, but the Playwright process did not print its summary or terminate.
    reviewed patch. Evidence is in
    `provenance-override-history-evidence-2026-08-05.md`.
 
-ADR 0004 route-registry inheritance/enforcement remains a separate accepted
-architecture commitment from the earlier review. It should be completed before
-a second verified dataset or any durable publication, but it does not block the
-current single-version local MVP.
+ADR 0004 route-registry inheritance/enforcement was a separate accepted
+architecture commitment from the earlier review. It was completed on
+2026-08-09 with checksum-bound predecessor state, tombstones, stable-identity
+reappearance, and a publication gate; the version switcher remains deferred.
 
 ## Browser-lifecycle regression evidence
 

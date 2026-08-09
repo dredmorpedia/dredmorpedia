@@ -86,9 +86,30 @@ const manifestV2Schema = z
     datasetVersion: z.string().min(1),
     sources: z.array(sourceV2Schema).min(1),
     routeRegistry: z.string().min(1).optional(),
+    previousRouteRegistry: z.string().min(1).optional(),
     patches: z.array(patchReferenceSchema),
   })
-  .superRefine(validateUniqueEntries);
+  .superRefine((manifest, context) => {
+    validateUniqueEntries(manifest, context);
+    if (manifest.previousRouteRegistry && !manifest.routeRegistry) {
+      context.addIssue({
+        code: "custom",
+        message: "A previous route registry requires a current route registry.",
+        path: ["previousRouteRegistry"],
+      });
+    }
+    if (
+      manifest.previousRouteRegistry &&
+      manifest.previousRouteRegistry === manifest.routeRegistry
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Current and previous route registries must be different files.",
+        path: ["previousRouteRegistry"],
+      });
+    }
+  });
 
 const manifestInputSchema = z.discriminatedUnion("schemaVersion", [
   manifestV1Schema,
@@ -199,8 +220,19 @@ export function loadManifest(
   for (const patch of manifest.patches) {
     resolveExistingWithin(resolvedRepositoryRoot, patch.path);
   }
-  if (manifest.routeRegistry) {
-    resolveExistingWithin(resolvedRepositoryRoot, manifest.routeRegistry);
+  const routeRegistryPath = manifest.routeRegistry
+    ? resolveExistingWithin(resolvedRepositoryRoot, manifest.routeRegistry)
+    : undefined;
+  if (manifest.previousRouteRegistry) {
+    const previousRouteRegistryPath = resolveExistingWithin(
+      resolvedRepositoryRoot,
+      manifest.previousRouteRegistry,
+    );
+    if (previousRouteRegistryPath === routeRegistryPath) {
+      throw new Error(
+        "Current and previous route registries must resolve to different files.",
+      );
+    }
   }
 
   return {

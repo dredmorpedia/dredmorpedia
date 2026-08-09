@@ -130,6 +130,40 @@ describe("source manifest migration", () => {
     ).toThrow(ZodError);
   });
 
+  it("requires distinct current and previous route-registry files", () => {
+    const base = {
+      schemaVersion: 2,
+      datasetId: "route-lineage",
+      datasetVersion: "2.0.0",
+      sources: [
+        {
+          id: "fixture",
+          label: "Fixture",
+          kind: "fixture",
+          version: "2.0.0",
+          precedence: 0,
+          root: "fixture",
+          files: [{ kind: "items", path: "itemDB.xml" }],
+        },
+      ],
+      patches: [],
+    };
+
+    expect(() =>
+      parseSourceManifestV2({
+        ...base,
+        previousRouteRegistry: "routes-1.json",
+      }),
+    ).toThrow(/requires a current route registry/);
+    expect(() =>
+      parseSourceManifestV2({
+        ...base,
+        routeRegistry: "routes.json",
+        previousRouteRegistry: "routes.json",
+      }),
+    ).toThrow(/must be different files/);
+  });
+
   it("migrates only the exact reviewed official source scope", () => {
     const migrated = migrateOfficialSourceManifest(legacyOfficialManifest);
 

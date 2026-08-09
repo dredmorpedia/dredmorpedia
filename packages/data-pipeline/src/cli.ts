@@ -32,8 +32,13 @@ const assetOutputDirectory = assetOutputArgument
   : undefined;
 const verifyDeterminism = process.argv.includes("--check");
 const failOnErrorDiagnostics = process.argv.includes("--fail-on-errors");
+const requirePublishedRoutes = process.argv.includes("--publication-routes");
 
-const first = importDataset({ manifestPath, repositoryRoot });
+const first = importDataset({
+  manifestPath,
+  repositoryRoot,
+  requirePublishedRoutes,
+});
 const firstOutputs = serializeOutputs(first);
 const firstAssetOutputs = assetOutputDirectory
   ? serializePresentedAssets(first)
@@ -63,7 +68,11 @@ function assetsAreEqual(
 }
 
 if (verifyDeterminism) {
-  const second = importDataset({ manifestPath, repositoryRoot });
+  const second = importDataset({
+    manifestPath,
+    repositoryRoot,
+    requirePublishedRoutes,
+  });
   const secondOutputs = serializeOutputs(second);
   const secondAssetOutputs = assetOutputDirectory
     ? serializePresentedAssets(second)
@@ -82,7 +91,7 @@ if (verifyDeterminism) {
 }
 
 const outputs = writeOutputs(first, outputDirectory, {
-  failOnErrorDiagnostics,
+  failOnErrorDiagnostics: failOnErrorDiagnostics || requirePublishedRoutes,
 });
 const assetOutputs = assetOutputDirectory
   ? writePresentedAssets(first, assetOutputDirectory, repositoryRoot)

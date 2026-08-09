@@ -24,7 +24,8 @@ The implemented registry remains optional for unpublished local datasets.
 Durably shared or published dataset versions must follow the inherited registry
 and tombstone lifecycle accepted in
 [`0004-published-route-registry-lifecycle.md`](0004-published-route-registry-lifecycle.md);
-that publication enforcement is an implementation follow-up.
+that publication enforcement is now implemented through the schema-2 registry
+and `--publication-routes` gate.
 
 ## Consequences
 

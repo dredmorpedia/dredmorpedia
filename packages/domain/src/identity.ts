@@ -110,6 +110,7 @@ function collisionSlug(
 export function allocateEntityRoutes<T extends NormalizedEntity>(
   entities: readonly T[],
   reservations: readonly EntityRouteReservation[] = [],
+  protectedRoutes: readonly string[] = [],
 ): EntityRouteAllocation<T> {
   const sorted = [...entities].sort(compareEntities);
   const entityIds = new Set(sorted.map((entity) => entity.id));
@@ -125,7 +126,8 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
   }
 
   const protectedBaseSlugs = new Set(groups.keys());
-  const occupied = new Set<string>();
+  const protectedRouteSet = new Set(protectedRoutes);
+  const occupied = new Set(protectedRoutes);
   const assignedSlugs = new Map<string, string>();
   const slugCollisions: SlugCollisionResolution[] = [];
   for (const reservation of activeReservations) {
@@ -225,6 +227,22 @@ export function allocateEntityRoutes<T extends NormalizedEntity>(
           conflictingEntityIds: [entityId, registryOwner].sort((left, right) =>
             compareCodeUnits(left, right),
           ),
+          provenance: entity.provenance,
+        });
+      }
+      continue;
+    }
+    if (protectedRouteSet.has(alias)) {
+      for (const entityId of claimants) {
+        const entity = routed.find((candidate) => candidate.id === entityId);
+        if (!entity) {
+          continue;
+        }
+        aliasConflicts.push({
+          entityId,
+          entityName: entity.name,
+          alias,
+          conflictingEntityIds: claimants,
           provenance: entity.provenance,
         });
       }
