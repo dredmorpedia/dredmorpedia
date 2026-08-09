@@ -661,6 +661,78 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/options/);
   });
 
+  it("rejects a named item option without relationship resolution", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            options: {
+              kind: string;
+              itemName?: string | null;
+              itemResolution?: Record<string, unknown>;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const itemOption = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .flatMap((effect) => effect.options)
+      .find((option) => option.kind === "item" && option.itemName !== null);
+    if (!itemOption) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no named item-list option.",
+      );
+    }
+    delete itemOption.itemResolution;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/resolution data/);
+  });
+
+  it("accepts a reviewed source-only item option without an item ID", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          effects: {
+            options: {
+              kind: string;
+              itemName?: string | null;
+              itemId?: string;
+              itemResolution?: Record<string, unknown>;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const itemOption = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .flatMap((effect) => effect.options)
+      .find(
+        (option) =>
+          option.kind === "item" && option.itemName === "Missing Listed Item",
+      );
+    if (!itemOption?.itemName) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no unresolved item-list option.",
+      );
+    }
+    itemOption.itemResolution = {
+      status: "source-only",
+      targetKind: "item",
+      sourceLabel: itemOption.itemName,
+      reviewId: "relationship-review:test:source-only-option",
+    };
+    delete itemOption.itemId;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(loadArtifact().entities.spells).not.toHaveLength(0);
+  });
+
   it("rejects malformed direct spell effect item-target metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

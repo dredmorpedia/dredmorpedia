@@ -489,6 +489,7 @@ const spellEffectItemOptionSchema = z
     itemKey: nullableNonblankString,
     itemName: nullableNonblankString,
     itemId: z.string().min(1).optional(),
+    itemResolution: itemRelationshipResolutionSchema.optional(),
     amount: positiveInteger.nullable(),
   })
   .strict()
@@ -499,11 +500,40 @@ const spellEffectItemOptionSchema = z
         message: "Item option key and name must both be present or absent.",
       });
     }
-    if (option.itemId !== undefined && option.itemKey === null) {
+    if (option.itemKey === null) {
+      if (option.itemId !== undefined || option.itemResolution !== undefined) {
+        context.addIssue({
+          code: "custom",
+          message: "An unnamed item option must not carry resolution data.",
+        });
+      }
+      return;
+    }
+
+    if (!option.itemResolution) {
       context.addIssue({
         code: "custom",
-        message: "A resolved item option must retain its source target.",
-        path: ["itemId"],
+        message: "A named item option must carry resolution data.",
+      });
+      return;
+    }
+    if (option.itemResolution.sourceLabel !== option.itemName) {
+      context.addIssue({
+        code: "custom",
+        message: "Item option resolution must retain the original item name.",
+      });
+    }
+    if (option.itemResolution.status === "resolved") {
+      if (option.itemId !== option.itemResolution.targetId) {
+        context.addIssue({
+          code: "custom",
+          message: "Resolved item option target must match its item ID.",
+        });
+      }
+    } else if (option.itemId !== undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Unlinked item options must not carry an item ID.",
       });
     }
   });

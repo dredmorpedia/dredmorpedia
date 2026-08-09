@@ -2021,8 +2021,8 @@ export default async function SpellPage({
                     {effect.options.map((option, optionIndex) => {
                       const target =
                         option.kind === "item"
-                          ? option.itemId
-                            ? itemsById.get(option.itemId)
+                          ? option.itemResolution?.status === "resolved"
+                            ? itemsById.get(option.itemResolution.targetId)
                             : undefined
                           : option.spellId
                             ? spellsById.get(option.spellId)
@@ -2057,9 +2057,13 @@ export default async function SpellPage({
                           <span>
                             {target
                               ? `Resolved ${option.kind} target`
-                              : targetName
-                                ? `Unresolved ${option.kind} target`
-                                : "Target unavailable"}
+                              : option.kind === "item" &&
+                                  option.itemResolution?.status ===
+                                    "source-only"
+                                ? "Source-only item label"
+                                : targetName
+                                  ? `Unresolved ${option.kind} target`
+                                  : "Target unavailable"}
                             {option.kind === "item"
                               ? ` · Source amount: ${option.amount ?? "not declared"}`
                               : ""}

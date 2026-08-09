@@ -477,13 +477,24 @@ export interface SpellEffectConditions {
   forbiddenBuff: SpellEffectBuffCondition;
 }
 
-export interface SpellEffectItemOption {
+interface SpellEffectItemOptionBase {
   kind: "item";
-  itemKey: string | null;
-  itemName: string | null;
-  itemId?: string;
   amount: number | null;
 }
+
+export type SpellEffectItemOption =
+  | (SpellEffectItemOptionBase & {
+      itemKey: string;
+      itemName: string;
+      itemId?: string;
+      itemResolution: RelationshipResolution<"item">;
+    })
+  | (SpellEffectItemOptionBase & {
+      itemKey: null;
+      itemName: null;
+      itemId?: never;
+      itemResolution?: never;
+    });
 
 export interface SpellEffectSpellOption {
   kind: "spell";

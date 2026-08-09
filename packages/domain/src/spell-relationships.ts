@@ -213,7 +213,9 @@ export function spellEffectOptionItemBacklinks(
     .flatMap((spell) =>
       allSpellEffects(spell).flatMap((effect, effectIndex) =>
         effect.options.flatMap((option, optionIndex) =>
-          option.kind === "item" && option.itemId === targetItemId
+          option.kind === "item" &&
+          option.itemResolution?.status === "resolved" &&
+          option.itemResolution.targetId === targetItemId
             ? [{ spell, effect, effectIndex, option, optionIndex }]
             : [],
         ),

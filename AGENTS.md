@@ -35,16 +35,17 @@ Read these files before making a substantial change:
   `docs/contracts/numeric-source-lexemes.md`; never restore general JavaScript
   string-to-number coercion.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
-- The canonical 23 dangling-reference warnings are 23 declarations, nine
-  owner/reference pairs, and seven labels. Evidence classifies 18 declarations
-  as engine/source-only candidates, one as a probable typo, one as a deliberate
-  placeholder, and three spell declarations as ambiguous. A generic
-  loss-aware resolution contract now distinguishes exact links, reviewed
-  corrections, reviewed source-only labels, and unresolved targets while
-  retaining the original source label; named skill loadouts are its first
-  consumer. Do not invent entities or apply fuzzy aliases; obtain the owner's
-  per-class decision before introducing a source-only status or a scoped
-  correction.
+- The original canonical 23 dangling-reference warnings were 23 declarations,
+  nine owner/reference pairs, and seven labels. The owner has approved the 16
+  `lockpick` loadouts and two `Spores` list options as reviewed source-only item
+  labels. They retain their original labels, carry a stable review ID, emit 18
+  informational audit records, and do not fabricate entities or routes. The
+  remaining five warnings are `Acidium Salis`, the deliberate
+  `non-existant-spell` placeholder, and three ambiguous monster spell labels.
+  The generic loss-aware resolution contract is integrated for named skill
+  loadouts and named spell item-list options. Do not apply a correction for
+  `Acidium Salis` or alias the placeholder/ambiguous spells without the owner's
+  separate decision or new evidence.
 - Buff-local spell effects use the same strict effect contract and deterministic
   relationship linker as direct effects while retaining their owning buff
   scope. Consumers must not infer scheduling, trigger order, buff lifetime,

@@ -6,6 +6,7 @@ import {
   applyEntityPatch,
   applyMonsterInheritance,
   canonicalKey,
+  classifyRelationshipAsSourceOnly,
   compareCodeUnits,
   createSearchDocuments,
   resolveRelationshipExactly,
@@ -43,6 +44,10 @@ import {
   type CandidateCollections,
 } from "./normalizers";
 import { parsePatchDefinition } from "./patches";
+import {
+  sourceOnlyItemReview,
+  type ReviewedItemRelationship,
+} from "./relationship-reviews";
 import {
   parseRouteRegistry,
   resolveRouteRegistry,
@@ -130,6 +135,45 @@ function danglingDiagnostic(
     entityId: entity.id,
     details: { targetKind, reference },
   };
+}
+
+interface RelationshipReviewContext {
+  datasetId: string;
+  datasetVersion: string;
+  sourceVersions: ReadonlyMap<string, string>;
+}
+
+function reviewedSourceOnlyDiagnostic(
+  entity: NormalizedEntity,
+  reference: string,
+  relationship: ReviewedItemRelationship,
+  reviewId: string,
+): DiagnosticDraft {
+  return {
+    severity: "info",
+    code: "reviewed_source_only_reference",
+    message: `${entity.name} preserves a reviewed source-only item label: ${reference}`,
+    source: sourceLocation(entity.provenance),
+    entityId: entity.id,
+    details: { targetKind: "item", reference, relationship, reviewId },
+  };
+}
+
+function sourceOnlyReviewFor(
+  entity: NormalizedEntity,
+  relationship: ReviewedItemRelationship,
+  sourceLabel: string,
+  reviewContext: RelationshipReviewContext,
+): string | null {
+  return sourceOnlyItemReview({
+    datasetId: reviewContext.datasetId,
+    datasetVersion: reviewContext.datasetVersion,
+    sourceId: entity.provenance.sourceId,
+    sourceVersion: reviewContext.sourceVersions.get(entity.provenance.sourceId),
+    ownerId: entity.id,
+    relationship,
+    sourceLabel,
+  });
 }
 
 function linkItems(
@@ -287,6 +331,7 @@ function linkSkills(
   abilities: readonly Ability[],
   items: readonly Item[],
   diagnostics: DiagnosticDraft[],
+  reviewContext: RelationshipReviewContext,
 ): Skill[] {
   const itemAliases = aliasesFor(items);
   const abilitiesBySkill = new Map<string, Ability[]>();
@@ -306,6 +351,29 @@ function linkSkills(
       }
       const item = itemAliases.get(loadout.itemKey);
       if (!item) {
+        const reviewId = sourceOnlyReviewFor(
+          skill,
+          "skill-loadout-item",
+          loadout.itemName,
+          reviewContext,
+        );
+        if (reviewId) {
+          diagnostics.push(
+            reviewedSourceOnlyDiagnostic(
+              skill,
+              loadout.itemName,
+              "skill-loadout-item",
+              reviewId,
+            ),
+          );
+          return {
+            ...loadout,
+            itemResolution: classifyRelationshipAsSourceOnly(
+              loadout.itemResolution,
+              reviewId,
+            ),
+          };
+        }
         diagnostics.push(danglingDiagnostic(skill, "item", loadout.itemName));
         return loadout;
       }
@@ -335,6 +403,7 @@ function linkSpells(
   items: readonly Item[],
   monsters: readonly Monster[],
   diagnostics: DiagnosticDraft[],
+  reviewContext: RelationshipReviewContext,
 ): Spell[] {
   const spellAliases = aliasesFor(spells);
   const statAliases = aliasesFor(stats);
@@ -437,11 +506,39 @@ function linkSpells(
         }
         const target = itemAliases.get(option.itemKey);
         if (target) {
-          return { ...option, itemId: target.id };
+          return {
+            ...option,
+            itemId: target.id,
+            itemResolution: resolveRelationshipExactly(
+              option.itemResolution,
+              target.id,
+            ),
+          };
         }
-        diagnostics.push(
-          danglingDiagnostic(owner, "item", option.itemName ?? option.itemKey),
+        const reviewId = sourceOnlyReviewFor(
+          owner,
+          "spell-effect-item-option",
+          option.itemName,
+          reviewContext,
         );
+        if (reviewId) {
+          diagnostics.push(
+            reviewedSourceOnlyDiagnostic(
+              owner,
+              option.itemName,
+              "spell-effect-item-option",
+              reviewId,
+            ),
+          );
+          return {
+            ...option,
+            itemResolution: classifyRelationshipAsSourceOnly(
+              option.itemResolution,
+              reviewId,
+            ),
+          };
+        }
+        diagnostics.push(danglingDiagnostic(owner, "item", option.itemName));
         return option;
       }
 
@@ -841,6 +938,7 @@ function resolveCollections(
     linkedItems,
     routed.monsters.entities,
     diagnostics,
+    { datasetId, datasetVersion, sourceVersions },
   );
   const linkedAbilities = linkAbilities(
     routed.abilities.entities,
@@ -853,6 +951,7 @@ function resolveCollections(
     linkedAbilities,
     linkedItems,
     diagnostics,
+    { datasetId, datasetVersion, sourceVersions },
   );
 
   return {

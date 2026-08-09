@@ -10,8 +10,9 @@ fabricated entity is introduced. It compares the normalized records with the
 declaring official XML, the installed validation schemas, and the preserved
 application's relationship rendering.
 
-The work is evidence only. It does not change normalized identities, links,
-diagnostic severity, or runtime interpretation.
+The initial work was evidence only. The owner subsequently approved the
+engine/source-only class on 2026-08-09; the implementation result is recorded
+below. No normalized identity or entity link was fabricated.
 
 ## Corrected measurement
 
@@ -106,8 +107,9 @@ but it is not evidence for a target mapping or engine behavior.
    reviewed source-only label, and a truly unresolved target while retaining
    the original source label. Named skill loadouts are the first integrated
    consumer; no official classification changed.
-2. Apply that contract first to the 16 `lockpick` loadouts and two `Spores`
-   options only after the owner approves their source-only classification.
+2. **Completed:** after owner approval, apply that contract to the 16
+   `lockpick` loadouts and two `Spores` options as narrowly reviewed source-only
+   item labels.
 3. Add a narrowly scoped, provenance-bearing correction for `Acidium Salis`
    only after the owner approves the proposed `Acidum Salis` target.
 4. Keep the placeholder and three ambiguous spell names unresolved. Revisit
@@ -117,16 +119,21 @@ but it is not evidence for a target mapping or engine behavior.
    future dataset-health work so repeated source declarations are not mistaken
    for distinct missing entities.
 
-Implementation evidence for step 1 is recorded in
-[`relationship-resolution-contract-evidence-2026-08-09.md`](relationship-resolution-contract-evidence-2026-08-09.md).
+Implementation evidence for steps 1 and 2 is recorded in
+[`relationship-resolution-contract-evidence-2026-08-09.md`](relationship-resolution-contract-evidence-2026-08-09.md)
+and
+[`relationship-source-only-classification-evidence-2026-08-09.md`](relationship-source-only-classification-evidence-2026-08-09.md).
 
 ## Verification
 
-- The existing ignored canonical artifact reports 0 errors, 23 warnings, and
-  71 informational duplicate decisions.
-- Filtering the diagnostic artifact by `dangling_reference` yields 23 records,
-  nine owner/reference pairs, and seven distinct labels with the exact
-  16/2/1/1/1/1/1 declaration split above.
+- Before reviewed classification, the ignored canonical artifact reported 0
+  errors, 23 warnings, and 71 informational duplicate decisions. Filtering by
+  `dangling_reference` produced the exact 16/2/1/1/1/1/1 split above.
+- After reviewed classification, it reports 0 errors, 5 warnings, and 89
+  informational records. Exactly 18
+  `reviewed_source_only_reference` records account for the approved
+  declarations; the five remaining `dangling_reference` records are the typo,
+  placeholder, and three ambiguous spells.
 - Read-only source inspection found no normalized target for six labels and the
   single probable spelling target described above.
 - No official input, generated official artifact, asset, or local installation

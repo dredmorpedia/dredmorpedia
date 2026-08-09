@@ -3960,19 +3960,28 @@ function parseSpellEffectOptions(
     }
 
     if (optionKind === "item") {
-      return {
-        kind: "item",
-        itemKey: targetName === null ? null : canonicalKey(targetName),
-        itemName: targetName,
-        amount: optionalIntegerValue(
-          xmlAttribute(option, "amount"),
-          context,
-          optionProvenance,
-          `spell effect ${effectIndex + 1} item option ${optionIndex + 1} amount`,
-          currentEntityId,
-          1,
-        ),
-      };
+      const amount = optionalIntegerValue(
+        xmlAttribute(option, "amount"),
+        context,
+        optionProvenance,
+        `spell effect ${effectIndex + 1} item option ${optionIndex + 1} amount`,
+        currentEntityId,
+        1,
+      );
+      return targetName === null
+        ? {
+            kind: "item",
+            itemKey: null,
+            itemName: null,
+            amount,
+          }
+        : {
+            kind: "item",
+            itemKey: canonicalKey(targetName),
+            itemName: targetName,
+            itemResolution: unresolvedRelationship("item", targetName),
+            amount,
+          };
     }
 
     return {

@@ -399,6 +399,13 @@ describe("spell effect relationships", () => {
             itemKey: "brass ingot",
             itemName: "Brass Ingot",
             itemId: "item:brass ingot",
+            itemResolution: {
+              status: "resolved",
+              resolutionMethod: "exact",
+              targetKind: "item",
+              sourceLabel: "Brass Ingot",
+              targetId: "item:brass ingot",
+            },
             amount: null,
           },
           {
@@ -406,6 +413,13 @@ describe("spell effect relationships", () => {
             itemKey: "brass ingot",
             itemName: "Brass Ingot",
             itemId: "item:brass ingot",
+            itemResolution: {
+              status: "resolved",
+              resolutionMethod: "exact",
+              targetKind: "item",
+              sourceLabel: "Brass Ingot",
+              targetId: "item:brass ingot",
+            },
             amount: 2,
           },
         ],

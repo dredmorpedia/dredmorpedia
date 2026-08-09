@@ -3634,6 +3634,13 @@ describe("synthetic dataset import", () => {
             itemKey: "target item",
             itemName: "Target Item",
             itemId: "item:target item",
+            itemResolution: {
+              status: "resolved",
+              resolutionMethod: "exact",
+              targetKind: "item",
+              sourceLabel: "Target Item",
+              targetId: "item:target item",
+            },
             amount: null,
           },
           {
@@ -3641,6 +3648,13 @@ describe("synthetic dataset import", () => {
             itemKey: "target item",
             itemName: "Target Item",
             itemId: "item:target item",
+            itemResolution: {
+              status: "resolved",
+              resolutionMethod: "exact",
+              targetKind: "item",
+              sourceLabel: "Target Item",
+              targetId: "item:target item",
+            },
             amount: 2,
           },
         ],

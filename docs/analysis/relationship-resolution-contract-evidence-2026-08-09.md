@@ -49,7 +49,8 @@ compatibility reader is retained.
 
 ## Canonical measurement
 
-The read-only `1.1.5 public_beta` import contains:
+At this contract-only checkpoint, the read-only `1.1.5 public_beta` import
+contained:
 
 - 47 exact named item loadouts;
 - 16 unresolved named item loadouts (the already-classified `lockpick`
@@ -74,14 +75,17 @@ references; this slice suppresses none of them.
 - No official input, generated official artifact, asset, or machine-local path
   is committed.
 
-## Next decision gates
+## Subsequent status and next decision gate
 
-Ask the owner separately whether to:
+The owner approved the first decision: the 16 `lockpick` loadouts and two
+`Spores` item-list options are now narrowly classified as reviewed source-only
+labels. Named item-list options use the same contract, and the current
+canonical import reports 5 warnings plus 18 source-only informational audit
+records. See
+[`relationship-source-only-classification-evidence-2026-08-09.md`](relationship-source-only-classification-evidence-2026-08-09.md).
 
-1. classify the 16 `lockpick` loadouts and two `Spores` options as reviewed
-   source-only declarations; and
-2. approve the narrowly scoped, provenance-bearing `Acidium Salis` to
-   `Acidum Salis` correction.
+The remaining decision gate is whether to approve the narrowly scoped,
+provenance-bearing `Acidium Salis` to `Acidum Salis` correction.
 
 The deliberate placeholder and three ambiguous monster spell labels remain
 unresolved unless new evidence establishes a target.
