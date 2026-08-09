@@ -1731,7 +1731,7 @@ describe("synthetic dataset import", () => {
     ).toEqual([]);
   });
 
-  it("normalizes loss-aware spell mana, shield, and weapon requirements", () => {
+  it("normalizes loss-aware spell mana and non-mana requirements", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-spell-mana-costs-"),
     );
@@ -1793,6 +1793,26 @@ describe("synthetic dataset import", () => {
   </spell>
   <spell name="Empty Booze Requirement" type="self">
     <requirements booze="" />
+  </spell>
+  <spell name="Complete Zorkmid Requirement" type="self">
+    <requirements zorkmids="25" zorkmidScaleF="2.5" savvyBonus="0.25" futureZorkmid="kept as a diagnostic">
+      <futureZorkmidChild />
+    </requirements>
+  </spell>
+  <spell name="Signed Zorkmid Requirement" type="self">
+    <requirements zorkmids="1" zorkmidScaleF="-0.5" savvyBonus="-0.25" />
+  </spell>
+  <spell name="Partial Zorkmid Requirement" type="self">
+    <requirements zorkmidScaleF=".5" />
+  </spell>
+  <spell name="Invalid Zorkmid Requirement" type="self">
+    <requirements zorkmids="0" zorkmidScaleF="bad" savvyBonus="" />
+  </spell>
+  <spell name="Empty Zorkmid Requirement" type="self">
+    <requirements zorkmids="" />
+  </spell>
+  <spell name="Combined Zorkmid Requirement" type="self">
+    <requirements zorkmids="25" zorkmidScaleF="2.5" savvyBonus="0.25" weapon="1" />
   </spell>
   <spell name="Combined Booze Requirement" type="self">
     <requirements booze="10" weapon="1" />
@@ -1891,10 +1911,61 @@ describe("synthetic dataset import", () => {
       [],
     );
     expect(
+      spells.get("Complete Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([
+      {
+        sourceZorkmids: 25,
+        sourceZorkmidScaleFactor: 2.5,
+        sourceSavvyBonus: 0.25,
+      },
+    ]);
+    expect(
+      spells.get("Signed Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([
+      {
+        sourceZorkmids: 1,
+        sourceZorkmidScaleFactor: -0.5,
+        sourceSavvyBonus: -0.25,
+      },
+    ]);
+    expect(
+      spells.get("Partial Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([
+      {
+        sourceZorkmids: null,
+        sourceZorkmidScaleFactor: 0.5,
+        sourceSavvyBonus: null,
+      },
+    ]);
+    expect(
+      spells.get("Invalid Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([
+      {
+        sourceZorkmids: null,
+        sourceZorkmidScaleFactor: null,
+        sourceSavvyBonus: null,
+      },
+    ]);
+    expect(
+      spells.get("Empty Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([
+      {
+        sourceZorkmids: null,
+        sourceZorkmidScaleFactor: null,
+        sourceSavvyBonus: null,
+      },
+    ]);
+    expect(
+      spells.get("Combined Zorkmid Requirement")?.zorkmidRequirements,
+    ).toEqual([]);
+    expect(spells.get("Unsupported Requirement")?.zorkmidRequirements).toEqual(
+      [],
+    );
+    expect(
       result.diagnostics.filter(
         (diagnostic) => diagnostic.code === "invalid_number",
       ),
-    ).toHaveLength(7);
+    ).toHaveLength(11);
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -1999,6 +2070,56 @@ describe("synthetic dataset import", () => {
             field: "spell booze requirement source value",
             value: "",
           },
+        }),
+        expect.objectContaining({
+          code: "unknown_attribute",
+          entityId: "spell:complete zorkmid requirement",
+          details: {
+            element: "requirements",
+            attribute: "futureZorkmid",
+          },
+        }),
+        expect.objectContaining({
+          code: "unknown_element",
+          entityId: "spell:complete zorkmid requirement",
+          details: { element: "futureZorkmidChild" },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid zorkmid requirement",
+          details: {
+            field: "spell zorkmid requirement source zorkmids",
+            value: "0",
+          },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid zorkmid requirement",
+          details: {
+            field: "spell zorkmid requirement source zorkmidScaleF",
+            value: "bad",
+          },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:invalid zorkmid requirement",
+          details: {
+            field: "spell zorkmid requirement source savvyBonus",
+            value: "",
+          },
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          entityId: "spell:empty zorkmid requirement",
+          details: {
+            field: "spell zorkmid requirement source zorkmids",
+            value: "",
+          },
+        }),
+        expect.objectContaining({
+          code: "unsupported_spell_requirement",
+          entityId: "spell:combined zorkmid requirement",
+          details: { element: "requirements" },
         }),
         expect.objectContaining({
           code: "unsupported_spell_requirement",
@@ -5899,6 +6020,13 @@ describe("synthetic dataset import", () => {
     ]);
     expect(clockworkEcho?.manaCosts).toEqual([]);
     expect(clockworkEcho?.boozeRequirements).toEqual([{ sourceValue: 10 }]);
+    expect(clockworkEcho?.zorkmidRequirements).toEqual([
+      {
+        sourceZorkmids: 25,
+        sourceZorkmidScaleFactor: 2.5,
+        sourceSavvyBonus: 0.25,
+      },
+    ]);
     expect(clockworkEcho?.shieldRequirements).toEqual([{ sourceValue: true }]);
     expect(clockworkEcho?.weaponRequirements).toEqual([{ sourceValue: false }]);
     expect(clockworkEcho?.animations).toEqual([]);

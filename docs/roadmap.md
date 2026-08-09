@@ -447,6 +447,18 @@ Six non-mana requirement diagnostics are removed; three zorkmid shapes remain,
 alongside 23 dangling references. Evidence is recorded in
 `docs/analysis/spell-booze-requirement-evidence-2026-08-09.md`.
 
+Spell zorkmid-requirement parity now preserves all three active declarations
+as ordered, loss-aware positive-integer `zorkmids` plus decimal
+`zorkmidScaleF` and `savvyBonus` source values. The installed schema
+establishes those source types, while the preserved application does not read
+the currency fields or establish a usable cost formula. The spell page exposes
+the exact fields without combining them into a cost or Savvy formula or
+inferring an actor, available currency, payment, eligibility, timing, or
+runtime success. This removes the final three spell-requirement diagnostics;
+the canonical warnings are now exactly 23 dangling references. Evidence is
+recorded in
+`docs/analysis/spell-zorkmid-requirement-evidence-2026-08-09.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`. Broader non-item stat facets and ADR 0003's user-facing performance/relevance budgets remain open.

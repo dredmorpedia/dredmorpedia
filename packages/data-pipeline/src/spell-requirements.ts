@@ -1,7 +1,7 @@
 import type { EntityProvenance, Spell } from "@dredmorpedia/domain";
 
 import type { NormalizationContext } from "./normalization-context";
-import { parseSourceInteger } from "./numeric-lexemes";
+import { parseSourceInteger, parseSourceNumber } from "./numeric-lexemes";
 import type { XmlRecord } from "./xml-adapter";
 import { xmlAttribute, xmlChildren } from "./xml-adapter";
 
@@ -84,6 +84,21 @@ const otherBoozeRequirementAttributes = [
   "zorkmidScaleF",
 ] as const;
 
+const zorkmidRequirementAttributes = new Set([
+  "zorkmids",
+  "zorkmidScaleF",
+  "savvyBonus",
+]);
+
+const otherZorkmidRequirementAttributes = [
+  "mp",
+  "mincost",
+  "level",
+  "shield",
+  "weapon",
+  "booze",
+] as const;
+
 function hasAnyAttribute(
   record: XmlRecord,
   attributes: readonly string[],
@@ -118,6 +133,62 @@ function signedByteAttribute(
   return null;
 }
 
+function positiveIntegerAttribute(
+  record: XmlRecord,
+  name: string,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+): number | null {
+  const value = xmlAttribute(record, name);
+  if (value === undefined) {
+    return null;
+  }
+  const parsed = parseSourceInteger(value);
+  if (parsed !== null && parsed >= 1) {
+    return parsed;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_number",
+    message: `Expected a positive integer for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
+}
+
+function finiteNumberAttribute(
+  record: XmlRecord,
+  name: string,
+  context: NormalizationContext,
+  location: EntityProvenance,
+  field: string,
+  currentEntityId: string,
+): number | null {
+  const value = xmlAttribute(record, name);
+  if (value === undefined) {
+    return null;
+  }
+  const parsed = parseSourceNumber(value);
+  if (parsed !== null) {
+    return parsed;
+  }
+
+  context.diagnostics.push({
+    severity: "warning",
+    code: "invalid_number",
+    message: `Expected a finite number for ${field}; used an unavailable value instead.`,
+    source: location,
+    entityId: currentEntityId,
+    details: { field, value },
+  });
+  return null;
+}
+
 export function parseSpellRequirements(
   record: XmlRecord,
   context: NormalizationContext,
@@ -128,11 +199,13 @@ export function parseSpellRequirements(
   Spell,
   | "manaCosts"
   | "boozeRequirements"
+  | "zorkmidRequirements"
   | "shieldRequirements"
   | "weaponRequirements"
 > {
   const manaCosts: Spell["manaCosts"] = [];
   const boozeRequirements: Spell["boozeRequirements"] = [];
+  const zorkmidRequirements: Spell["zorkmidRequirements"] = [];
   const shieldRequirements: Spell["shieldRequirements"] = [];
   const weaponRequirements: Spell["weaponRequirements"] = [];
 
@@ -268,6 +341,49 @@ export function parseSpellRequirements(
       continue;
     }
 
+    const zorkmidsText = xmlAttribute(requirements, "zorkmids");
+    const zorkmidScaleText = xmlAttribute(requirements, "zorkmidScaleF");
+    if (
+      (zorkmidsText !== undefined || zorkmidScaleText !== undefined) &&
+      !hasAnyAttribute(requirements, otherZorkmidRequirementAttributes)
+    ) {
+      dependencies.reportUnknownLeafContent(
+        context,
+        requirements,
+        "requirements",
+        zorkmidRequirementAttributes,
+        requirementProvenance,
+        currentEntityId,
+      );
+      zorkmidRequirements.push({
+        sourceZorkmids: positiveIntegerAttribute(
+          requirements,
+          "zorkmids",
+          context,
+          requirementProvenance,
+          "spell zorkmid requirement source zorkmids",
+          currentEntityId,
+        ),
+        sourceZorkmidScaleFactor: finiteNumberAttribute(
+          requirements,
+          "zorkmidScaleF",
+          context,
+          requirementProvenance,
+          "spell zorkmid requirement source zorkmidScaleF",
+          currentEntityId,
+        ),
+        sourceSavvyBonus: finiteNumberAttribute(
+          requirements,
+          "savvyBonus",
+          context,
+          requirementProvenance,
+          "spell zorkmid requirement source savvyBonus",
+          currentEntityId,
+        ),
+      });
+      continue;
+    }
+
     context.diagnostics.push({
       severity: "warning",
       code: "unsupported_spell_requirement",
@@ -281,6 +397,7 @@ export function parseSpellRequirements(
   return {
     manaCosts,
     boozeRequirements,
+    zorkmidRequirements,
     shieldRequirements,
     weaponRequirements,
   };

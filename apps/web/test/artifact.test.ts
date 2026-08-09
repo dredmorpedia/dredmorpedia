@@ -974,6 +974,34 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/sourceValue/);
   });
 
+  it("rejects malformed spell zorkmid requirement source values", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          zorkmidRequirements: {
+            sourceZorkmids: number | null;
+            sourceZorkmidScaleFactor: number | null;
+            sourceSavvyBonus: number | null;
+          }[];
+        }[];
+      };
+    };
+    const zorkmidRequirement = typedArtifact.entities.spells
+      .flatMap((spell) => spell.zorkmidRequirements)
+      .find((requirement) => requirement.sourceZorkmids !== null);
+    if (!zorkmidRequirement) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell zorkmid requirement.",
+      );
+    }
+    zorkmidRequirement.sourceZorkmids = 0;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceZorkmids/);
+  });
+
   it("rejects malformed spell shield requirement source flags", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

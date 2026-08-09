@@ -105,13 +105,13 @@ Other completed areas include spell mana, requirement-level, shield-requirement,
 
 ## Current measured backlog and likely next work
 
-After the spell booze-requirement slice, the canonical import
+After the spell zorkmid-requirement slice, the canonical import
 reports:
 
-- 0 errors, 26 warnings, and 71 informational duplicate decisions;
+- 0 errors, 23 warnings, and 71 informational duplicate decisions;
 - zero measured item or spell compatibility constructs;
-- 23 dangling references tracked separately; and
-- three non-mana zorkmid spell requirement diagnostics tracked separately.
+- zero unsupported spell requirements; and
+- 23 dangling references, which are the complete warning set.
 
 No item compatibility diagnostic remains.
 
@@ -171,7 +171,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and mana-requirement attribute is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, and all six exact booze declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives unsupported requirement shapes their declaring source location. The next content-parity task should evaluate the three zorkmid declarations as their own source shape rather than blanket-supporting spell content.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The next content-parity task should classify the 23 remaining dangling references with source/legacy evidence rather than blindly fabricating aliases or entities.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
@@ -183,6 +183,25 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The spell zorkmid-requirement slice preserves all three active declarations as
+ordered loss-aware records. The installed schema defines `zorkmids` as a
+positive integer and `zorkmidScaleF` plus `savvyBonus` as decimals. The
+preserved application does not read the two currency fields or establish a
+usable currency formula. The modern page exposes the three source values but
+does not combine them into a cost or Savvy formula or infer an actor, available
+currency, payment, eligibility, timing, or runtime success. Invalid supplied
+values remain unavailable with requirement-located diagnostics, and the
+strict web guard rejects malformed normalized records. Deterministic official
+generation is byte-identical with 0 errors, 23 warnings, and 71 informational
+decisions; every warning is a previously tracked dangling reference. Evidence
+is recorded in
+`docs/analysis/spell-zorkmid-requirement-evidence-2026-08-09.md`. The full
+workspace passes 204 unit/artifact tests and the 43-page synthetic export; all
+36 desktop/mobile browser cases pass, and the full ignored official export
+produces all 2,857 pages.
+
+## Spell booze-requirement slice validation
 
 The spell booze-requirement slice preserves all six active exact
 `booze="..."` declarations as ordered nullable signed-byte source values. The

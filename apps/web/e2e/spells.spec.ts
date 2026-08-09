@@ -37,6 +37,11 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(
     page
+      .getByRole("region", { name: "Zorkmid requirement" })
+      .getByText("No normalized zorkmid requirement."),
+  ).toBeVisible();
+  await expect(
+    page
       .getByRole("region", { name: "Shield requirement" })
       .getByText("No normalized shield requirement."),
   ).toBeVisible();
@@ -598,6 +603,33 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     boozeRequirement.getByText(/without inferring an actor, inventory/i),
   ).toBeVisible();
+  const zorkmidRequirement = page.getByRole("region", {
+    name: "Zorkmid requirement",
+  });
+  await expect(
+    zorkmidRequirement.getByText("Zorkmids source value", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText("25", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText("zorkmidScaleF source value", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText("2.5", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText("savvyBonus source value", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText("0.25", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    zorkmidRequirement.getByText(/do not establish a cost or savvy formula/i),
+  ).toBeVisible();
+  await expect(zorkmidRequirement.getByRole("link")).toHaveCount(0);
   const shieldRequirement = page.getByRole("region", {
     name: "Shield requirement",
   });

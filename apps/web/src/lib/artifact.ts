@@ -776,6 +776,15 @@ const spellSchema = z
         })
         .strict(),
     ),
+    zorkmidRequirements: z.array(
+      z
+        .object({
+          sourceZorkmids: positiveInteger.nullable(),
+          sourceZorkmidScaleFactor: nullableNumber,
+          sourceSavvyBonus: nullableNumber,
+        })
+        .strict(),
+    ),
     shieldRequirements: z.array(
       z
         .object({

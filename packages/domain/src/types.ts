@@ -466,6 +466,12 @@ export interface SpellBoozeRequirement {
   sourceValue: number | null;
 }
 
+export interface SpellZorkmidRequirement {
+  sourceZorkmids: number | null;
+  sourceZorkmidScaleFactor: number | null;
+  sourceSavvyBonus: number | null;
+}
+
 export interface SpellShieldRequirement {
   sourceValue: boolean | null;
 }
@@ -591,6 +597,7 @@ export interface Spell extends NormalizedEntityBase {
   iconPath: string | null;
   manaCosts: SpellManaCost[];
   boozeRequirements: SpellBoozeRequirement[];
+  zorkmidRequirements: SpellZorkmidRequirement[];
   shieldRequirements: SpellShieldRequirement[];
   weaponRequirements: SpellWeaponRequirement[];
   animations: SpellAnimationMetadata[];

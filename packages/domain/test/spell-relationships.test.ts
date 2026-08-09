@@ -94,6 +94,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     iconPath: null,
     manaCosts: [],
     boozeRequirements: [],
+    zorkmidRequirements: [],
     shieldRequirements: [],
     weaponRequirements: [],
     animations: [],

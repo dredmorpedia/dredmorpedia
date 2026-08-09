@@ -264,6 +264,10 @@ export default async function SpellPage({
             <dd>{spell.manaCosts.length}</dd>
           </div>
           <div>
+            <dt>Zorkmid requirement declarations</dt>
+            <dd>{spell.zorkmidRequirements.length}</dd>
+          </div>
+          <div>
             <dt>Booze requirement declarations</dt>
             <dd>{spell.boozeRequirements.length}</dd>
           </div>
@@ -466,6 +470,78 @@ export default async function SpellPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized mana requirement.
+            </p>
+          )}
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="zorkmid-requirement-heading"
+        >
+          <h2 id="zorkmid-requirement-heading" className="section-title-sm">
+            Zorkmid requirement
+          </h2>
+          {spell.zorkmidRequirements.length > 0 ? (
+            <>
+              <ul className="trigger-list">
+                {spell.zorkmidRequirements.map(
+                  (zorkmidRequirement, requirementIndex) => (
+                    <li key={requirementIndex}>
+                      <div className="trigger-summary">
+                        <span className="relationship-title">
+                          Declaration {requirementIndex + 1}
+                        </span>
+                        <strong>Direct source parameters</strong>
+                        <small className="trigger-resolution">
+                          Uninterpreted requirement source metadata
+                        </small>
+                      </div>
+                      <dl className="trigger-facts">
+                        <div>
+                          <dt>Zorkmids source value</dt>
+                          <dd>
+                            {zorkmidRequirement.sourceZorkmids === null
+                              ? "Unavailable"
+                              : sourceNumber.format(
+                                  zorkmidRequirement.sourceZorkmids,
+                                )}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>zorkmidScaleF source value</dt>
+                          <dd>
+                            {zorkmidRequirement.sourceZorkmidScaleFactor ===
+                            null
+                              ? "Not specified"
+                              : sourceNumber.format(
+                                  zorkmidRequirement.sourceZorkmidScaleFactor,
+                                )}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>savvyBonus source value</dt>
+                          <dd>
+                            {zorkmidRequirement.sourceSavvyBonus === null
+                              ? "Not specified"
+                              : sourceNumber.format(
+                                  zorkmidRequirement.sourceSavvyBonus,
+                                )}
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                These source fields do not establish a cost or Savvy formula,
+                actor, available currency, payment, eligibility, timing, or
+                runtime success.
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No normalized zorkmid requirement.
             </p>
           )}
         </section>
