@@ -28,6 +28,10 @@ Read these files before making a substantial change:
 - Generated input checksums are captured from the exact byte snapshot used by
   parsing or, for referenced assets, from the first registration read. Do not
   reintroduce end-of-import source rereads.
+- The first incremental local-asset slice copies only normalized item PNG icons
+  from those captured snapshots into the ignored managed web asset directory.
+  Its schema-1 catalog, diagnostics, content-addressed files, and manifest-last
+  checksums must match the active dataset before the web renders an icon.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -123,9 +127,10 @@ Read these files before making a substantial change:
 - New UI must be responsive, keyboard operable, semantically structured, and tested for common accessibility failures.
 - The local MVP targets `1.1.5 public_beta`. Do not build a version switcher
   until a second complete, verified dataset exists.
-- A future local asset importer may copy only assets referenced by displayed
-  entities/features into gitignored generated output. It must remain read-only
-  toward the installation and must not bulk-copy unrelated resources.
+- Extend the local asset importer only with assets referenced by newly
+  displayed entities/features. It must remain read-only toward the
+  installation, write only managed gitignored output, and must not bulk-copy
+  unrelated resources.
 
 ## Architecture boundaries for the rebuild
 
@@ -154,12 +159,12 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 ## Canonical workspace commands
 
 - `pnpm install --frozen-lockfile` — install the pinned workspace.
-- `pnpm generate:check` — regenerate the synthetic artifact twice and prove byte-identical output.
-- `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic artifact and start the web application on `http://localhost:3001/`.
+- `pnpm generate:check` — regenerate the synthetic dataset and presented-asset set twice and prove byte-identical output.
+- `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic dataset and presented-asset fallback set, then start the web application on `http://localhost:3001/`.
 - `pnpm migrate:official-manifest` — idempotently migrate the ignored canonical four-source manifest from schema 1 to the reviewed schema-2 game/build provenance without changing source roots.
-- `pnpm dev:official` — regenerate the ignored official artifact with a zero-error publication gate and start the same local application against it.
-- `pnpm generate:official:check` — deterministically regenerate the ignored official artifact with a zero-error publication gate, without starting the web application.
-- `pnpm build:official` — deterministically regenerate the ignored official artifact with a zero-error publication gate and verify the full local static export.
+- `pnpm dev:official` — regenerate the ignored official dataset plus referenced item icons with a zero-error dataset gate and start the same local application against them.
+- `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate, without starting the web application.
+- `pnpm build:official` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate and verify the full local static export.
 - `pnpm benchmark:search:official` — rebuild the ignored canonical official export and enforce ADR 0003's artifact, query, relevance, and desktop/slowed-mobile browser budgets.
 - `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
 - `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.

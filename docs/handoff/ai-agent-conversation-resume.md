@@ -140,6 +140,14 @@ dataset or durable publication. See
 
 The asset-reference contract is also host-independent end to end: the pipeline rejects POSIX absolute, Windows absolute/drive-relative, and traversal values, and the web applies one safe-relative-path schema across all item, skill/ability, spell, and monster presentation fields. The ignored canonical artifact's 3,708 non-null references satisfy the boundary.
 
+The first local presentation-asset slice is complete. Item PNG icons are copied
+only for normalized items from the exact first-registration snapshots into the
+ignored managed web directory. A schema-1 catalog maps entity IDs to
+content-addressed files; separate diagnostics and a manifest-last checksum set
+are validated against the active dataset before rendering. The canonical build
+maps 763 item pages to 722 unique PNGs with zero fallbacks. The synthetic SVG
+fixture remains unsupported on purpose and proves the non-broken placeholder.
+
 The source-manifest trust assumption is explicit in code, policy, and the input
 contract. A trusted local manifest may name an absolute external read-only
 source root; declared database paths are still real-path-contained beneath that
@@ -172,7 +180,7 @@ metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. These 18 declarations emit informational audit records and create no entity or route. The owner subsequently approved the exact Luckier Find `Acidium Salis` item-list declaration as a reviewed correction to `item:acidum salis`; it retains the original source label, adds stable review provenance and a backlink, and does not patch game data or create a global alias. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus one reviewed correction plus two source-only item-list options. Four dangling warnings remain: the Satanic Locator placeholder and three ambiguous monster spells. Do not alias them without new evidence. The canonical diagnostic set is 0 errors, 4 warnings, and 90 info. See `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
-The local product boundary and the technical direction in ADR 0001–0003 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work. The immediate next milestone is the incremental local asset importer; ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
+The local product boundary and the technical direction in ADR 0001–0003 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, and an approved source for official stat definitions. The bounded item-icon importer is implemented; future asset families remain page-driven. The immediate engineering milestone is ADR 0004 route-registry inheritance and publication enforcement before a second dataset or durable sharing. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
 
 ## Git and owner handoff convention
 
@@ -183,17 +191,17 @@ The local product boundary and the technical direction in ADR 0001–0003 are no
 
 ## Last completed slice validation
 
-The reviewed item-label correction resolves only Luckier Find's canonical
-`Acidium Salis` option to the existing `Acidum Salis` item. It retains the
-original source label, exact dataset/source/owner/relationship/target scope,
-and stable review provenance; emits one informational diagnostic; adds the
-reciprocal item backlink; and visibly discloses the correction on both pages.
-It does not patch the game data, create a fuzzy alias, or assert runtime spawn
-or fallback behavior. `pnpm.cmd check` passes all 228 unit/artifact tests and
-the 43-page synthetic export; all 36 desktop/mobile browser cases pass; and
-the byte-identical official generation reports 0 errors, 4 warnings, and 90
-info while exporting all 2,857 ignored local pages. Evidence is recorded in
-`docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
+The first incremental local-asset slice copies only normalized item PNG icons
+from exact first-registration byte snapshots. A content-addressed schema-1
+catalog, fallback diagnostics, managed directory swap, and manifest-last
+checksums keep the read-only installation and active dataset boundaries
+explicit. Item pages render copied art decoratively and use a non-broken
+fallback. `pnpm.cmd check` passes all 234 unit/artifact tests and the 43-page
+synthetic export; all 36 desktop/mobile browser cases pass; and the
+byte-identical official generation reports 0 errors, 4 warnings, 90 info, 763
+item mappings, 722 unique PNGs, and zero asset fallbacks while exporting all
+2,857 ignored local pages. Evidence is recorded in
+`docs/analysis/item-icon-import-evidence-2026-08-09.md`.
 
 ## Spell zorkmid-requirement slice validation
 

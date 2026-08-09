@@ -928,3 +928,48 @@ export interface ArtifactManifest {
     diagnostics: { file: string; sha256: string; bytes: number };
   };
 }
+
+export const presentedAssetKinds = ["item-icon"] as const;
+
+export type PresentedAssetKind = (typeof presentedAssetKinds)[number];
+
+export interface PresentedAssetRecord {
+  kind: PresentedAssetKind;
+  entityId: string;
+  file: string;
+  sha256: string;
+  bytes: number;
+}
+
+export interface PresentedAssetCatalog {
+  schemaVersion: 1;
+  datasetId: string;
+  datasetVersion: string;
+  assets: PresentedAssetRecord[];
+}
+
+export interface PresentedAssetDiagnostic {
+  id: string;
+  severity: DiagnosticSeverity;
+  code: string;
+  message: string;
+  kind: PresentedAssetKind;
+  entityId: string;
+  sourceId: string;
+}
+
+export interface PresentedAssetManifest {
+  schemaVersion: 1;
+  datasetId: string;
+  datasetVersion: string;
+  generator: string;
+  diagnostics: DiagnosticCounts;
+  outputs: {
+    assets: { file: "assets.json"; sha256: string; bytes: number };
+    diagnostics: {
+      file: "diagnostics.json";
+      sha256: string;
+      bytes: number;
+    };
+  };
+}

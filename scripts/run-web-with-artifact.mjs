@@ -26,6 +26,14 @@ const artifactDirectory = path.resolve(
   "generated",
   artifactName,
 );
+const assetDirectory = path.resolve(
+  repositoryRoot,
+  "apps",
+  "web",
+  "public",
+  "generated-assets",
+  "current",
+);
 const requiredFiles = [
   "artifact.json",
   "diagnostics.json",
@@ -38,6 +46,16 @@ const missingFiles = requiredFiles.filter(
 if (missingFiles.length > 0) {
   throw new Error(
     `Generated artifact ${artifactName} is incomplete (${missingFiles.join(", ")}). Run its generate command first.`,
+  );
+}
+const missingAssetFiles = [
+  "assets.json",
+  "diagnostics.json",
+  "manifest.json",
+].filter((file) => !existsSync(path.join(assetDirectory, file)));
+if (missingAssetFiles.length > 0) {
+  throw new Error(
+    `Generated presented assets are incomplete (${missingAssetFiles.join(", ")}). Run the matching generate command first.`,
   );
 }
 
@@ -58,6 +76,8 @@ const child = spawn(command, args, {
   env: {
     ...process.env,
     DREDMORPEDIA_ARTIFACT_DIRECTORY: artifactDirectory,
+    DREDMORPEDIA_ASSET_DIRECTORY: assetDirectory,
+    DREDMORPEDIA_ASSET_BASE_PATH: "/generated-assets/current",
   },
   stdio: "inherit",
 });

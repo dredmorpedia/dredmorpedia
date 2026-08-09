@@ -104,6 +104,8 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade" }),
   ).toBeVisible();
+  await expect(page.getByTestId("item-icon-placeholder")).toBeVisible();
+  await expect(page.locator(".detail-header img")).toHaveCount(0);
   const provenance = page.getByRole("region", { name: "Provenance" });
   await expect(provenance).toBeVisible();
   await expect(

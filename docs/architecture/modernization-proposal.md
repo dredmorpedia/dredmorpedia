@@ -265,9 +265,10 @@ Rejected for the initial release. Core data changes at build/import time and can
 The owner accepted ADRs 0001 and 0002 on 2026-07-29 and ADR 0003's measured
 search contract on 2026-08-09 under a local-first
 official-content boundary. The `1.1.5 public_beta` dataset is the MVP; a version
-switcher waits for a second verified dataset. Relevant entity assets may be
-imported incrementally into ignored local output, but no official-derived
-dataset or asset is approved for public deployment.
+switcher waits for a second verified dataset. The first incremental asset slice
+now imports referenced item PNG icons into a checksummed, ignored local output
+and renders them on item pages; other entity art remains page-driven. No
+official-derived dataset or asset is approved for public deployment.
 
 Remaining decisions are:
 

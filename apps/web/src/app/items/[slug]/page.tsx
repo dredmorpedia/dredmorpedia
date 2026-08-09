@@ -19,6 +19,7 @@ import {
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import { itemIconUrl } from "@/lib/presented-assets";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import {
   signedStatModifierValue,
@@ -125,6 +126,7 @@ export default async function ItemPage({
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const isAlias = slug !== item.slug;
+  const iconUrl = itemIconUrl(item.id, artifact);
 
   return (
     <article className="detail-page">
@@ -142,30 +144,52 @@ export default async function ItemPage({
           <h1 className="detail-title">{item.name}</h1>
           <p className="detail-copy">{item.description}</p>
         </div>
-        <dl className="price-block">
-          <div>
-            <dt>Value</dt>
-            <dd>
-              {item.price === null
-                ? "Unknown"
-                : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
-            </dd>
-          </div>
-          <div>
-            <dt>Quality</dt>
-            <dd>{item.quality}</dd>
-          </div>
-          {item.artifacts.length > 0 ? (
+        <div className="detail-header-aside">
+          {iconUrl ? (
+            // The adjacent heading already names the item, so this source art
+            // is intentionally decorative rather than repetitive alt text.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="entity-art"
+              height="128"
+              src={iconUrl}
+              width="128"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="entity-art entity-art-placeholder"
+              data-testid="item-icon-placeholder"
+            >
+              ?
+            </div>
+          )}
+          <dl className="price-block">
             <div>
-              <dt>Artifact quality</dt>
+              <dt>Value</dt>
               <dd>
-                {item.artifacts
-                  .map((artifact) => artifact.quality ?? "Unavailable")
-                  .join(", ")}
+                {item.price === null
+                  ? "Unknown"
+                  : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
               </dd>
             </div>
-          ) : null}
-        </dl>
+            <div>
+              <dt>Quality</dt>
+              <dd>{item.quality}</dd>
+            </div>
+            {item.artifacts.length > 0 ? (
+              <div>
+                <dt>Artifact quality</dt>
+                <dd>
+                  {item.artifacts
+                    .map((artifact) => artifact.quality ?? "Unavailable")
+                    .join(", ")}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </div>
       </header>
 
       {isAlias ? (

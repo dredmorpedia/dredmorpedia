@@ -54,13 +54,13 @@ pnpm generate:check
 pnpm dev
 ```
 
-The modern application is then available at `http://localhost:3001/` using the legal synthetic fixture. If the ignored local official manifest is configured, run `pnpm dev:official` to regenerate and serve the read-only official dataset instead. `pnpm dev:synthetic` switches explicitly back to fixture data. Optional direct web commands can use an ignored `apps/web/.env.local` copied from `apps/web/.env.example`; canonical root commands select their artifact explicitly and do not require an environment file.
+The modern application is then available at `http://localhost:3001/` using the legal synthetic fixture. Generation also replaces the ignored local presented-asset set; the synthetic SVG icon deliberately exercises the item-page fallback, while `pnpm dev:official` copies and displays only referenced official item PNG icons. If the ignored local official manifest is configured, run `pnpm dev:official` to regenerate and serve that read-only dataset and its item icons. `pnpm dev:synthetic` switches explicitly back to fixture data. Optional direct web commands can use an ignored `apps/web/.env.local` copied from `apps/web/.env.example`; canonical root commands select their matching artifact and asset set explicitly and do not require an environment file.
 
 Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. When the ignored official manifest is configured, `pnpm benchmark:search:official` verifies the accepted local search budgets. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
 
 ## Data and legal boundary
 
-A local Dungeons of Dredmor installation is read-only input. Repository tooling must never alter it. Official data, assets, local paths, and generated derivatives with unresolved redistribution rights must not be committed or published. Tests should use small synthetic or explicitly redistributable fixtures.
+A local Dungeons of Dredmor installation is read-only input. Repository tooling must never alter it. The incremental importer copies only item PNG icons currently displayed by item pages into `apps/web/public/generated-assets/`, which remains ignored and local-only. Official data, assets, local paths, and generated derivatives with unresolved redistribution rights must not be committed or published. Tests should use small synthetic or explicitly redistributable fixtures.
 
 The inherited repository has no project-wide license, and bundled mods/assets do not have one obvious common license. See the [data and assets policy](docs/data-and-assets-policy.md) before importing or publishing content.
 

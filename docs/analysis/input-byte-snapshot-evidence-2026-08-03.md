@@ -19,11 +19,12 @@ SHA-256 checksum at the first read:
   registry are read as raw buffers, checksummed, decoded as UTF-8, and cached
   for any repeated parsing;
 - resolved referenced assets are checksummed when the normalizer first
-  registers them, without retaining all asset bytes in memory;
+  registers them and retain those exact bytes for approved incremental local
+  presentation copying;
 - output-manifest assembly lists the captured checksums and performs no source
   rereads;
-- a later text read of a previously asset-only input must still match the
-  captured checksum; and
+- a later text read of a previously asset-only input decodes the captured bytes
+  without rereading the source; and
 - one sanitized display path cannot silently identify two absolute inputs in a
   single import.
 
@@ -36,8 +37,11 @@ only sanitized display paths rather than machine-local roots.
 The focused mutation regression reads a synthetic XML input, replaces the file
 before checksum listing, then proves that repeated parser access and the
 reported digest both retain the original byte snapshot. Separate cases prove
-that referenced assets retain their first-registration digest and conflicting
-display-path ownership fails explicitly.
+that referenced assets retain their first-registration digest and bytes and
+that conflicting display-path ownership fails explicitly. The later item-icon
+slice additionally changes a source icon after import and proves the copy still
+uses the registered snapshot; see
+[`item-icon-import-evidence-2026-08-09.md`](item-icon-import-evidence-2026-08-09.md).
 
 Validation on the committed synthetic fixtures passes all 65 pipeline tests;
 the full repository gate passes all 186 unit/artifact tests and the 43-page

@@ -8,7 +8,12 @@ import { sha256 } from "./serialization";
 interface InputSnapshot {
   absolutePath: string;
   checksum: InputChecksum;
-  textBytes?: Buffer;
+  bytes: Buffer;
+}
+
+export interface RegisteredInputSnapshot {
+  checksum: InputChecksum;
+  bytes: Buffer;
 }
 
 export class InputSnapshots {
@@ -19,23 +24,14 @@ export class InputSnapshots {
     const existing = this.snapshots.get(file);
     if (existing) {
       this.assertSameInput(existing, absolutePath, file);
-      if (existing.textBytes) {
-        return existing.textBytes.toString("utf8");
-      }
-
-      const bytes = readFileSync(absolutePath);
-      if (sha256(bytes) !== existing.checksum.sha256) {
-        throw new Error(`Input changed after it was registered: ${file}`);
-      }
-      existing.textBytes = bytes;
-      return bytes.toString("utf8");
+      return existing.bytes.toString("utf8");
     }
 
     const bytes = readFileSync(absolutePath);
     this.snapshots.set(file, {
       absolutePath,
       checksum: { file, sha256: sha256(bytes) },
-      textBytes: bytes,
+      bytes,
     });
     return bytes.toString("utf8");
   }
@@ -52,7 +48,18 @@ export class InputSnapshots {
     this.snapshots.set(file, {
       absolutePath,
       checksum: { file, sha256: sha256(bytes) },
+      bytes,
     });
+  }
+
+  get(displayPath: string): RegisteredInputSnapshot | undefined {
+    const snapshot = this.snapshots.get(toPosixPath(displayPath));
+    return snapshot
+      ? {
+          checksum: { ...snapshot.checksum },
+          bytes: Buffer.from(snapshot.bytes),
+        }
+      : undefined;
   }
 
   list(): InputChecksum[] {

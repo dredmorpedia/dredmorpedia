@@ -23,6 +23,7 @@ export {
   itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
+  presentedAssetKinds,
   spellBuffEventHookKinds,
   statModifierKinds,
 } from "./types";

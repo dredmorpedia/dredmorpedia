@@ -56,18 +56,21 @@ describe("input snapshots", () => {
         sha256: sha256(Buffer.from("first asset bytes")),
       },
     ]);
+    expect(
+      snapshots.get("sources/base/items/example.png")?.bytes.toString(),
+    ).toBe("first asset bytes");
   });
 
-  it("rejects changed bytes before consuming a registered input as text", () => {
+  it("reuses registered bytes before consuming the same input as text", () => {
     const file = temporaryFile("registered bytes");
     const snapshots = new InputSnapshots();
 
     snapshots.register(file, "sources/base/shared-input.xml");
     writeFileSync(file, "different bytes");
 
-    expect(() =>
-      snapshots.readUtf8(file, "sources/base/shared-input.xml"),
-    ).toThrow(/changed after it was registered/);
+    expect(snapshots.readUtf8(file, "sources/base/shared-input.xml")).toBe(
+      "registered bytes",
+    );
   });
 
   it("rejects one display path resolving to multiple inputs", () => {

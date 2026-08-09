@@ -37,7 +37,10 @@ import {
 } from "@dredmorpedia/domain";
 
 import { loadManifest, resolveSourceRoot } from "./manifest";
-import { InputSnapshots } from "./input-snapshots";
+import {
+  InputSnapshots,
+  type RegisteredInputSnapshot,
+} from "./input-snapshots";
 import {
   emptyCandidateCollections,
   mergeCandidateCollections,
@@ -75,6 +78,21 @@ export interface ImportDatasetResult {
   inputs: InputChecksum[];
   sourceManifest: string;
   sourceRoots: string[];
+  presentedAssetInputs: PresentedAssetInput[];
+}
+
+export interface PresentedAssetInput {
+  kind: "item-icon";
+  entityId: string;
+  sourceId: string;
+  sourcePath: string;
+  snapshot: RegisteredInputSnapshot | null;
+}
+
+interface ResolvedSource {
+  source: ReturnType<typeof loadManifest>["manifest"]["sources"][number];
+  absolutePath: string;
+  displayPath: string;
 }
 
 function sourceLocation(provenance: EntityProvenance): SourceLocation {
@@ -106,6 +124,54 @@ function finalizeDiagnostics(drafts: readonly DiagnosticDraft[]): Diagnostic[] {
       ...normalizedDraft,
     };
   });
+}
+
+function collectPresentedAssetInputs(
+  items: readonly Item[],
+  resolvedSources: readonly ResolvedSource[],
+  inputSnapshots: InputSnapshots,
+): PresentedAssetInput[] {
+  const sourceIndexes = new Map(
+    resolvedSources.map(({ source }, index) => [source.id, index]),
+  );
+
+  return items
+    .filter((item) => item.iconPath !== null)
+    .map((item) => {
+      const sourceIndex = sourceIndexes.get(item.provenance.sourceId);
+      if (sourceIndex === undefined) {
+        throw new Error(
+          `Unable to locate source ${item.provenance.sourceId} for ${item.id}.`,
+        );
+      }
+
+      for (const resolvedSource of resolvedSources
+        .slice(0, sourceIndex + 1)
+        .reverse()) {
+        const displayPath = toPosixPath(
+          `${resolvedSource.displayPath}/${item.iconPath}`,
+        );
+        const snapshot = inputSnapshots.get(displayPath);
+        if (snapshot) {
+          return {
+            kind: "item-icon" as const,
+            entityId: item.id,
+            sourceId: resolvedSource.source.id,
+            sourcePath: item.iconPath as string,
+            snapshot,
+          };
+        }
+      }
+
+      return {
+        kind: "item-icon" as const,
+        entityId: item.id,
+        sourceId: item.provenance.sourceId,
+        sourcePath: item.iconPath as string,
+        snapshot: null,
+      };
+    })
+    .sort((left, right) => compareCodeUnits(left.entityId, right.entityId));
 }
 
 function aliasesFor<T extends NormalizedEntity>(
@@ -1067,7 +1133,7 @@ export function importDataset(
       left.precedence - right.precedence || compareCodeUnits(left.id, right.id),
   );
 
-  const resolvedSources = sortedSources.map((source) => {
+  const resolvedSources: ResolvedSource[] = sortedSources.map((source) => {
     const absolutePath = resolveSourceRoot(
       loaded.manifestDirectory,
       source.root,
@@ -1216,6 +1282,11 @@ export function importDataset(
     documents: createSearchDocuments(entities),
   };
   const inputs = inputSnapshots.list();
+  const presentedAssetInputs = collectPresentedAssetInputs(
+    artifact.entities.items,
+    resolvedSources,
+    inputSnapshots,
+  );
 
   return {
     artifact,
@@ -1226,5 +1297,6 @@ export function importDataset(
     sourceRoots: [...new Set(sourceRoots)].sort((left, right) =>
       compareCodeUnits(left, right),
     ),
+    presentedAssetInputs,
   };
 }

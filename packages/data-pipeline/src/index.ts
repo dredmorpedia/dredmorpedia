@@ -3,6 +3,7 @@ export * from "./manifest";
 export * from "./numeric-lexemes";
 export * from "./output";
 export * from "./patches";
+export * from "./presented-assets";
 export * from "./relationship-reviews";
 export * from "./route-registry";
 export * from "./safe-path";

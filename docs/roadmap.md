@@ -502,9 +502,12 @@ Implement in dependency order rather than old-tab order:
 8. any remaining valuable legacy navigation/tooltips.
 
 The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
-second complete, verified dataset. Local visual parity should import only
-assets referenced by entities/features that implemented pages display, into
-ignored generated output; specialized sprite treatment is decided per page.
+second complete, verified dataset. The first local visual-parity slice now
+copies and renders only normalized item PNG icons through a checksummed,
+manifest-coordinated, ignored asset set; the canonical build maps all 763 items
+to 722 unique files without fallbacks. Extend that importer only when another
+implemented page displays a concrete asset. Specialized sprite treatment is
+still decided per page rather than imported speculatively.
 Engine mechanics absent from XML are evaluated individually immediately before
 implementation and may be supported when repeatable evidence verifies them.
 
