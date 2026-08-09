@@ -4,8 +4,9 @@ Status: draft for owner approval
 
 The first product slice is **items + stats + source provenance + search**. This
 statement remains a reviewable draft. Official content is approved only for the
-ignored local `1.1.5 public_beta` MVP, not public deployment, and the final
-search performance budget remains open.
+ignored local `1.1.5 public_beta` MVP, not public deployment. ADR 0003's search
+relevance and local performance budgets are accepted independently of this
+broader parity statement.
 
 ## User outcome
 
@@ -50,9 +51,11 @@ A player can find an item or stat, understand normalized game values and sources
 
 - Desktop and mobile keyboard flows pass for static browse with JavaScript disabled, item filters, global search filters, item details, stat details, recipe backlinks, encrustment backlinks, spell-effect navigation, item/skill/ability/loadout navigation, and monster-family/spell/drop navigation.
 - Representative home, browse, search, item, stat, recipe, encrustment, skill, ability, spell, and monster pages have no automatically detected axe violations.
-- Search parse/hydration cost, interaction latency, compressed transfer size, and a response-time budget still require owner-approved targets before the slice is complete.
-- Detailed zero-result suggestion examples still require acceptance before ADR
-  0003 can be accepted.
+- `pnpm benchmark:search:official` enforces the accepted search artifact,
+  parse, ordinary/suggestion query, exact/suggestion interaction, and
+  desktop/slowed-mobile navigation budgets against the ignored canonical
+  dataset. Concrete exact, multi-token, typo, and filter-isolation examples are
+  part of ADR 0003's accepted relevance contract.
 
 ## Current progress
 
@@ -61,8 +64,7 @@ Implemented: versioned split search artifact, versioned source/patch provenance,
 Approved direction but not yet implemented: the inherited route-registry
 publication lifecycle and incremental local entity-asset import.
 
-Outstanding: approve this statement after parity polish, set search budgets and
-suggestion examples, establish an approved source for official stat definitions
+Outstanding: approve this statement after parity polish, establish an approved source for official stat definitions
 absent from the measured game build, evaluate engine-derived mechanics
 individually when their implementation is selected, and continue representative
 comparisons with legacy behavior. Item quality has passed its separate

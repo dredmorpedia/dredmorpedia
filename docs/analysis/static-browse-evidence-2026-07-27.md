@@ -72,7 +72,8 @@ ignored official artifact.
 - Browse is a stable discovery surface, not a replacement for structured
   search or future richer list filters.
 - ADR 0003's transfer, parsing, rendering, interaction, and relevance budgets
-  remain open.
+  were subsequently accepted and made reproducible in
+  [`search-response-budgets-evidence-2026-08-09.md`](search-response-budgets-evidence-2026-08-09.md).
 - Broader non-item stat facets still require an evidenced shared domain
   contract.
 - Static-hosting metadata, sitemap, robots, canonical-host policy, and the

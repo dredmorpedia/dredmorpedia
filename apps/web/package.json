@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "benchmark:search:official": "node benchmark/search-performance.mjs",
     "build": "next build",
     "dev": "next dev --port 3001",
-    "lint": "eslint src playwright.config.ts e2e --max-warnings=0",
+    "lint": "eslint src playwright.config.ts e2e benchmark --max-warnings=0",
     "start": "next start",
     "test": "pnpm --filter @dredmorpedia/data-pipeline generate && vitest run test",
     "test:e2e": "pnpm build && playwright test",

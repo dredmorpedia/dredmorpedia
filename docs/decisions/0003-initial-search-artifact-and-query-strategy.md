@@ -1,26 +1,56 @@
 # ADR 0003: Initial search artifact and query strategy
 
 Date: 2026-07-19
-Status: Proposed (separate artifact and query path implemented; acceptance budgets pending)
+Status: Accepted (budgets and relevance examples accepted 2026-08-09)
 Owners: repository owner + maintainer
 
 ## Context
 
-The full approved local dataset produces 2,710 search documents. The implemented deterministic search artifact is 1,202,823 bytes uncompressed after adding item-stat facets. This is small enough to test a project-owned client query path before accepting the bundle cost, worker complexity, and query semantics of a third-party search engine.
+The first approved local measurement produced 2,710 search documents and a
+1,202,823-byte uncompressed search artifact. The canonical `1.1.5 public_beta`
+dataset now produces 2,767 documents and a 1,407,994-byte artifact. This remains
+small enough for a project-owned client query path without accepting the bundle
+cost, worker complexity, and query semantics of a third-party search engine.
 
 Search must eventually combine text with typed filters and numeric game fields. A general full-text library does not replace domain-specific filtering, source precedence, stable URLs, or relationship queries.
 
-## Decision under validation
+## Decision
 
 - Generate a separately loadable, versioned search-document artifact from normalized domain records.
 - Keep structured facets and numeric filters in project-owned TypeScript rather than encoding game rules in a third-party query language.
 - Begin the first product slice with normalized text matching over the generated documents. Load the search artifact only on routes that use it and do not render the full dataset merely to search the DOM.
-- Benchmark query latency, parse/hydration cost, compressed transfer size, and keyboard interaction on representative desktop and mobile hardware.
+- Benchmark query latency, parse/hydration cost, compressed transfer size, and
+  interaction on reproducible desktop and conservative slowed-mobile browser
+  profiles.
 - Add a library such as MiniSearch or move querying to a worker only if measurements show the project-owned path misses an agreed responsiveness or relevance target.
 - Keep ordinary matching deterministic. When a query has zero results, offer at
   most five project-owned spelling suggestions derived from entity names and
   aliases only. Suggestions never silently replace the query. Use a search
   library only if measured relevance or performance later justifies it.
+
+The canonical acceptance budgets are:
+
+- search artifact: at most 1,500,000 bytes uncompressed, 225,000 bytes with
+  gzip level 9, and 175,000 bytes with Brotli quality 11;
+- warmed standalone JSON parsing: at most 20 ms p95;
+- ordinary exact, prefix, multi-token, and filtered domain queries: at most
+  16 ms p95;
+- zero-result name/alias suggestion query: at most 50 ms p95;
+- production-static navigation through the first exact result: at most 1,500
+  ms p95 on the desktop Chromium profile and 3,000 ms p95 on the Pixel 7
+  browser profile with 4x CPU slowdown;
+- input-to-visible-result interaction: at most 100 ms p95 on desktop and 200 ms
+  p95 on the slowed mobile profile; and
+- input-to-visible-suggestion interaction: at most 150 ms p95 on desktop and
+  300 ms p95 on the slowed mobile profile.
+
+`pnpm benchmark:search:official` regenerates and exports the ignored official
+dataset, measures the artifact/query budgets, and runs ten recorded browser
+iterations after two warmups for each profile. These timing budgets are a local
+regression contract, not a claim about public-host network latency. The
+compressed-size thresholds bound the eventual transfer separately; public
+hosting must enable gzip or Brotli before the transfer budget can be treated as
+met in deployment.
 
 Dataset artifact version 3 and search artifact version 2 now implement this
 split. Search schema 2 adds ordered route aliases to each document. The search
@@ -32,7 +62,15 @@ implementation is not permission to publish official content.
 
 This avoids an early dependency and keeps domain filtering explicit. It also means the project owns token normalization, ranking, result grouping, and later typo/prefix behavior until evidence justifies a specialized index.
 
-Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for query execution across 1,000 representative calls. This excludes JSON transfer, parse/hydration, rendering, and interaction latency, so the user-facing budget remains open. Initial query evidence is recorded in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md); the implemented suggestion contract and schema-2 measurements are in [`../analysis/search-spelling-suggestions-evidence-2026-07-29.md`](../analysis/search-spelling-suggestions-evidence-2026-07-29.md).
+Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95
+for query execution across 1,000 representative calls. The accepted
+2,767-document artifact remains well inside every domain and browser budget, so
+MiniSearch and a worker remain unjustified. Initial query evidence is recorded
+in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md),
+the implemented suggestion contract is in
+[`../analysis/search-spelling-suggestions-evidence-2026-07-29.md`](../analysis/search-spelling-suggestions-evidence-2026-07-29.md),
+and the accepted response/relevance measurements are in
+[`../analysis/search-response-budgets-evidence-2026-08-09.md`](../analysis/search-response-budgets-evidence-2026-08-09.md).
 
 ## Acceptance checklist
 
@@ -45,6 +83,7 @@ Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95 for 
 - [x] Name/route-alias suggestions are implemented without a third-party
       library, honor active filters, remain capped at five, and require an
       explicit user selection.
-- [ ] Query and interaction benchmarks are recorded on desktop and mobile.
-- [ ] Detailed suggestion examples and a response-time budget are agreed and
-      measured.
+- [x] Query and interaction benchmarks are recorded on desktop and a
+      conservative slowed mobile browser profile.
+- [x] Detailed ordinary/suggestion relevance examples and response-time
+      budgets are agreed, measured, and reproducible.

@@ -7,7 +7,7 @@ This is the durable handoff for moving Dredmorpedia to another computer or openi
 ## Resume checklist for Codex
 
 1. Read `AGENTS.md` completely and follow it.
-2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0003.
+2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0004.
 3. Run `git status -sb`, `git log --oneline --decorate -5`, and `git remote -v` before changing anything.
 4. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` to confirm the preserved baseline.
 5. Install the pinned workspace and run `pnpm generate:check` plus `pnpm check`. Run `pnpm test:e2e` when Chromium is installed.
@@ -36,7 +36,7 @@ A useful first prompt on the new machine is:
 - Buff-local `<polymorph>` elements now preserve all four active named monster targets. Every target resolves with a reciprocal monster backlink; transformation duration, stat or ability replacement, equipment behavior, targeting, faction, reversibility, and runtime success remain uninterpreted.
 - Item use metadata preserves Life/Mana recovery declarations, exact extra food source flags, wand charge ranges, and loss-aware trap activation/targeting/placement declarations; potion, mushroom, and trap leaves are fully validated. Armour metadata separately preserves loss-aware slot, level, and optional `randoms` declarations. Complete weapon leaves combine existing category/quality/fixed-damage/hit relationships with loss-aware floor-target and safe hidden thrown-presentation metadata. Recovery timing, charge consumption, trap runtime behavior, random-stat selection, equipment formulas, weapon recoverability/combat formulas, and neutral flag behavior remain deliberately uninterpreted.
 - Generated artifacts remain ignored under `data/generated/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
-- `pnpm dev`/`pnpm dev:synthetic` regenerate and serve the tracked synthetic fixture; `pnpm dev:official` regenerates and serves the ignored canonical artifact from the ignored local manifest. `pnpm generate:official:check` and `pnpm build:official` provide deterministic import-only and full-static-build verification. Every official command enables the zero-error publication gate and preserves the previous output set if the import reports an error. These root commands explicitly select their artifact; optional direct web commands may use an ignored `apps/web/.env.local` copied from the tracked example.
+- `pnpm dev`/`pnpm dev:synthetic` regenerate and serve the tracked synthetic fixture; `pnpm dev:official` regenerates and serves the ignored canonical artifact from the ignored local manifest. `pnpm generate:official:check` and `pnpm build:official` provide deterministic import-only and full-static-build verification. `pnpm benchmark:search:official` additionally enforces ADR 0003's accepted transfer, parse, query, relevance, and desktop/4x-CPU-mobile browser budgets. Every official command enables the zero-error publication gate and preserves the previous output set if the import reports an error. These root commands explicitly select their artifact; optional direct web commands may use an ignored `apps/web/.env.local` copied from the tracked example.
 - Existing machines with the former schema-1 four-source official manifest can run `pnpm migrate:official-manifest` once. The idempotent command preserves ignored roots/files and adds the reviewed `1.1.5 public_beta (Steam build 22934623)` dataset/source provenance; new manifests should be authored directly as schema 2.
 - `pnpm audit:dependencies` checks the production dependency graph against the live advisory database. The current graph uses Next.js 16.2.12 plus reviewed PostCSS and Sharp overrides and reports no known vulnerabilities; weekly Dependabot updates and a separate scheduled dependency-audit workflow provide ongoing coverage.
 - Development servers omit the production-only static-export mode so a stale URL from another selected dataset reaches the accessible dataset-neutral 404 page. Production and official builds still require `output: "export"` and prove every generated route statically.
@@ -53,7 +53,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
 | Official sources | Use `1.1.5 public_beta` with the base game and all three official expansions for the MVP. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. Postpone a dataset-version switcher until a second complete, verified dataset exists. |
-| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001 and 0002 are Accepted within the local-only product boundary. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001–0003 are Accepted within the local-only product boundary. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Local assets | Build an incremental, read-only importer that copies only assets referenced by entities/features currently presented into an ignored generated-assets output. Aim for the same meaningful entity art the legacy product used for parity; do not bulk-copy unrelated assets. |
@@ -90,16 +90,12 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Settle ADR 0003 response budgets and broader concrete relevance examples
-   with desktop/mobile measurements; the approved spelling-suggestion behavior
-   is implemented. The relationship-classification queue is complete: 18
-   source-only declarations and the scoped `Acidium Salis` correction carry
-   reviewed provenance.
-2. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
-3. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
-4. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-6. No measured item, spell, or spell-requirement compatibility diagnostic remains. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
+1. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
+2. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
+3. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
+4. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
+5. No measured item, spell, or spell-requirement compatibility diagnostic remains. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
+6. ADR 0003 is accepted: `pnpm benchmark:search:official` enforces the transfer, parse, ordinary/suggestion query, concrete relevance, and desktop/4x-CPU-mobile browser budgets recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
 7. Two bounded maintenance extractions are complete: the unchanged spell-detail browser flow has a dedicated spec, and spell-requirement parsing now has a focused pipeline module with exact requirement-level diagnostics. All 36 desktop/mobile cases and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
@@ -479,7 +475,6 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
 - Permission evidence for publishing normalized official data and art beyond the accepted local-only boundary.
 - Exact modern-project MIT copyright-holder wording and provenance/license treatment for excluded inherited code, historical mods, and assets.
 - Approval or revision of the drafted first parity-slice acceptance statement.
-- Search response-time and relevance acceptance criteria for ADR 0003.
 - Approved source/model for stat definitions absent from the canonical installed build.
 - Post-parity quality-of-life priorities and extra technical-detail presentation, intentionally deferred until parity polish.
 - Technical feasibility of live progress tracking, deliberately deferred.

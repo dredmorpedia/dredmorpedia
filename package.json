@@ -10,6 +10,7 @@
   "scripts": {
     "audit:dependencies": "pnpm audit --prod --audit-level=high",
     "audit:legacy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1",
+    "benchmark:search:official": "pnpm run build:official && pnpm --filter @dredmorpedia/domain benchmark:search:official && pnpm --filter @dredmorpedia/web benchmark:search:official",
     "build": "pnpm run generate:check && node scripts/run-web-with-artifact.mjs build spike",
     "build:official": "pnpm run generate:official:check && node scripts/run-web-with-artifact.mjs build official-local",
     "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",

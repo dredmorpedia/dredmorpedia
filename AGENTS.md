@@ -101,10 +101,11 @@ Read these files before making a substantial change:
 - Direct macguffin declarations preserve spell, class-name, and consumable source values; consumers must not infer activation, targeting, or actual-consumption behavior.
 - Direct toolkit declarations preserve crafting tags, slot counts, symbolic sound cues, safe presentation references, and old game-interface coordinates. Matching recipe/encrustment tags link bidirectionally, but detailed cue/reference/coordinate values stay hidden; consumers must not use the coordinates for the modern UI or infer a complete crafting runtime formula.
 - Trap activation, caster-targeting, and placement fields remain direct source metadata; consumers must not infer reset timing, target selection, or placement behavior, and raw origin asset paths stay hidden while publication rights are unresolved.
-- ADR 0001 and ADR 0002 are accepted under the owner-approved local-first
-  official-content boundary. ADR 0003's split artifact/query path is
-  implemented, including bounded user-selected zero-result name/alias
-  suggestions; user-facing budgets remain open. ADR 0004 accepts inherited
+- ADR 0001, ADR 0002, and ADR 0003 are accepted under the owner-approved
+  local-first official-content boundary. ADR 0003's split artifact/query path,
+  bounded user-selected zero-result name/alias suggestions, concrete relevance
+  examples, and local desktop/slowed-mobile response budgets are implemented.
+  ADR 0004 accepts inherited
   route reservations and tombstones for shared dataset lineages, with
   enforcement still pending. Evidence is recorded under `docs/analysis/`.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
@@ -159,6 +160,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm dev:official` — regenerate the ignored official artifact with a zero-error publication gate and start the same local application against it.
 - `pnpm generate:official:check` — deterministically regenerate the ignored official artifact with a zero-error publication gate, without starting the web application.
 - `pnpm build:official` — deterministically regenerate the ignored official artifact with a zero-error publication gate and verify the full local static export.
+- `pnpm benchmark:search:official` — rebuild the ignored canonical official export and enforce ADR 0003's artifact, query, relevance, and desktop/slowed-mobile browser budgets.
 - `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
 - `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.
 - `pnpm audit:dependencies` — fail on high-severity production dependency advisories; the scheduled dependency-audit workflow runs the same gate.

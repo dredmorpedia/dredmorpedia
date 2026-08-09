@@ -51,7 +51,7 @@ All official-derived JSON and HTML remain in ignored local output directories an
 
 ## Decisions supported
 
-The spike supports retaining the proposed Node/pnpm/strict TypeScript, Next.js static export, Tailwind tokens, selective shadcn/Base UI, Vitest, Playwright, and adapter-based XML pipeline direction. It supports source-precedence asset fallback and confirms that the static route count is viable. ADR 0003 keeps search documents project-owned and separately loadable before a third-party index is adopted; query performance and relevance still need product-slice benchmarks.
+The spike supports retaining the proposed Node/pnpm/strict TypeScript, Next.js static export, Tailwind tokens, selective shadcn/Base UI, Vitest, Playwright, and adapter-based XML pipeline direction. It supports source-precedence asset fallback and confirms that the static route count is viable. ADR 0003 keeps search documents project-owned and separately loadable before a third-party index is adopted. Its query, transfer, desktop/slowed-mobile interaction, and relevance budgets were subsequently accepted in [`search-response-budgets-evidence-2026-08-09.md`](search-response-budgets-evidence-2026-08-09.md).
 
 ## Remaining validation gates
 

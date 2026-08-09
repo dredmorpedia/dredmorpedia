@@ -56,7 +56,7 @@ pnpm dev
 
 The modern application is then available at `http://localhost:3001/` using the legal synthetic fixture. If the ignored local official manifest is configured, run `pnpm dev:official` to regenerate and serve the read-only official dataset instead. `pnpm dev:synthetic` switches explicitly back to fixture data. Optional direct web commands can use an ignored `apps/web/.env.local` copied from `apps/web/.env.example`; canonical root commands select their artifact explicitly and do not require an environment file.
 
-Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
+Run `pnpm check` for the complete non-browser verification suite and `pnpm test:e2e` for desktop/mobile Chromium interaction and axe checks. When the ignored official manifest is configured, `pnpm benchmark:search:official` verifies the accepted local search budgets. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for browser installation and all canonical commands.
 
 ## Data and legal boundary
 
@@ -66,7 +66,7 @@ The inherited repository has no project-wide license, and bundled mods/assets do
 
 ## Direction
 
-The implemented foundation follows the proposed strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. Read-only full-dataset validation is complete; ADRs 0001 and 0002 remain proposed until the publication-policy check is complete. The first parity-slice acceptance statement and final search budgets remain drafts.
+The implemented foundation follows the accepted strict TypeScript/pnpm workspace, deterministic XML pipeline, framework-independent domain package, and statically exported Next.js direction. The owner has approved Tailwind-based game-inspired styling, selective shadcn/ui components backed by Base UI, light/dark/system themes, English-only initial delivery, official base-game plus three-DLC coverage, and functional parity before the quality-of-life phase. Read-only full-dataset validation is complete; ADRs 0001–0003 are accepted within the local-only publication boundary, including measured search relevance and response budgets. The broader first-parity acceptance statement remains a reviewable draft.
 
 Start with the [project brief](PROJECT.md), [repository audit](docs/analysis/repository-audit-2026-07-19.md), [modernization proposal](docs/architecture/modernization-proposal.md), and [roadmap](docs/roadmap.md).
 

@@ -262,7 +262,8 @@ Rejected for the initial release. Core data changes at build/import time and can
 
 ## Remaining owner and release decisions
 
-The owner accepted ADRs 0001 and 0002 on 2026-07-29 under a local-first
+The owner accepted ADRs 0001 and 0002 on 2026-07-29 and ADR 0003's measured
+search contract on 2026-08-09 under a local-first
 official-content boundary. The `1.1.5 public_beta` dataset is the MVP; a version
 switcher waits for a second verified dataset. Relevant entity assets may be
 imported incrementally into ignored local output, but no official-derived
@@ -272,9 +273,7 @@ Remaining decisions are:
 
 1. approve the final first-parity acceptance statement after the remaining
    parity work and polish;
-2. define and measure ADR 0003 response-time budgets and concrete spelling
-   suggestion examples;
-3. confirm copyright-holder wording for the scoped MIT license and continue
+2. confirm copyright-holder wording for the scoped MIT license and continue
    provenance work for excluded legacy/mod/asset material; and
-4. prioritize quality-of-life features only after parity polish. Live tracking
+3. prioritize quality-of-life features only after parity polish. Live tracking
    remains a separate later research decision.

@@ -47,7 +47,8 @@ publication of the ignored official artifact.
   no-JavaScript discovery work is now complete and recorded in
   [`static-browse-evidence-2026-07-27.md`](static-browse-evidence-2026-07-27.md).
 - ADR 0003's transfer, parsing, interaction, and relevance acceptance budgets
-  remain open.
+  were subsequently accepted and made reproducible in
+  [`search-response-budgets-evidence-2026-08-09.md`](search-response-budgets-evidence-2026-08-09.md).
 
 ## Verification
 
