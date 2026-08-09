@@ -110,8 +110,10 @@ but it is not evidence for a target mapping or engine behavior.
 2. **Completed:** after owner approval, apply that contract to the 16
    `lockpick` loadouts and two `Spores` options as narrowly reviewed source-only
    item labels.
-3. Add a narrowly scoped, provenance-bearing correction for `Acidium Salis`
-   only after the owner approves the proposed `Acidum Salis` target.
+3. **Completed:** after owner approval, add a narrowly scoped,
+   provenance-bearing correction from `Acidium Salis` to the existing `Acidum
+Salis` item. Preserve the original source label and do not patch the game or
+   create a global alias.
 4. Keep the placeholder and three ambiguous spell names unresolved. Revisit
    each immediately before a related parity feature if new engine/runtime
    evidence becomes available.
@@ -119,10 +121,12 @@ but it is not evidence for a target mapping or engine behavior.
    future dataset-health work so repeated source declarations are not mistaken
    for distinct missing entities.
 
-Implementation evidence for steps 1 and 2 is recorded in
+Implementation evidence for steps 1 through 3 is recorded in
 [`relationship-resolution-contract-evidence-2026-08-09.md`](relationship-resolution-contract-evidence-2026-08-09.md)
 and
-[`relationship-source-only-classification-evidence-2026-08-09.md`](relationship-source-only-classification-evidence-2026-08-09.md).
+[`relationship-source-only-classification-evidence-2026-08-09.md`](relationship-source-only-classification-evidence-2026-08-09.md),
+with the reviewed correction recorded separately in
+[`relationship-reviewed-correction-evidence-2026-08-09.md`](relationship-reviewed-correction-evidence-2026-08-09.md).
 
 ## Verification
 
@@ -134,6 +138,10 @@ and
   `reviewed_source_only_reference` records account for the approved
   declarations; the five remaining `dangling_reference` records are the typo,
   placeholder, and three ambiguous spells.
+- After the separately approved typo correction, it reports 0 errors, 4
+  warnings, and 90 informational records. The exact `Acidium Salis`
+  declaration becomes one `reviewed_correction_reference`; the placeholder and
+  three ambiguous spells remain dangling.
 - Read-only source inspection found no normalized target for six labels and the
   single probable spelling target described above.
 - No official input, generated official artifact, asset, or local installation

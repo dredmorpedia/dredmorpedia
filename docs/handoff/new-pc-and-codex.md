@@ -27,7 +27,7 @@ A useful first prompt on the new machine is:
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
 - Dataset schema 3 separates normalized records from search schema 2; search documents now carry ordered route aliases for project-owned zero-result spelling suggestions. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and an optional version-scoped route registry. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, fixed item-modifier facets, and bounded user-selected typo recovery, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana, non-mana requirement, and buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/wall-sensing/payback/zorkmid-absorption/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling/Midas/created-object/dig-regeneration/buff-tag metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit and dodge buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
-- Synthetic desktop/mobile keyboard and axe checks pass. At the latest checkpoint, all 36 browser tests remain the interaction baseline, while 218 unit/artifact tests, deterministic official generation, and the complete 2,857-page local official export pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
+- Synthetic desktop/mobile keyboard and axe checks pass. At the latest checkpoint, all 36 browser tests remain the interaction baseline, while 228 unit/artifact tests, deterministic official generation, and the complete 2,857-page local official export pass. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
 - Playwright shuts down its loopback static server through an explicit bounded global-teardown handshake. This avoids an indefinite wait when Windows process-tree termination is denied; `pnpm test:e2e` must print the final `36 passed` summary and return to the prompt.
 - Direct `summon` and `summonhostile` spell effects now preserve loss-aware `monsterType` targets. All 21 active official declarations resolve to normalized monsters with reciprocal backlinks; two additional summon-family effects intentionally omit a target and remain valid null records. Runtime availability, allegiance, placement, lifetime, AI state, selection, and spawning behavior remain uninterpreted.
 - Direct `removebuffbyname` spell effects now preserve all 23 active named buff targets. Every target resolves to a normalized buff-bearing spell with reciprocal backlinks; removal eligibility, scope, timing, stack handling, and runtime success remain uninterpreted.
@@ -90,20 +90,17 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Obtain the owner's separate decision on the probable scoped `Acidium Salis`
-   typo correction. The source-only decision is complete: 16 `lockpick`
-   loadouts and two `Spores` options carry reviewed source-only status without
-   fabricated items or routes. All measured item, spell, and spell-requirement
-   compatibility families are complete.
-2. Settle ADR 0003 response budgets and broader concrete relevance examples
+1. Settle ADR 0003 response budgets and broader concrete relevance examples
    with desktop/mobile measurements; the approved spelling-suggestion behavior
-   is implemented.
-3. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
-4. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
-5. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
-6. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-7. No measured item, spell, or spell-requirement compatibility diagnostic remains. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records and five remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
-8. Two bounded maintenance extractions are complete: the unchanged spell-detail browser flow has a dedicated spec, and spell-requirement parsing now has a focused pipeline module with exact requirement-level diagnostics. All 36 desktop/mobile cases and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
+   is implemented. The relationship-classification queue is complete: 18
+   source-only declarations and the scoped `Acidium Salis` correction carry
+   reviewed provenance.
+2. Implement the approved incremental local asset importer with containment validation, checksums, diagnostics, ignored output, and only assets referenced by currently presented entities/features.
+3. Enforce ADR 0004's inherited route-registry lifecycle before a dataset is durably shared/published or a second version is introduced.
+4. Review and approve or revise `docs/product/first-parity-slice.md`, and decide how official stat definitions are sourced or modeled: the measured build has item/spell stat references but no standalone `statDB.xml`. Do not invent descriptions or provenance.
+5. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
+6. No measured item, spell, or spell-requirement compatibility diagnostic remains. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
+7. Two bounded maintenance extractions are complete: the unchanged spell-detail browser flow has a dedicated spec, and spell-requirement parsing now has a focused pipeline module with exact requirement-level diagnostics. All 36 desktop/mobile cases and the full synthetic/official gates remain green. Make any further extraction behavior-preserving and tied to the selected parity boundary.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -292,7 +289,7 @@ remains; the canonical warning set is exactly 23 dangling references. Evidence
 is recorded in
 `docs/analysis/spell-zorkmid-requirement-evidence-2026-08-09.md`.
 
-## Dangling-reference classification and source-only review completed
+## Dangling-reference classification and reviewed resolutions completed
 
 The canonical 23 `dangling_reference` warnings are now measured as 23 source
 declarations, nine owner/reference pairs, and seven distinct labels. Sixteen
@@ -302,21 +299,23 @@ the active `Acidum Salis` item. The Satanic Locator spell label is a deliberate
 placeholder. Tougher Lord Dredmor's two `Strong Lingering ...` labels and Deep
 Raven's `Eye Lasers` spell label remain ambiguous. The owner approved the
 source-only class: the 18 declarations now carry reviewed status and
-informational audit records without an entity, alias, route, or backlink. Five
-dangling warnings remain. Resume by asking only about the narrowly scoped typo
-correction; keep the placeholder and ambiguous spells unresolved absent new
-evidence. Details are in
-`docs/analysis/relationship-source-only-classification-evidence-2026-08-09.md`.
+informational audit records without an entity, alias, route, or backlink. The
+owner also approved the exact `Acidium Salis` relationship as a reviewed
+correction to `Acidum Salis`; it retains the source label and stable review ID,
+creates the resolved backlink, and does not patch game data or create a global
+alias. Four dangling warnings remain. Keep the placeholder and ambiguous spells
+unresolved absent new evidence. Details are in
+`docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
 The generic loss-aware relationship-resolution contract is now implemented
 and integrated for named skill loadouts and named spell item-list options. It distinguishes exact links,
 reviewed corrections, reviewed source-only labels, and unresolved targets,
 always retaining the original label; both reviewed states require a stable
 review ID. The canonical split is 47 exact plus 16 source-only named loadouts,
-13 type-only declarations, and 189 exact plus two source-only plus one
-unresolved item-list options. The diagnostic set is 0 errors, 5 warnings, and
-89 info. Evidence is in
-`docs/analysis/relationship-source-only-classification-evidence-2026-08-09.md`.
+13 type-only declarations, and 189 exact plus one reviewed correction plus two
+source-only item-list options. The diagnostic set is 0 errors, 4 warnings, and
+90 info. Evidence is in
+`docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
 ## Item-quality review completed
 

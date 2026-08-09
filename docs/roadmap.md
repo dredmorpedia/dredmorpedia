@@ -474,14 +474,15 @@ plus 13 type-only loadouts without an item relationship. The owner subsequently
 approved the 16 `lockpick` loadouts and two `Spores` options as reviewed
 source-only item labels. Named spell item-list options now use the same
 contract; the canonical relationship split is 47 exact plus 16 source-only
-named loadouts, and 189 exact plus two source-only plus one unresolved item-list
-options. Eighteen informational review records replace those former dangling
-warnings without creating entities or routes, leaving five warnings and 89
-informational records. The next decision is the separate scoped
-`Acidium Salis` correction, not a fuzzy alias. Evidence and the decision gates
-are recorded in
+named loadouts, and 189 exact plus one reviewed correction plus two source-only
+item-list options. Eighteen source-only informational records replace those
+former dangling warnings without creating entities or routes. The owner also
+approved the owner/source/version/relationship/label/target-scoped `Acidium
+Salis` correction to `Acidum Salis`; it adds one reviewed backlink without
+patching game data or creating a fuzzy alias. The canonical import now has four
+warnings and 90 informational records. Evidence is recorded in
 `docs/analysis/dangling-reference-classification-2026-08-09.md` and
-`docs/analysis/relationship-source-only-classification-evidence-2026-08-09.md`.
+`docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 

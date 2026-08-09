@@ -733,6 +733,51 @@ describe("generated artifact loading", () => {
     expect(loadArtifact().entities.spells).not.toHaveLength(0);
   });
 
+  it("accepts a reviewed item-option correction that retains its source label", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        items: { id: string }[];
+        spells: {
+          effects: {
+            options: {
+              kind: string;
+              itemName?: string | null;
+              itemId?: string;
+              itemResolution?: Record<string, unknown>;
+            }[];
+          }[];
+        }[];
+      };
+    };
+    const target = typedArtifact.entities.items[0];
+    const itemOption = typedArtifact.entities.spells
+      .flatMap((spell) => spell.effects)
+      .flatMap((effect) => effect.options)
+      .find(
+        (option) =>
+          option.kind === "item" && option.itemName === "Missing Listed Item",
+      );
+    if (!target || !itemOption?.itemName) {
+      throw new Error(
+        "Synthetic artifact unexpectedly lacks a correction target or unresolved item-list option.",
+      );
+    }
+    itemOption.itemId = target.id;
+    itemOption.itemResolution = {
+      status: "resolved",
+      resolutionMethod: "reviewed-correction",
+      targetKind: "item",
+      sourceLabel: itemOption.itemName,
+      targetId: target.id,
+      reviewId: "relationship-review:test:corrected-option",
+    };
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(loadArtifact().entities.spells).not.toHaveLength(0);
+  });
+
   it("rejects malformed direct spell effect item-target metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

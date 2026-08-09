@@ -936,6 +936,11 @@ export default async function ItemPage({
                       <span>
                         {effectTypeLabel(effect.type)} option {optionIndex + 1}{" "}
                         · Source amount: {option.amount ?? "not declared"}
+                        {option.itemResolution?.status === "resolved" &&
+                        option.itemResolution.resolutionMethod ===
+                          "reviewed-correction"
+                          ? ` · Reviewed correction from source label “${option.itemResolution.sourceLabel}”`
+                          : ""}
                       </span>
                     </li>
                   ),

@@ -2031,6 +2031,13 @@ export default async function SpellPage({
                         option.kind === "item"
                           ? option.itemName
                           : option.spellName;
+                      const reviewedCorrection =
+                        option.kind === "item" &&
+                        option.itemResolution?.status === "resolved" &&
+                        option.itemResolution.resolutionMethod ===
+                          "reviewed-correction"
+                          ? option.itemResolution
+                          : undefined;
                       return (
                         <li key={optionIndex}>
                           <span>
@@ -2056,7 +2063,9 @@ export default async function SpellPage({
                           </span>
                           <span>
                             {target
-                              ? `Resolved ${option.kind} target`
+                              ? reviewedCorrection
+                                ? `Reviewed correction from source label “${reviewedCorrection.sourceLabel}”`
+                                : `Resolved ${option.kind} target`
                               : option.kind === "item" &&
                                   option.itemResolution?.status ===
                                     "source-only"

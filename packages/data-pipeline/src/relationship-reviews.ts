@@ -7,6 +7,9 @@ export const canonicalRelationshipReviewDataset = {
 export const sourceOnlyItemReviewId =
   "relationship-review:2026-08-09:lockpick-and-spores-source-only";
 
+export const acidiumSalisCorrectionReviewId =
+  "relationship-review:2026-08-09:acidium-salis-to-acidum-salis";
+
 export type ReviewedItemRelationship =
   "skill-loadout-item" | "spell-effect-item-option";
 
@@ -23,6 +26,17 @@ export interface SourceOnlyItemReviewQuery {
 interface SourceOnlyItemReviewRule extends SourceOnlyItemReviewQuery {
   sourceVersion: string;
   reviewId: string;
+}
+
+export interface ReviewedItemCorrection {
+  reviewId: string;
+  targetId: string;
+}
+
+interface ItemCorrectionReviewRule extends SourceOnlyItemReviewQuery {
+  sourceVersion: string;
+  reviewId: string;
+  targetId: string;
 }
 
 const sourceOnlyItemReviewRules: readonly SourceOnlyItemReviewRule[] = [
@@ -60,6 +74,18 @@ const sourceOnlyItemReviewRules: readonly SourceOnlyItemReviewRule[] = [
   },
 ];
 
+const itemCorrectionReviewRules: readonly ItemCorrectionReviewRule[] = [
+  {
+    ...canonicalRelationshipReviewDataset,
+    sourceId: "official-base",
+    ownerId: "spell:luckier find",
+    relationship: "spell-effect-item-option",
+    sourceLabel: "Acidium Salis",
+    targetId: "item:acidum salis",
+    reviewId: acidiumSalisCorrectionReviewId,
+  },
+];
+
 export function sourceOnlyItemReview(
   query: SourceOnlyItemReviewQuery,
 ): string | null {
@@ -74,4 +100,20 @@ export function sourceOnlyItemReview(
       rule.sourceLabel === query.sourceLabel,
   );
   return match?.reviewId ?? null;
+}
+
+export function itemCorrectionReview(
+  query: SourceOnlyItemReviewQuery,
+): ReviewedItemCorrection | null {
+  const match = itemCorrectionReviewRules.find(
+    (rule) =>
+      rule.datasetId === query.datasetId &&
+      rule.datasetVersion === query.datasetVersion &&
+      rule.sourceId === query.sourceId &&
+      rule.sourceVersion === query.sourceVersion &&
+      rule.ownerId === query.ownerId &&
+      rule.relationship === query.relationship &&
+      rule.sourceLabel === query.sourceLabel,
+  );
+  return match ? { reviewId: match.reviewId, targetId: match.targetId } : null;
 }

@@ -9,6 +9,7 @@ import {
   classifyRelationshipAsSourceOnly,
   compareCodeUnits,
   createSearchDocuments,
+  resolveRelationshipWithReviewedCorrection,
   resolveRelationshipExactly,
   resolveEntityCandidates,
   skillAbilityRelationships,
@@ -45,6 +46,7 @@ import {
 } from "./normalizers";
 import { parsePatchDefinition } from "./patches";
 import {
+  itemCorrectionReview,
   sourceOnlyItemReview,
   type ReviewedItemRelationship,
 } from "./relationship-reviews";
@@ -159,6 +161,29 @@ function reviewedSourceOnlyDiagnostic(
   };
 }
 
+function reviewedCorrectionDiagnostic(
+  entity: NormalizedEntity,
+  reference: string,
+  target: Item,
+  relationship: ReviewedItemRelationship,
+  reviewId: string,
+): DiagnosticDraft {
+  return {
+    severity: "info",
+    code: "reviewed_correction_reference",
+    message: `${entity.name} applies a reviewed item-label correction: ${reference} to ${target.name}`,
+    source: sourceLocation(entity.provenance),
+    entityId: entity.id,
+    details: {
+      targetKind: "item",
+      reference,
+      targetId: target.id,
+      relationship,
+      reviewId,
+    },
+  };
+}
+
 function sourceOnlyReviewFor(
   entity: NormalizedEntity,
   relationship: ReviewedItemRelationship,
@@ -166,6 +191,23 @@ function sourceOnlyReviewFor(
   reviewContext: RelationshipReviewContext,
 ): string | null {
   return sourceOnlyItemReview({
+    datasetId: reviewContext.datasetId,
+    datasetVersion: reviewContext.datasetVersion,
+    sourceId: entity.provenance.sourceId,
+    sourceVersion: reviewContext.sourceVersions.get(entity.provenance.sourceId),
+    ownerId: entity.id,
+    relationship,
+    sourceLabel,
+  });
+}
+
+function correctionReviewFor(
+  entity: NormalizedEntity,
+  relationship: ReviewedItemRelationship,
+  sourceLabel: string,
+  reviewContext: RelationshipReviewContext,
+) {
+  return itemCorrectionReview({
     datasetId: reviewContext.datasetId,
     datasetVersion: reviewContext.datasetVersion,
     sourceId: entity.provenance.sourceId,
@@ -408,6 +450,7 @@ function linkSpells(
   const spellAliases = aliasesFor(spells);
   const statAliases = aliasesFor(stats);
   const itemAliases = aliasesFor(items);
+  const itemsById = new Map(items.map((item) => [item.id, item]));
   const monsterAliases = aliasesFor(monsters);
   const linkBuffCondition = (
     owner: Spell,
@@ -512,6 +555,35 @@ function linkSpells(
             itemResolution: resolveRelationshipExactly(
               option.itemResolution,
               target.id,
+            ),
+          };
+        }
+        const correction = correctionReviewFor(
+          owner,
+          "spell-effect-item-option",
+          option.itemName,
+          reviewContext,
+        );
+        const correctedTarget = correction
+          ? itemsById.get(correction.targetId)
+          : undefined;
+        if (correction && correctedTarget) {
+          diagnostics.push(
+            reviewedCorrectionDiagnostic(
+              owner,
+              option.itemName,
+              correctedTarget,
+              "spell-effect-item-option",
+              correction.reviewId,
+            ),
+          );
+          return {
+            ...option,
+            itemId: correctedTarget.id,
+            itemResolution: resolveRelationshipWithReviewedCorrection(
+              option.itemResolution,
+              correctedTarget.id,
+              correction.reviewId,
             ),
           };
         }

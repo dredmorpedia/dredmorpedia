@@ -46,7 +46,7 @@ unresolved.
 The ignored canonical artifact contains:
 
 - 47 exact and 16 source-only named skill loadouts, plus 13 type-only loadouts;
-- 189 exact, two source-only, and one unresolved item-list option;
+- 189 exact, two source-only, and one then-unresolved item-list option;
 - 18 reviewed source-only informational records;
 - five remaining dangling-reference warnings; and
 - 0 errors, 5 warnings, and 89 informational records overall.
@@ -67,9 +67,10 @@ The remaining warnings are the probable `Acidium Salis` typo, the deliberate
 - No official input, generated official artifact, asset, or machine-local path
   is committed.
 
-## Next decision gate
+## Subsequent decision
 
-Ask the owner separately whether to approve the narrowly scoped,
+The owner subsequently approved the separate narrowly scoped,
 provenance-bearing correction from `Acidium Salis` to the existing `Acidum
-Salis` item. Keep the placeholder and ambiguous spell labels unresolved absent
-new evidence.
+Salis` item. Its implementation and current measurements are recorded in
+[`relationship-reviewed-correction-evidence-2026-08-09.md`](relationship-reviewed-correction-evidence-2026-08-09.md).
+Keep the placeholder and ambiguous spell labels unresolved absent new evidence.

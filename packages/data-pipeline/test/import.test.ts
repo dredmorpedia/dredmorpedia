@@ -18,6 +18,10 @@ import {
   sha256,
   writeOutputs,
 } from "../src/index";
+import {
+  acidiumSalisCorrectionReviewId,
+  canonicalRelationshipReviewDataset,
+} from "../src/relationship-reviews";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -3780,6 +3784,102 @@ describe("synthetic dataset import", () => {
           (diagnostic.code === "unknown_element" ||
             diagnostic.code === "unknown_attribute" ||
             diagnostic.code === "partially_supported_element"),
+      ),
+    ).toBe(false);
+  });
+
+  it("applies the canonical reviewed item-label correction without changing the source label", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-reviewed-item-correction-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "itemDB.xml"),
+      `<?xml version="1.0"?>
+<items>
+  <item name="Acidum Salis" type="material" />
+</items>`,
+    );
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      `<?xml version="1.0"?>
+<spellDB>
+  <spell name="Luckier Find" type="self">
+    <effect type="spawnitemfromlist">
+      <option name="Acidium Salis" />
+    </effect>
+  </spell>
+</spellDB>`,
+    );
+    const correctionManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      correctionManifestPath,
+      JSON.stringify({
+        schemaVersion: 2,
+        datasetId: canonicalRelationshipReviewDataset.datasetId,
+        datasetVersion: canonicalRelationshipReviewDataset.datasetVersion,
+        patches: [],
+        sources: [
+          {
+            id: "official-base",
+            label: "Official Base Test",
+            kind: "base",
+            version: canonicalRelationshipReviewDataset.sourceVersion,
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "items", path: "itemDB.xml" },
+              { kind: "spells", path: "spellDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: correctionManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const option = result.artifact.entities.spells[0]?.effects[0]?.options[0];
+
+    expect(option).toEqual({
+      kind: "item",
+      itemKey: "acidium salis",
+      itemName: "Acidium Salis",
+      itemId: "item:acidum salis",
+      itemResolution: {
+        status: "resolved",
+        resolutionMethod: "reviewed-correction",
+        targetKind: "item",
+        sourceLabel: "Acidium Salis",
+        targetId: "item:acidum salis",
+        reviewId: acidiumSalisCorrectionReviewId,
+      },
+      amount: null,
+    });
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "info",
+          code: "reviewed_correction_reference",
+          entityId: "spell:luckier find",
+          details: {
+            targetKind: "item",
+            reference: "Acidium Salis",
+            targetId: "item:acidum salis",
+            relationship: "spell-effect-item-option",
+            reviewId: acidiumSalisCorrectionReviewId,
+          },
+        }),
+      ]),
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "dangling_reference" &&
+          diagnostic.details?.reference === "Acidium Salis",
       ),
     ).toBe(false);
   });

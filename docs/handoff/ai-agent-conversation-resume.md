@@ -107,11 +107,11 @@ Other completed areas include spell mana, requirement-level, shield-requirement,
 
 The current canonical import reports:
 
-- 0 errors, 5 warnings, and 89 informational records;
+- 0 errors, 4 warnings, and 90 informational records;
 - zero measured item or spell compatibility constructs;
 - zero unsupported spell requirements; and
-- 18 reviewed source-only item declarations plus five remaining
-  dangling-reference declarations.
+- 18 reviewed source-only item declarations, one reviewed item-label
+  correction, and four remaining dangling-reference declarations.
 
 No item compatibility diagnostic remains.
 
@@ -171,7 +171,7 @@ mute slice raises it to 168, and the buff-local polymorph slice raises it to
 metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 179 while retaining the 36 browser cases.
 
-After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus two source-only plus one unresolved item-list options. These 18 declarations emit informational audit records and create no entity or route. Five dangling warnings remain: `Acidium Salis`, the Satanic Locator placeholder, and three ambiguous monster spells. Ask the owner separately about only the narrowly scoped typo correction; do not alias the placeholder or ambiguous spells without new evidence. See `docs/analysis/relationship-source-only-classification-evidence-2026-08-09.md`.
+After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. These 18 declarations emit informational audit records and create no entity or route. The owner subsequently approved the exact Luckier Find `Acidium Salis` item-list declaration as a reviewed correction to `item:acidum salis`; it retains the original source label, adds stable review provenance and a backlink, and does not patch game data or create a global alias. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus one reviewed correction plus two source-only item-list options. Four dangling warnings remain: the Satanic Locator placeholder and three ambiguous monster spells. Do not alias them without new evidence. The canonical diagnostic set is 0 errors, 4 warnings, and 90 info. See `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
 The local product boundary and the technical direction in ADR 0001/0002 are now accepted. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, first-parity acceptance, search response budgets/broader relevance examples, and an approved source for official stat definitions. ADR 0004 route-registry enforcement and the bounded local asset importer are approved directions but remain implementation work.
 
@@ -183,6 +183,20 @@ The local product boundary and the technical direction in ADR 0001/0002 are now 
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The reviewed item-label correction resolves only Luckier Find's canonical
+`Acidium Salis` option to the existing `Acidum Salis` item. It retains the
+original source label, exact dataset/source/owner/relationship/target scope,
+and stable review provenance; emits one informational diagnostic; adds the
+reciprocal item backlink; and visibly discloses the correction on both pages.
+It does not patch the game data, create a fuzzy alias, or assert runtime spawn
+or fallback behavior. `pnpm.cmd check` passes all 228 unit/artifact tests and
+the 43-page synthetic export; all 36 desktop/mobile browser cases pass; and
+the byte-identical official generation reports 0 errors, 4 warnings, and 90
+info while exporting all 2,857 ignored local pages. Evidence is recorded in
+`docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
+
+## Spell zorkmid-requirement slice validation
 
 The spell zorkmid-requirement slice preserves all three active declarations as
 ordered loss-aware records. The installed schema defines `zorkmids` as a

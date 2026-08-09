@@ -40,12 +40,16 @@ Read these files before making a substantial change:
   `lockpick` loadouts and two `Spores` list options as reviewed source-only item
   labels. They retain their original labels, carry a stable review ID, emit 18
   informational audit records, and do not fabricate entities or routes. The
-  remaining five warnings are `Acidium Salis`, the deliberate
-  `non-existant-spell` placeholder, and three ambiguous monster spell labels.
-  The generic loss-aware resolution contract is integrated for named skill
-  loadouts and named spell item-list options. Do not apply a correction for
-  `Acidium Salis` or alias the placeholder/ambiguous spells without the owner's
-  separate decision or new evidence.
+  owner also approved one narrowly scoped reviewed correction from Luckier
+  Find's source label `Acidium Salis` to the existing `Acidum Salis` item. It
+  retains the original label and a stable review ID, creates a resolved
+  backlink, emits one informational audit record, and does not patch the game
+  source or create a global alias. The remaining four warnings are the
+  deliberate `non-existant-spell` placeholder and three ambiguous monster
+  spell labels. The generic loss-aware resolution contract is integrated for
+  named skill loadouts and named spell item-list options. Do not alias the
+  placeholder or ambiguous spells without the owner's separate decision or new
+  evidence.
 - Buff-local spell effects use the same strict effect contract and deterministic
   relationship linker as direct effects while retaining their owning buff
   scope. Consumers must not infer scheduling, trigger order, buff lifetime,

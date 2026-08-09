@@ -75,17 +75,21 @@ references; this slice suppresses none of them.
 - No official input, generated official artifact, asset, or machine-local path
   is committed.
 
-## Subsequent status and next decision gate
+## Subsequent status
 
 The owner approved the first decision: the 16 `lockpick` loadouts and two
 `Spores` item-list options are now narrowly classified as reviewed source-only
 labels. Named item-list options use the same contract, and the current
-canonical import reports 5 warnings plus 18 source-only informational audit
+canonical import reports four warnings plus 18 source-only informational audit
 records. See
 [`relationship-source-only-classification-evidence-2026-08-09.md`](relationship-source-only-classification-evidence-2026-08-09.md).
 
-The remaining decision gate is whether to approve the narrowly scoped,
-provenance-bearing `Acidium Salis` to `Acidum Salis` correction.
+The owner subsequently approved the narrowly scoped, provenance-bearing
+`Acidium Salis` to `Acidum Salis` correction. It now exercises the contract's
+reviewed-correction state, emits one additional informational audit record, and
+creates the intended item backlink while retaining the original source label.
+See
+[`relationship-reviewed-correction-evidence-2026-08-09.md`](relationship-reviewed-correction-evidence-2026-08-09.md).
 
 The deliberate placeholder and three ambiguous monster spell labels remain
 unresolved unless new evidence establishes a target.
