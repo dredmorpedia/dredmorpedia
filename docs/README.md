@@ -4,6 +4,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`](analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md) — active-dataset sources, grouped diagnostics, linked override/patch decisions, canonical measurements, and the sanitized local-only boundary.
 - [`analysis/stat-reference-catalog-evidence-2026-08-09.md`](analysis/stat-reference-catalog-evidence-2026-08-09.md) — project-authored stat names/categories, exact modifier-selector linking, versioned provenance, canonical coverage, and the explicit no-formula boundary.
 - [`analysis/official-manifest-v2-evidence-2026-08-03.md`](analysis/official-manifest-v2-evidence-2026-08-03.md) — safe ignored-manifest migration, exact local build provenance, idempotence, and deterministic official verification.
 - [`analysis/full-project-review-2026-08-03.md`](analysis/full-project-review-2026-08-03.md) — repository-wide correctness and lifecycle review, ordered follow-up queue, and browser-shutdown resolution evidence.

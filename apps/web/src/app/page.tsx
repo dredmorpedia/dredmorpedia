@@ -73,6 +73,12 @@ export default function HomePage() {
               ? "The generator did not report any errors, warnings, or informational findings."
               : "Counts come from the active generated artifact, so unsupported or malformed source content remains visible instead of failing silently."}
           </p>
+          <Link
+            className="entity-link mt-3 inline-block text-sm font-semibold"
+            href="/dataset/"
+          >
+            Inspect dataset health →
+          </Link>
         </div>
         <dl className="diagnostic-counts">
           <div>

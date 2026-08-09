@@ -46,6 +46,7 @@ export default function RootLayout({
               <nav aria-label="Primary navigation" className="primary-nav">
                 <Link href="/browse/">Browse</Link>
                 <Link href="/search">Search</Link>
+                <Link href="/dataset/">Dataset</Link>
               </nav>
               <span className="status-badge">
                 {syntheticDataset ? "Synthetic dataset" : "Local dataset"}

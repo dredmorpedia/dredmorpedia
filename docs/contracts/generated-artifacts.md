@@ -177,6 +177,13 @@ Contains `datasetSchemaVersion: 3`, the matching dataset ID/language, and determ
 
 Contains the stable, source-located diagnostics array for the same import. Entity records refer to entries by deterministic diagnostic ID.
 
+The static web `/dataset/` route may group these diagnostics by their stable
+severity/code pair and link a supplied `entityId` to the matching active
+record. It must retain each exact message and sanitized source location, leave
+diagnostics without an active entity unlinked, and consume diagnostics only as
+part of the already verified atomic artifact set. This presentation does not
+authorize raw source-manifest/XML reads or machine-local path disclosure.
+
 ### `manifest.json`
 
 Manifest schema version: `2`

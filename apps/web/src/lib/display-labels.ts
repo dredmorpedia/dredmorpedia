@@ -7,3 +7,7 @@ export function titleCase(value: string): string {
     )
     .join(" ");
 }
+
+export function diagnosticCodeLabel(value: string): string {
+  return titleCase(value).replaceAll(/\bXml\b/g, "XML");
+}

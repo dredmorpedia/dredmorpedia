@@ -335,6 +335,113 @@ input {
   padding: 1.25rem;
 }
 
+.health-source-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  margin: 0;
+}
+
+.health-source-meta div {
+  min-width: 0;
+}
+
+.health-source-meta dt,
+.health-diagnostic-meta {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.health-source-meta dt {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.health-source-meta dd {
+  margin-block-start: 0.25rem;
+  overflow-wrap: anywhere;
+}
+
+.health-disclosure-card {
+  display: block;
+}
+
+.health-disclosure-summary,
+.health-decision-summary {
+  cursor: pointer;
+  outline-offset: 0.35rem;
+}
+
+.health-disclosure-summary {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  list-style-position: outside;
+}
+
+.health-disclosure-summary > span:last-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.health-disclosure-summary small {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.health-disclosure-summary::after {
+  margin-inline-start: auto;
+  color: var(--muted-foreground);
+  content: "Expand";
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.health-disclosure-card details[open] > .health-disclosure-summary::after {
+  content: "Collapse";
+}
+
+.health-diagnostic-list {
+  margin-block-start: 1rem;
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 1rem;
+}
+
+.diagnostic-marker {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.health-diagnostic-copy,
+.health-diagnostic-copy p {
+  margin: 0;
+}
+
+.health-diagnostic-copy {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.health-diagnostic-meta {
+  overflow-wrap: anywhere;
+}
+
+.health-decision-details {
+  margin-block-start: 1rem;
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 1rem;
+}
+
+.health-decision-summary {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 .alias-note {
   display: flex;
   align-items: center;

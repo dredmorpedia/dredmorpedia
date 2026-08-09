@@ -31,6 +31,10 @@ A player can find an item or stat, understand normalized game values and sources
   silently replace the query.
 - Search renders at most 50 results at once and exposes the total match count and useful empty/reset states.
 - Static browse catalogues expose every entity kind and direct detail link without JavaScript, render at most 100 records per page, and preserve an explicit empty page for kinds absent from the active dataset.
+- A static dataset-health route exposes ordered source/version/precedence
+  metadata, grouped exact diagnostics, linked affected records, ordered
+  override steps, and reviewed patches without reading raw XML or exposing a
+  local installation path.
 - Item-to-stat and stat-to-item links do not produce broken routes for available definitions.
 - Item-to-recipe and recipe-to-item links do not produce broken routes for resolved references.
 - Item-to-encrustment and encrustment-to-item links do not produce broken routes for resolved references.
@@ -63,8 +67,9 @@ Implemented: versioned split search artifact, versioned source/patch provenance,
 
 The inherited route-registry publication lifecycle, the first incremental local
 entity-asset import for item icons, and the separately versioned project-authored
-62-selector stat reference are implemented. Other asset families remain
-page-driven.
+62-selector stat reference are implemented. A static dataset-health/source-
+decision route makes all verified diagnostics and every active override/patch
+record discoverable across entity kinds. Other asset families remain page-driven.
 
 Outstanding: approve this statement after parity polish, evaluate engine-derived
 mechanics individually when their implementation is selected, and continue

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { titleCase } from "../src/lib/display-labels";
+import { diagnosticCodeLabel, titleCase } from "../src/lib/display-labels";
 
 describe("display labels", () => {
   it("converts source-token separators to spaces", () => {
@@ -17,5 +17,12 @@ describe("display labels", () => {
 
   it("preserves source casing after the first character", () => {
     expect(titleCase("XML_spell")).toBe("XML Spell");
+  });
+
+  it("uses conventional XML casing for diagnostic codes", () => {
+    expect(diagnosticCodeLabel("invalid_xml")).toBe("Invalid XML");
+    expect(diagnosticCodeLabel("dangling_reference")).toBe(
+      "Dangling Reference",
+    );
   });
 });

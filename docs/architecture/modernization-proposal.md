@@ -223,7 +223,10 @@ Static export limitations are acceptable for the initial scope: server actions, 
 - Explicit “used to craft” and “used to encrust” relationships on relevant entities.
 - Side-by-side comparisons for items, skills, spells, and monsters with delta highlighting.
 - Source/version selector that explains overrides and missing data instead of reloading blindly.
-- Dataset health page showing source versions, parse warnings, collisions, dangling links, and asset coverage.
+- Dataset health page showing source versions, parse warnings, collisions,
+  dangling links, and asset coverage. The active-dataset source/diagnostic/
+  override surface is implemented; presented-asset coverage and release health
+  can extend it when those product slices need a shared page.
 
 ### Distinctive next features
 

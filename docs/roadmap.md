@@ -522,6 +522,16 @@ still decided per page rather than imported speculatively.
 Engine mechanics absent from XML are evaluated individually immediately before
 implementation and may be supported when repeatable evidence verifies them.
 
+The first source/collision explorer is implemented as the static `/dataset/`
+route. It lists every active source/version/precedence declaration, groups the
+verified import diagnostics without altering them, links findings to active
+records, and makes all ordered override steps and reviewed patches discoverable
+across entity kinds. The ignored canonical dataset has 36 affected records and
+71 override steps. This completes active-dataset decision visibility; choosing
+between complete datasets and broad mod workflows remain later capabilities.
+Evidence is in
+`docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
+
 ### Exit criteria
 
 All agreed parity concepts have stable routes, tested relationships, provenance, and diagnostics. Any intentionally dropped legacy feature is documented. The preserved `legacy/` application may then be archived or removed in a dedicated change.

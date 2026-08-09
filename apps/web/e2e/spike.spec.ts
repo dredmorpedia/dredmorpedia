@@ -179,6 +179,68 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   ).toBeVisible();
 });
 
+test("inspects dataset sources, diagnostics, and override decisions", async ({
+  page,
+}) => {
+  await page.goto("/dataset/");
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "See how this dataset was assembled.",
+    }),
+  ).toBeVisible();
+  const healthSummary = page.getByLabel("Dataset health summary");
+  await expect(healthSummary.getByText("3", { exact: true })).toBeVisible();
+
+  const sources = page.getByRole("region", { name: "Sources" });
+  await expect(
+    sources.getByText("Synthetic Base", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    sources.getByText("Synthetic Broken Mod", { exact: true }),
+  ).toBeVisible();
+
+  const diagnostics = page.getByRole("region", { name: "Diagnostics" });
+  await expect(
+    diagnostics.getByText("Invalid XML", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    diagnostics.getByText(/Expected closing tag 'spell'/),
+  ).toBeVisible();
+
+  const danglingSummary = diagnostics.getByText("Dangling Reference", {
+    exact: true,
+  });
+  await danglingSummary.click();
+  await expect(
+    diagnostics.getByRole("link", { name: "Open Clockwork Blade Recipe" }),
+  ).toBeVisible();
+
+  const decisions = page.getByRole("region", { name: "Source decisions" });
+  await expect(
+    decisions.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await decisions.getByText("Review 3 decisions", { exact: true }).click();
+  await expect(decisions.locator(".override-step")).toHaveCount(2);
+  await expect(
+    decisions.getByText("Reviewed patch: synthetic-clockwork-blade-value"),
+  ).toBeVisible();
+
+  const datasetLink = page.getByRole("link", {
+    name: "Dataset",
+    exact: true,
+  });
+  await datasetLink.focus();
+  await expect(datasetLink).toBeFocused();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+});
+
 test("renders a strictly validated gem classification marker", async ({
   page,
 }) => {
@@ -1215,6 +1277,7 @@ test("representative pages have no automatically detectable accessibility violat
 }) => {
   for (const route of [
     "/",
+    "/dataset/",
     "/browse/",
     "/browse/spells/1/",
     "/search/",

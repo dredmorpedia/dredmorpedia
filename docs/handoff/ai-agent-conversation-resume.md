@@ -180,7 +180,7 @@ metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, and spell-requirement family is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. These 18 declarations emit informational audit records and create no entity or route. The owner subsequently approved the exact Luckier Find `Acidium Salis` item-list declaration as a reviewed correction to `item:acidum salis`; it retains the original source label, adds stable review provenance and a backlink, and does not patch game data or create a global alias. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus one reviewed correction plus two source-only item-list options. Four dangling warnings remain: the Satanic Locator placeholder and three ambiguous monster spells. Do not alias them without new evidence. The canonical diagnostic set is 0 errors, 4 warnings, and 90 info. See `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
-The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, and first-parity acceptance. The bounded item-icon importer is implemented; future asset families remain page-driven. The immediate next milestone is owner review of the first-parity statement. Stat names/categories now come from the versioned project reference, while disputed formulas remain separate evidence decisions. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
+The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release, exact copyright-holder wording and provenance treatment for excluded inherited material, and first-parity acceptance. The bounded item-icon importer is implemented; future asset families remain page-driven. The active-dataset source/collision explorer is also implemented at `/dataset/`: it exposes ordered sources, grouped verified diagnostics, linked affected records, all ordered override steps, and reviewed patches without raw XML or local paths. The ignored canonical artifact has 36 affected records and 71 override steps. The immediate owner milestone remains review of the first-parity statement; if that decision is deferred, continue Phase 4 with a separately evidenced meta/derived view or remaining valuable legacy navigation rather than inventing disputed formulas. Stat names/categories now come from the versioned project reference, while disputed formulas remain separate evidence decisions. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`. Dataset-health evidence is in `docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
 
 ## Git and owner handoff convention
 
@@ -190,6 +190,18 @@ The local product boundary and the technical direction in ADR 0001–0005 are no
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The dataset-health/source-decision slice adds a static `/dataset/` route over
+the already verified atomic artifact set. It exposes ordered source metadata,
+groups exact diagnostics by stable severity/code, links findings to active
+records, and makes every ordered override step and reviewed patch discoverable
+without reading raw XML or exposing local paths. The ignored canonical artifact
+has 36 affected records and 71 override steps. `pnpm.cmd check` passes all 249
+unit/artifact tests and the 44-page synthetic export; all 38 desktop/mobile
+browser cases pass; and `pnpm.cmd build:official` is byte-identical with 0
+errors, 4 warnings, 90 informational records, and all 2,981 local pages.
+Evidence is recorded in
+`docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
 
 The stat-reference slice adds a separately versioned, project-authored
 62-selector catalogue for the canonical game version. Exact selector linking
