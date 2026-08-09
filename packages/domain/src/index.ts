@@ -9,6 +9,7 @@ export * from "./monster-relationships";
 export * from "./ordering";
 export * from "./patches";
 export * from "./recipe-relationships";
+export * from "./relationship-resolution";
 export * from "./resolution";
 export * from "./search";
 export * from "./skill-relationships";

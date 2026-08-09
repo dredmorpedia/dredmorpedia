@@ -205,6 +205,62 @@ describe("generated artifact loading", () => {
     );
   });
 
+  it("rejects a source-only loadout classification without review provenance", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: {
+        skills: {
+          loadouts: {
+            itemName?: string;
+            itemResolution?: Record<string, unknown>;
+          }[];
+        }[];
+      };
+    };
+    const loadout = artifact.entities.skills
+      .flatMap((skill) => skill.loadouts)
+      .find((entry) => entry.itemName === "Missing Kit");
+    if (!loadout) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no unresolved named loadout.",
+      );
+    }
+    loadout.itemResolution = {
+      status: "source-only",
+      targetKind: "item",
+      sourceLabel: "Missing Kit",
+    };
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/itemResolution/);
+  });
+
+  it("rejects a loadout resolution that loses its original source label", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: {
+        skills: {
+          loadouts: {
+            itemName?: string;
+            itemResolution?: { sourceLabel: string };
+          }[];
+        }[];
+      };
+    };
+    const loadout = artifact.entities.skills
+      .flatMap((skill) => skill.loadouts)
+      .find((entry) => entry.itemName === "Missing Kit");
+    if (!loadout?.itemResolution) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no unresolved named loadout.",
+      );
+    }
+    loadout.itemResolution.sourceLabel = "Different Kit";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/retain the original item name/);
+  });
+
   it("rejects a traversing entity icon path", async () => {
     const artifact = readJson("artifact.json") as {
       entities: { items: { iconPath: string | null }[] };

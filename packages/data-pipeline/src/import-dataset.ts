@@ -8,6 +8,7 @@ import {
   canonicalKey,
   compareCodeUnits,
   createSearchDocuments,
+  resolveRelationshipExactly,
   resolveEntityCandidates,
   skillAbilityRelationships,
   type Ability,
@@ -300,21 +301,22 @@ function linkSkills(
 
   return skills.map((skill) => {
     const loadouts = skill.loadouts.map((loadout) => {
-      if (!loadout.itemKey) {
+      if (loadout.itemKey === undefined) {
         return loadout;
       }
       const item = itemAliases.get(loadout.itemKey);
       if (!item) {
-        diagnostics.push(
-          danglingDiagnostic(
-            skill,
-            "item",
-            loadout.itemName ?? loadout.itemKey,
-          ),
-        );
+        diagnostics.push(danglingDiagnostic(skill, "item", loadout.itemName));
         return loadout;
       }
-      return { ...loadout, itemId: item.id };
+      return {
+        ...loadout,
+        itemId: item.id,
+        itemResolution: resolveRelationshipExactly(
+          loadout.itemResolution,
+          item.id,
+        ),
+      };
     });
     const linkedAbilities = abilitiesBySkill.get(skill.id) ?? [];
     return {

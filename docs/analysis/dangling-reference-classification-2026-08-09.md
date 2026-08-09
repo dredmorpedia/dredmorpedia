@@ -101,9 +101,11 @@ but it is not evidence for a target mapping or engine behavior.
 
 ## Recommended implementation order
 
-1. Define a loss-aware relationship-resolution contract that distinguishes a
-   resolved entity link, an explicitly reviewed source-only label, and a truly
-   unresolved target while retaining the original source label.
+1. **Completed:** define a loss-aware relationship-resolution contract that
+   distinguishes an exact or reviewed-correction entity link, an explicitly
+   reviewed source-only label, and a truly unresolved target while retaining
+   the original source label. Named skill loadouts are the first integrated
+   consumer; no official classification changed.
 2. Apply that contract first to the 16 `lockpick` loadouts and two `Spores`
    options only after the owner approves their source-only classification.
 3. Add a narrowly scoped, provenance-bearing correction for `Acidium Salis`
@@ -114,6 +116,9 @@ but it is not evidence for a target mapping or engine behavior.
 5. Report both declaration count and unique owner/reference-pair count in
    future dataset-health work so repeated source declarations are not mistaken
    for distinct missing entities.
+
+Implementation evidence for step 1 is recorded in
+[`relationship-resolution-contract-evidence-2026-08-09.md`](relationship-resolution-contract-evidence-2026-08-09.md).
 
 ## Verification
 

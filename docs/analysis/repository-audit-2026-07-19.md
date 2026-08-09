@@ -89,8 +89,9 @@ The following audit concerns are still actionable:
    declarations, nine owner/reference pairs, and seven distinct labels: 18
    declarations are engine/source-only candidates, one is a probable typo, one
    is a deliberate placeholder, and three spell declarations remain ambiguous.
-   No alias, patch, or source-only status has been applied without the owner's
-   per-class decision.
+   A loss-aware resolution contract is now integrated for named skill loadouts,
+   but no alias, patch, or source-only status has been applied without the
+   owner's per-class decision.
 3. **Search acceptance:** define ADR 0003 relevance examples plus transfer, parsing, rendering, and interaction budgets; broaden stat facets beyond items only after an evidenced shared contract exists.
 4. **Versioned release routes:** ADR 0004 now requires inherited reservations,
    tombstones, and publication failure on invalid registry state. Implement and

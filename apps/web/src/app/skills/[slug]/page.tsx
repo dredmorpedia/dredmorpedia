@@ -121,9 +121,10 @@ export default async function SkillPage({
           {skill.loadouts.length > 0 ? (
             <ul className="relation-list recipe-reference-list">
               {skill.loadouts.map((loadout, loadoutIndex) => {
-                const item = loadout.itemId
-                  ? itemsById.get(loadout.itemId)
-                  : undefined;
+                const item =
+                  loadout.itemResolution?.status === "resolved"
+                    ? itemsById.get(loadout.itemResolution.targetId)
+                    : undefined;
                 const itemLabel = loadout.itemName
                   ? loadout.itemName
                   : `Random ${titleCase(loadout.itemType ?? "item")}`;
@@ -142,7 +143,11 @@ export default async function SkillPage({
                       ) : (
                         <strong>{itemLabel}</strong>
                       )}
-                      {loadout.itemKey && !item ? (
+                      {loadout.itemResolution?.status === "source-only" ? (
+                        <small className="text-muted-foreground">
+                          Source-only label
+                        </small>
+                      ) : loadout.itemResolution?.status === "unresolved" ? (
                         <small className="trigger-resolution-unresolved">
                           Unresolved item
                         </small>

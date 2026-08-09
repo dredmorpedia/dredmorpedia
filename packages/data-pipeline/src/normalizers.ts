@@ -9,6 +9,7 @@ import {
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   slugify,
+  unresolvedRelationship,
   type Ability,
   type Encrustment,
   type EncrustmentInstabilityEffect,
@@ -32,6 +33,7 @@ import {
   type NormalizedEntityBase,
   type Recipe,
   type Skill,
+  type SkillLoadout,
   type Spell,
   type SpellAiHintMetadata,
   type SpellAnimationMetadata,
@@ -2454,31 +2456,40 @@ function parseSkills(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("skill", name);
-    const loadouts = xmlChildren(record, "loadout").map((loadout) => {
-      const itemName = xmlAttribute(loadout, "subtype");
-      const itemType = xmlAttribute(loadout, "type");
-      return {
-        ...(itemName ? { itemKey: canonicalKey(itemName), itemName } : {}),
-        ...(itemType ? { itemType } : {}),
-        amount: integerValue(
-          xmlAttribute(loadout, "amount"),
-          1,
-          context,
-          provenance,
-          "skill loadout amount",
-          currentEntityId,
-          1,
-        ),
-        always: booleanAttribute(
-          loadout,
-          "always",
-          context,
-          provenance,
-          "skill loadout always",
-          currentEntityId,
-        ),
-      };
-    });
+    const loadouts = xmlChildren(record, "loadout").map(
+      (loadout): SkillLoadout => {
+        const itemName = xmlAttribute(loadout, "subtype");
+        const itemType = xmlAttribute(loadout, "type");
+        const shared = {
+          ...(itemType ? { itemType } : {}),
+          amount: integerValue(
+            xmlAttribute(loadout, "amount"),
+            1,
+            context,
+            provenance,
+            "skill loadout amount",
+            currentEntityId,
+            1,
+          ),
+          always: booleanAttribute(
+            loadout,
+            "always",
+            context,
+            provenance,
+            "skill loadout always",
+            currentEntityId,
+          ),
+        };
+        return itemName
+          ? {
+              ...shared,
+              itemKey: canonicalKey(itemName),
+              itemName,
+              itemResolution: unresolvedRelationship("item", itemName),
+            }
+          : shared;
+      },
+    );
     const skill: Skill = {
       ...baseEntity(
         "skill",

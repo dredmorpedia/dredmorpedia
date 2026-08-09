@@ -38,9 +38,13 @@ Read these files before making a substantial change:
 - The canonical 23 dangling-reference warnings are 23 declarations, nine
   owner/reference pairs, and seven labels. Evidence classifies 18 declarations
   as engine/source-only candidates, one as a probable typo, one as a deliberate
-  placeholder, and three spell declarations as ambiguous. Do not invent
-  entities or apply fuzzy aliases; obtain the owner's per-class decision before
-  introducing a source-only status or a scoped correction.
+  placeholder, and three spell declarations as ambiguous. A generic
+  loss-aware resolution contract now distinguishes exact links, reviewed
+  corrections, reviewed source-only labels, and unresolved targets while
+  retaining the original source label; named skill loadouts are its first
+  consumer. Do not invent entities or apply fuzzy aliases; obtain the owner's
+  per-class decision before introducing a source-only status or a scoped
+  correction.
 - Buff-local spell effects use the same strict effect contract and deterministic
   relationship linker as direct effects while retaining their owning buff
   scope. Consumers must not infer scheduling, trigger order, buff lifetime,

@@ -31,6 +31,9 @@ const nullableNonnegativeInteger = nonnegativeInteger.nullable();
 const nullablePercentageInteger = percentageInteger.nullable();
 const nullableSignedByte = z.number().int().min(-128).max(127).nullable();
 const optionalString = z.string().optional();
+const nonblankString = z
+  .string()
+  .refine((value) => value.trim().length > 0, "must be non-blank");
 const entitySlugSchema = z
   .string()
   .regex(
@@ -123,6 +126,107 @@ const entityBaseShape = {
 const sourceFlagSchema = z
   .object({ sourceKey: z.string(), value: z.string() })
   .strict();
+
+const itemRelationshipResolutionSchema = z.union([
+  z
+    .object({
+      status: z.literal("resolved"),
+      resolutionMethod: z.literal("exact"),
+      targetKind: z.literal("item"),
+      sourceLabel: nonblankString,
+      targetId: nonblankString,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("resolved"),
+      resolutionMethod: z.literal("reviewed-correction"),
+      targetKind: z.literal("item"),
+      sourceLabel: nonblankString,
+      targetId: nonblankString,
+      reviewId: nonblankString,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("source-only"),
+      targetKind: z.literal("item"),
+      sourceLabel: nonblankString,
+      reviewId: nonblankString,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("unresolved"),
+      targetKind: z.literal("item"),
+      sourceLabel: nonblankString,
+    })
+    .strict(),
+]);
+
+const skillLoadoutSchema = z
+  .object({
+    itemKey: optionalString,
+    itemName: optionalString,
+    itemId: optionalString,
+    itemResolution: itemRelationshipResolutionSchema.optional(),
+    itemType: optionalString,
+    amount: positiveInteger,
+    always: z.boolean(),
+  })
+  .strict()
+  .superRefine((loadout, context) => {
+    const hasItemKey = loadout.itemKey !== undefined;
+    const hasItemName = loadout.itemName !== undefined;
+    if (hasItemKey !== hasItemName) {
+      context.addIssue({
+        code: "custom",
+        message: "Named loadout item key and name must both be present.",
+      });
+      return;
+    }
+
+    if (!hasItemName) {
+      if (
+        loadout.itemId !== undefined ||
+        loadout.itemResolution !== undefined
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "Type-only loadouts must not carry item resolution data.",
+        });
+      }
+      return;
+    }
+
+    if (!loadout.itemResolution) {
+      context.addIssue({
+        code: "custom",
+        message: "Named loadouts must carry item resolution data.",
+      });
+      return;
+    }
+    if (loadout.itemResolution.sourceLabel !== loadout.itemName) {
+      context.addIssue({
+        code: "custom",
+        message: "Loadout resolution must retain the original item name.",
+      });
+    }
+
+    if (loadout.itemResolution.status === "resolved") {
+      if (loadout.itemId !== loadout.itemResolution.targetId) {
+        context.addIssue({
+          code: "custom",
+          message: "Resolved loadout target must match its item ID.",
+        });
+      }
+    } else if (loadout.itemId !== undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Unlinked loadouts must not carry an item ID.",
+      });
+    }
+  });
 
 const statModifierSchema = z
   .object({
@@ -348,18 +452,7 @@ const skillSchema = z
     kind: z.literal("skill"),
     archetype: z.string(),
     iconPath: nullableAssetPathSchema,
-    loadouts: z.array(
-      z
-        .object({
-          itemKey: optionalString,
-          itemName: optionalString,
-          itemId: optionalString,
-          itemType: optionalString,
-          amount: positiveInteger,
-          always: z.boolean(),
-        })
-        .strict(),
-    ),
+    loadouts: z.array(skillLoadoutSchema),
     loadoutItemKeys: z.array(z.string()),
     sourceFlags: z.array(sourceFlagSchema),
     progressionTags: z.array(
@@ -388,10 +481,7 @@ const abilitySchema = z
   })
   .strict();
 
-const nullableNonblankString = z
-  .string()
-  .refine((value) => value.trim().length > 0)
-  .nullable();
+const nullableNonblankString = nonblankString.nullable();
 
 const spellEffectItemOptionSchema = z
   .object({

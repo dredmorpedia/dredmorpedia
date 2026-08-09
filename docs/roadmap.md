@@ -466,10 +466,15 @@ owner/reference pairs and seven labels: 16 `lockpick` loadouts plus two
 probable source typo for the active `Acidum Salis` item; the Satanic Locator
 target is a deliberate placeholder; and the two `Strong Lingering ...`
 monster spells plus Deep Raven's `Eye Lasers` spell label remain ambiguous.
-The next implementation must preserve the original labels and use an explicit
-reviewed resolution status or source-scoped correction rather than fuzzy
-aliases. Evidence and the owner decision gates are recorded in
-`docs/analysis/dangling-reference-classification-2026-08-09.md`.
+A generic loss-aware relationship contract now preserves original labels and
+distinguishes exact links, reviewed corrections, reviewed source-only labels,
+and unresolved targets. Named skill loadouts are its first integrated consumer;
+the canonical set has 47 exact, 16 unresolved, and no classified source-only
+named loadouts, plus 13 type-only loadouts without an item relationship. The
+next step is the owner's separate source-only and scoped-correction decisions,
+not fuzzy aliases. Evidence and the decision gates are recorded in
+`docs/analysis/dangling-reference-classification-2026-08-09.md` and
+`docs/analysis/relationship-resolution-contract-evidence-2026-08-09.md`.
 
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
 

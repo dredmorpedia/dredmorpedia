@@ -102,6 +102,13 @@ describe("skill relationships", () => {
       itemKey: "brass ingot",
       itemName: "Brass Ingot",
       itemId,
+      itemResolution: {
+        status: "resolved" as const,
+        resolutionMethod: "exact" as const,
+        targetKind: "item" as const,
+        sourceLabel: "Brass Ingot",
+        targetId: itemId,
+      },
       amount: 2,
       always: false,
     };

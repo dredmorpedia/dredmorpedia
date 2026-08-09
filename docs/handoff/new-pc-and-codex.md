@@ -90,7 +90,11 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Classify the 23 remaining dangling references with source and preserved-application evidence before adding any alias, patch, source-only exception, or normalized entity. All measured item, spell, and spell-requirement compatibility families are complete.
+1. Obtain the owner's decisions separately for the classified engine/source-only
+   candidates and probable scoped typo correction. The loss-aware resolution
+   contract is already integrated for named skill loadouts, but no official
+   classification or mapping has been applied. All measured item, spell, and
+   spell-requirement compatibility families are complete.
 2. Settle ADR 0003 response budgets and broader concrete relevance examples
    with desktop/mobile measurements; the approved spelling-suggestion behavior
    is implemented.
@@ -302,6 +306,15 @@ source-only classification and the narrowly scoped typo correction; keep the
 placeholder and ambiguous spells unresolved absent new evidence. Details are
 in
 `docs/analysis/dangling-reference-classification-2026-08-09.md`.
+
+The generic loss-aware relationship-resolution contract is now implemented
+and integrated for named skill loadouts. It distinguishes exact links,
+reviewed corrections, reviewed source-only labels, and unresolved targets,
+always retaining the original label; both reviewed states require a stable
+review ID. The canonical loadout split is 47 exact, 16 unresolved, and 13
+type-only declarations. No official classification changed, so the warning
+set remains 23. Evidence is in
+`docs/analysis/relationship-resolution-contract-evidence-2026-08-09.md`.
 
 ## Item-quality review completed
 

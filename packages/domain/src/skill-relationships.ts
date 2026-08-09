@@ -34,7 +34,10 @@ export function itemSkillLoadoutRelationships(
   return skills
     .flatMap((skill) =>
       skill.loadouts.flatMap((loadout, loadoutIndex) =>
-        loadout.itemId === itemId ? [{ skill, loadout, loadoutIndex }] : [],
+        loadout.itemResolution?.status === "resolved" &&
+        loadout.itemResolution.targetId === itemId
+          ? [{ skill, loadout, loadoutIndex }]
+          : [],
       ),
     )
     .sort(

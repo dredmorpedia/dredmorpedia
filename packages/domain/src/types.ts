@@ -15,6 +15,34 @@ export type SourceKind = "base" | "expansion" | "mod" | "fixture";
 export type DiagnosticSeverity = "info" | "warning" | "error";
 export type PatchValue = string | number | boolean | null | string[];
 
+export type RelationshipResolution<TargetKind extends EntityKind = EntityKind> =
+  | {
+      status: "resolved";
+      resolutionMethod: "exact";
+      targetKind: TargetKind;
+      sourceLabel: string;
+      targetId: string;
+    }
+  | {
+      status: "resolved";
+      resolutionMethod: "reviewed-correction";
+      targetKind: TargetKind;
+      sourceLabel: string;
+      targetId: string;
+      reviewId: string;
+    }
+  | {
+      status: "source-only";
+      targetKind: TargetKind;
+      sourceLabel: string;
+      reviewId: string;
+    }
+  | {
+      status: "unresolved";
+      targetKind: TargetKind;
+      sourceLabel: string;
+    };
+
 export interface SourceLocation {
   sourceId: string;
   file: string;
@@ -279,14 +307,25 @@ export interface Encrustment extends NormalizedEntityBase {
   appearanceDescriptors: string[];
 }
 
-export interface SkillLoadout {
-  itemKey?: string;
-  itemName?: string;
-  itemId?: string;
+interface SkillLoadoutBase {
   itemType?: string;
   amount: number;
   always: boolean;
 }
+
+export type SkillLoadout =
+  | (SkillLoadoutBase & {
+      itemKey: string;
+      itemName: string;
+      itemId?: string;
+      itemResolution: RelationshipResolution<"item">;
+    })
+  | (SkillLoadoutBase & {
+      itemKey?: never;
+      itemName?: never;
+      itemId?: never;
+      itemResolution?: never;
+    });
 
 export interface SourceFlag {
   sourceKey: string;
