@@ -57,8 +57,10 @@ Read these files before making a substantial change:
   191 active spells. Root `radius` preserves the exact loss-aware non-negative
   source integer on four active spells. Root `self` preserves the exact
   loss-aware source-binary flag on three active spells without conflating it
-  with buff- or effect-local self fields. The remaining root spell audit is
-  one `noanimation` compatibility warning for a separate feature decision.
+  with buff- or effect-local self fields. Root `noanimation` preserves the one
+  active loss-aware source-binary flag as root presentation metadata, separate
+  from direct effect `skipanimation` controls. The measured root spell
+  compatibility audit is complete.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
   Consumers must not infer attacker, target, weapon, damage, hit resolution,
@@ -77,6 +79,9 @@ Read these files before making a substantial change:
   declaration.
   Consumers must not infer an actor, target selection, casting origin, effect
   scope, eligibility, timing, or runtime success from the root self flag.
+  Consumers must not infer which presentation sequence is affected, animation
+  order, timing, synchronization, target selection, sound behavior, or runtime
+  success from the root no-animation flag.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

@@ -121,6 +121,7 @@ const patchableFields: Record<
     sourcePerformsMeleeAttack: isNullableBoolean,
     sourceWandFlag: isNullableBoolean,
     sourceSelfFlag: isNullableBoolean,
+    sourceNoAnimationFlag: isNullableBoolean,
   },
   monster: {
     description: isString,

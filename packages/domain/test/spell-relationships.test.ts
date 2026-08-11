@@ -97,6 +97,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     sourcePerformsMeleeAttack: null,
     sourceWandFlag: null,
     sourceSelfFlag: null,
+    sourceNoAnimationFlag: null,
     itemConsumption: null,
     mine: null,
     targetingTemplate: {

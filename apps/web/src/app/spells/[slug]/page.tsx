@@ -521,6 +521,33 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.sourceNoAnimationFlag !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="root-animation-metadata-heading"
+          >
+            <h2
+              id="root-animation-metadata-heading"
+              className="section-title-sm"
+            >
+              Root animation metadata
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>No-animation source flag</dt>
+                <dd>{spell.sourceNoAnimationFlag ? "Yes" : "No"}</dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              This is the exact root spell flag. It is distinct from direct
+              effect skip-animation controls and does not establish which
+              presentation sequence is affected, animation order, timing,
+              synchronization, target selection, sound behavior, or runtime
+              success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.itemConsumption ? (
           <section
             className="detail-card"

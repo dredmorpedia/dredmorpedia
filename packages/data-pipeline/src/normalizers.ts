@@ -5338,6 +5338,14 @@ function parseSpells(
         "root spell self flag",
         currentEntityId,
       ),
+      sourceNoAnimationFlag: optionalBinaryBooleanAttribute(
+        record,
+        "noanimation",
+        context,
+        provenance,
+        "root spell no-animation flag",
+        currentEntityId,
+      ),
       itemConsumption: parseSpellItemConsumptionDeclaration(
         record,
         context,
@@ -5392,6 +5400,7 @@ function parseSpells(
         "attack",
         "wand",
         "self",
+        "noanimation",
         ...spellItemConsumptionAttributeNames,
         ...spellMineAttributeNames,
         ...(spellType === "template"

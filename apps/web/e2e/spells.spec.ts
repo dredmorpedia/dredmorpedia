@@ -59,6 +59,20 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     rootSelfMetadata.getByText(/distinct from buff- and effect-local self/i),
   ).toBeVisible();
+  const rootAnimationMetadata = page.getByRole("region", {
+    name: "Root animation metadata",
+  });
+  await expect(
+    rootAnimationMetadata.getByText("No-animation source flag", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    rootAnimationMetadata.getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    rootAnimationMetadata.getByText(/distinct from direct effect/i),
+  ).toBeVisible();
   const itemConsumption = page.getByRole("region", {
     name: "Item consumption",
   });
@@ -667,6 +681,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   );
   await expect(
     page.getByRole("region", { name: "Root self metadata" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Root animation metadata" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Item consumption" }),

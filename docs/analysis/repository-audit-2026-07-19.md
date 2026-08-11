@@ -98,9 +98,9 @@ The following audit concerns are still actionable:
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
 2. **Content parity:** no item, spell-child/effect, or spell-requirement
-   compatibility diagnostic remains. The corrected root spell audit exposes
-   only one unsupported `noanimation` attribute for later feature-by-feature
-   classification. Template spells now preserve both
+   compatibility diagnostic remains. The corrected root spell audit is also
+   complete, including the one active `noanimation` presentation flag.
+   Template spells now preserve both
    measured template-ID casing forms and the anchor-player flag; all 106 active
    references resolve. All 133 measured source-candidate root cooldown
    declarations are recognized, and 131 active spells retain the effective
@@ -127,6 +127,11 @@ The following audit concerns are still actionable:
    remains separate from buff- and effect-local self fields and does not
    establish an actor, target selection, casting origin, effect scope,
    eligibility, timing, or runtime success.
+   The one active root `noanimation` declaration uses the strict binary
+   grammar and remains separate from direct-effect skip-animation controls. It
+   does not establish which presentation sequence is affected, animation
+   order, timing, synchronization, target selection, sound behavior, or
+   runtime success.
    Exact shield, weapon, booze, and zorkmid requirement slices preserve all 13
    measured non-mana declarations. The original 23 dangling-reference warnings were classified
    as 23 declarations, nine owner/reference pairs, and seven labels. The owner
