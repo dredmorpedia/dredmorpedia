@@ -10,10 +10,11 @@ The first approved local measurement produced 2,710 search documents and a
 1,202,823-byte uncompressed search artifact. After the search scope expanded to
 2,829 canonical `1.1.5 public_beta` documents, pretty-printed serialization
 reached 1,477,801 bytes and left only 22,199 bytes below the accepted raw
-ceiling. Deterministic compact serialization reduces the same schema and
-documents to 1,180,204 bytes. This remains small enough for a project-owned
-client query path without accepting the bundle cost, worker complexity, and
-query semantics of a third-party search engine.
+ceiling. Deterministic compact serialization reduced the same schema and
+documents to 1,180,204 bytes; the later recipe-tool parity extension brings the
+current compact artifact to 1,185,026 bytes. This remains small enough for a
+project-owned client query path without accepting the bundle cost, worker
+complexity, and query semantics of a third-party search engine.
 
 Search must eventually combine text with typed filters and numeric game fields. A general full-text library does not replace domain-specific filtering, source precedence, stable URLs, or relationship queries.
 
@@ -79,8 +80,8 @@ This avoids an early dependency and keeps domain filtering explicit. It also mea
 
 Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95
 for query execution across 1,000 representative calls. The current compact
-2,829-document artifact measures 1,180,204 bytes uncompressed, 196,345 bytes
-with gzip, and 143,207 bytes with Brotli. Its parse, query, suggestion, and
+2,829-document artifact measures 1,185,026 bytes uncompressed, 196,912 bytes
+with gzip, and 143,690 bytes with Brotli. Its parse, query, suggestion, and
 desktop/4x-CPU-mobile browser paths remain inside every accepted budget, so
 MiniSearch and a worker remain unjustified. Initial query evidence is recorded
 in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md),
@@ -91,6 +92,9 @@ and the accepted response/relevance measurements are in
 which also records the 2026-08-11 headroom hardening.
 Cross-entity stat-filter evidence is in
 [`../analysis/cross-entity-stat-search-evidence-2026-08-09.md`](../analysis/cross-entity-stat-search-evidence-2026-08-09.md).
+The current recipe-tool extension retains all budgets; its parity evidence is
+in
+[`../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`](../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md).
 
 ## Acceptance checklist
 

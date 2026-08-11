@@ -189,15 +189,27 @@ The rebuild is deeper per record than legacy — richer normalized fields, prove
 
 Highest-impact gaps, ranked:
 
-1. No browse/index surface for spells, monsters, skills, abilities, recipes, or encrustments. Only Items is browsable; the others are reachable only via cross-links or a typed slug. The search artifact already contains every kind, but the UI filters to items/stats/templates via a hardcoded allow-list at `apps/web/src/app/search/page.tsx:49-54` and `kindOptions` at `apps/web/src/components/search-explorer.tsx:34-39`. Widening that list (and/or adding per-kind index routes and nav) is the cheapest high-impact parity move and needs no new data work.
-2. Spell effect fidelity. Effects render as a generic `type` plus amount, and the documented compatibility backlog (per the 2026-07-23 handoff: 609 item plus 2,333 spell constructs) is dominated by spell effects. This is the largest content gap.
+1. **Resolved 2026-08-11:** Browse and bounded static catalogues expose all
+   nine entity kinds without JavaScript, while structured search covers every
+   kind. The final navigation inventory also restores all 374 recipes to their
+   seven normalized crafting-tool categories.
+2. **Resolved 2026-08-11:** every measured spell child/effect, requirement,
+   and root-attribute family has a strict loss-aware contract, presentation,
+   relationship handling where applicable, and regression coverage. No
+   measured spell compatibility diagnostic remains.
 3. **Resolved 2026-08-11:** the single Meta/analytics view is implemented under
    the exact owner-approved name **Required Armour by Monster**. Its
    deterministic domain calculation, static route, monster links, responsive
    navigation, and evidence boundary preserve compatibility without presenting
    the formula as independently verified engine truth.
-4. Game art is not rendered; pages show "reference supplied/not supplied" text. An incremental local-only entity-asset pipeline is approved but not implemented; public art remains blocked on permission.
-5. Search breadth and by-stat coverage regress against legacy (which searched items/skills/spells by name and ranked items/abilities/spells by stat magnitude).
+4. **Partially resolved 2026-08-11:** the ignored checksummed item-icon pipeline
+   maps all 763 canonical items to 722 copied PNGs without fallback. Other
+   entity art remains page-driven local parity work; public art remains blocked
+   on permission.
+5. **Resolved 2026-08-11:** search covers all entity kinds and the accepted
+   cross-entity stat facets. It intentionally avoids the preserved app's
+   heterogeneous amount ranking; that exclusion and the accepted response/
+   relevance budgets are documented in ADR 0003.
 6. **Resolved 2026-08-11:** template-type spells now preserve and resolve both measured template-ID casing forms plus the loss-aware anchor-player flag. Spell and targeting-template pages link in both directions, and the root spell audit exposes every remaining unsupported attribute.
 7. **Resolved 2026-08-11:** root spell cooldown metadata now preserves every
    measured `downtime` declaration as a loss-aware non-negative source value.

@@ -358,6 +358,26 @@ test("searches reference entities with shareable structured filters", async ({
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
 
+  await type.focus();
+  await type.press("Enter");
+  await page
+    .getByRole("option", { name: "Recipes", exact: true })
+    .press("Enter");
+  await category.focus();
+  await category.press("Enter");
+  await page
+    .getByRole("option", { name: "Smithing", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/kind=recipe/);
+  await expect(page).toHaveURL(/category=smithing/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade Recipe" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Reset filters" }).click();
+  await expect(page).toHaveURL(/\/search\/?$/);
+
   const stat = page.getByRole("combobox", { name: "Stat" });
   await stat.focus();
   await stat.press("Enter");

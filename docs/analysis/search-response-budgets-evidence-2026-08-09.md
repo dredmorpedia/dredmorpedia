@@ -2,7 +2,7 @@
 
 Date: 2026-08-09
 
-Updated: 2026-08-11 (search serialization headroom hardening)
+Updated: 2026-08-11 (search serialization and recipe-tool navigation)
 
 ## Decision scope
 
@@ -108,6 +108,33 @@ the suggestion path.
 
 This reclaims growth headroom without removing fields, weakening the accepted
 relevance contract, raising a budget, or introducing a third-party index.
+
+## 2026-08-11 recipe-tool navigation
+
+The final preserved-navigation inventory found that normalized recipes retained
+their crafting `tool`, but search documents did not expose it through the
+existing category field. Categorizing all 374 canonical recipes across seven
+tools adds 4,822 raw bytes without changing schema, query semantics, or any
+budget.
+
+| Artifact measurement |  Current result | Budget headroom after |
+| -------------------- | --------------: | --------------------: |
+| Uncompressed         | 1,185,026 bytes |         314,974 bytes |
+| Gzip level 9         |   196,912 bytes |          28,088 bytes |
+| Brotli quality 11    |   143,690 bytes |          31,310 bytes |
+
+The canonical command remains byte-identical, exports all 2,982 static pages,
+and passes the same relevance examples. Current standalone p95 measurements are
+2.62 ms for JSON parsing; 0.89 ms exact, 0.60 ms prefix, 0.58 ms multi-token,
+and 0.05 ms filtered queries; and 2.38 ms for the suggestion path.
+
+| Browser profile                  | Navigation to first result | Exact interaction | Suggestion interaction |
+| -------------------------------- | -------------------------: | ----------------: | ---------------------: |
+| Desktop Chromium                 |              157.75 ms p95 |       7.00 ms p95 |           11.00 ms p95 |
+| Pixel 7 profile, 4x CPU slowdown |              835.90 ms p95 |      42.70 ms p95 |           51.10 ms p95 |
+
+The change and the full preserved-navigation classification are recorded in
+`docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
 ## Relevance examples
 

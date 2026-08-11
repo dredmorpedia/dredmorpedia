@@ -33,7 +33,7 @@ function categoryFor(entity: NormalizedEntity): string | null {
     return entity.group;
   }
 
-  if (entity.kind === "encrustment") {
+  if (entity.kind === "recipe" || entity.kind === "encrustment") {
     return entity.tool;
   }
 

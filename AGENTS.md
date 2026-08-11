@@ -170,6 +170,15 @@ Read these files before making a substantial change:
   from archetype levels plus crushing, slashing, and blasting modifiers. Do not
   treat it as independently verified engine truth; formula verification remains
   a documented possible improvement.
+- The final navigation/tooltip checkpoint restores all 374 canonical recipes
+  to seven normalized tool categories in shareable search and explicitly
+  supersedes the preserved runtime hashes, cloned-row hover tooltips, and
+  tab-only partitions with stable routes, visible labels, native history,
+  Browse, and structured search. Keep the preserved application until complete
+  parity evidence and a separate archival decision. The next active parity
+  work is an inventory and first coherent local-only asset slice for non-item
+  entity art already used by implemented pages; keep it page-driven and do not
+  bulk-copy unrelated resources.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

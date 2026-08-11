@@ -6,6 +6,7 @@ import {
   searchSuggestionLimit,
   suggestSearchDocuments,
   type EntityCollections,
+  type Recipe,
   type SearchDocument,
   type Stat,
 } from "../src/index";
@@ -36,10 +37,39 @@ function searchStat(id: string, slug: string): Stat {
   };
 }
 
-function collections(stats: Stat[]): EntityCollections {
+function searchRecipe(): Recipe {
+  const provenance = {
+    sourceId: "synthetic-search",
+    file: "synthetic/craftDB.xml",
+    line: 1,
+    column: 1,
+    originalName: "Clockwork Blade Recipe",
+  };
+  return {
+    id: "recipe:clockwork blade recipe",
+    kind: "recipe",
+    canonicalKey: "clockwork blade recipe",
+    slug: "clockwork-blade-recipe",
+    slugAliases: [],
+    name: "Clockwork Blade Recipe",
+    description: "A synthetic smithing recipe.",
+    tool: "smithing",
+    hidden: false,
+    skillLevel: 2,
+    inputs: [],
+    outputs: [],
+    provenance,
+    variants: [provenance],
+    appliedOverrides: [],
+    appliedPatches: [],
+    diagnosticIds: [],
+  };
+}
+
+function collections(stats: Stat[], recipes: Recipe[] = []): EntityCollections {
   return {
     items: [],
-    recipes: [],
+    recipes,
     encrustments: [],
     skills: [],
     abilities: [],
@@ -114,6 +144,22 @@ describe("search queries", () => {
         (document) => document.id,
       ),
     ).toEqual(["stat:a", "stat:z"]);
+  });
+
+  it("uses normalized recipe tools as searchable categories", () => {
+    const generated = createSearchDocuments(collections([], [searchRecipe()]));
+
+    expect(generated).toHaveLength(1);
+    expect(generated[0]).toMatchObject({
+      kind: "recipe",
+      category: "smithing",
+    });
+    expect(
+      querySearchDocuments(generated, {
+        kinds: ["recipe"],
+        category: "smithing",
+      }).map((result) => result.document.id),
+    ).toEqual(["recipe:clockwork blade recipe"]);
   });
 
   it("ranks exact and prefix name matches ahead of description matches", () => {

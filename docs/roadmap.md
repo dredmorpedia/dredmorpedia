@@ -507,7 +507,7 @@ separate owner sign-off. This does not decide the disputed legacy Meta formula
 or broaden the publication boundary. Evidence is in
 `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`.
 
-Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter now covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases. It deliberately leaves inherited monster bonuses on stat-page backlinks and does not infer a cross-scope strength ranking. Deterministic compact serialization reduces the same 2,829-document canonical search artifact from 1,477,801 to 1,180,204 bytes without changing schema or behavior, restoring 319,796 bytes of raw budget headroom. ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, and `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`.
+Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases; all 374 recipes additionally expose their normalized crafting tool through the existing category filter. Inherited monster bonuses remain on stat-page backlinks rather than being duplicated or ranked in search. Deterministic compact serialization plus the current recipe-tool categories leave the 2,829-document canonical search artifact at 1,185,026 bytes, with 314,974 bytes of raw budget headroom. ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`, and `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
 ## Phase 4 — Legacy parity
 
@@ -557,9 +557,23 @@ make it discoverable. Documentation retains the evidence limitations and future
 formula-verification opportunity without adding “Legacy” to the UI. Evidence is
 in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`.
 
-The next active parity task is a fresh inventory of remaining valuable legacy
-navigation and tooltip behavior, followed by implementation or an explicit
-evidence-based exclusion for each selected item.
+The final navigation/tooltip inventory is complete. It found one concrete
+omission: recipe search documents discarded their already normalized crafting
+tool. All 374 canonical recipes now participate in seven tool categories
+through the existing deterministic, shareable search filter. Stable routes,
+visible labels, breadcrumbs, browser history, and reciprocal relationships
+supersede runtime numeric hashes and cloned-row hover tooltips; the old tooltip
+mechanic is intentionally excluded because it was pointer-only, touch- and
+keyboard-inaccessible, duplicated imported markup, and depended on the
+all-record DOM. Evidence and the complete classification are in
+`docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
+
+The navigation/tooltip checkpoint is complete. Keep `legacy/` until complete
+parity evidence and a separate archival decision. The next active Phase 4 task
+is the approved page-driven visual pass: inventory non-item art referenced by
+entity types already displayed in the modern UI, then implement the first
+coherent ignored local asset slice without bulk-copying unrelated resources.
+Phase 5 prioritization waits for that parity polish.
 
 ### Exit criteria
 
