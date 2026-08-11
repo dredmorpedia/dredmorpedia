@@ -92,6 +92,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     diagnosticIds: [],
     spellType: "target",
     iconPath: null,
+    sourceRadius: null,
     sourceCooldownTurns: null,
     sourcePerformsMeleeAttack: null,
     sourceWandFlag: null,

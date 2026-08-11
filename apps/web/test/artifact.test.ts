@@ -96,6 +96,11 @@ describe("generated artifact loading", () => {
     expect(
       loadArtifact().entities.spells.find(
         (spell) => spell.name === "Clockwork Spark",
+      )?.sourceRadius,
+    ).toBe(3);
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Spark",
       )?.sourceCooldownTurns,
     ).toBe(7);
     expect(
@@ -405,6 +410,20 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourceCooldownTurns/);
+  });
+
+  it("rejects malformed spell radius metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { sourceRadius: number }[];
+      };
+    };
+    typedArtifact.entities.spells[0]!.sourceRadius = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceRadius/);
   });
 
   it("rejects malformed spell melee-attack metadata", async () => {

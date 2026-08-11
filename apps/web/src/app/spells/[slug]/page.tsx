@@ -410,6 +410,28 @@ export default async function SpellPage({
       ) : null}
 
       <div className="detail-grid">
+        {spell.sourceRadius !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="radius-metadata-heading"
+          >
+            <h2 id="radius-metadata-heading" className="section-title-sm">
+              Radius metadata
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Radius source value</dt>
+                <dd>{spell.sourceRadius}</dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              This is the exact nonnegative root spell value. It does not
+              establish distance units, area shape, origin, target selection,
+              obstruction handling, or runtime success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.sourceCooldownTurns !== null ? (
           <section className="detail-card" aria-labelledby="cooldown-heading">
             <h2 id="cooldown-heading" className="section-title-sm">

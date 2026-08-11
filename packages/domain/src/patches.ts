@@ -116,6 +116,7 @@ const patchableFields: Record<
   spell: {
     description: isString,
     spellType: isString,
+    sourceRadius: isNullableNonNegativeInteger,
     sourceCooldownTurns: isNullableNonNegativeInteger,
     sourcePerformsMeleeAttack: isNullableBoolean,
     sourceWandFlag: isNullableBoolean,

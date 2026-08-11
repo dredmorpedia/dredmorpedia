@@ -215,7 +215,11 @@ Highest-impact gaps, ranked:
     191 active values render as neutral source metadata because their measured
     overlap with wand-item triggers does not support a compatibility or
     eligibility rule.
-12. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
+12. **Resolved 2026-08-11:** all four active root `radius` declarations now
+    use a required loss-aware non-negative source integer. Their four different
+    spell types render the exact value without claiming distance units, area
+    geometry, targeting, obstruction behavior, or runtime success.
+13. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
 
 Legacy behaviors that are traps and should not be replicated: the Flash/Downloadify `itemDB.xml` export (`legacy/js/tool.js`); ephemeral `genId()` hash routing plus cookie-and-reload state; the Meta analytic's monster melee/armour formulas (the disputed formulas the handoff withholds); the hardcoded proprietary stat descriptions in `legacy/js/dredmor-stat.js`; and CamanJS runtime sprite tinting plus filesystem path-guessing image recovery.
 

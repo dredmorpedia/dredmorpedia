@@ -53,9 +53,10 @@ Read these files before making a substantial change:
   item-consumption declarations with strict binary flags and exact nonblank
   source item-type tokens. The coherent root mine family preserves 70 active
   declarations with loss-aware mechanic, placement, and hidden presentation
-  metadata. Root `wand`
-  preserves the exact loss-aware source-binary flag on 191 active spells. The
-  remaining eight root spell attributes across three case-insensitive families
+  metadata. Root `wand` preserves the exact loss-aware source-binary flag on
+  191 active spells. Root `radius` preserves the exact loss-aware non-negative
+  source integer on four active spells. The remaining four root spell
+  attributes across two case-insensitive families
   remain compatibility warnings for separate feature decisions.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
@@ -70,6 +71,9 @@ Read these files before making a substantial change:
   Consumers must not infer whether or how a wand item may use a spell, item
   matching, charge use, targeting, eligibility, timing, or runtime success
   from the root wand flag.
+  Consumers must not infer distance units, area shape, origin, target
+  selection, obstruction handling, or runtime success from the root radius
+  declaration.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

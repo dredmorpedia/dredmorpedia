@@ -120,10 +120,10 @@ describe("synthetic dataset import", () => {
       path.join(sourceRoot, "spellDB.xml"),
       [
         "<spells>",
-        '  <spell name="Resolved Pattern" type="template" templateID="cross" anchored="0" downtime="0" attack="0" wand="0" />',
+        '  <spell name="Resolved Pattern" type="template" templateID="cross" anchored="0" radius="0" downtime="0" attack="0" wand="0" />',
         '  <spell name="Lowercase Pattern" type="template" templateid="cross" />',
         '  <spell name="Conflicting Pattern" type="template" templateID="cross" templateid="absent" />',
-        '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" downtime="-1" attack="2" wand="maybe" />',
+        '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" radius="-1" downtime="-1" attack="2" wand="maybe" />',
         '  <spell name="Non-template Metadata" type="self" templateID="cross" anchored="1" futureSpell="diagnosed" />',
         '  <spell name="Measured Consumption" type="item" consumeItem="1" consumeItemType="gem" />',
         '  <spell name="Flag-only Consumption" type="self" consumeItem="0" />',
@@ -175,6 +175,7 @@ describe("synthetic dataset import", () => {
       templateId: "template:cross",
       sourceAnchored: false,
     });
+    expect(spells.get("Resolved Pattern")?.sourceRadius).toBe(0);
     expect(spells.get("Resolved Pattern")?.sourceCooldownTurns).toBe(0);
     expect(spells.get("Resolved Pattern")?.sourcePerformsMeleeAttack).toBe(
       false,
@@ -244,6 +245,7 @@ describe("synthetic dataset import", () => {
       templateKey: "absent",
       sourceAnchored: null,
     });
+    expect(spells.get("Missing Pattern")?.sourceRadius).toBeNull();
     expect(spells.get("Missing Pattern")?.sourceCooldownTurns).toBeNull();
     expect(spells.get("Missing Pattern")?.sourcePerformsMeleeAttack).toBeNull();
     expect(spells.get("Missing Pattern")?.sourceWandFlag).toBeNull();
@@ -293,6 +295,13 @@ describe("synthetic dataset import", () => {
         code: "invalid_boolean",
         entityId: "spell:missing pattern",
         details: { field: "spell wand flag", value: "maybe" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_number",
+        entityId: "spell:missing pattern",
+        details: { field: "spell radius", value: "-1" },
       }),
     );
     expect(result.diagnostics).toContainEqual(
@@ -6383,6 +6392,8 @@ describe("synthetic dataset import", () => {
     expect(clockworkSpark?.manaCosts).toEqual([
       { base: 12, savvyReduction: 0.25, minimum: 4, sourceLevel: 1 },
     ]);
+    expect(clockworkSpark?.sourceRadius).toBe(3);
+    expect(clockworkEcho?.sourceRadius).toBeNull();
     expect(clockworkSpark?.sourceCooldownTurns).toBe(7);
     expect(clockworkEcho?.sourceCooldownTurns).toBeNull();
     expect(clockworkSpark?.sourcePerformsMeleeAttack).toBe(true);

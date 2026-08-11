@@ -678,6 +678,7 @@ export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
+  sourceRadius: number | null;
   sourceCooldownTurns: number | null;
   sourcePerformsMeleeAttack: boolean | null;
   sourceWandFlag: boolean | null;

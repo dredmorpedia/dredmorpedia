@@ -909,6 +909,7 @@ const spellSchema = z
     kind: z.literal("spell"),
     spellType: z.string(),
     iconPath: nullableAssetPathSchema,
+    sourceRadius: nullableNonnegativeInteger,
     sourceCooldownTurns: nullableNonnegativeInteger,
     sourcePerformsMeleeAttack: z.boolean().nullable(),
     sourceWandFlag: z.boolean().nullable(),

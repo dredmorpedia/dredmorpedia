@@ -16,6 +16,16 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page.getByRole("heading", { level: 1, name: "Clockwork Spark" }),
   ).toBeVisible();
 
+  const radiusMetadata = page.getByRole("region", {
+    name: "Radius metadata",
+  });
+  await expect(
+    radiusMetadata.getByText("Radius source value", { exact: true }),
+  ).toBeVisible();
+  await expect(radiusMetadata.getByText("3", { exact: true })).toBeVisible();
+  await expect(
+    radiusMetadata.getByText(/does not establish distance units, area shape/i),
+  ).toBeVisible();
   const cooldown = page.getByRole("region", { name: "Cooldown" });
   await expect(cooldown.getByText("7 turns", { exact: true })).toBeVisible();
   await expect(
@@ -633,6 +643,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Radius metadata" }),
+  ).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Cooldown" })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Melee attack" })).toHaveCount(
     0,

@@ -5298,6 +5298,14 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
+      sourceRadius: optionalIntegerValue(
+        xmlAttribute(record, "radius"),
+        context,
+        provenance,
+        "spell radius",
+        currentEntityId,
+        0,
+      ),
       sourceCooldownTurns: optionalIntegerValue(
         xmlAttribute(record, "downtime"),
         context,
@@ -5371,6 +5379,7 @@ function parseSpells(
         "name",
         "type",
         "icon",
+        "radius",
         "downtime",
         "attack",
         "wand",
