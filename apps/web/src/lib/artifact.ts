@@ -874,6 +874,28 @@ const spellFramePresentationSchema = z
   })
   .strict();
 
+const spellMineSchema = z
+  .object({
+    sourceEnabled: z.boolean().nullable(),
+    sourceRadius: nullableNonnegativeInteger,
+    sourceTimer: nullableNonnegativeInteger,
+    sourcePermanence: nullableNonnegativeInteger,
+    sourceSpriteDrawOrder: nullableNonnegativeInteger,
+    sourceUsesGlints: z.boolean().nullable(),
+    sourceGlintDensity: nullableNonnegativeInteger,
+    sourceMustBeUnobstructed: z.boolean().nullable(),
+    presentation: z
+      .object({
+        spritePath: nullableAssetPathSchema,
+        spriteSeriesPath: nullableAssetPathSchema,
+        firstFrame: nullableNonnegativeInteger,
+        frameCount: nullableNonnegativeInteger,
+        frameRate: nullableNonnegativeInteger,
+      })
+      .strict(),
+  })
+  .strict();
+
 const spellSchema = z
   .object({
     ...entityBaseShape,
@@ -882,6 +904,7 @@ const spellSchema = z
     iconPath: nullableAssetPathSchema,
     sourceCooldownTurns: nullableNonnegativeInteger,
     sourcePerformsMeleeAttack: z.boolean().nullable(),
+    mine: spellMineSchema.nullable(),
     targetingTemplate: z
       .object({
         sourceTemplateId: z.string().nullable(),

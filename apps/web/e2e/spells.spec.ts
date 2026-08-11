@@ -29,6 +29,29 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     meleeAttack.getByText(/does not establish the attacker, target, weapon/i),
   ).toBeVisible();
+  const mine = page.getByRole("region", { name: "Mine" });
+  await expect(
+    mine
+      .getByText("Mine source flag", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    mine
+      .getByText("Radius source value", { exact: true })
+      .locator("..")
+      .getByText("2", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    mine
+      .getByText("Permanence source value", { exact: true })
+      .locator("..")
+      .getByText("2", { exact: true }),
+  ).toBeVisible();
+  await expect(mine.getByText("Animated series declared")).toBeVisible();
+  await expect(
+    mine.getByText(/do not establish placement, obstruction checks/i),
+  ).toBeVisible();
 
   const manaCost = page.getByRole("region", { name: "Mana cost" });
   await expect(
@@ -588,6 +611,7 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(page.getByRole("region", { name: "Melee attack" })).toHaveCount(
     0,
   );
+  await expect(page.getByRole("region", { name: "Mine" })).toHaveCount(0);
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })

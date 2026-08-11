@@ -649,12 +649,33 @@ export interface SpellTargetingTemplateDeclaration {
   sourceAnchored: boolean | null;
 }
 
+export interface SpellMinePresentationMetadata {
+  spritePath: string | null;
+  spriteSeriesPath: string | null;
+  firstFrame: number | null;
+  frameCount: number | null;
+  frameRate: number | null;
+}
+
+export interface SpellMineDeclaration {
+  sourceEnabled: boolean | null;
+  sourceRadius: number | null;
+  sourceTimer: number | null;
+  sourcePermanence: number | null;
+  sourceSpriteDrawOrder: number | null;
+  sourceUsesGlints: boolean | null;
+  sourceGlintDensity: number | null;
+  sourceMustBeUnobstructed: boolean | null;
+  presentation: SpellMinePresentationMetadata;
+}
+
 export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
   sourceCooldownTurns: number | null;
   sourcePerformsMeleeAttack: boolean | null;
+  mine: SpellMineDeclaration | null;
   targetingTemplate: SpellTargetingTemplateDeclaration;
   manaCosts: SpellManaCost[];
   boozeRequirements: SpellBoozeRequirement[];

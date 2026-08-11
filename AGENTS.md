@@ -49,12 +49,17 @@ Read these files before making a substantial change:
   canonical references resolve. Root `downtime` preserves a loss-aware
   non-negative cooldown-turn value on 131 active spells. Root `attack`
   preserves a loss-aware melee-attack source flag on 39 active spells. The
-  remaining 919 root spell attributes across 19 case-insensitive families
-  remain compatibility warnings for separate feature decisions.
+  coherent root mine family preserves 70 active declarations with loss-aware
+  mechanic, placement, and hidden presentation metadata. The remaining 218
+  root spell attributes across six case-insensitive families remain
+  compatibility warnings for separate feature decisions.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
   Consumers must not infer attacker, target, weapon, damage, hit resolution,
   timing, or runtime success from the melee-attack declaration.
+  Consumers must not infer mine placement, radius geometry, obstruction
+  evaluation, lifetime, trigger timing, persistence, presentation timing or
+  draw behavior, glint behavior, or runtime success from the mine declaration.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

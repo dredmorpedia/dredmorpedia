@@ -5061,6 +5061,126 @@ const spellRequirementDependencies = {
   reportUnknownLeafContent,
 };
 
+const spellMineAttributeNames = [
+  "mine",
+  "mineradius",
+  "mineTimer",
+  "minePermanent",
+  "mineSpriteDrawOrder",
+  "mineSpritePNGSeries",
+  "minespritePNGSeries",
+  "mineSpritePNGFirst",
+  "mineSpritePNGNum",
+  "mineSpritePNGRate",
+  "mineUseGlints",
+  "mineGlintDensity",
+  "minesMustBeUnobstructed",
+  "minesprite",
+] as const;
+
+function parseSpellMineDeclaration(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): Spell["mine"] {
+  if (
+    !spellMineAttributeNames.some(
+      (attribute) => xmlAttribute(record, attribute) !== undefined,
+    )
+  ) {
+    return null;
+  }
+
+  const canonicalSpriteSeries = xmlAttribute(record, "mineSpritePNGSeries");
+  const lowercaseSpriteSeries = xmlAttribute(record, "minespritePNGSeries");
+  if (
+    canonicalSpriteSeries !== undefined &&
+    lowercaseSpriteSeries !== undefined
+  ) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "conflicting_spell_mine_sprite_series_aliases",
+      message:
+        "Mine declaration supplies both supported sprite-series attribute aliases; the canonical mineSpritePNGSeries casing was used.",
+      source: provenance,
+      entityId: currentEntityId,
+      details: {
+        canonicalAttribute: "mineSpritePNGSeries",
+        aliasAttribute: "minespritePNGSeries",
+      },
+    });
+  }
+
+  const optionalMineInteger = (
+    attribute: (typeof spellMineAttributeNames)[number],
+    field: string,
+  ): number | null =>
+    optionalIntegerValue(
+      xmlAttribute(record, attribute),
+      context,
+      provenance,
+      `spell mine ${field}`,
+      currentEntityId,
+      0,
+    );
+
+  return {
+    sourceEnabled: optionalBinaryBooleanAttribute(
+      record,
+      "mine",
+      context,
+      provenance,
+      "spell mine enabled flag",
+      currentEntityId,
+    ),
+    sourceRadius: optionalMineInteger("mineradius", "radius"),
+    sourceTimer: optionalMineInteger("mineTimer", "timer"),
+    sourcePermanence: optionalMineInteger("minePermanent", "permanence value"),
+    sourceSpriteDrawOrder: optionalMineInteger(
+      "mineSpriteDrawOrder",
+      "sprite draw-order value",
+    ),
+    sourceUsesGlints: optionalBinaryBooleanAttribute(
+      record,
+      "mineUseGlints",
+      context,
+      provenance,
+      "spell mine uses-glints flag",
+      currentEntityId,
+    ),
+    sourceGlintDensity: optionalMineInteger(
+      "mineGlintDensity",
+      "glint-density value",
+    ),
+    sourceMustBeUnobstructed: optionalBinaryBooleanAttribute(
+      record,
+      "minesMustBeUnobstructed",
+      context,
+      provenance,
+      "spell mine must-be-unobstructed flag",
+      currentEntityId,
+    ),
+    presentation: {
+      spritePath: normalizeAssetReference(
+        xmlAttribute(record, "minesprite"),
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      spriteSeriesPath: normalizeAssetReference(
+        canonicalSpriteSeries ?? lowercaseSpriteSeries,
+        context,
+        provenance,
+        currentEntityId,
+      ),
+      firstFrame: optionalMineInteger("mineSpritePNGFirst", "first frame"),
+      frameCount: optionalMineInteger("mineSpritePNGNum", "frame count"),
+      frameRate: optionalMineInteger("mineSpritePNGRate", "frame rate"),
+    },
+  };
+}
+
 function parseSpells(
   context: NormalizationContext,
   result: CandidateCollections,
@@ -5147,6 +5267,12 @@ function parseSpells(
         "spell melee-attack flag",
         currentEntityId,
       ),
+      mine: parseSpellMineDeclaration(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       targetingTemplate: {
         sourceTemplateId,
         templateKey:
@@ -5186,6 +5312,7 @@ function parseSpells(
         "icon",
         "downtime",
         "attack",
+        ...spellMineAttributeNames,
         ...(spellType === "template"
           ? ["templateID", "templateid", "anchored"]
           : []),

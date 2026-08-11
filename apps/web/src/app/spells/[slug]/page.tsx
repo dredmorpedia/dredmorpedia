@@ -454,6 +454,97 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.mine ? (
+          <section className="detail-card" aria-labelledby="mine-heading">
+            <h2 id="mine-heading" className="section-title-sm">
+              Mine
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Mine source flag</dt>
+                <dd>
+                  {spell.mine.sourceEnabled === null
+                    ? "Not declared or unavailable"
+                    : spell.mine.sourceEnabled
+                      ? "Yes"
+                      : "No"}
+                </dd>
+              </div>
+              <div>
+                <dt>Radius source value</dt>
+                <dd>{spell.mine.sourceRadius ?? "Not declared"}</dd>
+              </div>
+              <div>
+                <dt>Timer source value</dt>
+                <dd>{spell.mine.sourceTimer ?? "Not declared"}</dd>
+              </div>
+              <div>
+                <dt>Permanence source value</dt>
+                <dd>{spell.mine.sourcePermanence ?? "Not declared"}</dd>
+              </div>
+              <div>
+                <dt>Must be unobstructed source flag</dt>
+                <dd>
+                  {spell.mine.sourceMustBeUnobstructed === null
+                    ? "Not declared"
+                    : spell.mine.sourceMustBeUnobstructed
+                      ? "Yes"
+                      : "No"}
+                </dd>
+              </div>
+              <div>
+                <dt>Uses glints source flag</dt>
+                <dd>
+                  {spell.mine.sourceUsesGlints === null
+                    ? "Not declared"
+                    : spell.mine.sourceUsesGlints
+                      ? "Yes"
+                      : "No"}
+                </dd>
+              </div>
+              <div>
+                <dt>Glint-density source value</dt>
+                <dd>{spell.mine.sourceGlintDensity ?? "Not declared"}</dd>
+              </div>
+              <div>
+                <dt>Sprite draw-order source value</dt>
+                <dd>{spell.mine.sourceSpriteDrawOrder ?? "Not declared"}</dd>
+              </div>
+              <div>
+                <dt>Presentation reference</dt>
+                <dd>
+                  {spell.mine.presentation.spriteSeriesPath
+                    ? "Animated series declared"
+                    : spell.mine.presentation.spritePath
+                      ? "Static sprite declared"
+                      : "Not declared"}
+                </dd>
+              </div>
+              <div>
+                <dt>Presentation frames</dt>
+                <dd>
+                  {spell.mine.presentation.frameCount === null
+                    ? "Not declared"
+                    : `${spell.mine.presentation.frameCount} source frames`}
+                </dd>
+              </div>
+              <div>
+                <dt>First frame / frame rate</dt>
+                <dd>
+                  {spell.mine.presentation.firstFrame ?? "Not declared"} /{" "}
+                  {spell.mine.presentation.frameRate ?? "Not declared"}
+                </dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              These are exact root spell parameters. They do not establish
+              placement, obstruction checks, lifetime, trigger timing,
+              presentation timing units, or runtime success. Sprite paths stay
+              hidden while publication rights remain unresolved.
+            </p>
+          </section>
+        ) : null}
+
         {spell.spellType === "template" ||
         spell.targetingTemplate.sourceTemplateId !== null ? (
           <section

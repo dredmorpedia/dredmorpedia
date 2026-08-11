@@ -103,6 +103,27 @@ describe("generated artifact loading", () => {
         (spell) => spell.name === "Clockwork Spark",
       )?.sourcePerformsMeleeAttack,
     ).toBe(true);
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Spark",
+      )?.mine,
+    ).toEqual({
+      sourceEnabled: true,
+      sourceRadius: 2,
+      sourceTimer: 8,
+      sourcePermanence: 2,
+      sourceSpriteDrawOrder: 1,
+      sourceUsesGlints: true,
+      sourceGlintDensity: 8,
+      sourceMustBeUnobstructed: false,
+      presentation: {
+        spritePath: null,
+        spriteSeriesPath: "sprites/sfx/synthetic-mine/synthetic-mine",
+        firstFrame: 0,
+        frameCount: 6,
+        frameRate: 100,
+      },
+    });
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -385,6 +406,52 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourcePerformsMeleeAttack/);
+  });
+
+  it("rejects malformed spell mine numeric metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { mine: { sourceRadius: number | null } | null }[];
+      };
+    };
+    const mine = typedArtifact.entities.spells.find(
+      (spell) => spell.mine,
+    )?.mine;
+    if (!mine) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell mine metadata.",
+      );
+    }
+    mine.sourceRadius = -1;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceRadius/);
+  });
+
+  it("rejects an unsafe spell mine presentation reference", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          mine: { presentation: { spriteSeriesPath: string | null } } | null;
+        }[];
+      };
+    };
+    const mine = typedArtifact.entities.spells.find(
+      (spell) => spell.mine,
+    )?.mine;
+    if (!mine) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no spell mine metadata.",
+      );
+    }
+    mine.presentation.spriteSeriesPath = "../outside";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/spriteSeriesPath/);
   });
 
   it("rejects malformed spell impact metadata", async () => {

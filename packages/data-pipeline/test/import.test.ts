@@ -125,6 +125,10 @@ describe("synthetic dataset import", () => {
         '  <spell name="Conflicting Pattern" type="template" templateID="cross" templateid="absent" />',
         '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" downtime="-1" attack="2" />',
         '  <spell name="Non-template Metadata" type="self" templateID="cross" anchored="1" futureSpell="diagnosed" />',
+        '  <spell name="Measured Mine" type="targetfloor" mine="1" mineradius="2" mineTimer="8" minePermanent="2" mineSpriteDrawOrder="1" mineSpritePNGSeries="sprites/sfx/mine/mine" mineSpritePNGFirst="0" mineSpritePNGNum="6" mineSpritePNGRate="100" mineUseGlints="1" mineGlintDensity="8" minesMustBeUnobstructed="0" minesprite="dungeon/mine.png" />',
+        '  <spell name="Lowercase Mine Series" mine="1" minespritePNGSeries="sprites/sfx/lower/lower" />',
+        '  <spell name="Conflicting Mine Series" mine="1" mineSpritePNGSeries="sprites/sfx/canonical/canonical" minespritePNGSeries="sprites/sfx/alias/alias" />',
+        '  <spell name="Invalid Mine" mine="2" mineradius="-1" mineTimer="fast" minePermanent="-1" mineSpriteDrawOrder="-1" mineSpritePNGSeries="../outside" mineSpritePNGFirst="-1" mineSpritePNGNum="-1" mineSpritePNGRate="-1" mineUseGlints="true" mineGlintDensity="-1" minesMustBeUnobstructed="maybe" />',
         "</spells>",
       ].join("\n"),
     );
@@ -172,6 +176,52 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Resolved Pattern")?.sourcePerformsMeleeAttack).toBe(
       false,
     );
+    expect(spells.get("Resolved Pattern")?.mine).toBeNull();
+    expect(spells.get("Measured Mine")?.mine).toEqual({
+      sourceEnabled: true,
+      sourceRadius: 2,
+      sourceTimer: 8,
+      sourcePermanence: 2,
+      sourceSpriteDrawOrder: 1,
+      sourceUsesGlints: true,
+      sourceGlintDensity: 8,
+      sourceMustBeUnobstructed: false,
+      presentation: {
+        spritePath: "dungeon/mine.png",
+        spriteSeriesPath: "sprites/sfx/mine/mine",
+        firstFrame: 0,
+        frameCount: 6,
+        frameRate: 100,
+      },
+    });
+    expect(spells.get("Lowercase Mine Series")?.mine).toMatchObject({
+      sourceEnabled: true,
+      presentation: {
+        spriteSeriesPath: "sprites/sfx/lower/lower",
+      },
+    });
+    expect(spells.get("Conflicting Mine Series")?.mine).toMatchObject({
+      presentation: {
+        spriteSeriesPath: "sprites/sfx/canonical/canonical",
+      },
+    });
+    expect(spells.get("Invalid Mine")?.mine).toEqual({
+      sourceEnabled: null,
+      sourceRadius: null,
+      sourceTimer: null,
+      sourcePermanence: null,
+      sourceSpriteDrawOrder: null,
+      sourceUsesGlints: null,
+      sourceGlintDensity: null,
+      sourceMustBeUnobstructed: null,
+      presentation: {
+        spritePath: null,
+        spriteSeriesPath: null,
+        firstFrame: null,
+        frameCount: null,
+        frameRate: null,
+      },
+    });
     expect(spells.get("Missing Pattern")?.targetingTemplate).toEqual({
       sourceTemplateId: "absent",
       templateKey: "absent",
@@ -231,6 +281,33 @@ describe("synthetic dataset import", () => {
       expect.objectContaining({
         code: "conflicting_spell_targeting_template_aliases",
         entityId: "spell:conflicting pattern",
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "conflicting_spell_mine_sprite_series_aliases",
+        entityId: "spell:conflicting mine series",
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_boolean",
+        entityId: "spell:invalid mine",
+        details: { field: "spell mine enabled flag", value: "2" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_number",
+        entityId: "spell:invalid mine",
+        details: { field: "spell mine timer", value: "fast" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unsafe_asset_path",
+        entityId: "spell:invalid mine",
+        details: { assetPath: "../outside" },
       }),
     );
     expect(
