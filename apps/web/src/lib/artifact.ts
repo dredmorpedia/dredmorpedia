@@ -896,6 +896,13 @@ const spellMineSchema = z
   })
   .strict();
 
+const spellItemConsumptionSchema = z
+  .object({
+    sourceConsumesItem: z.boolean().nullable(),
+    sourceItemType: nullableNonblankString,
+  })
+  .strict();
+
 const spellSchema = z
   .object({
     ...entityBaseShape,
@@ -904,6 +911,7 @@ const spellSchema = z
     iconPath: nullableAssetPathSchema,
     sourceCooldownTurns: nullableNonnegativeInteger,
     sourcePerformsMeleeAttack: z.boolean().nullable(),
+    itemConsumption: spellItemConsumptionSchema.nullable(),
     mine: spellMineSchema.nullable(),
     targetingTemplate: z
       .object({

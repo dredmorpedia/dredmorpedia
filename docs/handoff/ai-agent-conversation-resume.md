@@ -100,15 +100,15 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include root spell cooldown, melee-attack, and mine metadata; spell mana, requirement-level, shield-requirement, weapon-requirement, buff, presentation, and effect relationships; target-hit/player-hit/dodge buff event hooks; ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback and zorkmid-absorption source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite, dig graphics-regeneration, and buff-tag metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; typed targeting-template source aliases and anchor flags with reciprocal spell/template navigation; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
+Other completed areas include root spell cooldown, melee-attack, item-consumption, and mine metadata; spell mana, requirement-level, shield-requirement, weapon-requirement, buff, presentation, and effect relationships; target-hit/player-hit/dodge buff event hooks; ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback and zorkmid-absorption source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite, dig graphics-regeneration, and buff-tag metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; typed targeting-template source aliases and anchor flags with reciprocal spell/template navigation; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
 The current canonical import reports:
 
-- 0 errors, 222 warnings, and 90 informational records;
+- 0 errors, 204 warnings, and 90 informational records;
 - zero measured item, spell-child/effect, or spell-requirement compatibility
-  constructs, plus 218 root spell attributes across six case-insensitive
+  constructs, plus 200 root spell attributes across four case-insensitive
   families now exposed for separate feature-by-feature classification;
 - zero unsupported spell requirements; and
 - 18 reviewed source-only item declarations, one reviewed item-label
@@ -192,6 +192,19 @@ The local product boundary and the technical direction in ADR 0001–0005 are no
 - After every user-visible development task, provide manual verification instructions even when automated checks are comprehensive.
 
 ## Last completed slice validation
+
+The root spell item-consumption slice recognizes all 11 measured
+source-candidate `consumeItem` declarations through the strict binary grammar;
+three retain true, eight retain false, and seven also retain an exact nonblank
+`consumeItemType` source token. The web exposes those source values without
+inferring an actor, item selection or matching rule, inventory state,
+transformation behavior, timing, eligibility, actual consumption, or runtime
+success. The remaining root audit contains 200 warnings across four
+case-insensitive families. `pnpm.cmd check` passes all 259 unit/artifact tests
+and the 44-page synthetic export; all 38 desktop/mobile browser cases pass; and
+`pnpm.cmd build:official` is byte-identical with 0 errors, 204 warnings, 90
+informational records, and all 2,981 local pages. Evidence is recorded in
+`docs/analysis/spell-item-consumption-evidence-2026-08-11.md`.
 
 The root spell mine slice recognizes all 71 measured source-candidate
 declarations; 70 active spells retain exact loss-aware mechanic, placement,

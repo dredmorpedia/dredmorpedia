@@ -669,12 +669,18 @@ export interface SpellMineDeclaration {
   presentation: SpellMinePresentationMetadata;
 }
 
+export interface SpellItemConsumptionDeclaration {
+  sourceConsumesItem: boolean | null;
+  sourceItemType: string | null;
+}
+
 export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
   sourceCooldownTurns: number | null;
   sourcePerformsMeleeAttack: boolean | null;
+  itemConsumption: SpellItemConsumptionDeclaration | null;
   mine: SpellMineDeclaration | null;
   targetingTemplate: SpellTargetingTemplateDeclaration;
   manaCosts: SpellManaCost[];

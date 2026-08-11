@@ -125,6 +125,9 @@ describe("synthetic dataset import", () => {
         '  <spell name="Conflicting Pattern" type="template" templateID="cross" templateid="absent" />',
         '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" downtime="-1" attack="2" />',
         '  <spell name="Non-template Metadata" type="self" templateID="cross" anchored="1" futureSpell="diagnosed" />',
+        '  <spell name="Measured Consumption" type="item" consumeItem="1" consumeItemType="gem" />',
+        '  <spell name="Flag-only Consumption" type="self" consumeItem="0" />',
+        '  <spell name="Invalid Consumption" type="item" consumeItem="yes" consumeItemType="" />',
         '  <spell name="Measured Mine" type="targetfloor" mine="1" mineradius="2" mineTimer="8" minePermanent="2" mineSpriteDrawOrder="1" mineSpritePNGSeries="sprites/sfx/mine/mine" mineSpritePNGFirst="0" mineSpritePNGNum="6" mineSpritePNGRate="100" mineUseGlints="1" mineGlintDensity="8" minesMustBeUnobstructed="0" minesprite="dungeon/mine.png" />',
         '  <spell name="Lowercase Mine Series" mine="1" minespritePNGSeries="sprites/sfx/lower/lower" />',
         '  <spell name="Conflicting Mine Series" mine="1" mineSpritePNGSeries="sprites/sfx/canonical/canonical" minespritePNGSeries="sprites/sfx/alias/alias" />',
@@ -176,7 +179,20 @@ describe("synthetic dataset import", () => {
     expect(spells.get("Resolved Pattern")?.sourcePerformsMeleeAttack).toBe(
       false,
     );
+    expect(spells.get("Resolved Pattern")?.itemConsumption).toBeNull();
     expect(spells.get("Resolved Pattern")?.mine).toBeNull();
+    expect(spells.get("Measured Consumption")?.itemConsumption).toEqual({
+      sourceConsumesItem: true,
+      sourceItemType: "gem",
+    });
+    expect(spells.get("Flag-only Consumption")?.itemConsumption).toEqual({
+      sourceConsumesItem: false,
+      sourceItemType: null,
+    });
+    expect(spells.get("Invalid Consumption")?.itemConsumption).toEqual({
+      sourceConsumesItem: null,
+      sourceItemType: null,
+    });
     expect(spells.get("Measured Mine")?.mine).toEqual({
       sourceEnabled: true,
       sourceRadius: 2,
@@ -287,6 +303,19 @@ describe("synthetic dataset import", () => {
       expect.objectContaining({
         code: "conflicting_spell_mine_sprite_series_aliases",
         entityId: "spell:conflicting mine series",
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_boolean",
+        entityId: "spell:invalid consumption",
+        details: { field: "spell item-consumption flag", value: "yes" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "missing_spell_item_consumption_type",
+        entityId: "spell:invalid consumption",
       }),
     );
     expect(result.diagnostics).toContainEqual(

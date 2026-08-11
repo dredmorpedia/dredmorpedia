@@ -5078,6 +5078,53 @@ const spellMineAttributeNames = [
   "minesprite",
 ] as const;
 
+const spellItemConsumptionAttributeNames = [
+  "consumeItem",
+  "consumeItemType",
+] as const;
+
+function parseSpellItemConsumptionDeclaration(
+  record: XmlRecord,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): Spell["itemConsumption"] {
+  if (
+    !spellItemConsumptionAttributeNames.some(
+      (attribute) => xmlAttribute(record, attribute) !== undefined,
+    )
+  ) {
+    return null;
+  }
+
+  const sourceItemType = xmlAttribute(record, "consumeItemType");
+  if (sourceItemType !== undefined && sourceItemType.length === 0) {
+    context.diagnostics.push({
+      severity: "warning",
+      code: "missing_spell_item_consumption_type",
+      message:
+        "Spell item-consumption declaration supplies an empty consumeItemType source token.",
+      source: provenance,
+      entityId: currentEntityId,
+    });
+  }
+
+  return {
+    sourceConsumesItem: optionalBinaryBooleanAttribute(
+      record,
+      "consumeItem",
+      context,
+      provenance,
+      "spell item-consumption flag",
+      currentEntityId,
+    ),
+    sourceItemType:
+      sourceItemType === undefined || sourceItemType.length === 0
+        ? null
+        : sourceItemType,
+  };
+}
+
 function parseSpellMineDeclaration(
   record: XmlRecord,
   context: NormalizationContext,
@@ -5267,6 +5314,12 @@ function parseSpells(
         "spell melee-attack flag",
         currentEntityId,
       ),
+      itemConsumption: parseSpellItemConsumptionDeclaration(
+        record,
+        context,
+        provenance,
+        currentEntityId,
+      ),
       mine: parseSpellMineDeclaration(
         record,
         context,
@@ -5312,6 +5365,7 @@ function parseSpells(
         "icon",
         "downtime",
         "attack",
+        ...spellItemConsumptionAttributeNames,
         ...spellMineAttributeNames,
         ...(spellType === "template"
           ? ["templateID", "templateid", "anchored"]

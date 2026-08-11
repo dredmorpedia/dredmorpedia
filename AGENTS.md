@@ -49,9 +49,12 @@ Read these files before making a substantial change:
   canonical references resolve. Root `downtime` preserves a loss-aware
   non-negative cooldown-turn value on 131 active spells. Root `attack`
   preserves a loss-aware melee-attack source flag on 39 active spells. The
+  paired `consumeItem`/`consumeItemType` family preserves 11 active
+  item-consumption declarations with strict binary flags and exact nonblank
+  source item-type tokens. The
   coherent root mine family preserves 70 active declarations with loss-aware
-  mechanic, placement, and hidden presentation metadata. The remaining 218
-  root spell attributes across six case-insensitive families remain
+  mechanic, placement, and hidden presentation metadata. The remaining 200
+  root spell attributes across four case-insensitive families remain
   compatibility warnings for separate feature decisions.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
@@ -60,6 +63,9 @@ Read these files before making a substantial change:
   Consumers must not infer mine placement, radius geometry, obstruction
   evaluation, lifetime, trigger timing, persistence, presentation timing or
   draw behavior, glint behavior, or runtime success from the mine declaration.
+  Consumers must not infer an actor, item selection or matching rule,
+  inventory state, transformation behavior, timing, eligibility, actual
+  consumption, or runtime success from the item-consumption declaration.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

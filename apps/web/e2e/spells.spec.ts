@@ -29,6 +29,24 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     meleeAttack.getByText(/does not establish the attacker, target, weapon/i),
   ).toBeVisible();
+  const itemConsumption = page.getByRole("region", {
+    name: "Item consumption",
+  });
+  await expect(
+    itemConsumption
+      .getByText("Consume item source flag", { exact: true })
+      .locator("..")
+      .getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    itemConsumption
+      .getByText("Item type source token", { exact: true })
+      .locator("..")
+      .getByText("gem", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    itemConsumption.getByText(/do not establish the actor, item selection/i),
+  ).toBeVisible();
   const mine = page.getByRole("region", { name: "Mine" });
   await expect(
     mine
@@ -611,6 +629,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(page.getByRole("region", { name: "Melee attack" })).toHaveCount(
     0,
   );
+  await expect(
+    page.getByRole("region", { name: "Item consumption" }),
+  ).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Mine" })).toHaveCount(0);
   await expect(
     page

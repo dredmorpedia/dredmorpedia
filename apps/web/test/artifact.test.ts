@@ -106,6 +106,14 @@ describe("generated artifact loading", () => {
     expect(
       loadArtifact().entities.spells.find(
         (spell) => spell.name === "Clockwork Spark",
+      )?.itemConsumption,
+    ).toEqual({
+      sourceConsumesItem: true,
+      sourceItemType: "gem",
+    });
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Spark",
       )?.mine,
     ).toEqual({
       sourceEnabled: true,
@@ -406,6 +414,57 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourcePerformsMeleeAttack/);
+  });
+
+  it("rejects malformed spell item-consumption metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as {
+      entities: {
+        spells: {
+          itemConsumption: {
+            sourceConsumesItem: boolean | string | null;
+            sourceItemType: string | null;
+          } | null;
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells.find(
+      (spell) => spell.itemConsumption,
+    )?.itemConsumption;
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item-consumption metadata.",
+      );
+    }
+    declaration.sourceConsumesItem = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceConsumesItem/);
+  });
+
+  it("rejects a blank spell item-consumption type token", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as {
+      entities: {
+        spells: {
+          itemConsumption: { sourceItemType: string | null } | null;
+        }[];
+      };
+    };
+    const declaration = typedArtifact.entities.spells.find(
+      (spell) => spell.itemConsumption,
+    )?.itemConsumption;
+    if (!declaration) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no item-consumption metadata.",
+      );
+    }
+    declaration.sourceItemType = "";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceItemType/);
   });
 
   it("rejects malformed spell mine numeric metadata", async () => {

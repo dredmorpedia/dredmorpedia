@@ -454,6 +454,41 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.itemConsumption ? (
+          <section
+            className="detail-card"
+            aria-labelledby="item-consumption-heading"
+          >
+            <h2 id="item-consumption-heading" className="section-title-sm">
+              Item consumption
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Consume item source flag</dt>
+                <dd>
+                  {spell.itemConsumption.sourceConsumesItem === null
+                    ? "Not declared or unavailable"
+                    : spell.itemConsumption.sourceConsumesItem
+                      ? "Yes"
+                      : "No"}
+                </dd>
+              </div>
+              <div>
+                <dt>Item type source token</dt>
+                <dd>
+                  {spell.itemConsumption.sourceItemType ?? "Not declared"}
+                </dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              These are exact root spell source values. They do not establish
+              the actor, item selection or matching rules, inventory state,
+              transformation behavior, timing, eligibility, actual consumption,
+              or runtime success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.mine ? (
           <section className="detail-card" aria-labelledby="mine-heading">
             <h2 id="mine-heading" className="section-title-sm">
