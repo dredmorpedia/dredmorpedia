@@ -63,6 +63,26 @@ export default function BrowsePage() {
           })}
         </ul>
       </section>
+
+      <section aria-labelledby="derived-views-heading">
+        <h2 id="derived-views-heading" className="section-title">
+          Derived views
+        </h2>
+        <div className="detail-card mt-5">
+          <h3 className="text-xl font-semibold">
+            <Link
+              className="entity-link"
+              href="/meta/required-armour-by-monster/"
+            >
+              Required Armour by Monster
+            </Link>
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Compare the monsters with the highest calculated requirement for a
+            non-critical mundane melee hit.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

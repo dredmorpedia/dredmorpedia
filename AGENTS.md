@@ -164,10 +164,12 @@ Read these files before making a substantial change:
   project stat reference is accepted and implemented. Evidence is recorded under
   `docs/analysis/`.
 - The first parity slice is complete from implementation and validation
-  evidence without a separate owner sign-off. The next active parity decision
-  is the preserved Meta view's “Required Armour by Monster” heuristic; use the
-  focused evidence record and owner Q&A before implementing or intentionally
-  excluding that unverified formula.
+  evidence without a separate owner sign-off. The preserved Meta view's
+  **Required Armour by Monster** compatibility calculation is owner-approved and
+  implemented under its exact legacy-facing name. It ranks the top ten monsters
+  from archetype levels plus crushing, slashing, and blasting modifiers. Do not
+  treat it as independently verified engine truth; formula verification remains
+  a documented possible improvement.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

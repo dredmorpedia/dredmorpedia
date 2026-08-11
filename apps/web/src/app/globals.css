@@ -546,6 +546,30 @@ input {
   list-style: none;
 }
 
+.required-armour-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.required-armour-card {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  padding: 1rem;
+}
+
+.required-armour-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .browse-kind-card,
 .browse-result-card {
   display: grid;
@@ -1297,6 +1321,7 @@ input {
   .item-grid,
   .browse-kind-grid,
   .browse-result-list,
+  .required-armour-list,
   .detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1352,13 +1377,24 @@ input {
 @media (max-width: 41.99rem) {
   .site-header {
     align-items: flex-start;
+    flex-direction: column;
     padding-block: 1rem;
   }
 
   .header-actions {
-    align-items: flex-end;
+    align-items: stretch;
     flex-direction: column-reverse;
     gap: 0.35rem;
+    width: 100%;
+  }
+
+  .primary-nav {
+    width: 100%;
+  }
+
+  .primary-nav a {
+    flex: 1 1 auto;
+    text-align: center;
   }
 
   .status-badge {

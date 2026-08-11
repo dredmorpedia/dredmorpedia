@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { calculateMonsterPrimaryAttributes } from "../src/index";
+import {
+  calculateMonsterRequiredArmour,
+  rankMonstersByRequiredArmour,
+} from "../src/index";
 
 describe("monster primary attribute calculations", () => {
   it("applies every independently verified archetype coefficient", () => {
@@ -83,5 +87,58 @@ describe("monster primary attribute calculations", () => {
       modifier: -3,
       total: -2,
     });
+  });
+});
+
+describe("required armour by monster", () => {
+  it("preserves the archetype formula and three mundane damage modifiers", () => {
+    expect(
+      calculateMonsterRequiredArmour({ fighter: 2, rogue: 3, wizard: 1 }, [
+        { kind: "damage", sourceKey: "crushing", amount: 4 },
+        { kind: "damage", sourceKey: "slashing", amount: -2 },
+        { kind: "damage", sourceKey: "blasting", amount: 3 },
+        { kind: "damage", sourceKey: "acidic", amount: 99 },
+        { kind: "resistance", sourceKey: "crushing", amount: 99 },
+      ]),
+    ).toEqual({
+      archetypeContribution: 1,
+      mundaneDamageModifiers: 5,
+      requiredArmour: 6,
+    });
+  });
+
+  it("retains the historical floor behavior without clamping", () => {
+    expect(
+      calculateMonsterRequiredArmour({ fighter: 0, rogue: 0, wizard: 0 }, []),
+    ).toEqual({
+      archetypeContribution: -2,
+      mundaneDamageModifiers: 0,
+      requiredArmour: -2,
+    });
+  });
+
+  it("ranks deterministically and keeps only the top ten", () => {
+    const monsters = Array.from({ length: 11 }, (_, index) => ({
+      id: `monster:${String(index).padStart(2, "0")}`,
+      name: index === 9 ? "Alpha" : index === 10 ? "Beta" : `Monster ${index}`,
+      slug: `monster-${index}`,
+      archetypeLevels: {
+        fighter: index >= 9 ? 12 : index + 3,
+        rogue: 0,
+        wizard: 0,
+      },
+      modifiers: [],
+    }));
+
+    const ranking = rankMonstersByRequiredArmour(monsters);
+
+    expect(ranking).toHaveLength(10);
+    expect(ranking.slice(0, 2).map((entry) => entry.monsterName)).toEqual([
+      "Alpha",
+      "Beta",
+    ]);
+    expect(ranking.map((entry) => entry.monsterName)).not.toContain(
+      "Monster 0",
+    );
   });
 });

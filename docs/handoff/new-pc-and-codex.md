@@ -94,10 +94,12 @@ Continue toward local parity without assuming permission to publish official con
    evidence; it requires no separate owner sign-off. Its completion record is
    `docs/product/first-parity-slice.md`, with review evidence in
    `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`.
-2. The next active task is focused owner Q&A about the preserved Meta view's
-   “Required Armour by Monster” heuristic. Use
-   `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`; do not
-   implement or reject the formula by assumption.
+2. The preserved Meta view's **Required Armour by Monster** compatibility
+   calculation is owner-approved and implemented under the exact legacy-facing
+   name. Its evidence limits and possible future formula-verification work are
+   in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`.
+   The next active task is a fresh inventory of remaining valuable legacy
+   navigation and tooltip behavior.
 3. Extend the item-icon importer only when another implemented page needs concrete art; specialized monster sprites and animation frames still require page-specific decisions.
 4. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
 5. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
@@ -114,8 +116,8 @@ Continue toward local parity without assuming permission to publish official con
    not treated as a gameplay formula. Evidence is in
    `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`.
 
-Discuss the Meta formula with the owner immediately before implementing or
-intentionally excluding it; do not present it as engine truth by default.
+Do not silently revise the Meta formula if later evidence conflicts with it;
+record a separate product decision and migration.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 

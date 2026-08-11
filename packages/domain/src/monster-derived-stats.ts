@@ -1,4 +1,5 @@
-import type { MonsterArchetypeLevels, StatModifier } from "./types";
+import { compareCodeUnits } from "./ordering";
+import type { Monster, MonsterArchetypeLevels, StatModifier } from "./types";
 
 export const monsterPrimaryAttributeDefinitions = [
   {
@@ -76,4 +77,73 @@ export function calculateMonsterPrimaryAttributes(
       total: base + modifier,
     };
   });
+}
+
+const armourAffectedDamageKeys = new Set(["blasting", "crushing", "slashing"]);
+
+export interface MonsterRequiredArmourBreakdown {
+  archetypeContribution: number;
+  mundaneDamageModifiers: number;
+  requiredArmour: number;
+}
+
+export interface MonsterRequiredArmourRanking extends MonsterRequiredArmourBreakdown {
+  monsterId: string;
+  monsterName: string;
+  monsterSlug: string;
+}
+
+type MonsterRequiredArmourInput = Pick<
+  Monster,
+  "id" | "name" | "slug" | "archetypeLevels" | "modifiers"
+>;
+
+/**
+ * Preserves the required-armour calculation used by the historical Meta view.
+ * This compatibility formula is documented separately and must not be treated
+ * as independent proof of the game's runtime combat rules.
+ */
+export function calculateMonsterRequiredArmour(
+  levels: MonsterArchetypeLevels,
+  modifiers: readonly StatModifier[],
+): MonsterRequiredArmourBreakdown {
+  const archetypeContribution = Math.floor(
+    (levels.fighter * 2 + levels.rogue + levels.wizard - 5) / 3,
+  );
+  const mundaneDamageModifiers = modifiers.reduce(
+    (total, modifier) =>
+      modifier.kind === "damage" &&
+      armourAffectedDamageKeys.has(modifier.sourceKey)
+        ? total + modifier.amount
+        : total,
+    0,
+  );
+
+  return {
+    archetypeContribution,
+    mundaneDamageModifiers,
+    requiredArmour: archetypeContribution + mundaneDamageModifiers,
+  };
+}
+
+export function rankMonstersByRequiredArmour(
+  monsters: readonly MonsterRequiredArmourInput[],
+): MonsterRequiredArmourRanking[] {
+  return monsters
+    .map((monster) => ({
+      monsterId: monster.id,
+      monsterName: monster.name,
+      monsterSlug: monster.slug,
+      ...calculateMonsterRequiredArmour(
+        monster.archetypeLevels,
+        monster.modifiers,
+      ),
+    }))
+    .sort(
+      (left, right) =>
+        right.requiredArmour - left.requiredArmour ||
+        compareCodeUnits(left.monsterName, right.monsterName) ||
+        compareCodeUnits(left.monsterId, right.monsterId),
+    )
+    .slice(0, 10);
 }

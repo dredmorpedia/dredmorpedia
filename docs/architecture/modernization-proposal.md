@@ -275,8 +275,8 @@ official-derived dataset or asset is approved for public deployment.
 
 Remaining decisions are:
 
-1. decide engine-derived legacy mechanics individually immediately before their
-   parity implementation, beginning with the preserved Meta armour heuristic;
+1. decide any remaining engine-derived legacy mechanics individually
+   immediately before their parity implementation;
 2. confirm copyright-holder wording for the scoped MIT license and continue
    provenance work for excluded legacy/mod/asset material; and
 3. prioritize quality-of-life features only after parity polish. Live tracking

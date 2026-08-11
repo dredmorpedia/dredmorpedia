@@ -34,6 +34,9 @@ test.describe("static browse without JavaScript", () => {
       }),
     ).toBeVisible();
     await expect(page.locator(".browse-kind-card")).toHaveCount(9);
+    await expect(
+      page.getByRole("link", { name: "Required Armour by Monster" }),
+    ).toHaveAttribute("href", "/meta/required-armour-by-monster/");
 
     const spells = page.getByRole("link", { name: "Spells", exact: true });
     await spells.focus();
@@ -70,6 +73,67 @@ test.describe("static browse without JavaScript", () => {
       ),
     ).toBe(true);
   });
+});
+
+test("ranks required armour by monster and links every result", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const metaLink = page
+    .getByRole("navigation", { name: "Primary navigation" })
+    .getByRole("link", { name: "Meta" });
+  await metaLink.focus();
+  await expect(metaLink).toBeFocused();
+  await metaLink.press("Enter");
+
+  await expect(page).toHaveURL(/\/meta\/required-armour-by-monster\/$/);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Required Armour by Monster",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Monsters evaluated")).toBeVisible();
+  await expect(
+    page
+      .getByText("Monsters evaluated")
+      .locator("..")
+      .getByText("2", { exact: true }),
+  ).toBeVisible();
+
+  const results = page.locator(".required-armour-card");
+  await expect(results).toHaveCount(2);
+  await expect(
+    results.nth(0).getByRole("link", { name: "Armored Training Diggle" }),
+  ).toBeVisible();
+  await expect(
+    results.nth(0).getByText("Required Armour").locator("..").getByText("2"),
+  ).toBeVisible();
+  await expect(
+    results.nth(1).getByRole("link", { name: "Training Diggle" }),
+  ).toBeVisible();
+  await expect(
+    results.nth(1).getByText("Required Armour").locator("..").getByText("0"),
+  ).toBeVisible();
+
+  await results
+    .nth(0)
+    .getByRole("link", { name: "Armored Training Diggle" })
+    .click();
+  await expect(page).toHaveURL(/\/monsters\/armored-training-diggle\/$/);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Armored Training Diggle",
+    }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
 });
 
 test("previews a bounded catalogue and exposes a static detail route", async ({
@@ -1326,6 +1390,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/abilities/clockwork-followthrough/",
     "/spells/clockwork-spark/",
     "/monsters/armored-training-diggle/",
+    "/meta/required-armour-by-monster/",
     "/stats/melee-power/",
     "/templates/small-cross/",
     "/spells/not-in-active-dataset/",

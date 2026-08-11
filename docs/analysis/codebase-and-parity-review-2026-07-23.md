@@ -191,7 +191,11 @@ Highest-impact gaps, ranked:
 
 1. No browse/index surface for spells, monsters, skills, abilities, recipes, or encrustments. Only Items is browsable; the others are reachable only via cross-links or a typed slug. The search artifact already contains every kind, but the UI filters to items/stats/templates via a hardcoded allow-list at `apps/web/src/app/search/page.tsx:49-54` and `kindOptions` at `apps/web/src/components/search-explorer.tsx:34-39`. Widening that list (and/or adding per-kind index routes and nav) is the cheapest high-impact parity move and needs no new data work.
 2. Spell effect fidelity. Effects render as a generic `type` plus amount, and the documented compatibility backlog (per the 2026-07-23 handoff: 609 item plus 2,333 spell constructs) is dominated by spell effects. This is the largest content gap.
-3. The Meta/analytics section is entirely absent. It was low-fidelity in legacy and its one table depends on disputed monster formulas the rebuild deliberately withholds.
+3. **Resolved 2026-08-11:** the single Meta/analytics view is implemented under
+   the exact owner-approved name **Required Armour by Monster**. Its
+   deterministic domain calculation, static route, monster links, responsive
+   navigation, and evidence boundary preserve compatibility without presenting
+   the formula as independently verified engine truth.
 4. Game art is not rendered; pages show "reference supplied/not supplied" text. An incremental local-only entity-asset pipeline is approved but not implemented; public art remains blocked on permission.
 5. Search breadth and by-stat coverage regress against legacy (which searched items/skills/spells by name and ranked items/abilities/spells by stat magnitude).
 6. **Resolved 2026-08-11:** template-type spells now preserve and resolve both measured template-ID casing forms plus the loss-aware anchor-player flag. Spell and targeting-template pages link in both directions, and the root spell audit exposes every remaining unsupported attribute.

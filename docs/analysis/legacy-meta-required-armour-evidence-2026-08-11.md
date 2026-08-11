@@ -1,7 +1,7 @@
 # Legacy Meta required-armour evidence
 
 Date: 2026-08-11
-Status: evidence prepared; focused product decision pending
+Status: owner-approved compatibility behavior; implemented
 
 ## Preserved behavior
 
@@ -41,14 +41,49 @@ The relevant existing formula review is
 generated derivatives, private path, or inherited icon was added for this
 analysis.
 
-## Product choices for focused Q&A
+## Owner decision
 
-1. Preserve the calculation as a clearly named **Legacy armour estimate**, show
-   the formula and evidence warning, and avoid presenting it as engine truth.
-2. Exclude it intentionally from parity because the calculation is not
-   independently verified.
-3. Defer the decision while pursuing version-specific runtime or authoritative
-   evidence.
+Preserve the calculation under the exact user-facing legacy name **Required
+Armour by Monster**. Do not add “Legacy” to the UI label. Keep the evidence
+limitations and possible future formula-verification improvement in project
+documentation rather than blocking parity implementation.
 
-Do not implement any option until the owner has considered this individual
-mechanic. The decision does not reopen the completed first-parity milestone.
+This decision does not establish the formula as engine truth and does not reopen
+the completed first-parity milestone.
+
+## Implementation
+
+- `packages/domain/src/monster-derived-stats.ts` owns the pure compatibility
+  calculation and deterministic ranking. It uses effective inherited monster
+  modifiers, sorts by required amount descending, resolves ties by fixed
+  UTF-16 monster name and ID order, and returns at most ten results.
+- `/meta/required-armour-by-monster/` presents the exact approved title, result
+  count, ranking, calculation breakdown, and canonical monster links. It does
+  not label the feature as legacy.
+- Primary navigation and the server-rendered Browse directory expose the route;
+  Browse discovery remains usable with JavaScript disabled.
+- The historical no-clamp floor behavior remains exact. Acidic, aethereal, and
+  other damage types plus resistance/primary/secondary modifiers do not enter
+  the calculation.
+- The fourth primary-navigation link exposed a narrow-screen header overflow.
+  The responsive header now stacks navigation beneath the brand and gives the
+  four keyboard targets the available width without horizontal scrolling.
+
+## Validation
+
+- `pnpm check` passes formatting, lint, type checking, 76 domain tests, 101
+  pipeline tests, 89 web tests, deterministic generation, and the 45-page
+  synthetic static export.
+- `pnpm test:e2e` passes all 40 desktop/mobile cases, including keyboard Meta
+  navigation, exact synthetic ranking values, monster links, no-JavaScript
+  discovery, responsive overflow, and the representative axe sweep.
+- `pnpm build:official` produces byte-identical ignored artifacts with 0 errors,
+  the expected four relationship warnings, 90 informational records, 763 item
+  icon mappings with no fallbacks, and all 2,982 local static pages.
+
+## Possible future improvement
+
+Seek version-specific runtime or authoritative evidence for the monster melee
+damage and Armour Absorption rules. If that evidence establishes a different
+formula, document a separate product decision and migration rather than silently
+changing this compatibility view.

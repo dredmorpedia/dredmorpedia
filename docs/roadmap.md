@@ -546,15 +546,20 @@ The remaining valuable legacy stat-search navigation is implemented without
 adopting the preserved app's loosely typed amount ranking. The canonical
 filter exposes 61 used definitions across 1,350 item, ability, spell, and
 encrustment records, stays within the accepted search budgets, and preserves
-raw selector URL aliases. The single legacy Meta view still depends on the
-separate disputed monster-damage formula decision.
+raw selector URL aliases.
 
-The next active parity decision is the preserved Meta view's “Required Armour
-by Monster” heuristic. Its exact legacy formula and evidence boundary are
-recorded in
-`docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`; decide its
-treatment through focused owner Q&A before implementation or intentional
-exclusion.
+The single legacy Meta view is implemented at
+`/meta/required-armour-by-monster/` under the owner-approved exact name
+**Required Armour by Monster**. A domain-owned deterministic calculation ranks
+the top ten monsters, exposes its arithmetic breakdown, and links each result
+to the canonical monster route. Primary navigation and no-JavaScript Browse
+make it discoverable. Documentation retains the evidence limitations and future
+formula-verification opportunity without adding “Legacy” to the UI. Evidence is
+in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`.
+
+The next active parity task is a fresh inventory of remaining valuable legacy
+navigation and tooltip behavior, followed by implementation or an explicit
+evidence-based exclusion for each selected item.
 
 ### Exit criteria
 
