@@ -110,7 +110,7 @@ process.stdout.write(
     `Artifact bytes: ${Buffer.byteLength(outputs.artifact)}.`,
     `Search bytes: ${Buffer.byteLength(outputs.search)}.`,
     assetCatalog && assetDiagnostics
-      ? `Presented item icons: ${assetCatalog.assets.length} mapped to ${assetOutputs?.files.size ?? 0} copied files; ${assetDiagnostics.length} fallback diagnostics.`
+      ? `Presented entity icons: ${assetCatalog.assets.length} mapped to ${assetOutputs?.files.size ?? 0} copied files; ${assetDiagnostics.length} fallback diagnostics.`
       : "",
     verifyDeterminism ? "Determinism check: byte-identical." : "",
   ]

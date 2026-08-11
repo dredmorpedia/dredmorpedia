@@ -11,6 +11,7 @@ import {
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import { skillIconUrl } from "@/lib/presented-assets";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
 
 export const dynamicParams = false;
@@ -68,6 +69,7 @@ export default async function SkillPage({
     artifact.entities.items.map((item) => [item.id, item]),
   );
   const isAlias = slug !== skill.slug;
+  const iconUrl = skillIconUrl(skill.id, artifact);
 
   return (
     <article className="detail-page">
@@ -87,16 +89,37 @@ export default async function SkillPage({
             {skill.description || "No normalized skill description."}
           </p>
         </div>
-        <dl className="price-block">
-          <div>
-            <dt>Abilities</dt>
-            <dd>{abilityRelationships.length}</dd>
-          </div>
-          <div>
-            <dt>Loadout entries</dt>
-            <dd>{skill.loadouts.length}</dd>
-          </div>
-        </dl>
+        <div className="detail-header-aside">
+          {iconUrl ? (
+            // The adjacent heading names the skill, so the icon is decorative.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="entity-art"
+              height="128"
+              src={iconUrl}
+              width="128"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="entity-art entity-art-placeholder"
+              data-testid="skill-icon-placeholder"
+            >
+              ?
+            </div>
+          )}
+          <dl className="price-block">
+            <div>
+              <dt>Abilities</dt>
+              <dd>{abilityRelationships.length}</dd>
+            </div>
+            <div>
+              <dt>Loadout entries</dt>
+              <dd>{skill.loadouts.length}</dd>
+            </div>
+          </dl>
+        </div>
       </header>
 
       {isAlias ? (

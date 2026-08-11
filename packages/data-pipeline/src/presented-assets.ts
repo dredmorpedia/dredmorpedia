@@ -31,6 +31,10 @@ const ownershipMarkerContents =
   "Managed by @dredmorpedia/data-pipeline. Do not add source files here.\n";
 const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
+function assetLabel(input: PresentedAssetInput): string {
+  return input.kind === "skill-icon" ? "skill icon" : "item icon";
+}
+
 export interface SerializedPresentedAssets {
   assets: string;
   diagnostics: string;
@@ -102,7 +106,7 @@ export function serializePresentedAssets(
         assetDiagnostic(
           input,
           "missing_presented_asset",
-          "The referenced item icon is unavailable in the approved source roots.",
+          `The referenced ${assetLabel(input)} is unavailable in the approved source roots.`,
         ),
       );
       continue;
@@ -113,7 +117,7 @@ export function serializePresentedAssets(
         assetDiagnostic(
           input,
           "unsupported_presented_asset_format",
-          "The referenced item icon is not a supported PNG presentation asset.",
+          `The referenced ${assetLabel(input)} is not a supported PNG presentation asset.`,
         ),
       );
       continue;
@@ -124,7 +128,7 @@ export function serializePresentedAssets(
         assetDiagnostic(
           input,
           "invalid_presented_asset_signature",
-          "The referenced item icon does not have a valid PNG signature.",
+          `The referenced ${assetLabel(input)} does not have a valid PNG signature.`,
         ),
       );
       continue;

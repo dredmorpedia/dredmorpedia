@@ -29,6 +29,7 @@ import {
   type Recipe,
   type SearchArtifact,
   type Skill,
+  type PresentedAssetKind,
   type SourceLocation,
   type Spell,
   type SpellEffect,
@@ -85,7 +86,7 @@ export interface ImportDatasetResult {
 }
 
 export interface PresentedAssetInput {
-  kind: "item-icon";
+  kind: PresentedAssetKind;
   entityId: string;
   sourceId: string;
   sourcePath: string;
@@ -129,8 +130,9 @@ function finalizeDiagnostics(drafts: readonly DiagnosticDraft[]): Diagnostic[] {
   });
 }
 
-function collectPresentedAssetInputs(
-  items: readonly Item[],
+function collectIconAssetInputs(
+  entities: readonly (NormalizedEntity & { iconPath: string | null })[],
+  kind: PresentedAssetKind,
   resolvedSources: readonly ResolvedSource[],
   inputSnapshots: InputSnapshots,
 ): PresentedAssetInput[] {
@@ -138,13 +140,13 @@ function collectPresentedAssetInputs(
     resolvedSources.map(({ source }, index) => [source.id, index]),
   );
 
-  return items
-    .filter((item) => item.iconPath !== null)
-    .map((item) => {
-      const sourceIndex = sourceIndexes.get(item.provenance.sourceId);
+  return entities
+    .filter((entity) => entity.iconPath !== null)
+    .map((entity) => {
+      const sourceIndex = sourceIndexes.get(entity.provenance.sourceId);
       if (sourceIndex === undefined) {
         throw new Error(
-          `Unable to locate source ${item.provenance.sourceId} for ${item.id}.`,
+          `Unable to locate source ${entity.provenance.sourceId} for ${entity.id}.`,
         );
       }
 
@@ -155,29 +157,54 @@ function collectPresentedAssetInputs(
           continue;
         }
         const displayPath = toPosixPath(
-          `${resolvedSource.displayPath}/${item.iconPath}`,
+          `${resolvedSource.displayPath}/${entity.iconPath}`,
         );
         const snapshot = inputSnapshots.get(displayPath);
         if (snapshot) {
           return {
-            kind: "item-icon" as const,
-            entityId: item.id,
+            kind,
+            entityId: entity.id,
             sourceId: resolvedSource.source.id,
-            sourcePath: item.iconPath as string,
+            sourcePath: entity.iconPath as string,
             snapshot,
           };
         }
       }
 
       return {
-        kind: "item-icon" as const,
-        entityId: item.id,
-        sourceId: item.provenance.sourceId,
-        sourcePath: item.iconPath as string,
+        kind,
+        entityId: entity.id,
+        sourceId: entity.provenance.sourceId,
+        sourcePath: entity.iconPath as string,
         snapshot: null,
       };
     })
     .sort((left, right) => compareCodeUnits(left.entityId, right.entityId));
+}
+
+function collectPresentedAssetInputs(
+  entities: Pick<EntityCollections, "items" | "skills">,
+  resolvedSources: readonly ResolvedSource[],
+  inputSnapshots: InputSnapshots,
+): PresentedAssetInput[] {
+  return [
+    ...collectIconAssetInputs(
+      entities.items,
+      "item-icon",
+      resolvedSources,
+      inputSnapshots,
+    ),
+    ...collectIconAssetInputs(
+      entities.skills,
+      "skill-icon",
+      resolvedSources,
+      inputSnapshots,
+    ),
+  ].sort(
+    (left, right) =>
+      compareCodeUnits(left.kind, right.kind) ||
+      compareCodeUnits(left.entityId, right.entityId),
+  );
 }
 
 function aliasesFor<T extends NormalizedEntity>(
@@ -1452,7 +1479,7 @@ export function importDataset(
   };
   const inputs = inputSnapshots.list();
   const presentedAssetInputs = collectPresentedAssetInputs(
-    artifact.entities.items,
+    artifact.entities,
     resolvedSources,
     inputSnapshots,
   );

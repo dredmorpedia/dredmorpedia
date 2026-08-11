@@ -48,6 +48,13 @@ function fixtureRepository(): {
   <item name="Invalid Icon" iconFile="assets/invalid.png" />
 </items>`,
   );
+  writeFileSync(
+    path.join(sourceRoot, "skillDB.xml"),
+    `
+<skills>
+  <skill name="Copied Skill"><art icon="assets/icon.png" /></skill>
+</skills>`,
+  );
   const manifestPath = path.join(repositoryRoot, "manifest.json");
   writeFileSync(
     manifestPath,
@@ -61,7 +68,10 @@ function fixtureRepository(): {
           kind: "fixture",
           precedence: 0,
           root: "source",
-          files: [{ kind: "items", path: "itemDB.xml" }],
+          files: [
+            { kind: "items", path: "itemDB.xml" },
+            { kind: "skills", path: "skillDB.xml" },
+          ],
         },
       ],
     }),
@@ -76,7 +86,7 @@ afterEach(() => {
 });
 
 describe("presented asset import", () => {
-  it("copies only supported item icons from their first registered bytes", () => {
+  it("copies only supported entity icons from their first registered bytes", () => {
     const { repositoryRoot, manifestPath, iconPath, iconBytes } =
       fixtureRepository();
     const result = importDataset({ manifestPath, repositoryRoot });
@@ -88,11 +98,14 @@ describe("presented asset import", () => {
     expect(first.manifest).toBe(second.manifest);
     expect(first.files.size).toBe(1);
     const catalog = JSON.parse(first.assets) as {
-      assets: { entityId: string; file: string }[];
+      assets: { kind: string; entityId: string; file: string }[];
     };
-    expect(catalog.assets.map((asset) => asset.entityId)).toEqual([
-      "item:copied icon",
-      "item:shared icon",
+    expect(
+      catalog.assets.map(({ kind, entityId }) => [kind, entityId]),
+    ).toEqual([
+      ["item-icon", "item:copied icon"],
+      ["item-icon", "item:shared icon"],
+      ["skill-icon", "skill:copied skill"],
     ]);
     expect(new Set(catalog.assets.map((asset) => asset.file)).size).toBe(1);
     expect(

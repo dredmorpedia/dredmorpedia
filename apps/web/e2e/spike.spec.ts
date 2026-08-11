@@ -936,6 +936,8 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Combat" }),
   ).toBeVisible();
+  await expect(page.getByTestId("skill-icon-placeholder")).toBeVisible();
+  await expect(page.locator(".detail-header img")).toHaveCount(0);
 
   const loadout = page.getByRole("region", {
     name: "Starting loadout",

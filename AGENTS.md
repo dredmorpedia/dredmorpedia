@@ -32,10 +32,11 @@ Read these files before making a substantial change:
   generated JSON transferred to interactive routes. Keep its stable key and
   document ordering, final newline, manifest byte/checksum coverage, and exact
   schema/query derivation; do not restore presentation whitespace by accident.
-- The first incremental local-asset slice copies only normalized item PNG icons
-  from those captured snapshots into the ignored managed web asset directory.
-  Its schema-1 catalog, diagnostics, content-addressed files, and manifest-last
-  checksums must match the active dataset before the web renders an icon.
+- The incremental local-asset slices copy only normalized item and skill PNG
+  icons used by their implemented detail pages from those captured snapshots
+  into the ignored managed web asset directory. Their schema-1 typed catalog,
+  diagnostics, content-addressed files, and manifest-last checksums must match
+  the active dataset before the web renders an icon.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -175,10 +176,11 @@ Read these files before making a substantial change:
   supersedes the preserved runtime hashes, cloned-row hover tooltips, and
   tab-only partitions with stable routes, visible labels, native history,
   Browse, and structured search. Keep the preserved application until complete
-  parity evidence and a separate archival decision. The next active parity
-  work is an inventory and first coherent local-only asset slice for non-item
-  entity art already used by implemented pages; keep it page-driven and do not
-  bulk-copy unrelated resources.
+  parity evidence and a separate archival decision. The non-item visual
+  inventory is complete and skill icons are implemented. The next active
+  parity slice is ability icons; keep it page-driven and do not bulk-copy
+  unrelated resources. Monster art still requires a separate sprite,
+  animation, and palette decision.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints
@@ -229,9 +231,9 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm generate:check` — regenerate the synthetic dataset and presented-asset set twice and prove byte-identical output.
 - `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic dataset and presented-asset fallback set, then start the web application on `http://localhost:3001/`.
 - `pnpm migrate:official-manifest` — idempotently preserve the four ignored game sources, migrate reviewed schema-2 game/build provenance when needed, and add the tracked versioned Dredmorpedia stat reference.
-- `pnpm dev:official` — regenerate the ignored official dataset plus referenced item icons with a zero-error dataset gate and start the same local application against them.
-- `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate, without starting the web application.
-- `pnpm build:official` — deterministically regenerate the ignored official dataset and referenced item icons with a zero-error dataset gate and verify the full local static export.
+- `pnpm dev:official` — regenerate the ignored official dataset plus referenced presented icons with a zero-error dataset gate and start the same local application against them.
+- `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced presented icons with a zero-error dataset gate, without starting the web application.
+- `pnpm build:official` — deterministically regenerate the ignored official dataset and referenced presented icons with a zero-error dataset gate and verify the full local static export.
 - `pnpm benchmark:search:official` — rebuild the ignored canonical official export and enforce ADR 0003's artifact, query, relevance, and desktop/slowed-mobile browser budgets.
 - `pnpm check` — format check, lint, typecheck, unit/integration tests, deterministic generation, and production build.
 - `pnpm test:e2e` — desktop/mobile interaction, keyboard-flow, and axe checks; install Chromium with `pnpm --filter @dredmorpedia/web exec playwright install chromium` first.

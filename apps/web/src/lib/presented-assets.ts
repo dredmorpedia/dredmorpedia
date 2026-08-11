@@ -7,6 +7,7 @@ import {
   type DatasetArtifact,
   type PresentedAssetCatalog,
   type PresentedAssetDiagnostic,
+  type PresentedAssetKind,
   type PresentedAssetManifest,
 } from "@dredmorpedia/domain";
 import { z } from "zod";
@@ -75,10 +76,14 @@ const assetManifestSchema = z
 
 interface LoadedPresentedAssets {
   catalog: PresentedAssetCatalog;
-  byEntityId: Map<string, string>;
+  byAssetKey: Map<string, string>;
 }
 
 let loadedCache: LoadedPresentedAssets | null | undefined;
+
+function assetKey(kind: PresentedAssetKind, entityId: string): string {
+  return `${kind}:${entityId}`;
+}
 
 function parseJson(text: string, label: string): unknown {
   try {
@@ -222,12 +227,15 @@ function loadConfiguredAssets(
   const diagnostics = diagnosticResult.data as PresentedAssetDiagnostic[];
   const counts = { info: 0, warning: 0, error: 0 };
   const diagnosticIds = new Set<string>();
-  const outcomeEntityIds = new Set<string>();
-  const expectedEntityIds = new Set(
-    artifact.entities.items
+  const outcomeAssetKeys = new Set<string>();
+  const expectedAssetKeys = new Set([
+    ...artifact.entities.items
       .filter((item) => item.iconPath !== null)
-      .map((item) => item.id),
-  );
+      .map((item) => assetKey("item-icon", item.id)),
+    ...artifact.entities.skills
+      .filter((skill) => skill.iconPath !== null)
+      .map((skill) => assetKey("skill-icon", skill.id)),
+  ]);
   const sourceIds = new Set(artifact.sources.map((source) => source.id));
   for (const diagnostic of diagnostics) {
     if (diagnosticIds.has(diagnostic.id)) {
@@ -236,20 +244,18 @@ function loadConfiguredAssets(
       );
     }
     diagnosticIds.add(diagnostic.id);
-    if (
-      !expectedEntityIds.has(diagnostic.entityId) ||
-      !sourceIds.has(diagnostic.sourceId)
-    ) {
+    const key = assetKey(diagnostic.kind, diagnostic.entityId);
+    if (!expectedAssetKeys.has(key) || !sourceIds.has(diagnostic.sourceId)) {
       throw new Error(
         `Generated presented asset diagnostic ${diagnostic.id} does not belong to the active dataset.`,
       );
     }
-    if (outcomeEntityIds.has(diagnostic.entityId)) {
+    if (outcomeAssetKeys.has(key)) {
       throw new Error(
-        `Generated presented assets contain multiple outcomes for ${diagnostic.entityId}.`,
+        `Generated presented assets contain multiple outcomes for ${diagnostic.kind} ${diagnostic.entityId}.`,
       );
     }
-    outcomeEntityIds.add(diagnostic.entityId);
+    outcomeAssetKeys.add(key);
     counts[diagnostic.severity] += 1;
   }
   if (
@@ -262,14 +268,12 @@ function loadConfiguredAssets(
     );
   }
 
-  const byEntityId = new Map<string, string>();
+  const byAssetKey = new Map<string, string>();
   for (const asset of catalog.assets) {
-    if (
-      !expectedEntityIds.has(asset.entityId) ||
-      outcomeEntityIds.has(asset.entityId)
-    ) {
+    const key = assetKey(asset.kind, asset.entityId);
+    if (!expectedAssetKeys.has(key) || outcomeAssetKeys.has(key)) {
       throw new Error(
-        `Generated presented assets contain an invalid or duplicate entity mapping ${asset.entityId}.`,
+        `Generated presented assets contain an invalid or duplicate entity mapping ${asset.kind} ${asset.entityId}.`,
       );
     }
     if (asset.file !== `files/${asset.sha256}.png`) {
@@ -286,19 +290,19 @@ function loadConfiguredAssets(
         `Generated presented asset does not match assets.json: ${asset.file}`,
       );
     }
-    byEntityId.set(asset.entityId, asset.file);
-    outcomeEntityIds.add(asset.entityId);
+    byAssetKey.set(key, asset.file);
+    outcomeAssetKeys.add(key);
   }
   if (
-    outcomeEntityIds.size !== expectedEntityIds.size ||
-    [...expectedEntityIds].some((entityId) => !outcomeEntityIds.has(entityId))
+    outcomeAssetKeys.size !== expectedAssetKeys.size ||
+    [...expectedAssetKeys].some((key) => !outcomeAssetKeys.has(key))
   ) {
     throw new Error(
-      "Generated presented assets do not account for every active item icon reference.",
+      "Generated presented assets do not account for every active presented icon reference.",
     );
   }
 
-  loadedCache = { catalog, byEntityId };
+  loadedCache = { catalog, byAssetKey };
   return loadedCache;
 }
 
@@ -309,15 +313,16 @@ function normalizedBasePath(value: string | undefined): string {
   return `/${value.replace(/^\/+|\/+$/g, "")}`;
 }
 
-export function itemIconUrl(
-  itemId: string,
+function presentedAssetUrl(
+  kind: PresentedAssetKind,
+  entityId: string,
   artifact: DatasetArtifact,
 ): string | null {
   const loaded = loadConfiguredAssets(artifact);
   if (!loaded) {
     return null;
   }
-  const file = loaded.byEntityId.get(itemId);
+  const file = loaded.byAssetKey.get(assetKey(kind, entityId));
   if (!file) {
     return null;
   }
@@ -332,4 +337,18 @@ export function itemIconUrl(
     );
   }
   return `${normalizedBasePath(process.env.NEXT_PUBLIC_BASE_PATH)}${normalizedBasePath(configuredBasePath)}/${file}`;
+}
+
+export function itemIconUrl(
+  itemId: string,
+  artifact: DatasetArtifact,
+): string | null {
+  return presentedAssetUrl("item-icon", itemId, artifact);
+}
+
+export function skillIconUrl(
+  skillId: string,
+  artifact: DatasetArtifact,
+): string | null {
+  return presentedAssetUrl("skill-icon", skillId, artifact);
 }

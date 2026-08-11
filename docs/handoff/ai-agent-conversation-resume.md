@@ -183,6 +183,21 @@ After the review-hardening queue, remeasure rather than relying only on the reco
 
 The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release and exact copyright-holder wording and provenance treatment for excluded inherited material. The first parity slice is complete from implementation and validation evidence without a separate owner sign-off. The bounded item-icon importer is implemented; future asset families remain page-driven. The active-dataset source/collision explorer is implemented at `/dataset/`, and preserved stat-search discovery spans 1,350 direct item, ability, spell, and encrustment records through 61 active facets. The ignored canonical artifact has 45 affected records and 71 override steps. The measured root spell compatibility audit is complete. The preserved Meta view's **Required Armour by Monster** compatibility calculation is owner-approved and implemented under its exact legacy-facing name, with its evidence boundary and possible future verification documented in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`. The final navigation/tooltip checkpoint restores all 374 canonical recipes to seven normalized tool categories in shareable search and explicitly supersedes runtime hashes, tab-only partitions, and cloned-row hover tooltips. The next active Phase 4 task is an inventory and first page-driven local-only asset slice for non-item entity art already referenced by implemented pages; keep `legacy/` until complete parity evidence and a separate archival decision. Evidence is in `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`. Stat names/categories come from the versioned project reference, while other disputed formulas remain separate evidence decisions. ADR 0003's accepted measurements are reproducible through `pnpm benchmark:search:official` and recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`; the expanded filter passes those unchanged budgets in `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`. Dataset-health evidence is in `docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
 
+The current shared search category control is intentionally deferred to the
+broader search-page rework. Preserve the normalized recipe-tool facet, but make
+the future control bounded and keyboard/touch scrollable, sort by displayed
+labels, group its mixed semantic facets, restrict them contextually by selected
+entity type, and clear incompatible category parameters when that type changes.
+
+The page-driven non-item visual inventory is complete. All 52 skill records
+reference distinct PNG icons, and the first extension now imports and renders
+them through the existing ignored, checksum-bound presented-asset set. The
+canonical set contains 763 item-icon and 52 skill-icon mappings backed by 774
+unique PNG files with no fallbacks. The next direct slice is ability icons;
+spell icons follow, while monster `.spr` and animation-XML art needs a separate
+rendering and palette decision. Evidence is in
+`docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`.
+
 ## Git and owner handoff convention
 
 - When the owner asks to commit and push, inspect the exact diff, stage only the coherent verified scope, use a terse descriptive commit message, and push `master` to `origin/master` unless the owner changes the workflow.
@@ -201,8 +216,8 @@ pointer-only cloned-row tooltip. `pnpm.cmd check` passes 267 unit/artifact tests
 and the 45-page synthetic export; all 40 desktop/mobile browser cases pass; and
 `pnpm.cmd benchmark:search:official` exports all 2,982 pages while retaining
 every ADR 0003 budget with a 1,185,026-byte compact search artifact. The next
-active Phase 4 task is the page-driven non-item visual asset inventory and its
-first coherent local-only import slice. Evidence is in
+task stated at that checkpoint is superseded by the completed non-item
+inventory and skill-icon slice recorded below. Navigation evidence is in
 `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
 The root spell no-animation slice recognizes the one active declaration
@@ -360,6 +375,16 @@ byte-identical official generation reports 0 errors, 4 warnings, 90 info, 763
 item mappings, 722 unique PNGs, and zero asset fallbacks while exporting all
 2,857 ignored local pages. Evidence is recorded in
 `docs/analysis/item-icon-import-evidence-2026-08-09.md`.
+
+The following non-item asset slice adds 52 skill-icon mappings backed by 52
+distinct PNGs. Together with item icons, the canonical presented set contains
+815 mappings, 774 unique files, 808,020 binary bytes, and zero fallback
+diagnostics. Skill pages render the art decoratively and keep an accessible,
+non-broken fallback for absent or unsupported files. `pnpm.cmd check` passes
+267 unit/artifact tests and the 45-page synthetic export;
+`pnpm.cmd build:official` exports all 2,982 local pages; and all 40
+desktop/mobile browser cases pass. Evidence is recorded in
+`docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`.
 
 ## Spell zorkmid-requirement slice validation
 

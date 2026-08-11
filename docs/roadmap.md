@@ -509,6 +509,15 @@ or broaden the publication boundary. Evidence is in
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases; all 374 recipes additionally expose their normalized crafting tool through the existing category filter. Inherited monster bonuses remain on stat-page backlinks rather than being duplicated or ranked in search. Deterministic compact serialization plus the current recipe-tool categories leave the 2,829-document canonical search artifact at 1,185,026 bytes, with 314,974 bytes of raw budget headroom. ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`, and `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
+The current shared category select is functional but remains temporary pending a
+broader search-page rework. That rework must give the popup a bounded,
+keyboard- and touch-scrollable list, sort options by their displayed labels,
+group the mixed semantic facets (such as item categories, crafting tools, skill
+archetypes, monster taxonomies, and stat groups), and make the available groups
+contextual to the selected entity type without leaving an incompatible category
+in the URL. This is a presentation and interaction backlog item; the normalized
+recipe-tool search data remains part of the completed parity work.
+
 ## Phase 4 — Legacy parity
 
 Implement in dependency order rather than old-tab order:
@@ -523,12 +532,12 @@ Implement in dependency order rather than old-tab order:
 8. any remaining valuable legacy navigation/tooltips.
 
 The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
-second complete, verified dataset. The first local visual-parity slice now
-copies and renders only normalized item PNG icons through a checksummed,
-manifest-coordinated, ignored asset set; the canonical build maps all 763 items
-to 722 unique files without fallbacks. Extend that importer only when another
-implemented page displays a concrete asset. Specialized sprite treatment is
-still decided per page rather than imported speculatively.
+second complete, verified dataset. The local visual-parity importer now copies
+and renders normalized item and skill PNG icons through a checksummed,
+manifest-coordinated, ignored asset set; the canonical build maps 763 items and
+52 skills to 774 unique files without fallbacks. Extend that importer only when
+another implemented page displays a concrete asset. Specialized sprite
+treatment is still decided per page rather than imported speculatively.
 Engine mechanics absent from XML are evaluated individually immediately before
 implementation and may be supported when repeatable evidence verifies them.
 
@@ -569,11 +578,14 @@ all-record DOM. Evidence and the complete classification are in
 `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
 The navigation/tooltip checkpoint is complete. Keep `legacy/` until complete
-parity evidence and a separate archival decision. The next active Phase 4 task
-is the approved page-driven visual pass: inventory non-item art referenced by
-entity types already displayed in the modern UI, then implement the first
-coherent ignored local asset slice without bulk-copying unrelated resources.
-Phase 5 prioritization waits for that parity polish.
+parity evidence and a separate archival decision. The non-item visual inventory
+found 52 skill, 352 ability, 440 spell, and 183 monster records with icon or
+sprite references. The first coherent slice now imports and renders all 52
+skill PNG icons. Ability icons are the next direct PNG/page-driven slice; spell
+icons follow, while monster `.spr` and animation-XML references require a
+separate rendering and palette decision. No slice may bulk-copy unrelated
+resources. Phase 5 prioritization waits for that parity polish. Evidence is in
+`docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`.
 
 ### Exit criteria
 
