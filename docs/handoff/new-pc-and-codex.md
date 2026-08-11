@@ -90,7 +90,12 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Review and approve or revise `docs/product/first-parity-slice.md`. ADR 0005 now resolves stat names/categories through a separately versioned project reference; do not add legacy prose, icons, or formulas through that catalogue.
+1. Ask the owner to approve or revise `docs/product/first-parity-slice.md`. The
+   maintainer readiness review is complete and recorded in
+   `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`; it cannot
+   substitute for owner product acceptance. ADR 0005 resolves stat names/
+   categories through a separately versioned project reference; do not add
+   legacy prose, icons, or formulas through that catalogue.
 2. Extend the item-icon importer only when another implemented page needs concrete art; specialized monster sprites and animation frames still require page-specific decisions.
 3. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
 4. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
