@@ -973,6 +973,8 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Measured Strike" }),
   ).toBeVisible();
+  await expect(page.getByTestId("ability-icon-placeholder")).toBeVisible();
+  await expect(page.locator(".detail-header img")).toHaveCount(0);
 
   const modifiers = page.getByRole("region", {
     name: "Direct modifiers",

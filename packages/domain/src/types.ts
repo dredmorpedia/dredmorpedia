@@ -975,7 +975,11 @@ export interface ArtifactManifest {
   };
 }
 
-export const presentedAssetKinds = ["item-icon", "skill-icon"] as const;
+export const presentedAssetKinds = [
+  "item-icon",
+  "skill-icon",
+  "ability-icon",
+] as const;
 
 export type PresentedAssetKind = (typeof presentedAssetKinds)[number];
 

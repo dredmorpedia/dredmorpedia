@@ -53,6 +53,7 @@ function fixtureRepository(): {
     `
 <skills>
   <skill name="Copied Skill"><art icon="assets/icon.png" /></skill>
+  <ability name="Copied Ability" skill="Copied Skill" icon="assets/icon.png" />
 </skills>`,
   );
   const manifestPath = path.join(repositoryRoot, "manifest.json");
@@ -103,6 +104,7 @@ describe("presented asset import", () => {
     expect(
       catalog.assets.map(({ kind, entityId }) => [kind, entityId]),
     ).toEqual([
+      ["ability-icon", "ability:copied ability"],
       ["item-icon", "item:copied icon"],
       ["item-icon", "item:shared icon"],
       ["skill-icon", "skill:copied skill"],

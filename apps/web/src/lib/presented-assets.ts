@@ -235,6 +235,9 @@ function loadConfiguredAssets(
     ...artifact.entities.skills
       .filter((skill) => skill.iconPath !== null)
       .map((skill) => assetKey("skill-icon", skill.id)),
+    ...artifact.entities.abilities
+      .filter((ability) => ability.iconPath !== null)
+      .map((ability) => assetKey("ability-icon", ability.id)),
   ]);
   const sourceIds = new Set(artifact.sources.map((source) => source.id));
   for (const diagnostic of diagnostics) {
@@ -351,4 +354,11 @@ export function skillIconUrl(
   artifact: DatasetArtifact,
 ): string | null {
   return presentedAssetUrl("skill-icon", skillId, artifact);
+}
+
+export function abilityIconUrl(
+  abilityId: string,
+  artifact: DatasetArtifact,
+): string | null {
+  return presentedAssetUrl("ability-icon", abilityId, artifact);
 }

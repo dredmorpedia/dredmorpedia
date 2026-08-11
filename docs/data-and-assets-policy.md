@@ -88,8 +88,8 @@ not a bulk copy of unrelated game resources. Each import must:
 Specialized presentation such as palette-tinted monster sprites or animation
 frames is decided with the page that needs it rather than imported speculatively.
 
-The implemented icon slices follow this boundary for item and skill detail
-pages. They copy only referenced PNG item and skill icons from the importer's
+The implemented icon slices follow this boundary for item, skill, and ability
+detail pages. They copy only referenced PNG item, skill, and ability icons from the importer's
 first-registration byte snapshots into the managed, gitignored web asset
 directory. The generated catalog uses typed entity mappings,
 content-addressed filenames, checksums, dataset identity, and fallback

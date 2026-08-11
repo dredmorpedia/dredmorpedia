@@ -32,7 +32,14 @@ const ownershipMarkerContents =
 const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
 function assetLabel(input: PresentedAssetInput): string {
-  return input.kind === "skill-icon" ? "skill icon" : "item icon";
+  switch (input.kind) {
+    case "ability-icon":
+      return "ability icon";
+    case "skill-icon":
+      return "skill icon";
+    case "item-icon":
+      return "item icon";
+  }
 }
 
 export interface SerializedPresentedAssets {

@@ -32,8 +32,8 @@ Read these files before making a substantial change:
   generated JSON transferred to interactive routes. Keep its stable key and
   document ordering, final newline, manifest byte/checksum coverage, and exact
   schema/query derivation; do not restore presentation whitespace by accident.
-- The incremental local-asset slices copy only normalized item and skill PNG
-  icons used by their implemented detail pages from those captured snapshots
+- The incremental local-asset slices copy only normalized item, skill, and
+  ability PNG icons used by their implemented detail pages from those captured snapshots
   into the ignored managed web asset directory. Their schema-1 typed catalog,
   diagnostics, content-addressed files, and manifest-last checksums must match
   the active dataset before the web renders an icon.
@@ -177,9 +177,9 @@ Read these files before making a substantial change:
   tab-only partitions with stable routes, visible labels, native history,
   Browse, and structured search. Keep the preserved application until complete
   parity evidence and a separate archival decision. The non-item visual
-  inventory is complete and skill icons are implemented. The next active
-  parity slice is ability icons; keep it page-driven and do not bulk-copy
-  unrelated resources. Monster art still requires a separate sprite,
+  inventory is complete, and skill plus ability icons are implemented. The
+  next active parity slice is spell icons; keep it page-driven and do not
+  bulk-copy unrelated resources. Monster art still requires a separate sprite,
   animation, and palette decision.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 

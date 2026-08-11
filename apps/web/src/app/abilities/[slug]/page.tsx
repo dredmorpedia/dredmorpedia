@@ -7,6 +7,7 @@ import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { abilityIconUrl } from "@/lib/presented-assets";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
@@ -65,6 +66,7 @@ export default async function AbilityPage({
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const isAlias = slug !== ability.slug;
+  const iconUrl = abilityIconUrl(ability.id, artifact);
 
   return (
     <article className="detail-page">
@@ -88,20 +90,41 @@ export default async function AbilityPage({
             {ability.description || "No normalized ability description."}
           </p>
         </div>
-        <dl className="price-block">
-          <div>
-            <dt>Spell triggers</dt>
-            <dd>{ability.triggers.length}</dd>
-          </div>
-          <div>
-            <dt>Modifiers</dt>
-            <dd>{ability.modifiers.length}</dd>
-          </div>
-          <div>
-            <dt>Skill</dt>
-            <dd>{skill?.name ?? ability.skillKey}</dd>
-          </div>
-        </dl>
+        <div className="detail-header-aside">
+          {iconUrl ? (
+            // The adjacent heading names the ability, so the icon is decorative.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="entity-art"
+              height="128"
+              src={iconUrl}
+              width="128"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="entity-art entity-art-placeholder"
+              data-testid="ability-icon-placeholder"
+            >
+              ?
+            </div>
+          )}
+          <dl className="price-block">
+            <div>
+              <dt>Spell triggers</dt>
+              <dd>{ability.triggers.length}</dd>
+            </div>
+            <div>
+              <dt>Modifiers</dt>
+              <dd>{ability.modifiers.length}</dd>
+            </div>
+            <div>
+              <dt>Skill</dt>
+              <dd>{skill?.name ?? ability.skillKey}</dd>
+            </div>
+          </dl>
+        </div>
       </header>
 
       {isAlias ? (
