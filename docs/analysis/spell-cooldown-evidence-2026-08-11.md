@@ -39,6 +39,10 @@ search artifact.
 These are aggregate local measurements only. No official XML, names, source
 paths, generated artifact, or asset is committed or approved for publication.
 
+The subsequent melee-attack slice removes all 40 `attack` warnings. Its current
+measurement and semantic boundary are recorded in
+[`spell-melee-attack-evidence-2026-08-11.md`](spell-melee-attack-evidence-2026-08-11.md).
+
 ## Verification
 
 - Focused importer coverage proves positive and zero values are preserved,

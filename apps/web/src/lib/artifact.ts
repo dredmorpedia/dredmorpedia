@@ -881,6 +881,7 @@ const spellSchema = z
     spellType: z.string(),
     iconPath: nullableAssetPathSchema,
     sourceCooldownTurns: nullableNonnegativeInteger,
+    sourcePerformsMeleeAttack: z.boolean().nullable(),
     targetingTemplate: z
       .object({
         sourceTemplateId: z.string().nullable(),

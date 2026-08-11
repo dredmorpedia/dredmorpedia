@@ -198,7 +198,11 @@ Highest-impact gaps, ranked:
 7. **Resolved 2026-08-11:** root spell cooldown metadata now preserves every
    measured `downtime` declaration as a loss-aware non-negative source value.
    Spell pages expose the exact turn count without inferring engine timing.
-8. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
+8. **Resolved 2026-08-11:** root spell melee-attack metadata now recognizes
+   every measured `attack` declaration through the strict source-binary
+   contract. Spell pages expose the legacy label without fabricating an effect
+   or inferring combat behavior.
+9. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
 
 Legacy behaviors that are traps and should not be replicated: the Flash/Downloadify `itemDB.xml` export (`legacy/js/tool.js`); ephemeral `genId()` hash routing plus cookie-and-reload state; the Meta analytic's monster melee/armour formulas (the disputed formulas the handoff withholds); the hardcoded proprietary stat descriptions in `legacy/js/dredmor-stat.js`; and CamanJS runtime sprite tinting plus filesystem path-guessing image recovery.
 

@@ -74,6 +74,8 @@ const isNullableNonNegativeInteger: ValueValidator = (
 ): value is number | null => value === null || isNonNegativeInteger(value);
 const isBoolean: ValueValidator = (value): value is boolean =>
   typeof value === "boolean";
+const isNullableBoolean: ValueValidator = (value): value is boolean | null =>
+  value === null || isBoolean(value);
 const isStringArray: ValueValidator = (value): value is string[] =>
   Array.isArray(value) && value.every((entry) => typeof entry === "string");
 const isTemplateRows: ValueValidator = (value): value is string[] =>
@@ -115,6 +117,7 @@ const patchableFields: Record<
     description: isString,
     spellType: isString,
     sourceCooldownTurns: isNullableNonNegativeInteger,
+    sourcePerformsMeleeAttack: isNullableBoolean,
   },
   monster: {
     description: isString,

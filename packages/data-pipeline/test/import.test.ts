@@ -120,10 +120,10 @@ describe("synthetic dataset import", () => {
       path.join(sourceRoot, "spellDB.xml"),
       [
         "<spells>",
-        '  <spell name="Resolved Pattern" type="template" templateID="cross" anchored="0" downtime="0" />',
+        '  <spell name="Resolved Pattern" type="template" templateID="cross" anchored="0" downtime="0" attack="0" />',
         '  <spell name="Lowercase Pattern" type="template" templateid="cross" />',
         '  <spell name="Conflicting Pattern" type="template" templateID="cross" templateid="absent" />',
-        '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" downtime="-1" />',
+        '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" downtime="-1" attack="2" />',
         '  <spell name="Non-template Metadata" type="self" templateID="cross" anchored="1" futureSpell="diagnosed" />',
         "</spells>",
       ].join("\n"),
@@ -169,12 +169,16 @@ describe("synthetic dataset import", () => {
       sourceAnchored: false,
     });
     expect(spells.get("Resolved Pattern")?.sourceCooldownTurns).toBe(0);
+    expect(spells.get("Resolved Pattern")?.sourcePerformsMeleeAttack).toBe(
+      false,
+    );
     expect(spells.get("Missing Pattern")?.targetingTemplate).toEqual({
       sourceTemplateId: "absent",
       templateKey: "absent",
       sourceAnchored: null,
     });
     expect(spells.get("Missing Pattern")?.sourceCooldownTurns).toBeNull();
+    expect(spells.get("Missing Pattern")?.sourcePerformsMeleeAttack).toBeNull();
     expect(spells.get("Lowercase Pattern")?.targetingTemplate).toEqual({
       sourceTemplateId: "cross",
       templateKey: "cross",
@@ -203,6 +207,17 @@ describe("synthetic dataset import", () => {
       expect.objectContaining({
         code: "invalid_boolean",
         entityId: "spell:missing pattern",
+        details: {
+          field: "spell targeting-template anchored flag",
+          value: "maybe",
+        },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_boolean",
+        entityId: "spell:missing pattern",
+        details: { field: "spell melee-attack flag", value: "2" },
       }),
     );
     expect(result.diagnostics).toContainEqual(
@@ -6255,6 +6270,8 @@ describe("synthetic dataset import", () => {
     ]);
     expect(clockworkSpark?.sourceCooldownTurns).toBe(7);
     expect(clockworkEcho?.sourceCooldownTurns).toBeNull();
+    expect(clockworkSpark?.sourcePerformsMeleeAttack).toBe(true);
+    expect(clockworkEcho?.sourcePerformsMeleeAttack).toBeNull();
     expect(clockworkSpark?.targetingTemplate).toEqual({
       sourceTemplateId: null,
       templateKey: null,

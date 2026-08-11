@@ -5139,6 +5139,14 @@ function parseSpells(
         currentEntityId,
         0,
       ),
+      sourcePerformsMeleeAttack: optionalBinaryBooleanAttribute(
+        record,
+        "attack",
+        context,
+        provenance,
+        "spell melee-attack flag",
+        currentEntityId,
+      ),
       targetingTemplate: {
         sourceTemplateId,
         templateKey:
@@ -5177,6 +5185,7 @@ function parseSpells(
         "type",
         "icon",
         "downtime",
+        "attack",
         ...(spellType === "template"
           ? ["templateID", "templateid", "anchored"]
           : []),

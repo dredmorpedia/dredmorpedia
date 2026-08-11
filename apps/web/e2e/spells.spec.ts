@@ -21,6 +21,14 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     cooldown.getByText(/does not establish when the cooldown starts/i),
   ).toBeVisible();
+  const meleeAttack = page.getByRole("region", { name: "Melee attack" });
+  await expect(
+    meleeAttack.getByText("Performs melee attack source flag", { exact: true }),
+  ).toBeVisible();
+  await expect(meleeAttack.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(
+    meleeAttack.getByText(/does not establish the attacker, target, weapon/i),
+  ).toBeVisible();
 
   const manaCost = page.getByRole("region", { name: "Mana cost" });
   await expect(
@@ -577,6 +585,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "Cooldown" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Melee attack" })).toHaveCount(
+    0,
+  );
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })

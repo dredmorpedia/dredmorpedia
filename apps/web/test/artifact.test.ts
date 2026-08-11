@@ -98,6 +98,11 @@ describe("generated artifact loading", () => {
         (spell) => spell.name === "Clockwork Spark",
       )?.sourceCooldownTurns,
     ).toBe(7);
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Spark",
+      )?.sourcePerformsMeleeAttack,
+    ).toBe(true);
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -366,6 +371,20 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourceCooldownTurns/);
+  });
+
+  it("rejects malformed spell melee-attack metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { sourcePerformsMeleeAttack: boolean | string | null }[];
+      };
+    };
+    typedArtifact.entities.spells[0]!.sourcePerformsMeleeAttack = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourcePerformsMeleeAttack/);
   });
 
   it("rejects malformed spell impact metadata", async () => {

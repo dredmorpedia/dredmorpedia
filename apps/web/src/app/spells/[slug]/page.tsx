@@ -432,6 +432,28 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.sourcePerformsMeleeAttack !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="melee-attack-heading"
+          >
+            <h2 id="melee-attack-heading" className="section-title-sm">
+              Melee attack
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Performs melee attack source flag</dt>
+                <dd>{spell.sourcePerformsMeleeAttack ? "Yes" : "No"}</dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              This is the exact root spell marker. It does not establish the
+              attacker, target, weapon, damage, hit resolution, timing, or
+              runtime success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.spellType === "template" ||
         spell.targetingTemplate.sourceTemplateId !== null ? (
           <section

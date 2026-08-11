@@ -47,11 +47,14 @@ Read these files before making a substantial change:
   the measured `templateID`/`templateid` source aliases, a loss-aware
   `anchored` flag, and an optional resolved template ID; all 106 active
   canonical references resolve. Root `downtime` preserves a loss-aware
-  non-negative cooldown-turn value on 131 active spells. The remaining 959 root
-  spell attributes across 20 case-insensitive families remain compatibility
-  warnings for separate feature decisions.
+  non-negative cooldown-turn value on 131 active spells. Root `attack`
+  preserves a loss-aware melee-attack source flag on 39 active spells. The
+  remaining 919 root spell attributes across 19 case-insensitive families
+  remain compatibility warnings for separate feature decisions.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
+  Consumers must not infer attacker, target, weapon, damage, hit resolution,
+  timing, or runtime success from the melee-attack declaration.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

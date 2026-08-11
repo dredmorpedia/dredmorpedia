@@ -292,6 +292,7 @@ test("searches reference entities with shareable structured filters", async ({
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Reset filters" }).click();
+  await expect(page).toHaveURL(/\/search\/?$/);
 
   const stat = page.getByRole("combobox", { name: "Stat" });
   await stat.focus();

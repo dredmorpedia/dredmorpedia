@@ -93,6 +93,7 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     spellType: "target",
     iconPath: null,
     sourceCooldownTurns: null,
+    sourcePerformsMeleeAttack: null,
     targetingTemplate: {
       sourceTemplateId: null,
       templateKey: null,
