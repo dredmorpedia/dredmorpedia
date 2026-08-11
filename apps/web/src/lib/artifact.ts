@@ -911,6 +911,7 @@ const spellSchema = z
     iconPath: nullableAssetPathSchema,
     sourceCooldownTurns: nullableNonnegativeInteger,
     sourcePerformsMeleeAttack: z.boolean().nullable(),
+    sourceWandFlag: z.boolean().nullable(),
     itemConsumption: spellItemConsumptionSchema.nullable(),
     mine: spellMineSchema.nullable(),
     targetingTemplate: z

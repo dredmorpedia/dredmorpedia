@@ -51,11 +51,12 @@ Read these files before making a substantial change:
   preserves a loss-aware melee-attack source flag on 39 active spells. The
   paired `consumeItem`/`consumeItemType` family preserves 11 active
   item-consumption declarations with strict binary flags and exact nonblank
-  source item-type tokens. The
-  coherent root mine family preserves 70 active declarations with loss-aware
-  mechanic, placement, and hidden presentation metadata. The remaining 200
-  root spell attributes across four case-insensitive families remain
-  compatibility warnings for separate feature decisions.
+  source item-type tokens. The coherent root mine family preserves 70 active
+  declarations with loss-aware mechanic, placement, and hidden presentation
+  metadata. Root `wand`
+  preserves the exact loss-aware source-binary flag on 191 active spells. The
+  remaining eight root spell attributes across three case-insensitive families
+  remain compatibility warnings for separate feature decisions.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
   Consumers must not infer attacker, target, weapon, damage, hit resolution,
@@ -66,6 +67,9 @@ Read these files before making a substantial change:
   Consumers must not infer an actor, item selection or matching rule,
   inventory state, transformation behavior, timing, eligibility, actual
   consumption, or runtime success from the item-consumption declaration.
+  Consumers must not infer whether or how a wand item may use a spell, item
+  matching, charge use, targeting, eligibility, timing, or runtime success
+  from the root wand flag.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

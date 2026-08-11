@@ -106,6 +106,11 @@ describe("generated artifact loading", () => {
     expect(
       loadArtifact().entities.spells.find(
         (spell) => spell.name === "Clockwork Spark",
+      )?.sourceWandFlag,
+    ).toBe(true);
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Spark",
       )?.itemConsumption,
     ).toEqual({
       sourceConsumesItem: true,
@@ -414,6 +419,20 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/sourcePerformsMeleeAttack/);
+  });
+
+  it("rejects malformed spell wand metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: { sourceWandFlag: boolean | string | null }[];
+      };
+    };
+    typedArtifact.entities.spells[0]!.sourceWandFlag = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceWandFlag/);
   });
 
   it("rejects malformed spell item-consumption metadata", async () => {

@@ -29,6 +29,14 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     meleeAttack.getByText(/does not establish the attacker, target, weapon/i),
   ).toBeVisible();
+  const wandMetadata = page.getByRole("region", { name: "Wand metadata" });
+  await expect(
+    wandMetadata.getByText("Wand source flag", { exact: true }),
+  ).toBeVisible();
+  await expect(wandMetadata.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(
+    wandMetadata.getByText(/does not establish whether or how a wand item/i),
+  ).toBeVisible();
   const itemConsumption = page.getByRole("region", {
     name: "Item consumption",
   });
@@ -627,6 +635,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   ).toBeVisible();
   await expect(page.getByRole("region", { name: "Cooldown" })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Melee attack" })).toHaveCount(
+    0,
+  );
+  await expect(page.getByRole("region", { name: "Wand metadata" })).toHaveCount(
     0,
   );
   await expect(

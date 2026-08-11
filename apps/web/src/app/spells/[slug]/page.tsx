@@ -454,6 +454,28 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.sourceWandFlag !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="wand-metadata-heading"
+          >
+            <h2 id="wand-metadata-heading" className="section-title-sm">
+              Wand metadata
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Wand source flag</dt>
+                <dd>{spell.sourceWandFlag ? "Yes" : "No"}</dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              This is the exact root spell flag. It does not establish whether
+              or how a wand item may use the spell, item matching, charge use,
+              targeting, eligibility, timing, or runtime success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.itemConsumption ? (
           <section
             className="detail-card"

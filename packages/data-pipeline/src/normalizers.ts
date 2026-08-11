@@ -5314,6 +5314,14 @@ function parseSpells(
         "spell melee-attack flag",
         currentEntityId,
       ),
+      sourceWandFlag: optionalBinaryBooleanAttribute(
+        record,
+        "wand",
+        context,
+        provenance,
+        "spell wand flag",
+        currentEntityId,
+      ),
       itemConsumption: parseSpellItemConsumptionDeclaration(
         record,
         context,
@@ -5365,6 +5373,7 @@ function parseSpells(
         "icon",
         "downtime",
         "attack",
+        "wand",
         ...spellItemConsumptionAttributeNames,
         ...spellMineAttributeNames,
         ...(spellType === "template"

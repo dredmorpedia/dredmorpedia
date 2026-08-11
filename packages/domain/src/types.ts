@@ -680,6 +680,7 @@ export interface Spell extends NormalizedEntityBase {
   iconPath: string | null;
   sourceCooldownTurns: number | null;
   sourcePerformsMeleeAttack: boolean | null;
+  sourceWandFlag: boolean | null;
   itemConsumption: SpellItemConsumptionDeclaration | null;
   mine: SpellMineDeclaration | null;
   targetingTemplate: SpellTargetingTemplateDeclaration;

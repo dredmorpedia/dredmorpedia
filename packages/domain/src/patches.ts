@@ -118,6 +118,7 @@ const patchableFields: Record<
     spellType: isString,
     sourceCooldownTurns: isNullableNonNegativeInteger,
     sourcePerformsMeleeAttack: isNullableBoolean,
+    sourceWandFlag: isNullableBoolean,
   },
   monster: {
     description: isString,

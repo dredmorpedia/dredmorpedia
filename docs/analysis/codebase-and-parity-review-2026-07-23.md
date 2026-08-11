@@ -210,7 +210,12 @@ Highest-impact gaps, ranked:
     `consumeItemType` family now preserves all 11 active declarations as a
     strict flag plus exact optional source token. Spell pages expose only those
     source values and withhold unverified inventory and engine behavior.
-11. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
+11. **Resolved 2026-08-11:** all 192 source-candidate root `wand`
+    declarations now use a required loss-aware strict source-binary field. The
+    191 active values render as neutral source metadata because their measured
+    overlap with wand-item triggers does not support a compatibility or
+    eligibility rule.
+12. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
 
 Legacy behaviors that are traps and should not be replicated: the Flash/Downloadify `itemDB.xml` export (`legacy/js/tool.js`); ephemeral `genId()` hash routing plus cookie-and-reload state; the Meta analytic's monster melee/armour formulas (the disputed formulas the handoff withholds); the hardcoded proprietary stat descriptions in `legacy/js/dredmor-stat.js`; and CamanJS runtime sprite tinting plus filesystem path-guessing image recovery.
 

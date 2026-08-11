@@ -82,7 +82,8 @@ Current validation and search evidence are recorded in:
 - [`spell-cooldown-evidence-2026-08-11.md`](spell-cooldown-evidence-2026-08-11.md),
 - [`spell-melee-attack-evidence-2026-08-11.md`](spell-melee-attack-evidence-2026-08-11.md),
 - [`spell-mine-declaration-evidence-2026-08-11.md`](spell-mine-declaration-evidence-2026-08-11.md),
-- [`spell-item-consumption-evidence-2026-08-11.md`](spell-item-consumption-evidence-2026-08-11.md), and
+- [`spell-item-consumption-evidence-2026-08-11.md`](spell-item-consumption-evidence-2026-08-11.md),
+- [`spell-wand-flag-evidence-2026-08-11.md`](spell-wand-flag-evidence-2026-08-11.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -96,7 +97,7 @@ The following audit concerns are still actionable:
    legacy/mod/asset provenance remain open.
 2. **Content parity:** no item, spell-child/effect, or spell-requirement
    compatibility diagnostic remains. The corrected root spell audit exposes
-   200 unsupported attributes across four case-insensitive families for later
+   eight unsupported attributes across three case-insensitive families for later
    feature-by-feature classification. Template spells now preserve both
    measured template-ID casing forms and the anchor-player flag; all 106 active
    references resolve. All 133 measured source-candidate root cooldown
@@ -111,6 +112,10 @@ The following audit concerns are still actionable:
    strict binary grammar; seven also retain their exact nonblank
    `consumeItemType` source token. No inventory, selection, transformation, or
    runtime behavior is inferred.
+   All 192 measured root `wand` declarations are recognized through the strict
+   binary grammar; 191 active spells retain 54 true and 137 false values. The
+   inconsistent overlap with existing wand-item trigger targets is preserved
+   as evidence against inferring compatibility or eligibility from this flag.
    Exact shield, weapon, booze, and zorkmid requirement slices preserve all 13
    measured non-mana declarations. The original 23 dangling-reference warnings were classified
    as 23 declarations, nine owner/reference pairs, and seven labels. The owner
