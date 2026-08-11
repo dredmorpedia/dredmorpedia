@@ -17,6 +17,8 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`analysis/repository-audit-2026-07-19.md`](analysis/repository-audit-2026-07-19.md) — dated evidence about the legacy repository and runtime.
 - [`analysis/architecture-spike-2026-07-19.md`](analysis/architecture-spike-2026-07-19.md) — implemented synthetic-spike evidence, measurements, checks, and remaining validation gates.
 - [`analysis/first-parity-foundation-2026-07-19.md`](analysis/first-parity-foundation-2026-07-19.md) — split-artifact, search, stat-route, accessibility, and read-only official validation evidence.
+- [`analysis/first-parity-acceptance-readiness-2026-08-11.md`](analysis/first-parity-acceptance-readiness-2026-08-11.md) — completed first-parity milestone review and current validation evidence.
+- [`analysis/legacy-meta-required-armour-evidence-2026-08-11.md`](analysis/legacy-meta-required-armour-evidence-2026-08-11.md) — exact preserved Meta heuristic, evidence limits, and the next focused product decision.
 - [`analysis/item-artifact-evidence-2026-07-22.md`](analysis/item-artifact-evidence-2026-07-22.md) — loss-aware item artifact-quality semantics, canonical measurements, diagnostics reduction, and regression boundary.
 - [`analysis/item-direct-trigger-evidence-2026-07-23.md`](analysis/item-direct-trigger-evidence-2026-07-23.md) — direct item trigger aliases, exact source flags, canonical relationship coverage, and diagnostics reduction.
 - [`analysis/item-use-metadata-evidence-2026-07-23.md`](analysis/item-use-metadata-evidence-2026-07-23.md) — food/booze recovery, wand charge ranges, consumable trigger leaves, canonical measurements, and diagnostics reduction.
@@ -36,7 +38,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 - [`decisions/`](decisions/) — architecture decision records (ADRs), including owner-approved directions that still need technical or policy validation.
 - [`contracts/generated-artifacts.md`](contracts/generated-artifacts.md) — versioned normalized/search/diagnostic artifact contract and evolution rules.
 - [`contracts/source-manifest-and-patches.md`](contracts/source-manifest-and-patches.md) — versioned source selection, precedence, and guarded patch-overlay contract.
-- [`product/first-parity-slice.md`](product/first-parity-slice.md) — reviewable acceptance draft for items, stats, provenance, and search.
+- [`product/first-parity-slice.md`](product/first-parity-slice.md) — completed evidence-based milestone record for items, stats, provenance, search, and the implemented relationship surface.
 
 ## Documentation rules
 

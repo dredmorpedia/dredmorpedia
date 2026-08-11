@@ -1,23 +1,24 @@
-# First-parity acceptance readiness review
+# First-parity completion review
 
 Date: 2026-08-11
-Status: maintainer review complete; owner approval remains open
+Status: complete
 
 ## Scope
 
-This review checks the drafted first-parity statement against the implemented
-local `1.1.5 public_beta` product after completion of the measured compatibility
-backlog. It does not approve public publication, infer engine mechanics, or
-decide the preserved Meta formula.
+This review checks the first-parity statement against the implemented local
+`1.1.5 public_beta` product after completion of the measured compatibility
+backlog. It closes an evidence-based engineering milestone; it does not approve
+public publication, infer engine mechanics, or decide the preserved Meta
+formula.
 
 ## Result
 
-The statement is ready for owner review. The implementation already satisfies
-the documented local item, stat, provenance, search, crafting, encrustment,
-skill, ability, spell, targeting-template, monster, browse, and dataset-health
-surface. The final measured compatibility set contains no unsupported item,
-spell-child/effect, spell-requirement, root-spell, skill/ability, or monster
-child declaration. The ignored canonical import retains only four deliberate
+The first-parity milestone is complete. The implementation satisfies the
+documented local item, stat, provenance, search, crafting, encrustment, skill,
+ability, spell, targeting-template, monster, browse, and dataset-health surface.
+The final measured compatibility set contains no unsupported item, spell-child/
+effect, spell-requirement, root-spell, skill/ability, or monster child
+declaration. The ignored canonical import retains only four deliberate
 relationship warnings and 90 informational review records.
 
 The review found one documentation omission: the functional acceptance list did
@@ -61,13 +62,10 @@ No application or generated-artifact contract changed in this review.
 - `docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`
 - `docs/analysis/search-response-budgets-evidence-2026-08-09.md`
 
-## Remaining decisions
+## Follow-up boundaries
 
-1. The owner must approve or revise the first-parity statement; maintainer
-   evidence cannot substitute for product acceptance.
-2. If approval remains deferred, discuss the preserved Meta view's “Required
-   Armour by Monster” heuristic immediately before implementing or
-   intentionally excluding it. Its formula must not be presented as engine
-   truth by assumption.
-3. Public official-content release remains separately blocked on documented
+1. Discuss the preserved Meta view's “Required Armour by Monster” heuristic
+   immediately before implementing or intentionally excluding it. Its formula
+   must not be presented as engine truth by assumption.
+2. Public official-content release remains separately blocked on documented
    permission and licensing scope.

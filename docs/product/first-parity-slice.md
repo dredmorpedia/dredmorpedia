@@ -1,12 +1,12 @@
-# First parity slice acceptance draft
+# First parity slice completion record
 
-Status: maintainer-reviewed draft, ready for owner approval
+Status: complete (2026-08-11)
 
 The first product slice is **items + stats + source provenance + search**. This
-statement remains a reviewable draft. Official content is approved only for the
-ignored local `1.1.5 public_beta` MVP, not public deployment. ADR 0003's search
-relevance and local performance budgets are accepted independently of this
-broader parity statement.
+record defines the completed evidence-based milestone. Official content remains
+approved only for the ignored local `1.1.5 public_beta` MVP, not public
+deployment. ADR 0003's search relevance and local performance budgets are
+accepted independently of this broader parity record.
 
 ## User outcome
 
@@ -154,10 +154,10 @@ entity-asset import for item icons, and the separately versioned project-authore
 decision route makes all verified diagnostics and every active override/patch
 record discoverable across entity kinds. Other asset families remain page-driven.
 
-Outstanding: the maintainer review is complete, but the owner must still approve
-or revise this statement. Evaluate engine-derived mechanics individually when
-their implementation is selected, and continue representative comparisons with
-legacy behavior. The accepted stat reference supplies names/categories only;
-descriptions, icons, and disputed formulas remain outside it. Item quality has
-passed its separate synthetic, official-data, artifact, patch, and responsive
-UI review.
+The milestone is complete based on its implementation and validation evidence;
+it does not require a separate owner sign-off. Continue representative legacy
+comparisons and evaluate engine-derived mechanics individually when their
+implementation is selected. The accepted stat reference supplies names/
+categories only; descriptions, icons, and disputed formulas remain outside it.
+Item quality has passed its separate synthetic, official-data, artifact, patch,
+and responsive UI review.

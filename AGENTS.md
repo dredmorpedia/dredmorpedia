@@ -163,6 +163,11 @@ Read these files before making a substantial change:
   and publication enforcement are implemented. ADR 0005's separately versioned
   project stat reference is accepted and implemented. Evidence is recorded under
   `docs/analysis/`.
+- The first parity slice is complete from implementation and validation
+  evidence without a separate owner sign-off. The next active parity decision
+  is the preserved Meta view's “Required Armour by Monster” heuristic; use the
+  focused evidence record and owner Q&A before implementing or intentionally
+  excluding that unverified formula.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

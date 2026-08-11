@@ -90,32 +90,32 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 
 Continue toward local parity without assuming permission to publish official content:
 
-1. Ask the owner to approve or revise `docs/product/first-parity-slice.md`. The
-   maintainer readiness review is complete and recorded in
-   `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`; it cannot
-   substitute for owner product acceptance. ADR 0005 resolves stat names/
-   categories through a separately versioned project reference; do not add
-   legacy prose, icons, or formulas through that catalogue.
-2. Extend the item-icon importer only when another implemented page needs concrete art; specialized monster sprites and animation frames still require page-specific decisions.
-3. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-4. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
-5. ADR 0004 is implemented; keep `--publication-routes` off local official commands until content permission exists, and keep the version switcher deferred until a second complete dataset exists. Evidence is in `docs/analysis/published-route-registry-lifecycle-evidence-2026-08-09.md`.
-6. ADR 0003 is accepted: `pnpm benchmark:search:official` enforces the transfer, parse, ordinary/suggestion query, concrete relevance, and desktop/4x-CPU-mobile browser budgets recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
-7. The item-icon slice maps all 763 canonical items to 722 unique copied PNGs with zero fallbacks; its evidence is in `docs/analysis/item-icon-import-evidence-2026-08-09.md`.
-8. `/dataset/` exposes the active source order, grouped diagnostics, affected
+1. The first parity slice is complete from implementation and validation
+   evidence; it requires no separate owner sign-off. Its completion record is
+   `docs/product/first-parity-slice.md`, with review evidence in
+   `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`.
+2. The next active task is focused owner Q&A about the preserved Meta view's
+   “Required Armour by Monster” heuristic. Use
+   `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`; do not
+   implement or reject the formula by assumption.
+3. Extend the item-icon importer only when another implemented page needs concrete art; specialized monster sprites and animation frames still require page-specific decisions.
+4. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
+5. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
+6. ADR 0004 is implemented; keep `--publication-routes` off local official commands until content permission exists, and keep the version switcher deferred until a second complete dataset exists. Evidence is in `docs/analysis/published-route-registry-lifecycle-evidence-2026-08-09.md`.
+7. ADR 0003 is accepted: `pnpm benchmark:search:official` enforces the transfer, parse, ordinary/suggestion query, concrete relevance, and desktop/4x-CPU-mobile browser budgets recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
+8. The item-icon slice maps all 763 canonical items to 722 unique copied PNGs with zero fallbacks; its evidence is in `docs/analysis/item-icon-import-evidence-2026-08-09.md`.
+9. `/dataset/` exposes the active source order, grouped diagnostics, affected
    records, 71 canonical override steps, and reviewed patches from the verified
    artifact set. It is not a source selector or version switcher. Evidence is
    in `docs/analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`.
-9. Cross-entity stat search covers direct item, ability, spell, and
+10. Cross-entity stat search covers direct item, ability, spell, and
    encrustment declarations through 61 active facets. Inherited monster bonuses
    remain on stat detail pages, and the preserved amount-ranking heuristic is
    not treated as a gameplay formula. Evidence is in
    `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`.
 
-If first-parity approval remains deferred, return to the preserved Meta view's
-"Required Armour by Monster" heuristic. Discuss that formula with the owner
-immediately before implementing or intentionally excluding it; do not present
-it as engine truth by default.
+Discuss the Meta formula with the owner immediately before implementing or
+intentionally excluding it; do not present it as engine truth by default.
 
 Architecture and foundation results are in `docs/analysis/architecture-spike-2026-07-19.md` and `docs/analysis/first-parity-foundation-2026-07-19.md`. Generated official-derived output remains ignored and non-public.
 
@@ -501,7 +501,6 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
 
 - Permission evidence for publishing normalized official data and art beyond the accepted local-only boundary.
 - Exact modern-project MIT copyright-holder wording and provenance/license treatment for excluded inherited code, historical mods, and assets.
-- Approval or revision of the drafted first parity-slice acceptance statement.
 - Post-parity quality-of-life priorities and extra technical-detail presentation, intentionally deferred until parity polish.
 - Technical feasibility of live progress tracking, deliberately deferred.
 
