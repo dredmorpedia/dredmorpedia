@@ -28,6 +28,10 @@ Read these files before making a substantial change:
 - Generated input checksums are captured from the exact byte snapshot used by
   parsing or, for referenced assets, from the first registration read. Do not
   reintroduce end-of-import source rereads.
+- `search.json` uses deterministic compact serialization because it is the
+  generated JSON transferred to interactive routes. Keep its stable key and
+  document ordering, final newline, manifest byte/checksum coverage, and exact
+  schema/query derivation; do not restore presentation whitespace by accident.
 - The first incremental local-asset slice copies only normalized item PNG icons
   from those captured snapshots into the ignored managed web asset directory.
   Its schema-1 catalog, diagnostics, content-addressed files, and manifest-last

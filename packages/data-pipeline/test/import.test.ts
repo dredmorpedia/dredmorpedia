@@ -7296,6 +7296,8 @@ describe("synthetic dataset import", () => {
       Buffer.byteLength(artifactFile),
     );
     expect(searchFile).toBe(outputs.search);
+    expect(searchFile.endsWith("\n")).toBe(true);
+    expect(searchFile).not.toContain("\n ");
     expect(manifest.outputs.search.sha256).toBe(sha256(searchFile));
     expect(manifest.outputs.search.bytes).toBe(Buffer.byteLength(searchFile));
     expect(

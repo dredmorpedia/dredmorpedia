@@ -1,22 +1,29 @@
 # ADR 0003: Initial search artifact and query strategy
 
 Date: 2026-07-19
-Status: Accepted (budgets and relevance examples accepted 2026-08-09)
+Status: Accepted (budgets and relevance examples accepted 2026-08-09; compact representation accepted 2026-08-11)
 Owners: repository owner + maintainer
 
 ## Context
 
 The first approved local measurement produced 2,710 search documents and a
-1,202,823-byte uncompressed search artifact. The canonical `1.1.5 public_beta`
-dataset now produces 2,767 documents and a 1,407,994-byte artifact. This remains
-small enough for a project-owned client query path without accepting the bundle
-cost, worker complexity, and query semantics of a third-party search engine.
+1,202,823-byte uncompressed search artifact. After the search scope expanded to
+2,829 canonical `1.1.5 public_beta` documents, pretty-printed serialization
+reached 1,477,801 bytes and left only 22,199 bytes below the accepted raw
+ceiling. Deterministic compact serialization reduces the same schema and
+documents to 1,180,204 bytes. This remains small enough for a project-owned
+client query path without accepting the bundle cost, worker complexity, and
+query semantics of a third-party search engine.
 
 Search must eventually combine text with typed filters and numeric game fields. A general full-text library does not replace domain-specific filtering, source precedence, stable URLs, or relationship queries.
 
 ## Decision
 
 - Generate a separately loadable, versioned search-document artifact from normalized domain records.
+- Serialize the transfer-facing search artifact compactly while retaining
+  deterministic object-key/document ordering, a final newline, and manifest
+  byte/checksum coverage. Keep normalized and diagnostic artifacts readable;
+  this representation choice does not change search schema or query semantics.
 - Keep structured facets and numeric filters in project-owned TypeScript rather than encoding game rules in a third-party query language.
 - Begin the first product slice with normalized text matching over the generated documents. Load the search artifact only on routes that use it and do not render the full dataset merely to search the DOM.
 - Benchmark query latency, parse/hydration cost, compressed transfer size, and
@@ -71,14 +78,17 @@ without changing them.
 This avoids an early dependency and keeps domain filtering explicit. It also means the project owns token normalization, ranking, result grouping, and later typo/prefix behavior until evidence justifies a specialized index.
 
 Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95
-for query execution across 1,000 representative calls. The accepted
-2,767-document artifact remains well inside every domain and browser budget, so
+for query execution across 1,000 representative calls. The current compact
+2,829-document artifact measures 1,180,204 bytes uncompressed, 196,345 bytes
+with gzip, and 143,207 bytes with Brotli. Its parse, query, suggestion, and
+desktop/4x-CPU-mobile browser paths remain inside every accepted budget, so
 MiniSearch and a worker remain unjustified. Initial query evidence is recorded
 in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md),
 the implemented suggestion contract is in
 [`../analysis/search-spelling-suggestions-evidence-2026-07-29.md`](../analysis/search-spelling-suggestions-evidence-2026-07-29.md),
 and the accepted response/relevance measurements are in
-[`../analysis/search-response-budgets-evidence-2026-08-09.md`](../analysis/search-response-budgets-evidence-2026-08-09.md).
+[`../analysis/search-response-budgets-evidence-2026-08-09.md`](../analysis/search-response-budgets-evidence-2026-08-09.md),
+which also records the 2026-08-11 headroom hardening.
 Cross-entity stat-filter evidence is in
 [`../analysis/cross-entity-stat-search-evidence-2026-08-09.md`](../analysis/cross-entity-stat-search-evidence-2026-08-09.md).
 

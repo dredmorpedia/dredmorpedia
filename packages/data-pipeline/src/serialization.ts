@@ -19,8 +19,16 @@ function sortForSerialization(value: unknown): unknown {
   return value;
 }
 
-export function stableSerialize(value: unknown): string {
-  return `${JSON.stringify(sortForSerialization(value), null, 2)}\n`;
+export interface StableSerializeOptions {
+  format?: "compact" | "pretty";
+}
+
+export function stableSerialize(
+  value: unknown,
+  options: StableSerializeOptions = {},
+): string {
+  const indentation = options.format === "compact" ? undefined : 2;
+  return `${JSON.stringify(sortForSerialization(value), null, indentation)}\n`;
 }
 
 export function sha256(value: string | Buffer): string {

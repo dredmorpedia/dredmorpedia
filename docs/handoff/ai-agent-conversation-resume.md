@@ -193,6 +193,16 @@ The local product boundary and the technical direction in ADR 0001–0005 are no
 
 ## Last completed slice validation
 
+The search headroom hardening keeps all 2,829 search documents and schema-2
+fields while serializing only `search.json` without presentation whitespace.
+The ignored canonical payload falls from 1,477,801 to 1,180,204 bytes; gzip is
+196,345 bytes and Brotli is 143,207 bytes. Manifest checksums cover the compact
+bytes, deterministic regeneration remains byte-identical, and the unchanged
+relevance plus parse/query/desktop/4x-CPU-mobile budgets pass through
+`pnpm.cmd benchmark:search:official`. The representation-only decision and
+measurements are recorded in ADR 0003 and
+`docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
+
 The cross-entity stat-search slice extends the shareable `Stat` filter from
 items to direct ability, spell, and encrustment declarations. Resolved
 selectors use one canonical reference key, unresolved selectors retain their

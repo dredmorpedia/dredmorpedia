@@ -58,7 +58,9 @@ export function serializeOutputs(
   result: ImportDatasetResult,
 ): SerializedOutputs {
   const artifact = stableSerialize(result.artifact);
-  const search = stableSerialize(result.search);
+  // Search is the only generated JSON transferred to an interactive route.
+  // Keep its deterministic key ordering while avoiding presentation whitespace.
+  const search = stableSerialize(result.search, { format: "compact" });
   const diagnostics = stableSerialize(result.diagnostics);
   const manifestValue: ArtifactManifest = {
     schemaVersion: 2,
