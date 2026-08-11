@@ -195,7 +195,10 @@ Highest-impact gaps, ranked:
 4. Game art is not rendered; pages show "reference supplied/not supplied" text. An incremental local-only entity-asset pipeline is approved but not implemented; public art remains blocked on permission.
 5. Search breadth and by-stat coverage regress against legacy (which searched items/skills/spells by name and ranked items/abilities/spells by stat magnitude).
 6. **Resolved 2026-08-11:** template-type spells now preserve and resolve both measured template-ID casing forms plus the loss-aware anchor-player flag. Spell and targeting-template pages link in both directions, and the root spell audit exposes every remaining unsupported attribute.
-7. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
+7. **Resolved 2026-08-11:** root spell cooldown metadata now preserves every
+   measured `downtime` declaration as a loss-aware non-negative source value.
+   Spell pages expose the exact turn count without inferring engine timing.
+8. Stat definitions render "unavailable" because the canonical build has no `statDB.xml`; needs an approved source (see traps below).
 
 Legacy behaviors that are traps and should not be replicated: the Flash/Downloadify `itemDB.xml` export (`legacy/js/tool.js`); ephemeral `genId()` hash routing plus cookie-and-reload state; the Meta analytic's monster melee/armour formulas (the disputed formulas the handoff withholds); the hardcoded proprietary stat descriptions in `legacy/js/dredmor-stat.js`; and CamanJS runtime sprite tinting plus filesystem path-guessing image recovery.
 

@@ -653,6 +653,7 @@ export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
+  sourceCooldownTurns: number | null;
   targetingTemplate: SpellTargetingTemplateDeclaration;
   manaCosts: SpellManaCost[];
   boozeRequirements: SpellBoozeRequirement[];

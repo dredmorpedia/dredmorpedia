@@ -114,6 +114,7 @@ const patchableFields: Record<
   spell: {
     description: isString,
     spellType: isString,
+    sourceCooldownTurns: isNullableNonNegativeInteger,
   },
   monster: {
     description: isString,

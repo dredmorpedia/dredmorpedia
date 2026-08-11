@@ -92,9 +92,12 @@ The following audit concerns are still actionable:
    legacy/mod/asset provenance remain open.
 2. **Content parity:** no item, spell-child/effect, or spell-requirement
    compatibility diagnostic remains. The corrected root spell audit exposes
-   1,092 unsupported attributes across 21 names for later feature-by-feature
-   classification. Template spells now preserve both measured template-ID
-   casing forms and the anchor-player flag; all 106 active references resolve.
+   959 unsupported attributes across 20 case-insensitive families for later
+   feature-by-feature classification. Template spells now preserve both
+   measured template-ID casing forms and the anchor-player flag; all 106 active
+   references resolve. All 133 measured source-candidate root cooldown
+   declarations are recognized, and 131 active spells retain the effective
+   value loss-aware.
    Exact shield, weapon, booze, and zorkmid requirement slices preserve all 13
    measured non-mana declarations. The original 23 dangling-reference warnings were classified
    as 23 declarations, nine owner/reference pairs, and seven labels. The owner

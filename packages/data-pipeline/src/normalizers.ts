@@ -5131,6 +5131,14 @@ function parseSpells(
         provenance,
         currentEntityId,
       ),
+      sourceCooldownTurns: optionalIntegerValue(
+        xmlAttribute(record, "downtime"),
+        context,
+        provenance,
+        "spell cooldown turns",
+        currentEntityId,
+        0,
+      ),
       targetingTemplate: {
         sourceTemplateId,
         templateKey:
@@ -5168,6 +5176,7 @@ function parseSpells(
         "name",
         "type",
         "icon",
+        "downtime",
         ...(spellType === "template"
           ? ["templateID", "templateid", "anchored"]
           : []),

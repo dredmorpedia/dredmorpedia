@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <spells>
-  <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg" futureSpell="diagnosed">
+  <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg" downtime="7" futureSpell="diagnosed">
     <description text="Starts a synthetic effect chain with a dangling reference." />
     <requirements mp="12" savvyBonus="0.25" mincost="4" level="1" />
     <anim sprite="sprites/sfx/synthetic/synthetic" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="clockwork_animation_audio_cue" />

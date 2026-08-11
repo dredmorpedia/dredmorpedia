@@ -16,6 +16,12 @@ test("navigates spell details and stops recursive effect cycles", async ({
     page.getByRole("heading", { level: 1, name: "Clockwork Spark" }),
   ).toBeVisible();
 
+  const cooldown = page.getByRole("region", { name: "Cooldown" });
+  await expect(cooldown.getByText("7 turns", { exact: true })).toBeVisible();
+  await expect(
+    cooldown.getByText(/does not establish when the cooldown starts/i),
+  ).toBeVisible();
+
   const manaCost = page.getByRole("region", { name: "Mana cost" });
   await expect(
     manaCost.getByText("12 − (0.25 × Savvy), minimum 4"),
@@ -570,6 +576,7 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Echo" }),
   ).toBeVisible();
+  await expect(page.getByRole("region", { name: "Cooldown" })).toHaveCount(0);
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })

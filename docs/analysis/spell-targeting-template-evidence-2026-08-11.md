@@ -55,6 +55,10 @@ artifact.
 These are aggregate local measurements only. No official XML, names, source
 paths, generated artifact, or asset is committed or approved for publication.
 
+The subsequent cooldown slice removes all 133 `downtime` warnings. Its current
+measurement and semantic boundary are recorded in
+[`spell-cooldown-evidence-2026-08-11.md`](spell-cooldown-evidence-2026-08-11.md).
+
 ## Verification
 
 - Focused importer tests cover canonical and lowercase aliases, simultaneous
