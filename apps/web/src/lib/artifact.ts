@@ -880,6 +880,14 @@ const spellSchema = z
     kind: z.literal("spell"),
     spellType: z.string(),
     iconPath: nullableAssetPathSchema,
+    targetingTemplate: z
+      .object({
+        sourceTemplateId: z.string().nullable(),
+        templateKey: z.string().nullable(),
+        templateId: z.string().optional(),
+        sourceAnchored: z.boolean().nullable(),
+      })
+      .strict(),
     manaCosts: z.array(
       z
         .object({

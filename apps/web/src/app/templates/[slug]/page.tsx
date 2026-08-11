@@ -61,6 +61,9 @@ export default async function TemplatePage({
     template.rows,
     template.affectsPlayer,
   );
+  const spellBacklinks = artifact.entities.spells.filter(
+    (spell) => spell.targetingTemplate.templateId === template.id,
+  );
   const isAlias = slug !== template.slug;
   const previewLabel = `${template.name} targeting pattern: ${pluralize(rowCount, "row")} by ${pluralize(columnCount, "column")}; ${pluralize(affectedTileCount, "affected tile")}; anchor is ${template.affectsPlayer ? "affected" : "not affected"}.`;
 
@@ -95,6 +98,10 @@ export default async function TemplatePage({
           <div>
             <dt>Anchor affected</dt>
             <dd>{template.affectsPlayer ? "Yes" : "No"}</dd>
+          </div>
+          <div>
+            <dt>Referencing spells</dt>
+            <dd>{spellBacklinks.length}</dd>
           </div>
         </dl>
       </header>
@@ -210,6 +217,38 @@ export default async function TemplatePage({
               </dd>
             </div>
           </dl>
+        </section>
+
+        <section
+          className="detail-card"
+          aria-labelledby="template-spells-heading"
+        >
+          <h2 id="template-spells-heading" className="section-title-sm">
+            Used by spells
+          </h2>
+          {spellBacklinks.length > 0 ? (
+            <ul className="trigger-list">
+              {spellBacklinks.map((spell) => (
+                <li key={spell.id}>
+                  <Link className="entity-link" href={`/spells/${spell.slug}`}>
+                    {spell.name}
+                  </Link>
+                  <small className="trigger-resolution">
+                    Anchor-player source flag:{" "}
+                    {spell.targetingTemplate.sourceAnchored === null
+                      ? "not declared"
+                      : spell.targetingTemplate.sourceAnchored
+                        ? "yes"
+                        : "no"}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="empty-state" role="status">
+              No active spell references this targeting template.
+            </div>
+          )}
         </section>
 
         <ProvenanceCard

@@ -144,6 +144,11 @@ export default async function SpellPage({
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
+  const targetingTemplate = spell.targetingTemplate.templateId
+    ? artifact.entities.templates.find(
+        (template) => template.id === spell.targetingTemplate.templateId,
+      )
+    : undefined;
   const chain = spellEffectChain(artifact.entities.spells, spell.id);
   const spellBacklinks = spellEffectBacklinks(
     artifact.entities.spells,
@@ -405,6 +410,58 @@ export default async function SpellPage({
       ) : null}
 
       <div className="detail-grid">
+        {spell.spellType === "template" ||
+        spell.targetingTemplate.sourceTemplateId !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="targeting-template-heading"
+          >
+            <h2 id="targeting-template-heading" className="section-title-sm">
+              Targeting pattern
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Source template ID</dt>
+                <dd>
+                  {spell.targetingTemplate.sourceTemplateId ?? "Not declared"}
+                </dd>
+              </div>
+              <div>
+                <dt>Anchor-player source flag</dt>
+                <dd>
+                  {spell.targetingTemplate.sourceAnchored === null
+                    ? "Not declared"
+                    : spell.targetingTemplate.sourceAnchored
+                      ? "Yes"
+                      : "No"}
+                </dd>
+              </div>
+              <div>
+                <dt>Resolved template</dt>
+                <dd>
+                  {targetingTemplate ? (
+                    <Link
+                      className="entity-link"
+                      href={`/templates/${targetingTemplate.slug}`}
+                    >
+                      {targetingTemplate.name}
+                    </Link>
+                  ) : spell.targetingTemplate.sourceTemplateId ? (
+                    `Unresolved template reference: ${spell.targetingTemplate.sourceTemplateId}`
+                  ) : (
+                    "No template reference declared"
+                  )}
+                </dd>
+              </div>
+            </dl>
+            <p className="interpretation-note">
+              These are source targeting declarations. They do not establish
+              target selection, rotation, placement, obstruction rules, or
+              runtime success.
+            </p>
+          </section>
+        ) : null}
+
         <section className="detail-card" aria-labelledby="mana-cost-heading">
           <h2 id="mana-cost-heading" className="section-title-sm">
             Mana cost

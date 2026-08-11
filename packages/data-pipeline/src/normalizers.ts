@@ -5079,6 +5079,31 @@ function parseSpells(
     const originalId = xmlAttribute(record, "id");
     const provenance = provenanceFor(context, record, name, originalId);
     const currentEntityId = entityId("spell", name);
+    const spellType = xmlAttribute(record, "type") ?? "unknown";
+    const canonicalTemplateId = xmlAttribute(record, "templateID");
+    const lowercaseTemplateId = xmlAttribute(record, "templateid");
+    if (
+      spellType === "template" &&
+      canonicalTemplateId !== undefined &&
+      lowercaseTemplateId !== undefined
+    ) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "conflicting_spell_targeting_template_aliases",
+        message:
+          "Template spell supplies both supported template ID attribute aliases; the canonical templateID casing was used.",
+        source: provenance,
+        entityId: currentEntityId,
+        details: {
+          canonicalAttribute: "templateID",
+          aliasAttribute: "templateid",
+        },
+      });
+    }
+    const sourceTemplateId =
+      spellType === "template"
+        ? (canonicalTemplateId ?? lowercaseTemplateId ?? null)
+        : null;
     const requirements = parseSpellRequirements(
       record,
       context,
@@ -5099,13 +5124,29 @@ function parseSpells(
         childAttribute(record, "description", "text") ?? "",
         provenance,
       ),
-      spellType: xmlAttribute(record, "type") ?? "unknown",
+      spellType,
       iconPath: normalizeAssetPath(
         xmlAttribute(record, "icon"),
         context,
         provenance,
         currentEntityId,
       ),
+      targetingTemplate: {
+        sourceTemplateId,
+        templateKey:
+          sourceTemplateId === null ? null : canonicalKey(sourceTemplateId),
+        sourceAnchored:
+          spellType === "template"
+            ? optionalBinaryBooleanAttribute(
+                record,
+                "anchored",
+                context,
+                provenance,
+                "spell targeting-template anchored flag",
+                currentEntityId,
+              )
+            : null,
+      },
       ...requirements,
       animations: parseSpellAnimations(
         record,
@@ -5118,6 +5159,22 @@ function parseSpells(
       buffs: parseSpellBuffs(record, context, provenance, currentEntityId),
       effects,
     };
+    reportUnknownAttributes(
+      context,
+      record,
+      "spell",
+      new Set([
+        "id",
+        "name",
+        "type",
+        "icon",
+        ...(spellType === "template"
+          ? ["templateID", "templateid", "anchored"]
+          : []),
+      ]),
+      provenance,
+      currentEntityId,
+    );
     reportUnknownChildren(
       context,
       record,

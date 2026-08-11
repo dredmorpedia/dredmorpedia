@@ -35,6 +35,7 @@ import {
   type SpellEffectBuffCondition,
   type Stat,
   type StatModifier,
+  type Template,
 } from "@dredmorpedia/domain";
 
 import { loadManifest, resolveSourceRoot, sourceRootBase } from "./manifest";
@@ -564,6 +565,7 @@ function linkSpells(
   stats: readonly Stat[],
   items: readonly Item[],
   monsters: readonly Monster[],
+  templates: readonly Template[],
   diagnostics: DiagnosticDraft[],
   reviewContext: RelationshipReviewContext,
 ): Spell[] {
@@ -572,6 +574,7 @@ function linkSpells(
   const itemAliases = aliasesFor(items);
   const itemsById = new Map(items.map((item) => [item.id, item]));
   const monsterAliases = aliasesFor(monsters);
+  const templateAliases = aliasesFor(templates);
   const linkBuffCondition = (
     owner: Spell,
     condition: SpellEffectBuffCondition,
@@ -748,38 +751,57 @@ function linkSpells(
     });
     return linkedEffect;
   };
-  return spells.map((spell) => ({
-    ...spell,
-    buffs: spell.buffs.map((buff) => ({
-      ...buff,
-      polymorphDeclarations: buff.polymorphDeclarations.map((declaration) => {
-        if (
-          declaration.monsterKey === null ||
-          declaration.monsterName === null
-        ) {
+  return spells.map((spell) => {
+    const template =
+      spell.targetingTemplate.templateKey === null
+        ? undefined
+        : templateAliases.get(spell.targetingTemplate.templateKey);
+    if (spell.targetingTemplate.templateKey !== null && !template) {
+      diagnostics.push(
+        danglingDiagnostic(
+          spell,
+          "template",
+          spell.targetingTemplate.sourceTemplateId ??
+            spell.targetingTemplate.templateKey,
+        ),
+      );
+    }
+    return {
+      ...spell,
+      targetingTemplate: template
+        ? { ...spell.targetingTemplate, templateId: template.id }
+        : spell.targetingTemplate,
+      buffs: spell.buffs.map((buff) => ({
+        ...buff,
+        polymorphDeclarations: buff.polymorphDeclarations.map((declaration) => {
+          if (
+            declaration.monsterKey === null ||
+            declaration.monsterName === null
+          ) {
+            return declaration;
+          }
+          const target = monsterAliases.get(declaration.monsterKey);
+          if (target) {
+            return { ...declaration, monsterId: target.id };
+          }
+          diagnostics.push(
+            danglingDiagnostic(spell, "monster", declaration.monsterName),
+          );
           return declaration;
-        }
-        const target = monsterAliases.get(declaration.monsterKey);
-        if (target) {
-          return { ...declaration, monsterId: target.id };
-        }
-        diagnostics.push(
-          danglingDiagnostic(spell, "monster", declaration.monsterName),
-        );
-        return declaration;
-      }),
-      eventHooks: buff.eventHooks.map((hook) => {
-        const target = spellAliases.get(hook.spellKey);
-        if (target) {
-          return { ...hook, spellId: target.id };
-        }
-        diagnostics.push(danglingDiagnostic(spell, "spell", hook.spellName));
-        return hook;
-      }),
-      effects: buff.effects.map((effect) => linkSpellEffect(spell, effect)),
-    })),
-    effects: spell.effects.map((effect) => linkSpellEffect(spell, effect)),
-  }));
+        }),
+        eventHooks: buff.eventHooks.map((hook) => {
+          const target = spellAliases.get(hook.spellKey);
+          if (target) {
+            return { ...hook, spellId: target.id };
+          }
+          diagnostics.push(danglingDiagnostic(spell, "spell", hook.spellName));
+          return hook;
+        }),
+        effects: buff.effects.map((effect) => linkSpellEffect(spell, effect)),
+      })),
+      effects: spell.effects.map((effect) => linkSpellEffect(spell, effect)),
+    };
+  });
 }
 
 function linkMonsters(
@@ -1181,6 +1203,7 @@ function resolveCollections(
     linkedStats,
     linkedItems,
     routed.monsters.entities,
+    routed.templates.entities,
     diagnostics,
     { datasetId, datasetVersion, sourceVersions },
   );

@@ -404,6 +404,24 @@ test("finds and renders a targeting template with a keyboard flow", async ({
   ).toBeVisible();
   await expect(page.getByText("Anchor (affected)")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Provenance" })).toBeVisible();
+  const usedBy = page.getByRole("region", { name: "Used by spells" });
+  await expect(
+    usedBy.getByText("Anchor-player source flag: yes"),
+  ).toBeVisible();
+  const spellLink = usedBy.getByRole("link", { name: "Clockwork Echo" });
+  await spellLink.focus();
+  await expect(spellLink).toBeFocused();
+  await spellLink.press("Enter");
+  await expect(page).toHaveURL(/\/spells\/clockwork-echo\/$/);
+  const targetingPattern = page.getByRole("region", {
+    name: "Targeting pattern",
+  });
+  await expect(
+    targetingPattern.getByRole("link", { name: "Small Cross" }),
+  ).toHaveAttribute("href", "/templates/small-cross/");
+  await expect(
+    targetingPattern.getByText("Unresolved template reference"),
+  ).toHaveCount(0);
   expect(
     await page.evaluate(
       () =>

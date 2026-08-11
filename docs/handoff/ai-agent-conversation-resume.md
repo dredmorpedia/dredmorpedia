@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-08-09
+Updated: 2026-08-11
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -100,14 +100,16 @@ Important completed item slices include:
 
 The latest canonical toolkit slice covers all eight active declarations, removes the final item compatibility diagnostics, and links all matching recipe/encrustment tool tags without rendering detailed sound cue IDs or raw presentation/layout values or using old game-interface coordinates for the modern UI. Evidence is in `docs/analysis/item-toolkit-declaration-evidence-2026-07-28.md`.
 
-Other completed areas include spell mana, requirement-level, shield-requirement, weapon-requirement, buff, presentation, and effect relationships; target-hit/player-hit/dodge buff event hooks; ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback and zorkmid-absorption source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite, dig graphics-regeneration, and buff-tag metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
+Other completed areas include spell mana, requirement-level, shield-requirement, weapon-requirement, buff, presentation, and effect relationships; target-hit/player-hit/dodge buff event hooks; ordered buff-local descriptions, invisibility, casting-prevention, wall-sensing, payback and zorkmid-absorption source parameters, named polymorph declarations, scoped nested effects, and search text; loss-aware buff-halo and direct-effect presentation metadata; separate created-object sprite, dig graphics-regeneration, and buff-tag metadata; direct damage-effect Midas flags; ordered spell- and buff-local AI hint metadata; typed ordered spell effect-list options with item/spell links and reciprocal backlinks; loss-aware direct effect item and monster targets with reciprocal resolved-entity links; named buff-removal targets with reciprocal spell links; damage amounts/factors/scaling selectors; duration declarations; `after`, bleed, and skip-animation flags; chance/targeting/resistance/burn/taxonomy controls; loss-aware source-buff and paired named buff conditions with reciprocal spell links; typed targeting-template source aliases and anchor flags with reciprocal spell/template navigation; all measured skill/ability child elements; monster profile/inheritance/AI/sight/movement/presentation/spell/drop data; verified monster primary attributes; encrustment outcomes/shared instability effects; and accessible targeting-template previews.
 
 ## Current measured backlog and likely next work
 
 The current canonical import reports:
 
-- 0 errors, 4 warnings, and 90 informational records;
-- zero measured item or spell compatibility constructs;
+- 0 errors, 1,096 warnings, and 90 informational records;
+- zero measured item, spell-child/effect, or spell-requirement compatibility
+  constructs, plus 1,092 root spell attributes across 21 names now exposed for
+  separate feature-by-feature classification;
 - zero unsupported spell requirements; and
 - 18 reviewed source-only item declarations, one reviewed item-label
   correction, and four remaining dangling-reference declarations.

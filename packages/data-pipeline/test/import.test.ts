@@ -109,6 +109,115 @@ describe("synthetic dataset import", () => {
     ).toHaveLength(4);
   });
 
+  it("links template spells and diagnoses invalid or unsupported root metadata", () => {
+    const temporaryRoot = mkdtempSync(
+      path.join(tmpdir(), "dredmorpedia-spell-template-"),
+    );
+    temporaryDirectories.push(temporaryRoot);
+    const sourceRoot = path.join(temporaryRoot, "source");
+    mkdirSync(sourceRoot);
+    writeFileSync(
+      path.join(sourceRoot, "spellDB.xml"),
+      [
+        "<spells>",
+        '  <spell name="Resolved Pattern" type="template" templateID="cross" anchored="0" />',
+        '  <spell name="Lowercase Pattern" type="template" templateid="cross" />',
+        '  <spell name="Conflicting Pattern" type="template" templateID="cross" templateid="absent" />',
+        '  <spell name="Missing Pattern" type="template" templateID="absent" anchored="maybe" />',
+        '  <spell name="Non-template Metadata" type="self" templateID="cross" anchored="1" futureSpell="diagnosed" />',
+        "</spells>",
+      ].join("\n"),
+    );
+    writeFileSync(
+      path.join(sourceRoot, "templateDB.xml"),
+      '<templates><template id="cross" name="Cross" affectsPlayer="0"><row text="#" /></template></templates>',
+    );
+    const templateManifestPath = path.join(temporaryRoot, "manifest.json");
+    writeFileSync(
+      templateManifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        datasetId: "spell-template-test",
+        sources: [
+          {
+            id: "fixture",
+            label: "Fixture",
+            kind: "fixture",
+            precedence: 0,
+            root: "source",
+            files: [
+              { kind: "spells", path: "spellDB.xml" },
+              { kind: "templates", path: "templateDB.xml" },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const result = importDataset({
+      manifestPath: templateManifestPath,
+      repositoryRoot: temporaryRoot,
+    });
+    const spells = new Map(
+      result.artifact.entities.spells.map((spell) => [spell.name, spell]),
+    );
+
+    expect(spells.get("Resolved Pattern")?.targetingTemplate).toEqual({
+      sourceTemplateId: "cross",
+      templateKey: "cross",
+      templateId: "template:cross",
+      sourceAnchored: false,
+    });
+    expect(spells.get("Missing Pattern")?.targetingTemplate).toEqual({
+      sourceTemplateId: "absent",
+      templateKey: "absent",
+      sourceAnchored: null,
+    });
+    expect(spells.get("Lowercase Pattern")?.targetingTemplate).toEqual({
+      sourceTemplateId: "cross",
+      templateKey: "cross",
+      templateId: "template:cross",
+      sourceAnchored: null,
+    });
+    expect(spells.get("Conflicting Pattern")?.targetingTemplate).toEqual({
+      sourceTemplateId: "cross",
+      templateKey: "cross",
+      templateId: "template:cross",
+      sourceAnchored: null,
+    });
+    expect(spells.get("Non-template Metadata")?.targetingTemplate).toEqual({
+      sourceTemplateId: null,
+      templateKey: null,
+      sourceAnchored: null,
+    });
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "dangling_reference",
+        entityId: "spell:missing pattern",
+        details: { targetKind: "template", reference: "absent" },
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_boolean",
+        entityId: "spell:missing pattern",
+      }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "conflicting_spell_targeting_template_aliases",
+        entityId: "spell:conflicting pattern",
+      }),
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "unknown_attribute" &&
+          diagnostic.entityId === "spell:non-template metadata",
+      ),
+    ).toHaveLength(3);
+  });
+
   it("links exact stat modifier selectors and rejects ambiguous definitions", () => {
     const temporaryRoot = mkdtempSync(
       path.join(tmpdir(), "dredmorpedia-stat-reference-"),
@@ -6135,6 +6244,24 @@ describe("synthetic dataset import", () => {
     expect(clockworkSpark?.manaCosts).toEqual([
       { base: 12, savvyReduction: 0.25, minimum: 4, sourceLevel: 1 },
     ]);
+    expect(clockworkSpark?.targetingTemplate).toEqual({
+      sourceTemplateId: null,
+      templateKey: null,
+      sourceAnchored: null,
+    });
+    expect(clockworkEcho?.targetingTemplate).toEqual({
+      sourceTemplateId: "small-cross",
+      templateKey: "small-cross",
+      templateId: "template:small cross",
+      sourceAnchored: true,
+    });
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "unknown_attribute",
+        entityId: "spell:clockwork spark",
+        details: { element: "spell", attribute: "futureSpell" },
+      }),
+    );
     expect(clockworkSpark?.animations).toEqual([
       {
         spritePath: "sprites/sfx/synthetic/synthetic",

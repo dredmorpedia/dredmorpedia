@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <spells>
-  <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg">
+  <spell id="clockwork-spark" name="Clockwork Spark" type="target" icon="assets/synthetic.svg" futureSpell="diagnosed">
     <description text="Starts a synthetic effect chain with a dangling reference." />
     <requirements mp="12" savvyBonus="0.25" mincost="4" level="1" />
     <anim sprite="sprites/sfx/synthetic/synthetic" frames="6" framerate="80" firstframe="1" centerEffect="1" sync="0" sfx="clockwork_animation_audio_cue" />
@@ -47,7 +47,7 @@
       <option name="Missing Listed Spell" />
     </effect>
   </spell>
-  <spell id="clockwork-echo" name="Clockwork Echo" type="self" icon="assets/synthetic.svg">
+  <spell id="clockwork-echo" name="Clockwork Echo" type="template" templateID="small-cross" anchored="1" icon="assets/synthetic.svg">
     <description text="Continues the synthetic effect chain and closes its deliberate cycle." />
     <requirements booze="10" />
     <requirements zorkmids="25" zorkmidScaleF="2.5" savvyBonus="0.25" />

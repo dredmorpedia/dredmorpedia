@@ -39,6 +39,13 @@ Read these files before making a substantial change:
   `docs/contracts/numeric-source-lexemes.md`; never restore general JavaScript
   string-to-number coercion.
 - The canonical read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_beta`, Steam build `22934623` on internal branch key `public_beta`, with all three official expansions. Never record the local installation path.
+- Root spell attributes are audited explicitly. Template-type spells preserve
+  the measured `templateID`/`templateid` source aliases, a loss-aware
+  `anchored` flag, and an optional resolved template ID; all 106 active
+  canonical references resolve. The remaining 1,092 root spell attributes
+  across 21 names remain compatibility warnings for separate feature decisions.
+  Consumers must not infer target selection, rotation, placement, obstruction,
+  or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,
   nine owner/reference pairs, and seven labels. The owner has approved the 16
   `lockpick` loadouts and two `Spores` list options as reviewed source-only item
@@ -48,7 +55,7 @@ Read these files before making a substantial change:
   Find's source label `Acidium Salis` to the existing `Acidum Salis` item. It
   retains the original label and a stable review ID, creates a resolved
   backlink, emits one informational audit record, and does not patch the game
-  source or create a global alias. The remaining four warnings are the
+  source or create a global alias. The remaining four relationship warnings are the
   deliberate `non-existant-spell` placeholder and three ambiguous monster
   spell labels. The generic loss-aware resolution contract is integrated for
   named skill loadouts and named spell item-list options. Do not alias the

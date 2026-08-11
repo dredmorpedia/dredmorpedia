@@ -82,7 +82,17 @@ describe("generated artifact loading", () => {
 
     expect(loadArtifact().entities.items).toHaveLength(13);
     expect(loadSearchArtifact().documents).toHaveLength(25);
-    expect(loadDiagnostics()).toHaveLength(23);
+    expect(loadDiagnostics()).toHaveLength(24);
+    expect(
+      loadArtifact().entities.spells.find(
+        (spell) => spell.name === "Clockwork Echo",
+      )?.targetingTemplate,
+    ).toEqual({
+      sourceTemplateId: "small-cross",
+      templateKey: "small-cross",
+      templateId: "template:small cross",
+      sourceAnchored: true,
+    });
   });
 
   it("rejects an output that no longer matches the manifest", async () => {
@@ -321,6 +331,22 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/frameRate/);
+  });
+
+  it("rejects malformed spell targeting-template metadata", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: {
+        spells: {
+          targetingTemplate: { sourceAnchored: boolean | string | null };
+        }[];
+      };
+    };
+    typedArtifact.entities.spells[0]!.targetingTemplate.sourceAnchored = "yes";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/sourceAnchored/);
   });
 
   it("rejects malformed spell impact metadata", async () => {

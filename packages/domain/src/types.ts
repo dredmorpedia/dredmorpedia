@@ -642,10 +642,18 @@ export interface SpellBuffPolymorphDeclaration {
   monsterId?: string;
 }
 
+export interface SpellTargetingTemplateDeclaration {
+  sourceTemplateId: string | null;
+  templateKey: string | null;
+  templateId?: string;
+  sourceAnchored: boolean | null;
+}
+
 export interface Spell extends NormalizedEntityBase {
   kind: "spell";
   spellType: string;
   iconPath: string | null;
+  targetingTemplate: SpellTargetingTemplateDeclaration;
   manaCosts: SpellManaCost[];
   boozeRequirements: SpellBoozeRequirement[];
   zorkmidRequirements: SpellZorkmidRequirement[];

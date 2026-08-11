@@ -420,10 +420,11 @@ attributes on the Oil Slick and Oil Slick2 mana declarations as nullable
 signed-byte `sourceLevel` values. The installed validation schema establishes
 the source shape, while the preserved application ignores the attribute. The
 spell page therefore exposes the exact source value without inferring an actor,
-unlock, eligibility, progression, or other engine rule. This removes the final
-two compatibility diagnostics: zero measured item/spell compatibility
-constructs remain, while 13 non-mana spell requirement diagnostics and 23
-dangling references remain explicit. Evidence is recorded in
+unlock, eligibility, progression, or other engine rule. At that checkpoint this
+removed the final two constructs visible to the child/effect/requirement audit;
+13 non-mana spell requirement diagnostics and 23 dangling references remained
+explicit. The later root spell audit below supersedes the former zero-backlog
+claim. Evidence is recorded in
 `docs/analysis/spell-requirement-level-evidence-2026-08-06.md`.
 
 Spell shield-requirement parity now preserves the three active exact
@@ -490,12 +491,12 @@ item-list options. Eighteen source-only informational records replace those
 former dangling warnings without creating entities or routes. The owner also
 approved the owner/source/version/relationship/label/target-scoped `Acidium
 Salis` correction to `Acidum Salis`; it adds one reviewed backlink without
-patching game data or creating a fuzzy alias. The canonical import now has four
-warnings and 90 informational records. Evidence is recorded in
+patching game data or creating a fuzzy alias. The canonical relationship warning
+set is now four declarations, with 90 informational records. Evidence is recorded in
 `docs/analysis/dangling-reference-classification-2026-08-09.md` and
 `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
-Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, and provenance. Synthetic desktop/mobile keyboard and axe coverage exercises the route.
+Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, provenance, and reciprocal spell relationships. Root spell attributes are now audited rather than silently discarded. The measured targeting family contains 105 canonical `templateID` declarations, one lowercase `templateid` source alias, and 42 explicit `anchored` flags; all 106 active template spells resolve to normalized templates. The remaining root audit exposes 1,092 compatibility warnings across 21 spell attribute names for later feature-by-feature classification. The full canonical import therefore reports 0 errors, 1,096 warnings, and 90 informational records. Evidence is in `docs/analysis/spell-targeting-template-evidence-2026-08-11.md`.
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter now covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases. It deliberately leaves inherited monster bonuses on stat-page backlinks and does not infer a cross-scope strength ranking. The 1,477,801-byte canonical search artifact remains inside ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, and `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`.
 

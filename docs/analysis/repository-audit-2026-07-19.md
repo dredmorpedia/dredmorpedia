@@ -8,7 +8,7 @@ Status: baseline evidence for the rebuild; current resolution summary updated 20
 
 > Modernization update: the original audit remains intentionally commit-specific rather than being rewritten as if the modern workspace existed in 2026-07-19. The current implementation status and remaining work are summarized below. Use `docs/handoff/ai-agent-conversation-resume.md` for the latest operational checkpoint.
 
-## Modern rebuild status as of 2026-08-09
+## Modern rebuild status as of 2026-08-11
 
 The audit's main architectural recommendations have been implemented. The modern workspace is split into `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked tests use independently authored fixtures under `fixtures/synthetic`; and the preserved application remains under `legacy/` as a behavioral reference.
 
@@ -17,7 +17,7 @@ The audit's main architectural recommendations have been implemented. The modern
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; local-only policy accepted, future public permission open |
 | Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and checksum-bound inherited route registries with tombstones are deterministic domain/pipeline contracts. `/dataset/` now makes ordered sources, diagnostics, affected records, override steps, and reviewed patches discoverable from one static surface. | Resolved; publication gate and active-dataset explorer implemented |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 250 unit/artifact tests, and 38 desktop/mobile Playwright tests are established. | Resolved |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 252 unit/artifact tests, and 38 desktop/mobile Playwright tests are established. | Resolved |
 | Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,981 pages including dataset health. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
 | Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,829 canonical documents, including 62 project-authored stat definitions. `/search/` exposes every kind, caps rendering at 50 results, offers bounded user-selected name/route-alias spelling suggestions after zero results, and filters direct item/ability/spell/encrustment stat declarations through canonical keys; `/browse/` provides bounded static discovery without JavaScript. ADR 0003's unchanged transfer, parse, query, relevance, and desktop/slowed-mobile browser budgets pass. | Resolved for current search and legacy stat discovery; heterogeneous amount ranking is intentionally not inferred |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates asset paths host-independently before root probing, checks filesystem references against real source roots, and emits strict normalized schemas. The web verifies safe route/asset-reference shapes and unique same-kind canonical/alias ownership, while React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
@@ -77,7 +77,8 @@ Current validation and search evidence are recorded in:
 - [`item-icon-import-evidence-2026-08-09.md`](item-icon-import-evidence-2026-08-09.md),
 - [`stat-reference-catalog-evidence-2026-08-09.md`](stat-reference-catalog-evidence-2026-08-09.md),
 - [`dataset-health-and-source-decisions-evidence-2026-08-09.md`](dataset-health-and-source-decisions-evidence-2026-08-09.md),
-- [`cross-entity-stat-search-evidence-2026-08-09.md`](cross-entity-stat-search-evidence-2026-08-09.md), and
+- [`cross-entity-stat-search-evidence-2026-08-09.md`](cross-entity-stat-search-evidence-2026-08-09.md),
+- [`spell-targeting-template-evidence-2026-08-11.md`](spell-targeting-template-evidence-2026-08-11.md), and
 - [`../handoff/ai-agent-conversation-resume.md`](../handoff/ai-agent-conversation-resume.md).
 
 ### Remaining work carried forward from the audit
@@ -89,10 +90,13 @@ The following audit concerns are still actionable:
    accepted, and modern project material is intended for MIT. Public-content
    permission, scoped license-holder wording, and excluded
    legacy/mod/asset provenance remain open.
-2. **Content parity:** the current canonical measurement has no remaining item,
-   spell, or spell-requirement compatibility diagnostic. Exact shield, weapon,
-   booze, and zorkmid requirement slices preserve all 13 measured non-mana
-   declarations. The original 23 dangling-reference warnings were classified
+2. **Content parity:** no item, spell-child/effect, or spell-requirement
+   compatibility diagnostic remains. The corrected root spell audit exposes
+   1,092 unsupported attributes across 21 names for later feature-by-feature
+   classification. Template spells now preserve both measured template-ID
+   casing forms and the anchor-player flag; all 106 active references resolve.
+   Exact shield, weapon, booze, and zorkmid requirement slices preserve all 13
+   measured non-mana declarations. The original 23 dangling-reference warnings were classified
    as 23 declarations, nine owner/reference pairs, and seven labels. The owner
    approved the 16 `lockpick` loadouts and two `Spores` options as reviewed
    source-only labels; they now emit informational audit records and create no

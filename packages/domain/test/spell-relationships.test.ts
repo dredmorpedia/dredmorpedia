@@ -92,6 +92,11 @@ function spell(name: string, effects: Spell["effects"] = []): Spell {
     diagnosticIds: [],
     spellType: "target",
     iconPath: null,
+    targetingTemplate: {
+      sourceTemplateId: null,
+      templateKey: null,
+      sourceAnchored: null,
+    },
     manaCosts: [],
     boozeRequirements: [],
     zorkmidRequirements: [],
