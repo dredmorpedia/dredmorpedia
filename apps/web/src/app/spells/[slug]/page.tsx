@@ -498,6 +498,29 @@ export default async function SpellPage({
           </section>
         ) : null}
 
+        {spell.sourceSelfFlag !== null ? (
+          <section
+            className="detail-card"
+            aria-labelledby="root-self-metadata-heading"
+          >
+            <h2 id="root-self-metadata-heading" className="section-title-sm">
+              Root self metadata
+            </h2>
+            <dl className="provenance-list">
+              <div>
+                <dt>Root self source flag</dt>
+                <dd>{spell.sourceSelfFlag ? "Yes" : "No"}</dd>
+              </div>
+            </dl>
+            <p className="detail-copy detail-note">
+              This is the exact root spell flag. It is distinct from buff- and
+              effect-local self fields and does not establish an actor, target
+              selection, casting origin, effect scope, eligibility, timing, or
+              runtime success.
+            </p>
+          </section>
+        ) : null}
+
         {spell.itemConsumption ? (
           <section
             className="detail-card"

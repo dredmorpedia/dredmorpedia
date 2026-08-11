@@ -120,6 +120,7 @@ const patchableFields: Record<
     sourceCooldownTurns: isNullableNonNegativeInteger,
     sourcePerformsMeleeAttack: isNullableBoolean,
     sourceWandFlag: isNullableBoolean,
+    sourceSelfFlag: isNullableBoolean,
   },
   monster: {
     description: isString,

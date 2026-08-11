@@ -913,6 +913,7 @@ const spellSchema = z
     sourceCooldownTurns: nullableNonnegativeInteger,
     sourcePerformsMeleeAttack: z.boolean().nullable(),
     sourceWandFlag: z.boolean().nullable(),
+    sourceSelfFlag: z.boolean().nullable(),
     itemConsumption: spellItemConsumptionSchema.nullable(),
     mine: spellMineSchema.nullable(),
     targetingTemplate: z

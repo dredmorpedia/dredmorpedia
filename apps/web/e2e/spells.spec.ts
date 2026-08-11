@@ -47,6 +47,18 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(
     wandMetadata.getByText(/does not establish whether or how a wand item/i),
   ).toBeVisible();
+  const rootSelfMetadata = page.getByRole("region", {
+    name: "Root self metadata",
+  });
+  await expect(
+    rootSelfMetadata.getByText("Root self source flag", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    rootSelfMetadata.getByText("Yes", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    rootSelfMetadata.getByText(/distinct from buff- and effect-local self/i),
+  ).toBeVisible();
   const itemConsumption = page.getByRole("region", {
     name: "Item consumption",
   });
@@ -653,6 +665,9 @@ test("navigates spell details and stops recursive effect cycles", async ({
   await expect(page.getByRole("region", { name: "Wand metadata" })).toHaveCount(
     0,
   );
+  await expect(
+    page.getByRole("region", { name: "Root self metadata" }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Item consumption" }),
   ).toHaveCount(0);

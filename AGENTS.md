@@ -55,9 +55,10 @@ Read these files before making a substantial change:
   declarations with loss-aware mechanic, placement, and hidden presentation
   metadata. Root `wand` preserves the exact loss-aware source-binary flag on
   191 active spells. Root `radius` preserves the exact loss-aware non-negative
-  source integer on four active spells. The remaining four root spell
-  attributes across two case-insensitive families
-  remain compatibility warnings for separate feature decisions.
+  source integer on four active spells. Root `self` preserves the exact
+  loss-aware source-binary flag on three active spells without conflating it
+  with buff- or effect-local self fields. The remaining root spell audit is
+  one `noanimation` compatibility warning for a separate feature decision.
   Consumers must not infer when cooldown starts, modifiers, eligibility, or
   runtime success from the cooldown declaration.
   Consumers must not infer attacker, target, weapon, damage, hit resolution,
@@ -74,6 +75,8 @@ Read these files before making a substantial change:
   Consumers must not infer distance units, area shape, origin, target
   selection, obstruction handling, or runtime success from the root radius
   declaration.
+  Consumers must not infer an actor, target selection, casting origin, effect
+  scope, eligibility, timing, or runtime success from the root self flag.
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,

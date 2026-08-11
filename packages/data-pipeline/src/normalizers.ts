@@ -5330,6 +5330,14 @@ function parseSpells(
         "spell wand flag",
         currentEntityId,
       ),
+      sourceSelfFlag: optionalBinaryBooleanAttribute(
+        record,
+        "self",
+        context,
+        provenance,
+        "root spell self flag",
+        currentEntityId,
+      ),
       itemConsumption: parseSpellItemConsumptionDeclaration(
         record,
         context,
@@ -5383,6 +5391,7 @@ function parseSpells(
         "downtime",
         "attack",
         "wand",
+        "self",
         ...spellItemConsumptionAttributeNames,
         ...spellMineAttributeNames,
         ...(spellType === "template"
