@@ -238,6 +238,9 @@ function loadConfiguredAssets(
     ...artifact.entities.abilities
       .filter((ability) => ability.iconPath !== null)
       .map((ability) => assetKey("ability-icon", ability.id)),
+    ...artifact.entities.spells
+      .filter((spell) => spell.iconPath !== null)
+      .map((spell) => assetKey("spell-icon", spell.id)),
   ]);
   const sourceIds = new Set(artifact.sources.map((source) => source.id));
   for (const diagnostic of diagnostics) {
@@ -361,4 +364,11 @@ export function abilityIconUrl(
   artifact: DatasetArtifact,
 ): string | null {
   return presentedAssetUrl("ability-icon", abilityId, artifact);
+}
+
+export function spellIconUrl(
+  spellId: string,
+  artifact: DatasetArtifact,
+): string | null {
+  return presentedAssetUrl("spell-icon", spellId, artifact);
 }

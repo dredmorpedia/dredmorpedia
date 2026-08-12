@@ -183,7 +183,10 @@ function collectIconAssetInputs(
 }
 
 function collectPresentedAssetInputs(
-  entities: Pick<EntityCollections, "items" | "skills" | "abilities">,
+  entities: Pick<
+    EntityCollections,
+    "items" | "skills" | "abilities" | "spells"
+  >,
   resolvedSources: readonly ResolvedSource[],
   inputSnapshots: InputSnapshots,
 ): PresentedAssetInput[] {
@@ -203,6 +206,12 @@ function collectPresentedAssetInputs(
     ...collectIconAssetInputs(
       entities.abilities,
       "ability-icon",
+      resolvedSources,
+      inputSnapshots,
+    ),
+    ...collectIconAssetInputs(
+      entities.spells,
+      "spell-icon",
       resolvedSources,
       inputSnapshots,
     ),

@@ -56,6 +56,13 @@ function fixtureRepository(): {
   <ability name="Copied Ability" skill="Copied Skill" icon="assets/icon.png" />
 </skills>`,
   );
+  writeFileSync(
+    path.join(sourceRoot, "spellDB.xml"),
+    `
+<spells>
+  <spell name="Copied Spell" type="self" icon="assets/icon.png" />
+</spells>`,
+  );
   const manifestPath = path.join(repositoryRoot, "manifest.json");
   writeFileSync(
     manifestPath,
@@ -72,6 +79,7 @@ function fixtureRepository(): {
           files: [
             { kind: "items", path: "itemDB.xml" },
             { kind: "skills", path: "skillDB.xml" },
+            { kind: "spells", path: "spellDB.xml" },
           ],
         },
       ],
@@ -108,6 +116,7 @@ describe("presented asset import", () => {
       ["item-icon", "item:copied icon"],
       ["item-icon", "item:shared icon"],
       ["skill-icon", "skill:copied skill"],
+      ["spell-icon", "spell:copied spell"],
     ]);
     expect(new Set(catalog.assets.map((asset) => asset.file)).size).toBe(1);
     expect(

@@ -1,7 +1,7 @@
 # Game data and asset policy
 
 Status: owner-approved local-first policy
-Updated: 2026-08-11
+Updated: 2026-08-12
 
 This document defines the working safety and publication boundary for the rebuild. It is deliberately conservative while ownership, licenses, and redistribution permissions are investigated. It is project policy, not legal advice.
 
@@ -88,15 +88,16 @@ not a bulk copy of unrelated game resources. Each import must:
 Specialized presentation such as palette-tinted monster sprites or animation
 frames is decided with the page that needs it rather than imported speculatively.
 
-The implemented icon slices follow this boundary for item, skill, and ability
-detail pages. They copy only referenced PNG item, skill, and ability icons from the importer's
-first-registration byte snapshots into the managed, gitignored web asset
-directory. The generated catalog uses typed entity mappings,
+The implemented icon slices follow this boundary for item, skill, ability, and
+spell detail pages. They copy only referenced PNG item, skill, ability, and root
+spell icons from the importer's first-registration byte snapshots into the
+managed, gitignored web asset directory. The generated catalog uses typed entity mappings,
 content-addressed filenames, checksums, dataset identity, and fallback
 diagnostics; the web verifies the complete set before rendering an icon.
-Missing, unsupported, or invalid images use a deliberate page fallback. Other
-entity art remains out of scope until its page presents it through a separately
-reviewed slice.
+Missing, unsupported, or invalid images use a deliberate page fallback. Buff-
+and effect-local spell icons remain out of scope because no implemented page
+presents them as entity art. Other entity art remains out of scope until its
+page presents it through a separately reviewed slice.
 
 Selected screenshots from the local product may be prepared for a permission
 request. A screenshot does not itself grant permission to publish the

@@ -24,6 +24,7 @@ function artifact(datasetVersion = "1.0.0"): DatasetArtifact {
       items: [{ id: "item:test", iconPath: "assets/test.png" }],
       skills: [{ id: "skill:test", iconPath: "skills/test.png" }],
       abilities: [{ id: "ability:test", iconPath: "skills/ability.png" }],
+      spells: [{ id: "spell:test", iconPath: "spells/test.png" }],
     },
   } as unknown as DatasetArtifact;
 }
@@ -72,6 +73,13 @@ function writeAssetSet(options: { tamperAsset?: boolean } = {}): string {
         {
           kind: "ability-icon",
           entityId: "ability:test",
+          file,
+          sha256: digest,
+          bytes: bytes.length,
+        },
+        {
+          kind: "spell-icon",
+          entityId: "spell:test",
           file,
           sha256: digest,
           bytes: bytes.length,
@@ -128,7 +136,7 @@ describe("presented asset consumer", () => {
     process.env.DREDMORPEDIA_ASSET_DIRECTORY = writeAssetSet();
     process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
     process.env.NEXT_PUBLIC_BASE_PATH = "/dredmorpedia";
-    const { abilityIconUrl, itemIconUrl, skillIconUrl } =
+    const { abilityIconUrl, itemIconUrl, skillIconUrl, spellIconUrl } =
       await import("../src/lib/presented-assets");
 
     expect(itemIconUrl("item:test", artifact())).toMatch(
@@ -143,6 +151,10 @@ describe("presented asset consumer", () => {
       /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
     );
     expect(abilityIconUrl("ability:missing", artifact())).toBeNull();
+    expect(spellIconUrl("spell:test", artifact())).toMatch(
+      /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
+    );
+    expect(spellIconUrl("spell:missing", artifact())).toBeNull();
   });
 
   it("rejects a catalog from a different dataset version", async () => {

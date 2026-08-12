@@ -750,6 +750,10 @@ input {
   gap: 1rem;
 }
 
+.spell-detail-header-aside {
+  align-items: start;
+}
+
 .entity-art {
   width: clamp(5rem, 14vw, 8rem);
   aspect-ratio: 1;

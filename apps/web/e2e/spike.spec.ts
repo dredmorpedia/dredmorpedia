@@ -1028,6 +1028,8 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
 
   await triggers.getByRole("link", { name: "Clockwork Spark" }).click();
   await expect(page).toHaveURL(/\/spells\/clockwork-spark\/$/);
+  await expect(page.getByTestId("spell-icon-placeholder")).toBeVisible();
+  await expect(page.locator(".detail-header img")).toHaveCount(0);
   await expect(
     page
       .getByRole("region", { name: "Referenced by" })

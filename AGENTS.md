@@ -32,11 +32,12 @@ Read these files before making a substantial change:
   generated JSON transferred to interactive routes. Keep its stable key and
   document ordering, final newline, manifest byte/checksum coverage, and exact
   schema/query derivation; do not restore presentation whitespace by accident.
-- The incremental local-asset slices copy only normalized item, skill, and
-  ability PNG icons used by their implemented detail pages from those captured snapshots
-  into the ignored managed web asset directory. Their schema-1 typed catalog,
-  diagnostics, content-addressed files, and manifest-last checksums must match
-  the active dataset before the web renders an icon.
+- The incremental local-asset slices copy only normalized item, skill, ability,
+  and root spell PNG icons used by their implemented detail pages from those
+  captured snapshots into the ignored managed web asset directory. Their
+  schema-1 typed catalog, diagnostics, content-addressed files, and
+  manifest-last checksums must match the active dataset before the web renders
+  an icon.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -177,10 +178,10 @@ Read these files before making a substantial change:
   tab-only partitions with stable routes, visible labels, native history,
   Browse, and structured search. Keep the preserved application until complete
   parity evidence and a separate archival decision. The non-item visual
-  inventory is complete, and skill plus ability icons are implemented. The
-  next active parity slice is spell icons; keep it page-driven and do not
-  bulk-copy unrelated resources. Monster art still requires a separate sprite,
-  animation, and palette decision.
+  inventory is complete, and skill, ability, plus root spell icons are
+  implemented. The next active parity slice is the separate monster-art
+  rendering and palette decision; keep it page-driven and do not bulk-copy
+  unrelated resources.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

@@ -979,6 +979,7 @@ export const presentedAssetKinds = [
   "item-icon",
   "skill-icon",
   "ability-icon",
+  "spell-icon",
 ] as const;
 
 export type PresentedAssetKind = (typeof presentedAssetKinds)[number];

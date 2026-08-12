@@ -20,6 +20,7 @@ import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import { spellIconUrl } from "@/lib/presented-assets";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
@@ -216,6 +217,7 @@ export default async function SpellPage({
     abilityBacklinks.length +
     monsterBacklinks.length;
   const isAlias = slug !== spell.slug;
+  const iconUrl = spellIconUrl(spell.id, artifact);
   const presentationDeclarations = [
     ...spell.animations.map((metadata, index) => ({
       kind: "Animation",
@@ -261,138 +263,159 @@ export default async function SpellPage({
             {spell.description || "No normalized spell description."}
           </p>
         </div>
-        <dl className="price-block">
-          <div>
-            <dt>Mana declarations</dt>
-            <dd>{spell.manaCosts.length}</dd>
-          </div>
-          <div>
-            <dt>Zorkmid requirement declarations</dt>
-            <dd>{spell.zorkmidRequirements.length}</dd>
-          </div>
-          <div>
-            <dt>Booze requirement declarations</dt>
-            <dd>{spell.boozeRequirements.length}</dd>
-          </div>
-          <div>
-            <dt>Shield requirement declarations</dt>
-            <dd>{spell.shieldRequirements.length}</dd>
-          </div>
-          <div>
-            <dt>Weapon requirement declarations</dt>
-            <dd>{spell.weaponRequirements.length}</dd>
-          </div>
-          <div>
-            <dt>Animation declarations</dt>
-            <dd>{spell.animations.length}</dd>
-          </div>
-          <div>
-            <dt>Impact declarations</dt>
-            <dd>{spell.impacts.length}</dd>
-          </div>
-          <div>
-            <dt>Direct effects</dt>
-            <dd>{spell.effects.length}</dd>
-          </div>
-          <div>
-            <dt>Effect buff tags</dt>
-            <dd>{buffTagEffectCount}</dd>
-          </div>
-          <div>
-            <dt>List options</dt>
-            <dd>{listOptionCount}</dd>
-          </div>
-          <div>
-            <dt>Buff declarations</dt>
-            <dd>{spell.buffs.length}</dd>
-          </div>
-          <div>
-            <dt>Buff event hooks</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.eventHooks.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff halo declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.halos.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff invisibility declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.invisibilityDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff casting-prevention declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.muteDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff wall-sensing declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.senseWallsDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff payback declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.paybackDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff zorkmid-absorption declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) =>
-                  count + buff.zorkmidAbsorptionDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff polymorph declarations</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.polymorphDeclarations.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Buff-local effects</dt>
-            <dd>
-              {spell.buffs.reduce(
-                (count, buff) => count + buff.effects.length,
-                0,
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>AI hint declarations</dt>
-            <dd>{aiHintDeclarations.length}</dd>
-          </div>
-        </dl>
+        <div className="detail-header-aside spell-detail-header-aside">
+          {iconUrl ? (
+            // The adjacent heading names the spell, so the icon is decorative.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="entity-art"
+              height="128"
+              src={iconUrl}
+              width="128"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="entity-art entity-art-placeholder"
+              data-testid="spell-icon-placeholder"
+            >
+              ?
+            </div>
+          )}
+          <dl className="price-block">
+            <div>
+              <dt>Mana declarations</dt>
+              <dd>{spell.manaCosts.length}</dd>
+            </div>
+            <div>
+              <dt>Zorkmid requirement declarations</dt>
+              <dd>{spell.zorkmidRequirements.length}</dd>
+            </div>
+            <div>
+              <dt>Booze requirement declarations</dt>
+              <dd>{spell.boozeRequirements.length}</dd>
+            </div>
+            <div>
+              <dt>Shield requirement declarations</dt>
+              <dd>{spell.shieldRequirements.length}</dd>
+            </div>
+            <div>
+              <dt>Weapon requirement declarations</dt>
+              <dd>{spell.weaponRequirements.length}</dd>
+            </div>
+            <div>
+              <dt>Animation declarations</dt>
+              <dd>{spell.animations.length}</dd>
+            </div>
+            <div>
+              <dt>Impact declarations</dt>
+              <dd>{spell.impacts.length}</dd>
+            </div>
+            <div>
+              <dt>Direct effects</dt>
+              <dd>{spell.effects.length}</dd>
+            </div>
+            <div>
+              <dt>Effect buff tags</dt>
+              <dd>{buffTagEffectCount}</dd>
+            </div>
+            <div>
+              <dt>List options</dt>
+              <dd>{listOptionCount}</dd>
+            </div>
+            <div>
+              <dt>Buff declarations</dt>
+              <dd>{spell.buffs.length}</dd>
+            </div>
+            <div>
+              <dt>Buff event hooks</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.eventHooks.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff halo declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.halos.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff invisibility declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.invisibilityDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff casting-prevention declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.muteDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff wall-sensing declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.senseWallsDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff payback declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.paybackDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff zorkmid-absorption declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) =>
+                    count + buff.zorkmidAbsorptionDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff polymorph declarations</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.polymorphDeclarations.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Buff-local effects</dt>
+              <dd>
+                {spell.buffs.reduce(
+                  (count, buff) => count + buff.effects.length,
+                  0,
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>AI hint declarations</dt>
+              <dd>{aiHintDeclarations.length}</dd>
+            </div>
+          </dl>
+        </div>
       </header>
 
       {isAlias ? (

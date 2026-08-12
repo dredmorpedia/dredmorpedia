@@ -39,6 +39,8 @@ function assetLabel(input: PresentedAssetInput): string {
       return "skill icon";
     case "item-icon":
       return "item icon";
+    case "spell-icon":
+      return "spell icon";
   }
 }
 

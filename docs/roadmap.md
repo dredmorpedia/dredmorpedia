@@ -533,9 +533,9 @@ Implement in dependency order rather than old-tab order:
 
 The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
 second complete, verified dataset. The local visual-parity importer now copies
-and renders normalized item, skill, and ability PNG icons through a checksummed,
-manifest-coordinated, ignored asset set; the canonical build maps 763 items, 52
-skills, and 352 abilities to 1,051 unique files without fallbacks. Extend that
+and renders normalized item, skill, ability, and root spell PNG icons through a
+checksummed, manifest-coordinated, ignored asset set; the canonical build maps
+1,607 entity references to 1,312 unique files without fallbacks. Extend that
 importer only when another implemented page displays a concrete asset. Specialized sprite
 treatment is still decided per page rather than imported speculatively.
 Engine mechanics absent from XML are evaluated individually immediately before
@@ -581,12 +581,14 @@ The navigation/tooltip checkpoint is complete. Keep `legacy/` until complete
 parity evidence and a separate archival decision. The non-item visual inventory
 found 52 skill, 352 ability, 440 spell, and 183 monster records with icon or
 sprite references. The implemented direct slices now import and render all 52
-skill and 352 ability PNG icons. Spell icons are the next direct PNG/page-driven
-slice, while monster `.spr` and animation-XML references require a
-separate rendering and palette decision. No slice may bulk-copy unrelated
-resources. Phase 5 prioritization waits for that parity polish. Evidence is in
-`docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md` and
-`docs/analysis/ability-icon-import-evidence-2026-08-12.md`.
+skill, 352 ability, and 440 root spell PNG icons. Monster `.spr` and
+animation-XML references are the next page-driven slice and require a separate
+rendering and palette decision before implementation. No slice may bulk-copy
+unrelated resources. Phase 5 prioritization waits for that parity polish.
+Evidence is in
+`docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
+`docs/analysis/ability-icon-import-evidence-2026-08-12.md`, and
+`docs/analysis/spell-icon-import-evidence-2026-08-12.md`.
 
 ### Exit criteria
 
