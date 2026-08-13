@@ -182,8 +182,12 @@ Read these files before making a substantial change:
   art are implemented. Monster art is restricted to the first downward idle
   frame with strict XML-frame resolution, measured SPR decoding, and
   generation-time declared palette transforms. Keep future assets page-driven
-  and do not bulk-copy unrelated resources. The next active product task is the
-  deferred search-page filtering rework.
+  and do not bulk-copy unrelated resources. The search-page filtering rework
+  is implemented with bounded keyboard/touch scrolling, semantic groups,
+  displayed-label ordering, contextual entity-type options, and stale URL
+  cleanup. The next recommended Phase 5 slice is an expanded
+  crafting/encrusting dependency view, beginning with its product brief and
+  URL/shareability contract.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

@@ -10,6 +10,35 @@ export const Select = SelectPrimitive.Root;
 export const SelectLabel = SelectPrimitive.Label;
 export const SelectValue = SelectPrimitive.Value;
 
+export function SelectGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Group>) {
+  return (
+    <SelectPrimitive.Group
+      data-slot="select-group"
+      className={cn("border-t border-border/70 pt-1", className)}
+      {...props}
+    />
+  );
+}
+
+export function SelectGroupLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.GroupLabel>) {
+  return (
+    <SelectPrimitive.GroupLabel
+      data-slot="select-group-label"
+      className={cn(
+        "px-2 py-1.5 pl-8 text-xs font-semibold tracking-wide text-muted-foreground uppercase select-none",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 export function SelectTrigger({
   className,
   children,
@@ -58,7 +87,12 @@ export function SelectContent({
           <SelectPrimitive.ScrollUpArrow className="flex h-6 items-center justify-center">
             <ChevronUpIcon aria-hidden="true" className="size-4" />
           </SelectPrimitive.ScrollUpArrow>
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          <SelectPrimitive.List
+            data-slot="select-list"
+            className="relative max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-6"
+          >
+            {children}
+          </SelectPrimitive.List>
           <SelectPrimitive.ScrollDownArrow className="flex h-6 items-center justify-center">
             <ChevronDownIcon aria-hidden="true" className="size-4" />
           </SelectPrimitive.ScrollDownArrow>
@@ -82,10 +116,12 @@ export function SelectItem({
       )}
       {...props}
     >
-      <SelectPrimitive.ItemIndicator>
+      <SelectPrimitive.ItemIndicator className="col-start-1">
         <CheckIcon aria-hidden="true" className="size-4" />
       </SelectPrimitive.ItemIndicator>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      <SelectPrimitive.ItemText className="col-start-2">
+        {children}
+      </SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   );
 }

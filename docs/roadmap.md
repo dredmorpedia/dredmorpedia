@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-12
+Updated: 2026-08-13
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -509,14 +509,14 @@ or broaden the publication boundary. Evidence is in
 
 Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases; all 374 recipes additionally expose their normalized crafting tool through the existing category filter. Inherited monster bonuses remain on stat-page backlinks rather than being duplicated or ranked in search. Deterministic compact serialization plus the current recipe-tool categories leave the 2,829-document canonical search artifact at 1,185,026 bytes, with 314,974 bytes of raw budget headroom. ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`, and `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
-The current shared category select is functional but remains temporary pending a
-broader search-page rework. That rework must give the popup a bounded,
-keyboard- and touch-scrollable list, sort options by their displayed labels,
-group the mixed semantic facets (such as item categories, crafting tools, skill
-archetypes, monster taxonomies, and stat groups), and make the available groups
-contextual to the selected entity type without leaving an incompatible category
-in the URL. This is a presentation and interaction backlog item; the normalized
-recipe-tool search data remains part of the completed parity work.
+The shared category select rework is complete. Its Base UI popup is bounded and
+keyboard/touch scrollable; options are sorted by displayed labels and grouped
+as item categories, crafting tools, skill archetypes, monster taxonomies, and
+stat groups. Groups are contextual to the selected entity type, and an
+incompatible category is removed from the shareable URL rather than silently
+ignored. The normalized recipe-tool data and query semantics are unchanged.
+Evidence is in
+`docs/analysis/search-filtering-rework-evidence-2026-08-13.md`.
 
 ## Phase 4 — Legacy parity
 
@@ -589,12 +589,15 @@ and 183 monster references. Monster pages decode only the first idle-down SPR
 frame or resolve the first explicit animation-XML frame; 129 numeric tints and
 two exact named palettes are applied during generation. No slice may bulk-copy
 unrelated resources. With this final identified visual checkpoint complete,
-the next active product work is the deferred search-page filtering rework at
-the start of Phase 5. Evidence is in
+the deferred search-page filtering rework is also complete at the start of
+Phase 5. The next recommended bounded product slice is an expanded
+crafting/encrusting dependency view, beginning with a product brief and
+URL/shareability contract. Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
 `docs/analysis/ability-icon-import-evidence-2026-08-12.md`, and
 `docs/analysis/spell-icon-import-evidence-2026-08-12.md`, and
-`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`.
+`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`, and
+`docs/analysis/search-filtering-rework-evidence-2026-08-13.md`.
 
 ### Exit criteria
 
@@ -602,12 +605,17 @@ All agreed parity concepts have stable routes, tested relationships, provenance,
 
 ## Phase 5 — Differentiating tools
 
-Candidate order is intentionally unprioritized until parity polish:
+The search-filter interaction foundation is complete: its mixed category facet
+is grouped, bounded, contextual, shareable, and covered on desktop/mobile. The
+next recommended slice is the first expanded crafting/encrusting dependency
+view.
 
-1. Rich cross-list filtering and reusable filter views.
-2. Expanded crafting/encrusting dependency views and shopping lists.
-3. Local tagging, favorites, and custom lists after a separate persistence/portability decision.
-4. Side-by-side comparison and build planning with shareable URLs.
+Recommended sequence after the search-filter foundation:
+
+1. Expanded crafting/encrusting dependency views and shopping lists.
+2. Rich cross-list filtering and reusable filter views.
+3. Side-by-side comparison and build planning with shareable URLs.
+4. Local tagging, favorites, and custom lists after a separate persistence/portability decision.
 5. Local mod inspector/validator, conflict view, spell/effect graph, and data-version diff.
 6. Offline installability after artifact/asset sizing.
 

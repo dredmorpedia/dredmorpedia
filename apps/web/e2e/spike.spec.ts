@@ -400,6 +400,81 @@ test("searches reference entities with shareable structured filters", async ({
   ).toBeVisible();
 });
 
+test("groups, bounds, and contextualizes search category filters", async ({
+  page,
+}) => {
+  await page.goto("/search/");
+  const category = page.getByRole("combobox", { name: "Category" });
+  await category.focus();
+  await category.press("Enter");
+
+  await expect(page.locator('[data-slot="select-group-label"]')).toHaveText([
+    "Crafting tools",
+    "Item categories",
+    "Monster taxonomies",
+    "Skill archetypes",
+    "Stat groups",
+  ]);
+  const categoryList = page.locator('[data-slot="select-list"]');
+  await expect(categoryList).toBeVisible();
+  const listMetrics = await categoryList.evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+    overflowY: getComputedStyle(element).overflowY,
+  }));
+  expect(listMetrics.overflowY).toBe("auto");
+  expect(listMetrics.clientHeight).toBeLessThanOrEqual(320);
+  expect(listMetrics.scrollHeight).toBeGreaterThan(listMetrics.clientHeight);
+
+  const itemGroup = page
+    .locator('[data-slot="select-group"]')
+    .filter({ hasText: "Item categories" });
+  await expect(itemGroup.getByRole("option")).toHaveText([
+    "Booze",
+    "Chest armour",
+    "Food",
+    "Gem",
+    "Item",
+    "Material",
+    "Mushroom",
+    "Potion",
+    "Sword weapon",
+    "Toolkit",
+    "Trap",
+    "Wand",
+  ]);
+
+  await page.keyboard.press("End");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/category=secondary/);
+  await expect(page.getByRole("link", { name: "Melee Power" })).toBeVisible();
+
+  await page.goto("/search/?kind=item&category=weapon%3Asword");
+  const type = page.getByRole("combobox", { name: "Entity type" });
+  await type.focus();
+  await type.press("Enter");
+  await page
+    .getByRole("option", { name: "Recipes", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/kind=recipe/);
+  await expect(page).not.toHaveURL(/category=/);
+
+  await category.focus();
+  await category.press("Enter");
+  await expect(page.locator('[data-slot="select-group-label"]')).toHaveText([
+    "Crafting tools",
+  ]);
+  await expect(page.getByRole("option")).toHaveText([
+    "All categories",
+    "Smithing",
+  ]);
+  await page.keyboard.press("Escape");
+
+  await page.goto("/search/?kind=spell&category=weapon%3Asword");
+  await expect(page).not.toHaveURL(/category=/);
+  await expect(category).toBeDisabled();
+});
+
 test("searches every record kind without losing sequential input", async ({
   page,
 }) => {

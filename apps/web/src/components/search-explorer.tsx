@@ -2,7 +2,6 @@
 
 import {
   entityKinds,
-  itemCategoryLabel,
   querySearchDocuments,
   suggestSearchDocuments,
   type EntityKind,
@@ -16,11 +15,19 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
+  SelectGroupLabel,
   SelectItem,
   SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  createSearchCategoryGroups,
+  searchCategoryLabel,
+  searchCategoryValues,
+  type SearchCategoryGroup,
+} from "@/lib/search-category-facets";
 
 interface FilterOption {
   value: string;
@@ -60,17 +67,29 @@ function FilterSelect({
   label,
   value,
   options,
+  groups,
+  disabled = false,
   onChange,
 }: {
   label: string;
   value: string;
   options: FilterOption[];
+  groups?: SearchCategoryGroup[];
+  disabled?: boolean;
   onChange: (value: string) => void;
 }) {
+  const groupedValues = new Set(
+    groups?.flatMap((group) => group.options.map((option) => option.value)),
+  );
+  const ungroupedOptions = options.filter(
+    (option) => !groupedValues.has(option.value),
+  );
+
   return (
     <Select
       items={options}
       value={value}
+      disabled={disabled}
       onValueChange={(nextValue) => onChange(nextValue ?? "all")}
     >
       <div className="field-group">
@@ -80,10 +99,20 @@ function FilterSelect({
         </SelectTrigger>
       </div>
       <SelectContent>
-        {options.map((option) => (
+        {ungroupedOptions.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
           </SelectItem>
+        ))}
+        {groups?.map((group) => (
+          <SelectGroup key={group.id}>
+            <SelectGroupLabel>{group.label}</SelectGroupLabel>
+            {group.options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         ))}
       </SelectContent>
     </Select>
@@ -142,17 +171,25 @@ export function SearchExplorer({
     return () => window.clearTimeout(timeout);
   }, [pathname, query, queryParam, router, serializedSearchParams]);
   const requestedKind = searchParams.get("kind") ?? "all";
-  const kind = kindOptions.some((option) => option.value === requestedKind)
-    ? requestedKind
-    : "all";
+  const kind = (
+    kindOptions.some((option) => option.value === requestedKind)
+      ? requestedKind
+      : "all"
+  ) as EntityKind | "all";
+  const categoryGroups = useMemo(
+    () => createSearchCategoryGroups(documents, kind),
+    [documents, kind],
+  );
+  const compatibleCategoryValues = useMemo(
+    () => searchCategoryValues(categoryGroups),
+    [categoryGroups],
+  );
   const categories = useMemo(
     () => [
       { value: "all", label: "All categories" },
-      ...[...new Set(documents.flatMap((document) => document.category ?? []))]
-        .sort((left, right) => left.localeCompare(right, "en"))
-        .map((value) => ({ value, label: itemCategoryLabel(value) })),
+      ...categoryGroups.flatMap((group) => group.options),
     ],
-    [documents],
+    [categoryGroups],
   );
   const sourceOptions = [{ value: "all", label: "All sources" }, ...sources];
   const statOptions = [{ value: "all", label: "Any stat" }, ...stats];
@@ -163,9 +200,7 @@ export function SearchExplorer({
     ? requestedSource
     : "all";
   const requestedCategory = searchParams.get("category") ?? "all";
-  const category = categories.some(
-    (option) => option.value === requestedCategory,
-  )
+  const category = compatibleCategoryValues.has(requestedCategory)
     ? requestedCategory
     : "all";
   const requestedStat = searchParams.get("stat") ?? "all";
@@ -186,12 +221,44 @@ export function SearchExplorer({
   const visibleResults = allResults.slice(0, 50);
   const suggestions = suggestSearchDocuments(documents, searchQuery);
 
+  useEffect(() => {
+    if (
+      requestedCategory === "all" ||
+      compatibleCategoryValues.has(requestedCategory)
+    ) {
+      return;
+    }
+
+    const next = new URLSearchParams(latestSearchParams.current);
+    if (next.get("category") !== requestedCategory) {
+      return;
+    }
+    next.delete("category");
+    const suffix = next.size > 0 ? `?${next.toString()}` : "";
+    latestSearchParams.current = next.toString();
+    startTransition(() =>
+      router.replace(`${pathname}${suffix}`, { scroll: false }),
+    );
+  }, [compatibleCategoryValues, pathname, requestedCategory, router]);
+
   const updateFilter = (key: string, value: string) => {
     const next = new URLSearchParams(latestSearchParams.current);
     if (value.length === 0 || value === "all") {
       next.delete(key);
     } else {
       next.set(key, value);
+    }
+    if (key === "kind") {
+      const nextKind = (
+        kindOptions.some((option) => option.value === value) ? value : "all"
+      ) as EntityKind | "all";
+      const nextCategory = next.get("category");
+      const nextCategoryValues = searchCategoryValues(
+        createSearchCategoryGroups(documents, nextKind),
+      );
+      if (nextCategory !== null && !nextCategoryValues.has(nextCategory)) {
+        next.delete("category");
+      }
     }
     if (query.length === 0) {
       next.delete("q");
@@ -265,6 +332,8 @@ export function SearchExplorer({
           label="Category"
           value={category}
           options={categories}
+          groups={categoryGroups}
+          disabled={categoryGroups.length === 0}
           onChange={(value) => updateFilter("category", value)}
         />
         <FilterSelect
@@ -347,7 +416,7 @@ export function SearchExplorer({
                   <dt>Category</dt>
                   <dd>
                     {document.category
-                      ? itemCategoryLabel(document.category)
+                      ? searchCategoryLabel(document.kind, document.category)
                       : "Not categorized"}
                   </dd>
                 </div>

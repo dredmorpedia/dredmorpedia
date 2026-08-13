@@ -56,6 +56,9 @@ The initial canonical source scope is the base game plus all three official expa
   rather than bulk-copying unrelated resources.
 - Keep ordinary search deterministic and add project-owned, user-selected
   spelling suggestions only for zero-result name/alias queries.
+- Present the shared category facet as bounded, alphabetized semantic groups;
+  restrict those groups to the selected entity type and remove incompatible
+  category parameters from shareable URLs.
 - Intend to license independently authored modern code, scripts,
   documentation, and synthetic fixtures under MIT, with explicit exclusions
   for legacy, official, generated, mod, and inherited content.
