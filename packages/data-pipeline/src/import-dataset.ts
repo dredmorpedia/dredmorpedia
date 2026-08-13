@@ -40,6 +40,7 @@ import {
 } from "@dredmorpedia/domain";
 
 import { loadManifest, resolveSourceRoot, sourceRootBase } from "./manifest";
+import { firstMonsterFramePath } from "./monster-art";
 import {
   InputSnapshots,
   type RegisteredInputSnapshot,
@@ -85,18 +86,99 @@ export interface ImportDatasetResult {
   presentedAssetInputs: PresentedAssetInput[];
 }
 
+export interface MonsterAppearanceSources {
+  iconPath: string | null;
+  paletteName: string | null;
+}
+
 export interface PresentedAssetInput {
   kind: PresentedAssetKind;
   entityId: string;
   sourceId: string;
   sourcePath: string;
   snapshot: RegisteredInputSnapshot | null;
+  paletteTint?: number | null;
+  paletteSnapshot?: RegisteredInputSnapshot | null;
+  issue?: { code: string; message: string };
 }
 
 interface ResolvedSource {
   source: ReturnType<typeof loadManifest>["manifest"]["sources"][number];
   absolutePath: string;
   displayPath: string;
+}
+
+interface LinkedMonsterResult {
+  monsters: Monster[];
+  appearanceSources: Record<string, MonsterAppearanceSources>;
+}
+
+interface ResolvedCollectionsResult {
+  entities: EntityCollections;
+  monsterAppearanceSources: Record<string, MonsterAppearanceSources>;
+}
+
+function resolveMonsterAppearanceSources(
+  localMonsters: readonly Monster[],
+  resolvedMonsters: readonly Monster[],
+): Record<string, MonsterAppearanceSources> {
+  const localById = new Map(
+    localMonsters.map((monster) => [monster.id, monster]),
+  );
+  const resolvedById = new Map(
+    resolvedMonsters.map((monster) => [monster.id, monster]),
+  );
+  const resolved = new Map<string, MonsterAppearanceSources>();
+
+  function resolve(
+    monster: Monster,
+    visiting: Set<string>,
+  ): MonsterAppearanceSources {
+    const cached = resolved.get(monster.id);
+    if (cached) {
+      return cached;
+    }
+    if (visiting.has(monster.id)) {
+      const local = {
+        iconPath:
+          monster.iconPath === null ? null : monster.provenance.sourceId,
+        paletteName:
+          monster.paletteName === null ? null : monster.provenance.sourceId,
+      };
+      resolved.set(monster.id, local);
+      return local;
+    }
+
+    const nextVisiting = new Set(visiting).add(monster.id);
+    const localMonster = localById.get(monster.id) ?? monster;
+    const parent = monster.inheritsId
+      ? resolvedById.get(monster.inheritsId)
+      : undefined;
+    const parentSources = parent ? resolve(parent, nextVisiting) : null;
+    const sources = {
+      iconPath:
+        monster.iconPath === null
+          ? null
+          : localMonster.iconPath !== null
+            ? localMonster.provenance.sourceId
+            : (parentSources?.iconPath ?? monster.provenance.sourceId),
+      paletteName:
+        monster.paletteName === null
+          ? null
+          : localMonster.paletteName !== null
+            ? localMonster.provenance.sourceId
+            : (parentSources?.paletteName ?? monster.provenance.sourceId),
+    };
+    resolved.set(monster.id, sources);
+    return sources;
+  }
+
+  return Object.fromEntries(
+    resolvedMonsters.map((monster) => [
+      monster.id,
+      resolve(monster, new Set()),
+    ]),
+  );
 }
 
 function sourceLocation(provenance: EntityProvenance): SourceLocation {
@@ -185,10 +267,11 @@ function collectIconAssetInputs(
 function collectPresentedAssetInputs(
   entities: Pick<
     EntityCollections,
-    "items" | "skills" | "abilities" | "spells"
+    "items" | "skills" | "abilities" | "spells" | "monsters"
   >,
   resolvedSources: readonly ResolvedSource[],
   inputSnapshots: InputSnapshots,
+  monsterAppearanceSources: Readonly<Record<string, MonsterAppearanceSources>>,
 ): PresentedAssetInput[] {
   return [
     ...collectIconAssetInputs(
@@ -215,11 +298,161 @@ function collectPresentedAssetInputs(
       resolvedSources,
       inputSnapshots,
     ),
+    ...collectMonsterAssetInputs(
+      entities.monsters,
+      resolvedSources,
+      inputSnapshots,
+      monsterAppearanceSources,
+    ),
   ].sort(
     (left, right) =>
       compareCodeUnits(left.kind, right.kind) ||
       compareCodeUnits(left.entityId, right.entityId),
   );
+}
+
+function collectMonsterAssetInputs(
+  monsters: readonly Monster[],
+  resolvedSources: readonly ResolvedSource[],
+  inputSnapshots: InputSnapshots,
+  appearanceSources: Readonly<Record<string, MonsterAppearanceSources>>,
+): PresentedAssetInput[] {
+  const sourceIndexes = new Map(
+    resolvedSources.map(({ source }, index) => [source.id, index]),
+  );
+
+  return monsters
+    .filter((monster) => monster.iconPath !== null)
+    .map((monster) => {
+      const monsterAppearanceSources = appearanceSources[monster.id];
+      const iconSourceId = monsterAppearanceSources?.iconPath;
+      if (
+        !monsterAppearanceSources ||
+        iconSourceId === null ||
+        iconSourceId === undefined
+      ) {
+        throw new Error(
+          `Unable to locate appearance provenance for ${monster.id}.`,
+        );
+      }
+      const sourceIndex = sourceIndexes.get(iconSourceId);
+      if (sourceIndex === undefined) {
+        throw new Error(
+          `Unable to locate source ${iconSourceId} for ${monster.id}.`,
+        );
+      }
+
+      const eligibleSources = resolvedSources
+        .slice(0, sourceIndex + 1)
+        .reverse();
+      const paletteSourceIndex = monsterAppearanceSources.paletteName
+        ? sourceIndexes.get(monsterAppearanceSources.paletteName)
+        : undefined;
+      if (
+        monster.paletteName?.toLowerCase().endsWith(".pal") &&
+        paletteSourceIndex === undefined
+      ) {
+        throw new Error(`Unable to locate palette source for ${monster.id}.`);
+      }
+      const paletteSnapshot =
+        monster.paletteName?.toLowerCase().endsWith(".pal") &&
+        paletteSourceIndex !== undefined
+          ? resolvedSources
+              .slice(0, paletteSourceIndex + 1)
+              .reverse()
+              .filter(({ source }) => source.kind !== "reference")
+              .map(({ displayPath }) =>
+                inputSnapshots.get(
+                  toPosixPath(`${displayPath}/${monster.paletteName}`),
+                ),
+              )
+              .find((snapshot) => snapshot !== undefined)
+          : undefined;
+      const missingPaletteIssue =
+        monster.paletteName?.toLowerCase().endsWith(".pal") && !paletteSnapshot
+          ? {
+              code: "missing_monster_palette",
+              message:
+                "The named monster palette is unavailable in the approved source roots.",
+            }
+          : undefined;
+
+      for (const resolvedSource of eligibleSources) {
+        if (resolvedSource.source.kind === "reference") {
+          continue;
+        }
+        const iconPath = monster.iconPath as string;
+        const displayPath = toPosixPath(
+          `${resolvedSource.displayPath}/${iconPath}`,
+        );
+        const iconSnapshot = inputSnapshots.get(displayPath);
+        if (!iconSnapshot) {
+          continue;
+        }
+
+        if (path.posix.extname(iconPath).toLowerCase() !== ".xml") {
+          return {
+            kind: "monster-icon" as const,
+            entityId: monster.id,
+            sourceId: resolvedSource.source.id,
+            sourcePath: iconPath,
+            snapshot: iconSnapshot,
+            paletteTint: monster.paletteTint,
+            ...(paletteSnapshot ? { paletteSnapshot } : {}),
+            ...(missingPaletteIssue ? { issue: missingPaletteIssue } : {}),
+          };
+        }
+
+        const frame = firstMonsterFramePath(iconSnapshot.bytes, iconPath);
+        if (!frame.ok) {
+          return {
+            kind: "monster-icon" as const,
+            entityId: monster.id,
+            sourceId: resolvedSource.source.id,
+            sourcePath: iconPath,
+            snapshot: null,
+            paletteTint: monster.paletteTint,
+            issue: {
+              code: "invalid_monster_sprite_wrapper",
+              message: frame.message,
+            },
+          };
+        }
+        const frameSnapshot = inputSnapshots.get(
+          toPosixPath(`${resolvedSource.displayPath}/${frame.path}`),
+        );
+        return {
+          kind: "monster-icon" as const,
+          entityId: monster.id,
+          sourceId: resolvedSource.source.id,
+          sourcePath: frame.path,
+          snapshot: frameSnapshot ?? null,
+          paletteTint: monster.paletteTint,
+          ...(paletteSnapshot ? { paletteSnapshot } : {}),
+          ...(!frameSnapshot
+            ? {
+                issue: {
+                  code: "missing_monster_sprite_frame",
+                  message:
+                    "The first frame referenced by the monster sprite wrapper is unavailable.",
+                },
+              }
+            : missingPaletteIssue
+              ? { issue: missingPaletteIssue }
+              : {}),
+        };
+      }
+
+      return {
+        kind: "monster-icon" as const,
+        entityId: monster.id,
+        sourceId: iconSourceId,
+        sourcePath: monster.iconPath as string,
+        snapshot: null,
+        paletteTint: monster.paletteTint,
+      };
+    })
+    .sort((left, right) => compareCodeUnits(left.entityId, right.entityId));
 }
 
 function aliasesFor<T extends NormalizedEntity>(
@@ -851,7 +1084,7 @@ function linkMonsters(
   spells: readonly Spell[],
   items: readonly Item[],
   diagnostics: DiagnosticDraft[],
-): Monster[] {
+): LinkedMonsterResult {
   const result = applyMonsterInheritance(monsters);
   const byId = new Map(monsters.map((monster) => [monster.id, monster]));
   for (const issue of result.issues) {
@@ -873,7 +1106,7 @@ function linkMonsters(
   }
   const spellAliases = aliasesFor(spells);
   const itemAliases = aliasesFor(items);
-  return result.monsters.map((monster) => ({
+  const linkedMonsters = result.monsters.map((monster) => ({
     ...monster,
     triggers: monster.triggers.map((trigger) => {
       const spell = spellAliases.get(trigger.spellKey);
@@ -895,6 +1128,13 @@ function linkMonsters(
       return drop;
     }),
   }));
+  return {
+    monsters: linkedMonsters,
+    appearanceSources: resolveMonsterAppearanceSources(
+      monsters,
+      linkedMonsters,
+    ),
+  };
 }
 
 function attachDiagnosticIds(
@@ -952,7 +1192,7 @@ function resolveCollections(
   datasetVersion: string,
   sourceVersions: ReadonlyMap<string, string>,
   diagnostics: DiagnosticDraft[],
-): EntityCollections {
+): ResolvedCollectionsResult {
   const resolutions = {
     items: resolveEntityCandidates(candidates.items),
     recipes: resolveEntityCandidates(candidates.recipes),
@@ -1263,21 +1503,25 @@ function resolveCollections(
     { datasetId, datasetVersion, sourceVersions },
   );
 
+  const linkedMonsters = linkMonsters(
+    routedMonsters,
+    linkedSpells,
+    linkedItems,
+    diagnostics,
+  );
   return {
-    items: linkedItems,
-    recipes: linkedRecipes,
-    encrustments: linkedEncrustments,
-    skills: linkedSkills,
-    abilities: linkedAbilities,
-    spells: linkedSpells,
-    monsters: linkMonsters(
-      routedMonsters,
-      linkedSpells,
-      linkedItems,
-      diagnostics,
-    ),
-    stats: linkedStats,
-    templates: routed.templates.entities,
+    entities: {
+      items: linkedItems,
+      recipes: linkedRecipes,
+      encrustments: linkedEncrustments,
+      skills: linkedSkills,
+      abilities: linkedAbilities,
+      spells: linkedSpells,
+      monsters: linkedMonsters.monsters,
+      stats: linkedStats,
+      templates: routed.templates.entities,
+    },
+    monsterAppearanceSources: linkedMonsters.appearanceSources,
   };
 }
 
@@ -1296,7 +1540,7 @@ export function importDataset(
   const sourceRoots: string[] = [];
 
   const registerInput = (absolutePath: string, displayPath: string) => {
-    inputSnapshots.register(absolutePath, displayPath);
+    return inputSnapshots.register(absolutePath, displayPath);
   };
 
   const sortedSources = [...loaded.manifest.sources].sort(
@@ -1448,7 +1692,7 @@ export function importDataset(
     }
   }
 
-  const linkedEntities = resolveCollections(
+  const resolvedCollections = resolveCollections(
     candidates,
     patches,
     routeRegistry,
@@ -1462,6 +1706,7 @@ export function importDataset(
     ),
     diagnostics,
   );
+  const linkedEntities = resolvedCollections.entities;
   const encrustmentInstabilityEffects = linkEncrustmentInstabilityEffects(
     candidates.encrustmentInstabilityEffects,
     linkedEntities.spells,
@@ -1497,6 +1742,7 @@ export function importDataset(
     artifact.entities,
     resolvedSources,
     inputSnapshots,
+    resolvedCollections.monsterAppearanceSources,
   );
 
   return {

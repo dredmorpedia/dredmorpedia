@@ -9,7 +9,11 @@ import {
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { skillIconUrl } from "@/lib/presented-assets";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
@@ -69,7 +73,7 @@ export default async function SkillPage({
     artifact.entities.items.map((item) => [item.id, item]),
   );
   const isAlias = slug !== skill.slug;
-  const iconUrl = skillIconUrl(skill.id, artifact);
+  const iconUrl = skillIconUrl(skill.id, artifact, loadArtifactSha256());
 
   return (
     <article className="detail-page">

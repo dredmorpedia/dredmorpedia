@@ -10,6 +10,7 @@ const temporaryDirectories: string[] = [];
 const originalAssetDirectory = process.env.DREDMORPEDIA_ASSET_DIRECTORY;
 const originalAssetBasePath = process.env.DREDMORPEDIA_ASSET_BASE_PATH;
 const originalNextBasePath = process.env.NEXT_PUBLIC_BASE_PATH;
+const activeArtifactSha256 = "a".repeat(64);
 
 function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
@@ -25,6 +26,7 @@ function artifact(datasetVersion = "1.0.0"): DatasetArtifact {
       skills: [{ id: "skill:test", iconPath: "skills/test.png" }],
       abilities: [{ id: "ability:test", iconPath: "skills/ability.png" }],
       spells: [{ id: "spell:test", iconPath: "spells/test.png" }],
+      monsters: [{ id: "monster:test", iconPath: "monsters/test.spr" }],
     },
   } as unknown as DatasetArtifact;
 }
@@ -37,7 +39,9 @@ function restoreEnvironment(name: string, value: string | undefined): void {
   }
 }
 
-function writeAssetSet(options: { tamperAsset?: boolean } = {}): string {
+function writeAssetSet(
+  options: { tamperAsset?: boolean; artifactSha256?: string } = {},
+): string {
   const directory = mkdtempSync(
     path.join(tmpdir(), "dredmorpedia-web-assets-"),
   );
@@ -84,6 +88,13 @@ function writeAssetSet(options: { tamperAsset?: boolean } = {}): string {
           sha256: digest,
           bytes: bytes.length,
         },
+        {
+          kind: "monster-icon",
+          entityId: "monster:test",
+          file,
+          sha256: digest,
+          bytes: bytes.length,
+        },
       ],
     },
     null,
@@ -96,9 +107,10 @@ function writeAssetSet(options: { tamperAsset?: boolean } = {}): string {
     path.join(directory, "manifest.json"),
     `${JSON.stringify(
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         datasetId: "asset-loader-test",
         datasetVersion: "1.0.0",
+        artifactSha256: options.artifactSha256 ?? activeArtifactSha256,
         generator: "test",
         diagnostics: { info: 0, warning: 0, error: 0 },
         outputs: {
@@ -136,25 +148,52 @@ describe("presented asset consumer", () => {
     process.env.DREDMORPEDIA_ASSET_DIRECTORY = writeAssetSet();
     process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
     process.env.NEXT_PUBLIC_BASE_PATH = "/dredmorpedia";
-    const { abilityIconUrl, itemIconUrl, skillIconUrl, spellIconUrl } =
-      await import("../src/lib/presented-assets");
+    const {
+      abilityIconUrl,
+      itemIconUrl,
+      monsterIconUrl,
+      skillIconUrl,
+      spellIconUrl,
+    } = await import("../src/lib/presented-assets");
 
-    expect(itemIconUrl("item:test", artifact())).toMatch(
+    expect(itemIconUrl("item:test", artifact(), activeArtifactSha256)).toMatch(
       /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
     );
-    expect(itemIconUrl("item:missing", artifact())).toBeNull();
-    expect(skillIconUrl("skill:test", artifact())).toMatch(
+    expect(
+      itemIconUrl("item:missing", artifact(), activeArtifactSha256),
+    ).toBeNull();
+    expect(
+      skillIconUrl("skill:test", artifact(), activeArtifactSha256),
+    ).toMatch(
       /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
     );
-    expect(skillIconUrl("skill:missing", artifact())).toBeNull();
-    expect(abilityIconUrl("ability:test", artifact())).toMatch(
+    expect(
+      skillIconUrl("skill:missing", artifact(), activeArtifactSha256),
+    ).toBeNull();
+    expect(
+      abilityIconUrl("ability:test", artifact(), activeArtifactSha256),
+    ).toMatch(
       /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
     );
-    expect(abilityIconUrl("ability:missing", artifact())).toBeNull();
-    expect(spellIconUrl("spell:test", artifact())).toMatch(
+    expect(
+      abilityIconUrl("ability:missing", artifact(), activeArtifactSha256),
+    ).toBeNull();
+    expect(
+      spellIconUrl("spell:test", artifact(), activeArtifactSha256),
+    ).toMatch(
       /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
     );
-    expect(spellIconUrl("spell:missing", artifact())).toBeNull();
+    expect(
+      spellIconUrl("spell:missing", artifact(), activeArtifactSha256),
+    ).toBeNull();
+    expect(
+      monsterIconUrl("monster:test", artifact(), activeArtifactSha256),
+    ).toMatch(
+      /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
+    );
+    expect(
+      monsterIconUrl("monster:missing", artifact(), activeArtifactSha256),
+    ).toBeNull();
   });
 
   it("rejects a catalog from a different dataset version", async () => {
@@ -162,7 +201,17 @@ describe("presented asset consumer", () => {
     process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
     const { itemIconUrl } = await import("../src/lib/presented-assets");
 
-    expect(() => itemIconUrl("item:test", artifact("2.0.0"))).toThrow(
+    expect(() =>
+      itemIconUrl("item:test", artifact("2.0.0"), activeArtifactSha256),
+    ).toThrow(/do not match the active dataset/);
+  });
+
+  it("rejects an asset set from a different artifact with the same dataset labels", async () => {
+    process.env.DREDMORPEDIA_ASSET_DIRECTORY = writeAssetSet();
+    process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
+    const { itemIconUrl } = await import("../src/lib/presented-assets");
+
+    expect(() => itemIconUrl("item:test", artifact(), "b".repeat(64))).toThrow(
       /do not match the active dataset/,
     );
   });
@@ -174,9 +223,9 @@ describe("presented asset consumer", () => {
     process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
     const { itemIconUrl } = await import("../src/lib/presented-assets");
 
-    expect(() => itemIconUrl("item:test", artifact())).toThrow(
-      /does not match assets.json/,
-    );
+    expect(() =>
+      itemIconUrl("item:test", artifact(), activeArtifactSha256),
+    ).toThrow(/does not match assets.json/);
   });
 
   it("uses the accessible page fallback when no asset set is configured", async () => {
@@ -184,6 +233,8 @@ describe("presented asset consumer", () => {
     delete process.env.DREDMORPEDIA_ASSET_BASE_PATH;
     const { itemIconUrl } = await import("../src/lib/presented-assets");
 
-    expect(itemIconUrl("item:test", artifact())).toBeNull();
+    expect(
+      itemIconUrl("item:test", artifact(), activeArtifactSha256),
+    ).toBeNull();
   });
 });

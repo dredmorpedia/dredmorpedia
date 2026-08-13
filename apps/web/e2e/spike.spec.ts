@@ -1046,6 +1046,8 @@ test("navigates skill, ability, loadout, and spell relationships", async ({
   await expect(summonLink).toBeFocused();
   await summonLink.press("Enter");
   await expect(page).toHaveURL(/\/monsters\/training-diggle\/$/);
+  await expect(page.getByTestId("monster-icon-placeholder")).toBeVisible();
+  await expect(page.locator(".detail-header img")).toHaveCount(0);
   const summonBacklinks = page.getByRole("region", {
     name: "Summoned by spells",
   });

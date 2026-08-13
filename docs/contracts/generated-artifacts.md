@@ -200,35 +200,43 @@ Contains sanitized input paths and checksums plus the byte length and SHA-256 ch
 
 Presented asset catalog schema version: `1`
 
-The current incremental scope is `item-icon` only. After normalization and
-precedence resolution, every item with a non-null icon reference is matched to
-the exact asset bytes captured when that safe, real-path-contained reference
-was first registered. The copy stage never rereads the installation. It accepts
-only `.png` references with the PNG signature; missing inputs, other formats,
-and invalid signatures produce stable warning diagnostics and no broken web
-reference.
+Presented asset manifest schema version: `2`
+
+The current incremental scope covers normalized item, skill, ability, root
+spell, and monster detail art. After normalization, precedence resolution, and
+monster inheritance, every non-null presented reference is matched to the exact
+asset bytes captured when its safe, real-path-contained reference was first
+registered. Inherited monster appearance retains the source that supplied its
+effective icon and named palette so lookup uses the same precedence boundary as
+normalization. The copy stage never rereads the installation. PNG inputs require
+a complete bounded structure, valid chunk checksums, supported dimensions and
+header values, and decodable scanlines; missing inputs, unsupported formats,
+invalid images, malformed monster wrappers or SPR files, and unavailable named
+palettes produce stable warning diagnostics and no broken web reference.
 
 The ignored managed output at
 `apps/web/public/generated-assets/current/` contains:
 
 - `assets.json`, with schema version, dataset ID/version, and deterministic
-  `item-icon` records mapping an entity ID to a content-addressed file, byte
-  length, and full SHA-256 checksum;
+  typed entity-art records mapping an entity ID to a content-addressed file,
+  byte length, and full SHA-256 checksum;
 - `diagnostics.json`, with deterministic fallback diagnostics that retain only
   entity, source, kind, code, severity, and a non-path-bearing message;
 - `files/<sha256>.png`, deduplicated by complete content checksum; and
-- `manifest.json`, with dataset identity, diagnostic counts, and byte/checksum
-  declarations for the catalog and diagnostics.
+- `manifest.json`, with dataset identity, the exact active `artifact.json`
+  SHA-256 checksum, diagnostic counts, and byte/checksum declarations for the
+  catalog and diagnostics.
 
 The writer requires a dedicated repository-contained directory that does not
 overlap any source root. It replaces only a directory carrying its exact
 ownership marker, stages and verifies the complete set beside the target,
 swaps the directory, and publishes the manifest last inside the staged set.
-This prevents stale assets from another selected dataset entering a static
-export. The web verifies catalog/diagnostic checksums and schemas, dataset ID
+This prevents stale assets from another selected dataset or from a different
+generation of the same dataset labels entering a static export. The web verifies
+the exact artifact checksum, catalog/diagnostic checksums and schemas, dataset ID
 and version, diagnostic counts, unique entity mappings, safe content-addressed
-paths, and every copied file's byte length/checksum before returning an icon
-URL. The manually constructed URL includes the configured Next.js base path.
+paths, and every copied file's byte length/checksum before returning an icon URL.
+The manually constructed URL includes the configured Next.js base path.
 
 Generated official assets remain local-only and ignored. Adding another asset
 kind requires an implemented page that displays it, corresponding diagnostics
@@ -250,9 +258,10 @@ and consumer validation, and a policy review for any specialized conversion.
 - Writes use collision-resistant temporary names and per-file atomic replacement, publish the manifest last, and are refused when the real output path overlaps an input source root in either direction. Junctions and symbolic links do not bypass the boundary.
 - Publication can opt into a zero-error diagnostic gate. The official-data commands always enable it and refuse to replace any output file when the import contains one or more error diagnostics. Synthetic generation leaves it disabled because the fixture intentionally covers an invalid XML input.
 - Consumers must read all files from the directory containing the selected manifest and verify every declared byte length and SHA-256 checksum before parsing an output. An interrupted or mixed publication is an error, not a partially usable dataset.
-- A configured presented asset set must identify the exact active dataset and
-  version. Missing or invalid individual item art falls back during import;
-  missing, mixed, tampered, or stale generated set metadata fails the web build.
+- A configured presented asset set must identify the exact active artifact by
+  its manifest-declared SHA-256 checksum, not only by dataset ID/version.
+  Missing or invalid individual art falls back during import; missing, mixed,
+  tampered, or stale generated set metadata fails the web build.
 - The web consumer initializes `artifact.json`, `search.json`, and
   `diagnostics.json` as one atomic in-memory set. It verifies every checksum and
   schema plus dataset identity, search derivation, diagnostic counts/IDs, and

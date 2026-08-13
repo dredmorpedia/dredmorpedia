@@ -18,7 +18,11 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { spellIconUrl } from "@/lib/presented-assets";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
@@ -217,7 +221,7 @@ export default async function SpellPage({
     abilityBacklinks.length +
     monsterBacklinks.length;
   const isAlias = slug !== spell.slug;
-  const iconUrl = spellIconUrl(spell.id, artifact);
+  const iconUrl = spellIconUrl(spell.id, artifact, loadArtifactSha256());
   const presentationDeclarations = [
     ...spell.animations.map((metadata, index) => ({
       kind: "Animation",

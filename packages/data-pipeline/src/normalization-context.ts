@@ -1,4 +1,5 @@
 import type { SourceDefinition } from "./manifest";
+import type { RegisteredInputSnapshot } from "./input-snapshots";
 import type { DiagnosticDraft, ParsedXml } from "./xml-adapter";
 
 export interface NormalizationContext {
@@ -10,5 +11,8 @@ export interface NormalizationContext {
   file: string;
   parsed: ParsedXml;
   diagnostics: DiagnosticDraft[];
-  registerInput: (absolutePath: string, displayPath: string) => void;
+  registerInput: (
+    absolutePath: string,
+    displayPath: string,
+  ) => RegisteredInputSnapshot;
 }

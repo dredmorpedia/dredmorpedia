@@ -60,6 +60,7 @@ import {
 } from "@dredmorpedia/domain";
 
 import type { DatabaseKind } from "./manifest";
+import { firstMonsterFramePath } from "./monster-art";
 import type { NormalizationContext } from "./normalization-context";
 import { parseSourceInteger, parseSourceNumber } from "./numeric-lexemes";
 import {
@@ -1534,6 +1535,100 @@ function normalizeAssetPath(
     });
     return null;
   }
+}
+
+function normalizeMonsterIconPath(
+  value: string | undefined,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): string | null {
+  const iconPath = normalizeAssetPath(
+    value,
+    context,
+    provenance,
+    currentEntityId,
+  );
+  if (iconPath === null || !iconPath.toLowerCase().endsWith(".xml")) {
+    return iconPath;
+  }
+
+  for (const assetRoot of context.assetRoots) {
+    const absoluteSpritePath = resolveExistingWithin(
+      assetRoot.absolutePath,
+      iconPath,
+    );
+    if (!existsSync(absoluteSpritePath)) {
+      continue;
+    }
+    const spriteSnapshot = context.registerInput(
+      absoluteSpritePath,
+      toPosixPath(`${assetRoot.displayPath}/${iconPath}`),
+    );
+    const frame = firstMonsterFramePath(spriteSnapshot.bytes, iconPath);
+    if (!frame.ok) {
+      context.diagnostics.push({
+        severity: "warning",
+        code: "invalid_monster_sprite_wrapper",
+        message: frame.message,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { assetPath: iconPath },
+      });
+      return iconPath;
+    }
+
+    try {
+      const absoluteFramePath = resolveExistingWithin(
+        assetRoot.absolutePath,
+        frame.path,
+      );
+      if (!existsSync(absoluteFramePath)) {
+        context.diagnostics.push({
+          severity: "warning",
+          code: "missing_monster_sprite_frame",
+          message: `The first frame referenced by the monster sprite wrapper does not exist: ${frame.path}`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { assetPath: iconPath, framePath: frame.path },
+        });
+        return iconPath;
+      }
+      context.registerInput(
+        absoluteFramePath,
+        toPosixPath(`${assetRoot.displayPath}/${frame.path}`),
+      );
+    } catch (error) {
+      if (!(error instanceof PathBoundaryError)) {
+        throw error;
+      }
+      context.diagnostics.push({
+        severity: "error",
+        code: "unsafe_asset_path",
+        message: error.message,
+        source: provenance,
+        entityId: currentEntityId,
+        details: { assetPath: frame.path },
+      });
+    }
+    return iconPath;
+  }
+
+  return iconPath;
+}
+
+function normalizeMonsterPaletteName(
+  value: string | undefined,
+  context: NormalizationContext,
+  provenance: EntityProvenance,
+  currentEntityId: string,
+): string | null {
+  if (!value) {
+    return null;
+  }
+  return value.toLowerCase().endsWith(".pal")
+    ? normalizeAssetPath(value, context, provenance, currentEntityId)
+    : value;
 }
 
 function reportUnknownChildren(
@@ -5886,13 +5981,20 @@ function parseMonsters(
         "monster special",
         currentEntityId,
       ),
-      iconPath: normalizeAssetPath(
+      iconPath: normalizeMonsterIconPath(
         childAttribute(record, "idleSprite", "down"),
         context,
         provenance,
         currentEntityId,
       ),
-      paletteName: palette ? (xmlAttribute(palette, "name") ?? null) : null,
+      paletteName: palette
+        ? normalizeMonsterPaletteName(
+            xmlAttribute(palette, "name"),
+            context,
+            provenance,
+            currentEntityId,
+          )
+        : null,
       paletteTint:
         paletteTint === undefined
           ? null

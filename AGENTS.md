@@ -32,12 +32,12 @@ Read these files before making a substantial change:
   generated JSON transferred to interactive routes. Keep its stable key and
   document ordering, final newline, manifest byte/checksum coverage, and exact
   schema/query derivation; do not restore presentation whitespace by accident.
-- The incremental local-asset slices copy only normalized item, skill, ability,
-  and root spell PNG icons used by their implemented detail pages from those
-  captured snapshots into the ignored managed web asset directory. Their
-  schema-1 typed catalog, diagnostics, content-addressed files, and
-  manifest-last checksums must match the active dataset before the web renders
-  an icon.
+- The incremental local-asset slices copy normalized item, skill, ability, and
+  root spell PNG icons plus the selected first monster idle frame used by their
+  implemented detail pages from those captured snapshots into the ignored
+  managed web asset directory. The schema-1 typed catalog, schema-2 manifest,
+  diagnostics, content-addressed files, and exact artifact checksum must match
+  the active generated dataset before the web renders an icon.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -178,10 +178,12 @@ Read these files before making a substantial change:
   tab-only partitions with stable routes, visible labels, native history,
   Browse, and structured search. Keep the preserved application until complete
   parity evidence and a separate archival decision. The non-item visual
-  inventory is complete, and skill, ability, plus root spell icons are
-  implemented. The next active parity slice is the separate monster-art
-  rendering and palette decision; keep it page-driven and do not bulk-copy
-  unrelated resources.
+  inventory is complete, and skill, ability, root spell, plus monster detail
+  art are implemented. Monster art is restricted to the first downward idle
+  frame with strict XML-frame resolution, measured SPR decoding, and
+  generation-time declared palette transforms. Keep future assets page-driven
+  and do not bulk-copy unrelated resources. The next active product task is the
+  deferred search-page filtering rework.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

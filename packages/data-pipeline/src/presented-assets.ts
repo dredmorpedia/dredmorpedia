@@ -23,6 +23,11 @@ import type {
   ImportDatasetResult,
   PresentedAssetInput,
 } from "./import-dataset";
+import {
+  decodeDredmorSpriteFirstFrame,
+  tintIndexedMonsterPng,
+  validatePng,
+} from "./monster-art";
 import { isPathWithin } from "./safe-path";
 import { sha256, stableSerialize } from "./serialization";
 
@@ -41,6 +46,8 @@ function assetLabel(input: PresentedAssetInput): string {
       return "item icon";
     case "spell-icon":
       return "spell icon";
+    case "monster-icon":
+      return "monster icon";
   }
 }
 
@@ -110,6 +117,12 @@ export function serializePresentedAssets(
   const files = new Map<string, Buffer>();
 
   for (const input of result.presentedAssetInputs) {
+    if (input.issue) {
+      diagnostics.push(
+        assetDiagnostic(input, input.issue.code, input.issue.message),
+      );
+      continue;
+    }
     if (!input.snapshot) {
       diagnostics.push(
         assetDiagnostic(
@@ -121,18 +134,22 @@ export function serializePresentedAssets(
       continue;
     }
 
-    if (path.posix.extname(input.sourcePath).toLowerCase() !== ".png") {
+    const extension = path.posix.extname(input.sourcePath).toLowerCase();
+    if (
+      extension !== ".png" &&
+      !(input.kind === "monster-icon" && extension === ".spr")
+    ) {
       diagnostics.push(
         assetDiagnostic(
           input,
           "unsupported_presented_asset_format",
-          `The referenced ${assetLabel(input)} is not a supported PNG presentation asset.`,
+          `The referenced ${assetLabel(input)} is not a supported presentation asset.`,
         ),
       );
       continue;
     }
 
-    if (!isPng(input.snapshot.bytes)) {
+    if (extension === ".png" && !isPng(input.snapshot.bytes)) {
       diagnostics.push(
         assetDiagnostic(
           input,
@@ -143,18 +160,53 @@ export function serializePresentedAssets(
       continue;
     }
 
-    const file = `files/${input.snapshot.checksum.sha256}.png`;
+    let outputBytes: Buffer;
+    try {
+      outputBytes =
+        extension === ".spr"
+          ? decodeDredmorSpriteFirstFrame(
+              input.snapshot.bytes,
+              input.paletteTint ?? null,
+              input.paletteSnapshot?.bytes ?? null,
+            )
+          : input.kind === "monster-icon"
+            ? tintIndexedMonsterPng(
+                input.snapshot.bytes,
+                input.paletteTint ?? 0,
+                input.paletteSnapshot?.bytes ?? null,
+              )
+            : (() => {
+                validatePng(input.snapshot.bytes);
+                return Buffer.from(input.snapshot.bytes);
+              })();
+    } catch (error) {
+      diagnostics.push(
+        assetDiagnostic(
+          input,
+          input.kind === "monster-icon"
+            ? "invalid_monster_presentation_asset"
+            : "invalid_presented_asset_png",
+          error instanceof Error
+            ? error.message
+            : `The referenced ${assetLabel(input)} could not be decoded.`,
+        ),
+      );
+      continue;
+    }
+
+    const outputChecksum = sha256(outputBytes);
+    const file = `files/${outputChecksum}.png`;
     const existing = files.get(file);
-    if (existing && !existing.equals(input.snapshot.bytes)) {
+    if (existing && !existing.equals(outputBytes)) {
       throw new Error(`Conflicting bytes share presented asset path ${file}.`);
     }
-    files.set(file, Buffer.from(input.snapshot.bytes));
+    files.set(file, outputBytes);
     records.push({
       kind: input.kind,
       entityId: input.entityId,
       file,
-      sha256: input.snapshot.checksum.sha256,
-      bytes: input.snapshot.bytes.length,
+      sha256: outputChecksum,
+      bytes: outputBytes.length,
     });
   }
 
@@ -179,9 +231,10 @@ export function serializePresentedAssets(
   const assets = stableSerialize(catalog);
   const serializedDiagnostics = stableSerialize(diagnostics);
   const manifest: PresentedAssetManifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     datasetId: result.artifact.datasetId,
     datasetVersion: result.artifact.datasetVersion,
+    artifactSha256: sha256(stableSerialize(result.artifact)),
     generator: "@dredmorpedia/data-pipeline@0.0.0",
     diagnostics: diagnosticCounts(diagnostics),
     outputs: {

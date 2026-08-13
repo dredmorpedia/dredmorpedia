@@ -6,7 +6,11 @@ import { entityRouteSlugs, matchesEntityRoute } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { abilityIconUrl } from "@/lib/presented-assets";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import { sourceFlagLabel, sourceFlagValue } from "@/lib/source-flags";
@@ -66,7 +70,7 @@ export default async function AbilityPage({
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const isAlias = slug !== ability.slug;
-  const iconUrl = abilityIconUrl(ability.id, artifact);
+  const iconUrl = abilityIconUrl(ability.id, artifact, loadArtifactSha256());
 
   return (
     <article className="detail-page">

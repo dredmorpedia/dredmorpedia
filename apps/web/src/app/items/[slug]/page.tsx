@@ -18,7 +18,11 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { itemIconUrl } from "@/lib/presented-assets";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
@@ -124,7 +128,7 @@ export default async function ItemPage({
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const isAlias = slug !== item.slug;
-  const iconUrl = itemIconUrl(item.id, artifact);
+  const iconUrl = itemIconUrl(item.id, artifact, loadArtifactSha256());
 
   return (
     <article className="detail-page">

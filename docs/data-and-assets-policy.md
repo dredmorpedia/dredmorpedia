@@ -85,19 +85,25 @@ not a bulk copy of unrelated game resources. Each import must:
 - include deterministic checksums and missing-asset diagnostics proportional
   to the generated data contract.
 
-Specialized presentation such as palette-tinted monster sprites or animation
-frames is decided with the page that needs it rather than imported speculatively.
+Specialized presentation remains page-driven. Monster detail pages now render
+only the first downward idle frame: animation XML resolves its explicit first
+frame, binary SPR input decodes only its measured first frame, and declared hue
+or exact named palettes are applied during deterministic generation. Complete
+animations and unrelated sprite resources remain out of scope.
 
-The implemented icon slices follow this boundary for item, skill, ability, and
-spell detail pages. They copy only referenced PNG item, skill, ability, and root
-spell icons from the importer's first-registration byte snapshots into the
-managed, gitignored web asset directory. The generated catalog uses typed entity mappings,
-content-addressed filenames, checksums, dataset identity, and fallback
-diagnostics; the web verifies the complete set before rendering an icon.
+The implemented icon slices follow this boundary for item, skill, ability,
+spell, and monster detail pages. They copy referenced PNG item, skill, ability,
+and root spell icons and derive only the selected first monster idle frame from
+the importer's first-registration byte snapshots into the managed, gitignored
+web asset directory. The generated catalog uses typed entity mappings,
+content-addressed filenames, complete bounded PNG validation, exact active
+artifact identity, and fallback diagnostics; the web verifies the complete
+set before rendering an icon.
 Missing, unsupported, or invalid images use a deliberate page fallback. Buff-
 and effect-local spell icons remain out of scope because no implemented page
-presents them as entity art. Other entity art remains out of scope until its
-page presents it through a separately reviewed slice.
+presents them as entity art. Other entity art and monster animation frames
+remain out of scope until a page presents them through a separately reviewed
+slice.
 
 Selected screenshots from the local product may be prepared for a permission
 request. A screenshot does not itself grant permission to publish the

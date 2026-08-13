@@ -36,12 +36,15 @@ export class InputSnapshots {
     return bytes.toString("utf8");
   }
 
-  register(absolutePath: string, displayPath: string): void {
+  register(absolutePath: string, displayPath: string): RegisteredInputSnapshot {
     const file = toPosixPath(displayPath);
     const existing = this.snapshots.get(file);
     if (existing) {
       this.assertSameInput(existing, absolutePath, file);
-      return;
+      return {
+        checksum: { ...existing.checksum },
+        bytes: Buffer.from(existing.bytes),
+      };
     }
 
     const bytes = readFileSync(absolutePath);
@@ -50,6 +53,10 @@ export class InputSnapshots {
       checksum: { file, sha256: sha256(bytes) },
       bytes,
     });
+    return {
+      checksum: { file, sha256: sha256(bytes) },
+      bytes: Buffer.from(bytes),
+    };
   }
 
   get(displayPath: string): RegisteredInputSnapshot | undefined {

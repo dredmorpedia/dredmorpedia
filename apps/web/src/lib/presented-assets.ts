@@ -52,9 +52,10 @@ const assetDiagnosticSchema = z
   .strict();
 const assetManifestSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
+    artifactSha256: sha256Schema,
     generator: z.string().min(1),
     diagnostics: z
       .object({
@@ -76,6 +77,7 @@ const assetManifestSchema = z
 
 interface LoadedPresentedAssets {
   catalog: PresentedAssetCatalog;
+  artifactSha256: string;
   byAssetKey: Map<string, string>;
 }
 
@@ -149,12 +151,14 @@ function readVerifiedText(
 
 function loadConfiguredAssets(
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): LoadedPresentedAssets | null {
   if (loadedCache !== undefined) {
     if (
       loadedCache &&
       (loadedCache.catalog.datasetId !== artifact.datasetId ||
-        loadedCache.catalog.datasetVersion !== artifact.datasetVersion)
+        loadedCache.catalog.datasetVersion !== artifact.datasetVersion ||
+        loadedCache.artifactSha256 !== artifactSha256)
     ) {
       throw new Error(
         "Generated presented assets do not match the active dataset.",
@@ -187,7 +191,8 @@ function loadConfiguredAssets(
   const manifest = manifestResult.data as PresentedAssetManifest;
   if (
     manifest.datasetId !== artifact.datasetId ||
-    manifest.datasetVersion !== artifact.datasetVersion
+    manifest.datasetVersion !== artifact.datasetVersion ||
+    manifest.artifactSha256 !== artifactSha256
   ) {
     throw new Error(
       "Generated presented assets do not match the active dataset.",
@@ -241,6 +246,9 @@ function loadConfiguredAssets(
     ...artifact.entities.spells
       .filter((spell) => spell.iconPath !== null)
       .map((spell) => assetKey("spell-icon", spell.id)),
+    ...artifact.entities.monsters
+      .filter((monster) => monster.iconPath !== null)
+      .map((monster) => assetKey("monster-icon", monster.id)),
   ]);
   const sourceIds = new Set(artifact.sources.map((source) => source.id));
   for (const diagnostic of diagnostics) {
@@ -308,7 +316,7 @@ function loadConfiguredAssets(
     );
   }
 
-  loadedCache = { catalog, byAssetKey };
+  loadedCache = { catalog, artifactSha256, byAssetKey };
   return loadedCache;
 }
 
@@ -323,8 +331,9 @@ function presentedAssetUrl(
   kind: PresentedAssetKind,
   entityId: string,
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): string | null {
-  const loaded = loadConfiguredAssets(artifact);
+  const loaded = loadConfiguredAssets(artifact, artifactSha256);
   if (!loaded) {
     return null;
   }
@@ -348,27 +357,39 @@ function presentedAssetUrl(
 export function itemIconUrl(
   itemId: string,
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): string | null {
-  return presentedAssetUrl("item-icon", itemId, artifact);
+  return presentedAssetUrl("item-icon", itemId, artifact, artifactSha256);
 }
 
 export function skillIconUrl(
   skillId: string,
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): string | null {
-  return presentedAssetUrl("skill-icon", skillId, artifact);
+  return presentedAssetUrl("skill-icon", skillId, artifact, artifactSha256);
 }
 
 export function abilityIconUrl(
   abilityId: string,
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): string | null {
-  return presentedAssetUrl("ability-icon", abilityId, artifact);
+  return presentedAssetUrl("ability-icon", abilityId, artifact, artifactSha256);
 }
 
 export function spellIconUrl(
   spellId: string,
   artifact: DatasetArtifact,
+  artifactSha256: string,
 ): string | null {
-  return presentedAssetUrl("spell-icon", spellId, artifact);
+  return presentedAssetUrl("spell-icon", spellId, artifact, artifactSha256);
+}
+
+export function monsterIconUrl(
+  monsterId: string,
+  artifact: DatasetArtifact,
+  artifactSha256: string,
+): string | null {
+  return presentedAssetUrl("monster-icon", monsterId, artifact, artifactSha256);
 }

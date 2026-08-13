@@ -99,11 +99,15 @@ export function SearchExplorer({
   const router = useRouter();
   const searchParams = useSearchParams();
   const serializedSearchParams = searchParams.toString();
+  const latestSearchParams = useRef(serializedSearchParams);
   const queryParam = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(queryParam);
   const searchInput = useRef<HTMLInputElement>(null);
   const latestQuery = useRef(query);
   const submittedQuery = useRef<string | null>(null);
+  useEffect(() => {
+    latestSearchParams.current = serializedSearchParams;
+  }, [serializedSearchParams]);
   useEffect(() => {
     latestQuery.current = query;
   }, [query]);
@@ -122,13 +126,14 @@ export function SearchExplorer({
       return;
     }
     const timeout = window.setTimeout(() => {
-      const next = new URLSearchParams(serializedSearchParams);
+      const next = new URLSearchParams(latestSearchParams.current);
       if (query.length === 0) {
         next.delete("q");
       } else {
         next.set("q", query);
       }
       const suffix = next.size > 0 ? `?${next.toString()}` : "";
+      latestSearchParams.current = next.toString();
       submittedQuery.current = query;
       startTransition(() =>
         router.replace(`${pathname}${suffix}`, { scroll: false }),
@@ -182,7 +187,7 @@ export function SearchExplorer({
   const suggestions = suggestSearchDocuments(documents, searchQuery);
 
   const updateFilter = (key: string, value: string) => {
-    const next = new URLSearchParams(serializedSearchParams);
+    const next = new URLSearchParams(latestSearchParams.current);
     if (value.length === 0 || value === "all") {
       next.delete(key);
     } else {
@@ -194,6 +199,7 @@ export function SearchExplorer({
       next.set("q", query);
     }
     const suffix = next.size > 0 ? `?${next.toString()}` : "";
+    latestSearchParams.current = next.toString();
     if (query !== queryParam) {
       submittedQuery.current = query;
     }
@@ -204,6 +210,7 @@ export function SearchExplorer({
 
   const reset = () => {
     submittedQuery.current = "";
+    latestSearchParams.current = "";
     setQuery("");
     startTransition(() => router.replace(pathname));
   };

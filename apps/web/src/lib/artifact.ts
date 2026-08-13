@@ -1542,6 +1542,11 @@ export function loadArtifact(): DatasetArtifact {
   return loadArtifactSet().artifact;
 }
 
+export function loadArtifactSha256(): string {
+  loadArtifactSet();
+  return loadManifest().outputs.artifact.sha256;
+}
+
 export function loadSearchArtifact(): SearchArtifact {
   return loadArtifactSet().search;
 }

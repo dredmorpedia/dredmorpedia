@@ -980,6 +980,7 @@ export const presentedAssetKinds = [
   "skill-icon",
   "ability-icon",
   "spell-icon",
+  "monster-icon",
 ] as const;
 
 export type PresentedAssetKind = (typeof presentedAssetKinds)[number];
@@ -1010,9 +1011,10 @@ export interface PresentedAssetDiagnostic {
 }
 
 export interface PresentedAssetManifest {
-  schemaVersion: 1;
+  schemaVersion: 2;
   datasetId: string;
   datasetVersion: string;
+  artifactSha256: string;
   generator: string;
   diagnostics: DiagnosticCounts;
   outputs: {

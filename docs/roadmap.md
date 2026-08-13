@@ -532,12 +532,17 @@ Implement in dependency order rather than old-tab order:
 8. any remaining valuable legacy navigation/tooltips.
 
 The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
-second complete, verified dataset. The local visual-parity importer now copies
-and renders normalized item, skill, ability, and root spell PNG icons through a
-checksummed, manifest-coordinated, ignored asset set; the canonical build maps
-1,607 entity references to 1,312 unique files without fallbacks. Extend that
-importer only when another implemented page displays a concrete asset. Specialized sprite
-treatment is still decided per page rather than imported speculatively.
+second complete, verified dataset. The local visual-parity importer now renders
+normalized item, skill, ability, root spell, and monster detail art through a
+checksummed, manifest-coordinated, ignored asset set bound to the exact active
+artifact checksum; the canonical build maps 1,790 entity references to 1,479
+unique files without fallbacks. Monster art is limited to the first downward
+idle frame, including strict XML-wrapper resolution, measured SPR decoding,
+field-level inherited appearance provenance, and generation-time declared
+palette transforms. Every copied PNG now receives bounded structural and
+scanline validation. Extend the importer only when another implemented page
+displays a concrete asset. Specialized sprite treatment remains page-driven
+rather than imported speculatively.
 Engine mechanics absent from XML are evaluated individually immediately before
 implementation and may be supported when repeatable evidence verifies them.
 
@@ -577,18 +582,19 @@ keyboard-inaccessible, duplicated imported markup, and depended on the
 all-record DOM. Evidence and the complete classification are in
 `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
-The navigation/tooltip checkpoint is complete. Keep `legacy/` until complete
-parity evidence and a separate archival decision. The non-item visual inventory
-found 52 skill, 352 ability, 440 spell, and 183 monster records with icon or
-sprite references. The implemented direct slices now import and render all 52
-skill, 352 ability, and 440 root spell PNG icons. Monster `.spr` and
-animation-XML references are the next page-driven slice and require a separate
-rendering and palette decision before implementation. No slice may bulk-copy
-unrelated resources. Phase 5 prioritization waits for that parity polish.
-Evidence is in
+The navigation/tooltip checkpoint and non-item visual inventory are complete.
+Keep `legacy/` until complete parity evidence and a separate archival decision.
+The implemented direct slices render all 52 skill, 352 ability, 440 root spell,
+and 183 monster references. Monster pages decode only the first idle-down SPR
+frame or resolve the first explicit animation-XML frame; 129 numeric tints and
+two exact named palettes are applied during generation. No slice may bulk-copy
+unrelated resources. With this final identified visual checkpoint complete,
+the next active product work is the deferred search-page filtering rework at
+the start of Phase 5. Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
 `docs/analysis/ability-icon-import-evidence-2026-08-12.md`, and
-`docs/analysis/spell-icon-import-evidence-2026-08-12.md`.
+`docs/analysis/spell-icon-import-evidence-2026-08-12.md`, and
+`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`.
 
 ### Exit criteria
 

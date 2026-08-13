@@ -13,8 +13,13 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import { monsterIconUrl } from "@/lib/presented-assets";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 function sourceFlagLabel(value: boolean | null): string {
@@ -150,6 +155,7 @@ export default async function MonsterPage({
     monster.archetypeLevels,
     monster.modifiers,
   );
+  const iconUrl = monsterIconUrl(monster.id, artifact, loadArtifactSha256());
 
   return (
     <article className="detail-page">
@@ -171,16 +177,38 @@ export default async function MonsterPage({
             {monster.description || "No normalized monster description."}
           </p>
         </div>
-        <dl className="price-block">
-          <div>
-            <dt>Encounter group</dt>
-            <dd>{encounterGroup}</dd>
-          </div>
-          <div>
-            <dt>Stat bonuses</dt>
-            <dd>{monster.modifiers.length}</dd>
-          </div>
-        </dl>
+        <div className="detail-header-aside">
+          {iconUrl ? (
+            // The adjacent heading already names the monster, so this source
+            // art is intentionally decorative rather than repetitive alt text.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="entity-art"
+              height="128"
+              src={iconUrl}
+              width="128"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="entity-art entity-art-placeholder"
+              data-testid="monster-icon-placeholder"
+            >
+              ?
+            </div>
+          )}
+          <dl className="price-block">
+            <div>
+              <dt>Encounter group</dt>
+              <dd>{encounterGroup}</dd>
+            </div>
+            <div>
+              <dt>Stat bonuses</dt>
+              <dd>{monster.modifiers.length}</dd>
+            </div>
+          </dl>
+        </div>
       </header>
 
       {isAlias ? (
