@@ -920,6 +920,7 @@ export interface SearchDocument {
   sourceId: string;
   category: string | null;
   statKeys: string[];
+  craftingSkillLevel: number | null;
   url: string;
   text: string;
 }
@@ -942,7 +943,7 @@ export interface DatasetArtifact {
 }
 
 export interface SearchArtifact {
-  schemaVersion: 2;
+  schemaVersion: 3;
   datasetSchemaVersion: DatasetArtifact["schemaVersion"];
   datasetId: string;
   language: "en";

@@ -1212,7 +1212,7 @@ const datasetArtifactSchema = z
 
 const searchArtifactSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     datasetSchemaVersion: z.literal(3),
     datasetId: z.string(),
     language: z.literal("en"),
@@ -1227,6 +1227,7 @@ const searchArtifactSchema = z
           sourceId: z.string(),
           category: z.string().nullable(),
           statKeys: z.array(z.string()),
+          craftingSkillLevel: nonnegativeInteger.nullable(),
           url: entityUrlSchema,
           text: z.string(),
         })

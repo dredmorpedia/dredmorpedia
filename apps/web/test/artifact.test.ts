@@ -1869,6 +1869,25 @@ describe("generated artifact loading", () => {
     expect(() => loadSearchArtifact()).toThrow(/documents\.0\.aliases/);
   });
 
+  it("rejects a search document without its source-skill field", async () => {
+    const search = readJson("search.json") as {
+      documents: { craftingSkillLevel?: number | null }[];
+    };
+    const firstDocument = search.documents[0];
+    if (!firstDocument) {
+      throw new Error(
+        "Synthetic search fixture unexpectedly has no documents.",
+      );
+    }
+    delete firstDocument.craftingSkillLevel;
+    writeOutput("search.json", search, true);
+    const { loadSearchArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadSearchArtifact()).toThrow(
+      /documents\.0\.craftingSkillLevel/,
+    );
+  });
+
   it("rejects an unsafe search-document URL before derivation checks", async () => {
     const search = readJson("search.json") as {
       documents: { url: string }[];

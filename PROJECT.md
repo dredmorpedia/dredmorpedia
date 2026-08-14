@@ -63,12 +63,15 @@ The initial canonical source scope is the base game plus all three official expa
 - Present the shared category facet as bounded, alphabetized semantic groups;
   restrict those groups to the selected entity type and remove incompatible
   category parameters from shareable URLs.
+- Provide reusable, project-authored filter-view links as ordinary search URLs.
+  The first rich cross-list view combines recipes and encrustments and filters
+  their exact declared source skill without inferring player eligibility.
 - Intend to license independently authored modern code, scripts,
   documentation, and synthetic fixtures under MIT, with explicit exclusions
   for legacy, official, generated, mod, and inherited content.
 - Complete legacy coverage before treating quality-of-life additions as the main delivery phase.
-- Choose among richer filters, technical-detail disclosure, tagging, favorites,
-  and lists during parity polish rather than fixing their priority now.
+- Continue technical-detail disclosure as page-specific polish. Keep tagging,
+  favorites, and custom-list persistence behind a separate decision.
 - Treat live game-progress tracking as a separate later research project; do not constrain the initial architecture around an unproven integration.
 
 ## Out of scope until explicitly approved
@@ -98,6 +101,6 @@ The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_
   exclusion.
 - How should extra technical information be progressively disclosed during
   parity polish?
-- Which quality-of-life feature should be implemented first after parity? This
-  is deliberately deferred until parity polish.
+- What comparison and build-planning scope should follow the implemented
+  crafting/encrusting planners and reusable cross-list filter views?
 - Can game progress be observed reliably and safely without modifying the game installation or requiring invasive tooling?

@@ -1732,7 +1732,7 @@ export function importDataset(
     diagnostics: countDiagnostics(finalizedDiagnostics),
   };
   const search: SearchArtifact = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     datasetSchemaVersion: artifact.schemaVersion,
     datasetId: artifact.datasetId,
     language: artifact.language,

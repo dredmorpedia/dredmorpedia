@@ -79,6 +79,19 @@ describe("search category facets", () => {
     expect(createSearchCategoryGroups(documents, "spell")).toEqual([]);
   });
 
+  it("combines recipe and encrustment categories for the crafting scope", () => {
+    expect(createSearchCategoryGroups(documents, "crafting")).toEqual([
+      {
+        id: "crafting-tools",
+        label: "Crafting tools",
+        options: [
+          { value: "alchemy", label: "Alchemy" },
+          { value: "smithing", label: "Smithing" },
+        ],
+      },
+    ]);
+  });
+
   it("uses entity-aware labels for filters and result metadata", () => {
     expect(searchCategoryLabel("item", "armour:neck")).toBe("Amulet");
     expect(searchCategoryLabel("monster", "Diggle Prince")).toBe(

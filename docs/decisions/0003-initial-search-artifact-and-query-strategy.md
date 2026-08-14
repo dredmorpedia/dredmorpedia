@@ -11,10 +11,10 @@ The first approved local measurement produced 2,710 search documents and a
 2,829 canonical `1.1.5 public_beta` documents, pretty-printed serialization
 reached 1,477,801 bytes and left only 22,199 bytes below the accepted raw
 ceiling. Deterministic compact serialization reduced the same schema and
-documents to 1,180,204 bytes; the later recipe-tool parity extension brings the
-current compact artifact to 1,185,026 bytes. This remains small enough for a
-project-owned client query path without accepting the bundle cost, worker
-complexity, and query semantics of a third-party search engine.
+documents to 1,180,204 bytes; the later recipe-tool and cross-list source-skill
+extensions bring the current compact artifact to 1,263,752 bytes. This remains
+small enough for a project-owned client query path without accepting the bundle
+cost, worker complexity, and query semantics of a third-party search engine.
 
 Search must eventually combine text with typed filters and numeric game fields. A general full-text library does not replace domain-specific filtering, source precedence, stable URLs, or relationship queries.
 
@@ -60,11 +60,13 @@ compressed-size thresholds bound the eventual transfer separately; public
 hosting must enable gzip or Brotli before the transfer budget can be treated as
 met in deployment.
 
-Dataset artifact version 3 and search artifact version 2 now implement this
-split. Search schema 2 adds ordered route aliases to each document. The search
-route loads the search payload, applies project-owned text/facet and spelling
-logic, preserves filters in the URL, and renders at most 50 results. This
-implementation is not permission to publish official content.
+Dataset artifact version 3 and search artifact version 3 now implement this
+split. Search schema 3 retains ordered route aliases and adds one nullable,
+exact `craftingSkillLevel` field for recipes and encrustments. The search route
+loads the search payload, applies project-owned text/facet/numeric-bound and
+spelling logic, preserves filters in the URL, and renders at most 50 results.
+Reusable project-authored views remain ordinary search URLs rather than stored
+user state. This implementation is not permission to publish official content.
 
 The stat facet now covers direct item, ability, spell, and encrustment
 declarations. Resolved selectors share one canonical stat key; raw historical
@@ -80,8 +82,8 @@ This avoids an early dependency and keeps domain filtering explicit. It also mea
 
 Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95
 for query execution across 1,000 representative calls. The current compact
-2,829-document artifact measures 1,185,026 bytes uncompressed, 196,912 bytes
-with gzip, and 143,690 bytes with Brotli. Its parse, query, suggestion, and
+2,829-document artifact measures 1,263,752 bytes uncompressed, 199,369 bytes
+with gzip, and 145,019 bytes with Brotli. Its parse, query, suggestion, and
 desktop/4x-CPU-mobile browser paths remain inside every accepted budget, so
 MiniSearch and a worker remain unjustified. Initial query evidence is recorded
 in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md),
@@ -95,11 +97,15 @@ Cross-entity stat-filter evidence is in
 The current recipe-tool extension retains all budgets; its parity evidence is
 in
 [`../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`](../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md).
+Search-schema-3 and cross-list filtering evidence is in
+[`../analysis/cross-list-crafting-filter-evidence-2026-08-14.md`](../analysis/cross-list-crafting-filter-evidence-2026-08-14.md).
 
 ## Acceptance checklist
 
 - [x] Full-dataset search-document count and uncompressed serialized size are recorded.
 - [x] Search documents have deterministic IDs, URLs, text, and facets.
+- [x] Exact recipe/encrustment source skill supports one inclusive cross-list
+      numeric bound without inferring gameplay eligibility.
 - [x] The first product slice emits the search documents as a separate artifact.
 - [x] Initial relevance direction is agreed: deterministic ordinary results
       plus bounded, user-selected name/alias suggestions for zero-result

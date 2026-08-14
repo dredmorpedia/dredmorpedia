@@ -507,7 +507,7 @@ separate owner sign-off. This does not decide the disputed legacy Meta formula
 or broaden the publication boundary. Evidence is in
 `docs/analysis/first-parity-acceptance-readiness-2026-08-11.md`.
 
-Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases; all 374 recipes additionally expose their normalized crafting tool through the existing category filter. Inherited monster bonuses remain on stat-page backlinks rather than being duplicated or ranked in search. Deterministic compact serialization plus the current recipe-tool categories leave the 2,829-document canonical search artifact at 1,185,026 bytes, with 314,974 bytes of raw budget headroom. ADR 0003's unchanged transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`, and `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
+Structured search now exposes all nine generated entity kinds rather than discarding recipes, encrustments, skills, abilities, spells, and monsters at the web boundary. Query text is locally buffered for immediate, lossless typing and written to the shareable URL after a short pause; sequential-input, keyboard-navigation, mobile, and axe coverage exercise the interaction. A server-rendered browse directory and 100-record static catalogue pages now expose every kind and direct detail link without JavaScript, with consistent primary navigation, breadcrumbs, empty states, keyboard coverage, and axe coverage. Project-owned name/route-alias spelling suggestions now appear only for zero-result queries, honor active filters, remain capped at five, and update the query only after the user selects one. The stat filter covers direct item, ability, spell, and encrustment declarations through canonical reference keys while retaining unresolved selectors and historical selector-shaped URL aliases; all 374 recipes additionally expose their normalized crafting tool through the existing category filter. Search schema 3 preserves exact source skill across those recipes and all 57 encrustments so one shared crafting scope can apply an inclusive maximum bound through reusable URL views. Inherited monster bonuses remain on stat-page backlinks rather than being duplicated or ranked in search. Deterministic compact serialization leaves the 2,829-document canonical search artifact at 1,263,752 bytes, with 236,248 bytes of raw budget headroom. ADR 0003's transfer, parsing, ordinary/suggestion query, desktop, and 4x-CPU mobile-browser budgets all pass. Evidence is in `docs/analysis/search-spelling-suggestions-evidence-2026-07-29.md`, `docs/analysis/search-response-budgets-evidence-2026-08-09.md`, `docs/analysis/cross-entity-stat-search-evidence-2026-08-09.md`, `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`, and `docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`.
 
 The shared category select rework is complete. Its Base UI popup is bounded and
 keyboard/touch scrollable; options are sorted by displayed labels and grouped
@@ -591,8 +591,11 @@ two exact named palettes are applied during generation. No slice may bulk-copy
 unrelated resources. With this final identified visual checkpoint complete,
 the deferred search-page filtering rework is also complete at the start of
 Phase 5. The crafting dependency and separately modeled encrustment ingredient
-and shopping-list slices are complete; the next bounded product task is rich
-cross-list filtering and reusable filter views.
+and shopping-list slices are complete. The first rich cross-list filtering
+slice is also complete: recipes and encrustments share a scope and inclusive
+maximum source-skill filter, while project-authored reusable views remain
+ordinary shareable URLs. The next bounded product task is side-by-side
+comparison and build planning.
 Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
 `docs/analysis/ability-icon-import-evidence-2026-08-12.md`,
@@ -600,7 +603,8 @@ Evidence is in
 `docs/analysis/monster-art-rendering-evidence-2026-08-12.md`,
 `docs/analysis/search-filtering-rework-evidence-2026-08-13.md`, and
 `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, and
-`docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`.
+`docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, and
+`docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`.
 
 ### Exit criteria
 
@@ -608,19 +612,22 @@ All agreed parity concepts have stable routes, tested relationships, provenance,
 
 ## Phase 5 — Differentiating tools
 
-The search-filter interaction foundation and the expanded crafting/encrusting
-dependency milestone are complete. The two planners use pure domain logic,
-editable explicit source-yield choices, shareable URL state, responsive
-keyboard flows, and representative browser coverage while retaining separate
-source-semantics contracts. The next recommended slice is rich cross-list
-filtering and reusable filter views.
+The search-filter interaction foundation, expanded crafting/encrusting
+dependency milestone, and first rich cross-list filtering slice are complete.
+The two planners use pure domain logic, editable explicit source-yield choices,
+shareable URL state, responsive keyboard flows, and representative browser
+coverage while retaining separate source-semantics contracts. Search now
+combines recipes and encrustments and applies an inclusive maximum declared
+source-skill bound through reusable shareable views. The next recommended slice
+is side-by-side comparison and build planning with shareable URLs.
 
 Recommended sequence after the search-filter foundation:
 
 1. Expanded crafting/encrusting dependency views and shopping lists
    (implemented).
-2. Rich cross-list filtering and reusable filter views (next).
-3. Side-by-side comparison and build planning with shareable URLs.
+2. Rich cross-list filtering and reusable filter views (implemented for the
+   shared recipe/encrustment source-skill use case).
+3. Side-by-side comparison and build planning with shareable URLs (next).
 4. Local tagging, favorites, and custom lists after a separate persistence/portability decision.
 5. Local mod inspector/validator, conflict view, spell/effect graph, and data-version diff.
 6. Offline installability after artifact/asset sizing.

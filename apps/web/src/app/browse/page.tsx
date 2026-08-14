@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { loadSearchArtifact } from "@/lib/artifact";
 import { browseKinds, browsePagePath } from "@/lib/browse";
+import { searchFilterViews } from "@/lib/search-filter-views";
 
 export const metadata: Metadata = {
   title: "Browse",
@@ -61,6 +62,33 @@ export default function BrowsePage() {
               </li>
             );
           })}
+        </ul>
+      </section>
+
+      <section aria-labelledby="filter-views-heading">
+        <h2 id="filter-views-heading" className="section-title">
+          Reusable filter views
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Start from a project-owned view, refine it with structured filters,
+          and reuse or share the resulting URL.
+        </p>
+        <ul className="browse-kind-grid mt-5">
+          {searchFilterViews.map((view) => (
+            <li key={view.id} className="browse-kind-card">
+              <div>
+                <h3 className="text-xl font-semibold">
+                  <Link className="entity-link" href={view.href}>
+                    {view.label}
+                  </Link>
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {view.description}
+                </p>
+              </div>
+              <p className="result-count">Shareable URL</p>
+            </li>
+          ))}
         </ul>
       </section>
 

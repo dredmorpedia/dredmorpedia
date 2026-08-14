@@ -33,7 +33,11 @@ test.describe("static browse without JavaScript", () => {
         name: "Browse every corner of Dredmorpedia.",
       }),
     ).toBeVisible();
-    await expect(page.locator(".browse-kind-card")).toHaveCount(9);
+    await expect(
+      page
+        .getByRole("region", { name: "Record types" })
+        .locator(".browse-kind-card"),
+    ).toHaveCount(9);
     await expect(
       page.getByRole("link", { name: "Required Armour by Monster" }),
     ).toHaveAttribute("href", "/meta/required-armour-by-monster/");
@@ -477,6 +481,54 @@ test("groups, bounds, and contextualizes search category filters", async ({
   await page.goto("/search/?kind=spell&category=weapon%3Asword");
   await expect(page).not.toHaveURL(/category=/);
   await expect(category).toBeDisabled();
+});
+
+test("reuses a cross-list crafting view and filters maximum source skill", async ({
+  page,
+}) => {
+  await page.goto("/browse/");
+  await page
+    .getByRole("link", { name: "Crafting through skill 2", exact: true })
+    .click();
+
+  await expect(page).toHaveURL(/kind=crafting/);
+  await expect(page).toHaveURL(/maxSkill=2/);
+  await expect(page.getByText("2 matching records")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Brass Ingot Recipe" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Synthetic Gear Polish" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade Recipe" }),
+  ).toHaveCount(0);
+
+  const skill = page.getByRole("combobox", {
+    name: "Maximum source skill",
+  });
+  await expect(skill).toHaveText("Level 2 or lower");
+  await skill.focus();
+  await skill.press("Enter");
+  await page
+    .getByRole("option", { name: "Level 1 or lower", exact: true })
+    .press("Enter");
+  await expect(page).toHaveURL(/maxSkill=1/);
+  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Brass Ingot Recipe" }),
+  ).toBeVisible();
+
+  const type = page.getByRole("combobox", { name: "Entity type" });
+  await type.focus();
+  await type.press("Enter");
+  await page.getByRole("option", { name: "Items", exact: true }).press("Enter");
+  await expect(page).toHaveURL(/kind=item/);
+  await expect(page).not.toHaveURL(/maxSkill=/);
+  await expect(skill).toBeDisabled();
+
+  await page.goto("/search/?kind=crafting&maxSkill=3");
+  await expect(page).not.toHaveURL(/maxSkill=/);
 });
 
 test("searches every record kind without losing sequential input", async ({

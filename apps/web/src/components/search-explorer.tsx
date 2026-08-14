@@ -6,6 +6,7 @@ import {
   suggestSearchDocuments,
   type EntityKind,
   type SearchDocument,
+  type SearchQuery,
 } from "@dredmorpedia/domain";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -28,6 +29,7 @@ import {
   searchCategoryValues,
   type SearchCategoryGroup,
 } from "@/lib/search-category-facets";
+import { searchFilterViews } from "@/lib/search-filter-views";
 
 interface FilterOption {
   value: string;
@@ -40,6 +42,8 @@ interface SearchExplorerProps {
   sources: FilterOption[];
   stats: FilterOption[];
 }
+
+type SearchScope = EntityKind | "all" | "crafting";
 
 const kindLabels: Record<EntityKind, string> = {
   item: "Items",
@@ -55,11 +59,28 @@ const kindLabels: Record<EntityKind, string> = {
 
 const kindOptions: FilterOption[] = [
   { value: "all", label: "All record types" },
+  { value: "crafting", label: "Recipes and encrustments" },
   ...entityKinds.map((kind) => ({
     value: kind,
     label: kindLabels[kind],
   })),
 ];
+
+function kindsForScope(scope: SearchScope): EntityKind[] | undefined {
+  if (scope === "all") {
+    return undefined;
+  }
+  return scope === "crafting" ? ["recipe", "encrustment"] : [scope];
+}
+
+function supportsCraftingSkill(scope: SearchScope): boolean {
+  return (
+    scope === "all" ||
+    scope === "crafting" ||
+    scope === "recipe" ||
+    scope === "encrustment"
+  );
+}
 
 const searchQueryDebounceMilliseconds = 250;
 
@@ -175,7 +196,7 @@ export function SearchExplorer({
     kindOptions.some((option) => option.value === requestedKind)
       ? requestedKind
       : "all"
-  ) as EntityKind | "all";
+  ) as SearchScope;
   const categoryGroups = useMemo(
     () => createSearchCategoryGroups(documents, kind),
     [documents, kind],
@@ -193,6 +214,25 @@ export function SearchExplorer({
   );
   const sourceOptions = [{ value: "all", label: "All sources" }, ...sources];
   const statOptions = [{ value: "all", label: "Any stat" }, ...stats];
+  const craftingSkillOptions = useMemo(() => {
+    const levels = [
+      ...new Set(
+        documents.flatMap((document) =>
+          document.craftingSkillLevel === null
+            ? []
+            : [document.craftingSkillLevel],
+        ),
+      ),
+    ].sort((left, right) => left - right);
+
+    return [
+      { value: "all", label: "Any source skill" },
+      ...levels.map((level) => ({
+        value: String(level),
+        label: level === 0 ? "No skill required" : `Level ${level} or lower`,
+      })),
+    ];
+  }, [documents]);
   const requestedSource = searchParams.get("source") ?? "all";
   const source = sourceOptions.some(
     (option) => option.value === requestedSource,
@@ -210,12 +250,24 @@ export function SearchExplorer({
         option.value === requestedStat ||
         option.aliases?.includes(requestedStat),
     )?.value ?? "all";
-  const searchQuery = {
+  const requestedMaximumCraftingSkill = searchParams.get("maxSkill") ?? "all";
+  const maximumCraftingSkill =
+    supportsCraftingSkill(kind) &&
+    craftingSkillOptions.some(
+      (option) => option.value === requestedMaximumCraftingSkill,
+    )
+      ? requestedMaximumCraftingSkill
+      : "all";
+  const scopedKinds = kindsForScope(kind);
+  const searchQuery: SearchQuery = {
     query,
-    ...(kind === "all" ? {} : { kinds: [kind as EntityKind] }),
+    ...(scopedKinds ? { kinds: scopedKinds } : {}),
     ...(source === "all" ? {} : { sourceIds: [source] }),
     ...(category === "all" ? {} : { category }),
     ...(stat === "all" ? {} : { statKey: stat }),
+    ...(maximumCraftingSkill === "all"
+      ? {}
+      : { maximumCraftingSkillLevel: Number(maximumCraftingSkill) }),
   };
   const allResults = querySearchDocuments(documents, searchQuery);
   const visibleResults = allResults.slice(0, 50);
@@ -241,6 +293,35 @@ export function SearchExplorer({
     );
   }, [compatibleCategoryValues, pathname, requestedCategory, router]);
 
+  useEffect(() => {
+    if (
+      requestedMaximumCraftingSkill === "all" ||
+      (supportsCraftingSkill(kind) &&
+        craftingSkillOptions.some(
+          (option) => option.value === requestedMaximumCraftingSkill,
+        ))
+    ) {
+      return;
+    }
+
+    const next = new URLSearchParams(latestSearchParams.current);
+    if (next.get("maxSkill") !== requestedMaximumCraftingSkill) {
+      return;
+    }
+    next.delete("maxSkill");
+    const suffix = next.size > 0 ? `?${next.toString()}` : "";
+    latestSearchParams.current = next.toString();
+    startTransition(() =>
+      router.replace(`${pathname}${suffix}`, { scroll: false }),
+    );
+  }, [
+    craftingSkillOptions,
+    kind,
+    pathname,
+    requestedMaximumCraftingSkill,
+    router,
+  ]);
+
   const updateFilter = (key: string, value: string) => {
     const next = new URLSearchParams(latestSearchParams.current);
     if (value.length === 0 || value === "all") {
@@ -251,13 +332,16 @@ export function SearchExplorer({
     if (key === "kind") {
       const nextKind = (
         kindOptions.some((option) => option.value === value) ? value : "all"
-      ) as EntityKind | "all";
+      ) as SearchScope;
       const nextCategory = next.get("category");
       const nextCategoryValues = searchCategoryValues(
         createSearchCategoryGroups(documents, nextKind),
       );
       if (nextCategory !== null && !nextCategoryValues.has(nextCategory)) {
         next.delete("category");
+      }
+      if (!supportsCraftingSkill(nextKind)) {
+        next.delete("maxSkill");
       }
     }
     if (query.length === 0) {
@@ -301,6 +385,28 @@ export function SearchExplorer({
         </p>
       </div>
 
+      <nav aria-labelledby="reusable-filter-views-heading">
+        <h2
+          id="reusable-filter-views-heading"
+          className="text-sm font-semibold"
+        >
+          Reusable filter views
+        </h2>
+        <ul className="mt-3 flex list-none flex-wrap gap-2 p-0">
+          {searchFilterViews.map((view) => (
+            <li key={view.id}>
+              <Link
+                className="inline-flex min-h-10 items-center rounded-md border border-border bg-surface px-4 text-sm font-semibold text-foreground no-underline outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
+                href={view.href}
+                title={view.description}
+              >
+                {view.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       <div className="search-filter-panel">
         <div className="field-group search-query-field">
           <label htmlFor="global-search" className="field-label">
@@ -341,6 +447,13 @@ export function SearchExplorer({
           value={stat}
           options={statOptions}
           onChange={(value) => updateFilter("stat", value)}
+        />
+        <FilterSelect
+          label="Maximum source skill"
+          value={maximumCraftingSkill}
+          options={craftingSkillOptions}
+          disabled={!supportsCraftingSkill(kind)}
+          onChange={(value) => updateFilter("maxSkill", value)}
         />
         <Button type="button" variant="outline" onClick={reset}>
           Reset filters
@@ -412,6 +525,12 @@ export function SearchExplorer({
                       ?.label ?? document.sourceId}
                   </dd>
                 </div>
+                {document.craftingSkillLevel === null ? null : (
+                  <div>
+                    <dt>Source skill</dt>
+                    <dd>{document.craftingSkillLevel}</dd>
+                  </div>
+                )}
                 <div>
                   <dt>Category</dt>
                   <dd>

@@ -6649,7 +6649,7 @@ describe("synthetic dataset import", () => {
     );
     expect(result.search.documents).toHaveLength(26);
     expect(result.search).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 3,
       datasetSchemaVersion: 3,
       datasetId: "synthetic-architecture-spike",
     });
@@ -6668,14 +6668,17 @@ describe("synthetic dataset import", () => {
     expect(
       result.search.documents.find(
         (document) => document.id === "encrustment:synthetic gear polish",
-      )?.statKeys,
-    ).toEqual([
-      "modifier:damage:crushing",
-      "modifier:damage:voltaic",
-      "modifier:primary:2",
-      "modifier:resistance:toxic",
-      "modifier:secondary:6",
-    ]);
+      ),
+    ).toMatchObject({
+      craftingSkillLevel: 2,
+      statKeys: [
+        "modifier:damage:crushing",
+        "modifier:damage:voltaic",
+        "modifier:primary:2",
+        "modifier:resistance:toxic",
+        "modifier:secondary:6",
+      ],
+    });
     expect(
       result.search.documents.find(
         (document) => document.id === "ability:measured strike",

@@ -90,6 +90,7 @@ const documents: SearchDocument[] = [
     sourceId: "synthetic-expansion",
     category: "weapon",
     statKeys: ["melee power"],
+    craftingSkillLevel: null,
     url: "/items/clockwork-blade",
     text: "clockwork blade a precise synthetic weapon item weapon synthetic-expansion melee power 6",
   },
@@ -102,6 +103,7 @@ const documents: SearchDocument[] = [
     sourceId: "synthetic-base",
     category: "material",
     statKeys: [],
+    craftingSkillLevel: null,
     url: "/items/brass-ingot",
     text: "brass ingot a synthetic crafting material item material synthetic-base",
   },
@@ -114,6 +116,7 @@ const documents: SearchDocument[] = [
     sourceId: "synthetic-base",
     category: "secondary",
     statKeys: [],
+    craftingSkillLevel: null,
     url: "/stats/melee-power",
     text: "melee power synthetic close-combat output stat secondary synthetic-base",
   },
@@ -126,6 +129,7 @@ const documents: SearchDocument[] = [
     sourceId: "synthetic-base",
     category: null,
     statKeys: [],
+    craftingSkillLevel: null,
     url: "/templates/small-cross",
     text: "small cross template synthetic-base",
   },
@@ -153,6 +157,7 @@ describe("search queries", () => {
     expect(generated[0]).toMatchObject({
       kind: "recipe",
       category: "smithing",
+      craftingSkillLevel: 2,
     });
     expect(
       querySearchDocuments(generated, {
@@ -160,6 +165,55 @@ describe("search queries", () => {
         category: "smithing",
       }).map((result) => result.document.id),
     ).toEqual(["recipe:clockwork blade recipe"]);
+  });
+
+  it("filters crafting records across entity kinds by maximum source skill", () => {
+    const craftingDocuments: SearchDocument[] = [
+      {
+        ...documents[0]!,
+        id: "recipe:training blade",
+        kind: "recipe",
+        name: "Training Blade Recipe",
+        category: "smithing",
+        craftingSkillLevel: 1,
+      },
+      {
+        ...documents[0]!,
+        id: "encrustment:training polish",
+        kind: "encrustment",
+        name: "Training Polish",
+        category: "smithing",
+        craftingSkillLevel: 2,
+      },
+      {
+        ...documents[0]!,
+        id: "recipe:expert blade",
+        kind: "recipe",
+        name: "Expert Blade Recipe",
+        category: "smithing",
+        craftingSkillLevel: 4,
+      },
+      documents[1]!,
+    ];
+
+    expect(
+      querySearchDocuments(craftingDocuments, {
+        kinds: ["recipe", "encrustment"],
+        maximumCraftingSkillLevel: 2,
+      }).map((result) => result.document.id),
+    ).toEqual(["encrustment:training polish", "recipe:training blade"]);
+  });
+
+  it("rejects invalid maximum crafting source-skill bounds", () => {
+    expect(() =>
+      querySearchDocuments(documents, { maximumCraftingSkillLevel: -1 }),
+    ).toThrow(/non-negative safe integer/);
+    expect(() =>
+      suggestSearchDocuments(documents, {
+        query: "clokwork blade",
+        maximumCraftingSkillLevel: Number.NaN,
+      }),
+    ).toThrow(/non-negative safe integer/);
   });
 
   it("ranks exact and prefix name matches ahead of description matches", () => {
@@ -247,6 +301,7 @@ describe("search queries", () => {
         sourceId: "synthetic-base",
         category: "wand",
         statKeys: [],
+        craftingSkillLevel: null,
         url: `/items/training-wand-${index}`,
         text: `training wand ${String.fromCharCode(97 + index)}`,
       }),

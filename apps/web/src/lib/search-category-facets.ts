@@ -17,6 +17,8 @@ export interface SearchCategoryGroup {
   options: SearchCategoryOption[];
 }
 
+export type SearchCategoryScope = EntityKind | "all" | "crafting";
+
 interface CategoryGroupDefinition {
   id: string;
   label: string;
@@ -59,10 +61,20 @@ export function searchCategoryLabel(kind: EntityKind, value: string): string {
 
 export function createSearchCategoryGroups(
   documents: readonly Pick<SearchDocument, "kind" | "category">[],
-  kind: EntityKind | "all",
+  scope: SearchCategoryScope,
 ): SearchCategoryGroup[] {
+  const scopedKinds =
+    scope === "all"
+      ? null
+      : new Set<EntityKind>(
+          scope === "crafting" ? ["recipe", "encrustment"] : [scope],
+        );
+
   return categoryGroupDefinitions.flatMap((definition) => {
-    if (kind !== "all" && !definition.kinds.includes(kind)) {
+    if (
+      scopedKinds &&
+      !definition.kinds.some((kind) => scopedKinds.has(kind))
+    ) {
       return [];
     }
 
@@ -71,7 +83,7 @@ export function createSearchCategoryGroups(
       if (
         document.category === null ||
         !definition.kinds.includes(document.kind) ||
-        (kind !== "all" && document.kind !== kind)
+        (scopedKinds !== null && !scopedKinds.has(document.kind))
       ) {
         continue;
       }

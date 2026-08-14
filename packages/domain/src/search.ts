@@ -44,6 +44,12 @@ function categoryFor(entity: NormalizedEntity): string | null {
   return null;
 }
 
+function craftingSkillLevelFor(entity: NormalizedEntity): number | null {
+  return entity.kind === "recipe" || entity.kind === "encrustment"
+    ? entity.skillLevel
+    : null;
+}
+
 export function statModifierSearchKey(
   modifier: Pick<StatModifier, "kind" | "sourceKey">,
 ): string {
@@ -158,6 +164,7 @@ export function createSearchDocument(
   },
 ): SearchDocument {
   const category = categoryFor(entity);
+  const craftingSkillLevel = craftingSkillLevelFor(entity);
   const aliases = [...new Set(entity.slugAliases)].sort((left, right) =>
     compareCodeUnits(left, right),
   );
@@ -183,6 +190,9 @@ export function createSearchDocument(
     entity.kind,
     category ?? "",
     entity.provenance.sourceId,
+    ...(craftingSkillLevel === null
+      ? []
+      : [`source skill ${craftingSkillLevel}`]),
     ...(entity.kind === "monster"
       ? [
           entity.depth === null ? "" : `dungeon level ${entity.depth}`,
@@ -225,6 +235,7 @@ export function createSearchDocument(
     sourceId: entity.provenance.sourceId,
     category,
     statKeys,
+    craftingSkillLevel,
     url: `/${routeSegments[entity.kind]}/${entity.slug}`,
     text: searchableParts.join(" ").normalize("NFKC").toLocaleLowerCase("en"),
   };
@@ -251,6 +262,7 @@ export interface SearchQuery {
   sourceIds?: readonly string[];
   category?: string;
   statKey?: string;
+  maximumCraftingSkillLevel?: number;
   limit?: number;
 }
 
@@ -277,6 +289,15 @@ function normalizeQuery(value: string): string {
 function searchFilter(
   query: SearchQuery,
 ): (document: SearchDocument) => boolean {
+  if (
+    query.maximumCraftingSkillLevel !== undefined &&
+    (!Number.isSafeInteger(query.maximumCraftingSkillLevel) ||
+      query.maximumCraftingSkillLevel < 0)
+  ) {
+    throw new Error(
+      "Maximum crafting skill level must be a non-negative safe integer.",
+    );
+  }
   const kinds = query.kinds?.length ? new Set(query.kinds) : undefined;
   const sourceIds = query.sourceIds?.length
     ? new Set(query.sourceIds)
@@ -293,6 +314,13 @@ function searchFilter(
       return false;
     }
     if (query.statKey && !document.statKeys.includes(query.statKey)) {
+      return false;
+    }
+    if (
+      query.maximumCraftingSkillLevel !== undefined &&
+      (document.craftingSkillLevel === null ||
+        document.craftingSkillLevel > query.maximumCraftingSkillLevel)
+    ) {
       return false;
     }
     return true;

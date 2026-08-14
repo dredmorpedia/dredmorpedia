@@ -23,6 +23,7 @@ function searchDocument(
     sourceId: "synthetic",
     category: null,
     statKeys: [],
+    craftingSkillLevel: null,
     url: `/${kind}/${id}`,
     text: `record ${id}`,
   };

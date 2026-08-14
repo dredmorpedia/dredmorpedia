@@ -39,6 +39,7 @@ function document(id: string, statKeys: string[]): SearchDocument {
     sourceId: "synthetic-base",
     category: null,
     statKeys,
+    craftingSkillLevel: null,
     url: `/abilities/${id}`,
     text: id,
   };
