@@ -222,6 +222,15 @@ export default async function EncrustmentPage({
             references={encrustment.inputs}
             itemsById={itemsById}
           />
+          <Link
+            className="entity-link mt-4 inline-block font-semibold"
+            href={{
+              pathname: "/tools/encrusting-plan/",
+              query: { encrustment: encrustment.slug },
+            }}
+          >
+            Plan ingredients for {encrustment.name} →
+          </Link>
         </section>
 
         <section className="detail-card" aria-labelledby="slots-heading">

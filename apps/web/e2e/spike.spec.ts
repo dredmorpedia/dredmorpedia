@@ -784,6 +784,12 @@ test("builds and restores a shareable recursive crafting plan", async ({
   await expect(
     page.getByRole("region", { name: "Crafting steps" }),
   ).toContainText("Brass Ingot Recipe");
+  await expect(
+    page.getByRole("combobox", { name: /Clockwork Blade \(3 needed\)/ }),
+  ).toHaveValue("recipe:clockwork blade recipe#1");
+  await expect(
+    page.getByRole("combobox", { name: /Brass Ingot \(4 needed\)/ }),
+  ).toHaveValue("recipe:brass ingot recipe#1");
   expect(
     await page.evaluate(
       () =>
@@ -797,12 +803,122 @@ test("explains stale crafting URLs and removes invalid calculation state", async
   page,
 }) => {
   await page.goto(
-    "/tools/crafting-graph/?item=not-in-dataset&quantity=0&choice=invalid",
+    "/tools/crafting-graph/?item=not-in-dataset&quantity=0&choice=clockwork-blade~clockwork-blade-recipe~1&choice=invalid",
   );
   await expect(
     page.getByRole("heading", {
       level: 2,
       name: "This item is not craftable in the active dataset.",
+    }),
+  ).toBeVisible();
+  await expect(page).not.toHaveURL(/quantity=/);
+  await expect(page).not.toHaveURL(/choice=/);
+});
+
+test("builds and restores a shareable encrustment ingredient plan", async ({
+  page,
+}) => {
+  await page.goto("/encrustments/synthetic-gear-polish/");
+  const plannerLink = page.getByRole("link", {
+    name: "Plan ingredients for Synthetic Gear Polish",
+  });
+  await plannerLink.focus();
+  await expect(plannerLink).toBeFocused();
+  await plannerLink.press("Enter");
+
+  await expect(page).toHaveURL(
+    /\/tools\/encrusting-plan\/\?encrustment=synthetic-gear-polish/,
+  );
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Encrustment ingredient planner",
+    }),
+  ).toBeVisible();
+  const applications = page.getByRole("spinbutton", { name: "Applications" });
+  await applications.fill("3");
+  await expect(page).toHaveURL(/quantity=3/);
+  await applications.fill("");
+  await applications.press("Tab");
+  await expect(applications).toHaveValue("3");
+
+  const directIngredients = page.getByRole("region", {
+    name: "Application ingredients",
+  });
+  await expect(
+    directIngredients.getByRole("listitem").filter({ hasText: "Brass Ingot" }),
+  ).toContainText("3");
+  await expect(
+    directIngredients
+      .getByRole("listitem")
+      .filter({ hasText: "Missing Polish" }),
+  ).toContainText("3");
+
+  const ingotYield = page.getByRole("combobox", {
+    name: /Brass Ingot \(3 needed\)/,
+  });
+  await ingotYield.selectOption({
+    label: "2 per craft at source skill 1 — Brass Ingot Recipe",
+  });
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "The plan contains unresolved ingredients",
+    }),
+  ).toBeVisible();
+  const steps = page.getByRole("region", { name: "Crafting steps" });
+  await expect(
+    steps.getByRole("heading", { level: 3, name: "Brass Ingot" }),
+  ).toBeVisible();
+  await expect(steps).toContainText("2 runs");
+  await expect(steps).toContainText("1 surplus");
+
+  const shoppingList = page.getByRole("region", {
+    name: "Base requirements",
+  });
+  await expect(
+    shoppingList.getByRole("listitem").filter({ hasText: "Training Gem" }),
+  ).toContainText("2");
+  await expect(
+    shoppingList.getByRole("listitem").filter({ hasText: "Missing Polish" }),
+  ).toContainText("3");
+
+  await page.reload();
+  await expect(
+    page.getByRole("spinbutton", { name: "Applications" }),
+  ).toHaveValue("3");
+  await expect(
+    page.getByRole("region", { name: "Crafting steps" }),
+  ).toContainText("Brass Ingot Recipe");
+  const restoredYield = page.getByRole("combobox", {
+    name: /Brass Ingot \(3 needed\)/,
+  });
+  await expect(restoredYield).toHaveValue("recipe:brass ingot recipe#1");
+  await restoredYield.selectOption({
+    label: "1 per craft at source skill 0 — Brass Ingot Recipe",
+  });
+  await expect(
+    page.getByRole("region", { name: "Crafting steps" }),
+  ).toContainText("3 runs");
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+});
+
+test("explains stale encrustment URLs and removes invalid calculation state", async ({
+  page,
+}) => {
+  await page.goto(
+    "/tools/encrusting-plan/?encrustment=not-in-dataset&quantity=0&choice=brass-ingot~brass-ingot-recipe~1&choice=invalid",
+  );
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "This encrustment is not in the active dataset.",
     }),
   ).toBeVisible();
   await expect(page).not.toHaveURL(/quantity=/);
@@ -1612,6 +1728,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/monsters/armored-training-diggle/",
     "/meta/required-armour-by-monster/",
     "/tools/crafting-graph/?item=clockwork-blade",
+    "/tools/encrusting-plan/?encrustment=synthetic-gear-polish",
     "/stats/melee-power/",
     "/templates/small-cross/",
     "/spells/not-in-active-dataset/",

@@ -116,6 +116,14 @@ describe("crafting dependency plans", () => {
       surplusAmount: 1,
       option: { output: { amount: 3, skillLevel: 2 } },
     });
+    expect(selected.selectedChoices).toEqual([
+      {
+        item: target,
+        requiredAmount: 5,
+        options,
+        selected: options[1],
+      },
+    ]);
     expect(selected.baseRequirements).toEqual([{ item: ore, amount: 2 }]);
   });
 

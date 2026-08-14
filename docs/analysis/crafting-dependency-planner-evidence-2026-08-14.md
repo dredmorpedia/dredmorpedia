@@ -7,7 +7,10 @@ Status: implemented first Phase 5 crafting slice
 
 The first differentiating tool answers one bounded question: **what source-declared crafting steps and base ingredients are needed to produce a requested quantity of an item?** It is available at `/tools/crafting-graph/` and from the **Plan ingredients** link on craftable item pages.
 
-This slice covers ordinary crafting recipes. Extending the same product idea to encrustments remains the next Phase 5 task because encrustments have different input/output semantics and should not be forced into the recipe calculation without a separate contract.
+This slice covers ordinary crafting recipes. Encrustments were deliberately
+deferred because they have different input/output semantics and should not be
+forced into the recipe calculation without a separate contract; that follow-up
+is now implemented and linked under **Next boundary** below.
 
 ## Source and data contract
 
@@ -60,4 +63,8 @@ The interface uses native labeled selects and a number input, remains keyboard-o
 
 ## Next boundary
 
-The next recommended task is the encrustment dependency/shopping-list extension. It should reuse presentation and URL conventions where they fit while defining encrustment applicability, instability, and output semantics independently rather than pretending an encrustment is an ordinary crafted item.
+This boundary was completed in the separately modeled encrustment planner; see
+`docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`. The
+implementation reuses presentation and URL conventions while keeping
+application inputs, applicability, and instability distinct from an ordinary
+crafted output.

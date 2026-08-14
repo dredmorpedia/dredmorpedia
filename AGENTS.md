@@ -185,10 +185,10 @@ Read these files before making a substantial change:
   and do not bulk-copy unrelated resources. The search-page filtering rework
   is implemented with bounded keyboard/touch scrolling, semantic groups,
   displayed-label ordering, contextual entity-type options, and stale URL
-  cleanup. The first Phase 5 crafting dependency planner is implemented with
-  explicit source-yield choices and shareable URL state. The next recommended
-  slice is its separately modeled encrustment dependency/shopping-list
-  extension.
+  cleanup. The first Phase 5 crafting and separately modeled encrustment
+  dependency planners are implemented with editable source-yield choices,
+  combined shopping lists, and shareable URL state. The next recommended slice
+  is rich cross-list filtering and reusable filter views.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

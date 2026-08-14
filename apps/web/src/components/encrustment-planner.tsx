@@ -5,15 +5,25 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 
 import {
-  createCraftingPlan,
+  createEncrustmentPlan,
   craftingOutputOptions,
   type CraftingOutputOption,
   type CraftingPlanItem,
   type CraftingPlanRecipe,
+  type EncrustmentPlanDefinition,
 } from "@dredmorpedia/domain";
 
 import { CraftingPlanResults } from "@/components/crafting-plan-results";
 import { updateCraftingChoiceParams } from "@/lib/crafting-plan-url";
+import { titleCase } from "@/lib/display-labels";
+
+export interface EncrustmentPlannerEntry extends EncrustmentPlanDefinition {
+  tool: string;
+  hidden: boolean;
+  skillLevel: number;
+  slots: string[];
+  instability: number;
+}
 
 interface ParsedChoice {
   itemId: string;
@@ -21,7 +31,7 @@ interface ParsedChoice {
   token: string;
 }
 
-const maximumQuantity = 999;
+const maximumApplications = 999;
 
 function optionToken(
   item: CraftingPlanItem,
@@ -30,12 +40,14 @@ function optionToken(
   return `${item.slug}~${option.recipe.slug}~${option.outputIndex}`;
 }
 
-export function CraftingPlanner({
+export function EncrustmentPlanner({
   items,
   recipes,
+  encrustments,
 }: {
   items: CraftingPlanItem[];
   recipes: CraftingPlanRecipe[];
+  encrustments: EncrustmentPlannerEntry[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,37 +58,30 @@ export function CraftingPlanner({
     latestSearchParams.current = serializedSearchParams;
   }, [serializedSearchParams]);
 
-  const itemsBySlug = useMemo(
-    () => new Map(items.map((item) => [item.slug, item])),
-    [items],
-  );
-  const craftableItems = useMemo(
-    () =>
-      items.filter(
-        (item) => craftingOutputOptions(recipes, item.id).length > 0,
-      ),
-    [items, recipes],
+  const encrustmentsBySlug = useMemo(
+    () => new Map(encrustments.map((entry) => [entry.slug, entry])),
+    [encrustments],
   );
   const optionsByToken = useMemo(() => {
     const result = new Map<string, ParsedChoice>();
-    for (const item of craftableItems) {
+    for (const item of items) {
       for (const option of craftingOutputOptions(recipes, item.id)) {
         const token = optionToken(item, option);
         result.set(token, { itemId: item.id, key: option.key, token });
       }
     }
     return result;
-  }, [craftableItems, recipes]);
+  }, [items, recipes]);
 
-  const targetSlug = searchParams.get("item") ?? "";
-  const target = itemsBySlug.get(targetSlug);
+  const targetSlug = searchParams.get("encrustment") ?? "";
+  const target = encrustmentsBySlug.get(targetSlug);
   const quantitySource = searchParams.get("quantity");
-  const parsedQuantity = Number(quantitySource ?? "1");
-  const quantity =
-    Number.isInteger(parsedQuantity) &&
-    parsedQuantity >= 1 &&
-    parsedQuantity <= maximumQuantity
-      ? parsedQuantity
+  const parsedApplications = Number(quantitySource ?? "1");
+  const applications =
+    Number.isInteger(parsedApplications) &&
+    parsedApplications >= 1 &&
+    parsedApplications <= maximumApplications
+      ? parsedApplications
       : 1;
   const sourceChoiceTokens = searchParams.getAll("choice");
   const parsedChoices = sourceChoiceTokens.flatMap((token) => {
@@ -92,14 +97,14 @@ export function CraftingPlanner({
   );
 
   const plan = target
-    ? createCraftingPlan(items, recipes, target.id, quantity, selections)
+    ? createEncrustmentPlan(items, recipes, target, applications, selections)
     : null;
   const staleTarget = targetSlug.length > 0 && target === undefined;
   const invalidQuantity =
     quantitySource !== null &&
-    (!Number.isInteger(parsedQuantity) ||
-      parsedQuantity < 1 ||
-      parsedQuantity > maximumQuantity);
+    (!Number.isInteger(parsedApplications) ||
+      parsedApplications < 1 ||
+      parsedApplications > maximumApplications);
   const activeChoiceItemIds = new Set(
     plan?.selectedChoices.map((choice) => choice.item.id) ?? [],
   );
@@ -146,26 +151,26 @@ export function CraftingPlanner({
   const selectTarget = (slug: string) => {
     const params = new URLSearchParams(latestSearchParams.current);
     if (slug) {
-      params.set("item", slug);
+      params.set("encrustment", slug);
     } else {
-      params.delete("item");
+      params.delete("encrustment");
     }
     params.delete("choice");
     replaceUrl(params);
   };
 
-  const selectQuantity = (value: string) => {
+  const selectApplications = (value: string) => {
     const params = new URLSearchParams(latestSearchParams.current);
-    const nextQuantity = Number(value);
+    const nextApplications = Number(value);
     if (
-      Number.isInteger(nextQuantity) &&
-      nextQuantity >= 1 &&
-      nextQuantity <= maximumQuantity
+      Number.isInteger(nextApplications) &&
+      nextApplications >= 1 &&
+      nextApplications <= maximumApplications
     ) {
-      if (nextQuantity === 1) {
+      if (nextApplications === 1) {
         params.delete("quantity");
       } else {
-        params.set("quantity", String(nextQuantity));
+        params.set("quantity", String(nextApplications));
       }
       replaceUrl(params);
     }
@@ -183,67 +188,69 @@ export function CraftingPlanner({
         nextChoice = { itemId, key, token };
       }
     }
-    const params = updateCraftingChoiceParams(
-      latestSearchParams.current,
-      optionsByToken,
-      itemId,
-      nextChoice,
+    replaceUrl(
+      updateCraftingChoiceParams(
+        latestSearchParams.current,
+        optionsByToken,
+        itemId,
+        nextChoice,
+      ),
     );
-    replaceUrl(params);
   };
 
   return (
     <div className="crafting-tool-stack">
       <section
         className="detail-card"
-        aria-labelledby="crafting-controls-heading"
+        aria-labelledby="encrustment-controls-heading"
       >
         <div className="crafting-card-heading">
           <div>
             <p className="eyebrow">Plan setup</p>
-            <h2 id="crafting-controls-heading" className="section-title-sm">
-              Choose an output
+            <h2 id="encrustment-controls-heading" className="section-title-sm">
+              Choose an encrustment
             </h2>
           </div>
           <p className="result-count">
-            {craftableItems.length} craftable items
+            {encrustments.length}{" "}
+            {encrustments.length === 1 ? "encrustment" : "encrustments"}
           </p>
         </div>
         <div className="crafting-controls">
           <label className="filter-field">
-            <span>Target item</span>
+            <span>Encrustment</span>
             <select
               className="search-input"
               value={target?.slug ?? ""}
               onChange={(event) => selectTarget(event.target.value)}
             >
-              <option value="">Choose a craftable item</option>
-              {craftableItems.map((item) => (
-                <option key={item.id} value={item.slug}>
-                  {item.name}
+              <option value="">Choose an encrustment</option>
+              {encrustments.map((entry) => (
+                <option key={entry.id} value={entry.slug}>
+                  {entry.name}
                 </option>
               ))}
             </select>
           </label>
           <label className="filter-field">
-            <span>Quantity</span>
+            <span>Applications</span>
             <input
-              key={quantity}
+              key={applications}
               className="search-input"
               type="number"
               min="1"
-              max={maximumQuantity}
+              max={maximumApplications}
               step="1"
-              defaultValue={quantity}
-              onChange={(event) => selectQuantity(event.target.value)}
+              defaultValue={applications}
+              onChange={(event) => selectApplications(event.target.value)}
               onBlur={(event) => {
-                const nextQuantity = Number(event.currentTarget.value);
+                const nextApplications = Number(event.currentTarget.value);
                 if (
-                  !Number.isInteger(nextQuantity) ||
-                  nextQuantity < 1 ||
-                  nextQuantity > maximumQuantity
+                  !Number.isInteger(nextApplications) ||
+                  nextApplications < 1 ||
+                  nextApplications > maximumApplications
                 ) {
-                  event.currentTarget.value = String(quantity);
+                  event.currentTarget.value = String(applications);
                 }
               }}
               disabled={!target}
@@ -255,16 +262,19 @@ export function CraftingPlanner({
       {staleTarget ? (
         <section
           className="diagnostic-panel"
-          aria-labelledby="stale-target-heading"
+          aria-labelledby="stale-encrustment-heading"
         >
           <div>
-            <p className="eyebrow">Unavailable target</p>
-            <h2 id="stale-target-heading" className="text-lg font-semibold">
-              This item is not craftable in the active dataset.
+            <p className="eyebrow">Unavailable encrustment</p>
+            <h2
+              id="stale-encrustment-heading"
+              className="text-lg font-semibold"
+            >
+              This encrustment is not in the active dataset.
             </h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              The shared URL may refer to another dataset or to an item that no
-              longer has a normalized recipe. Choose an available target above.
+              The shared URL may refer to another dataset. Choose an available
+              encrustment above.
             </p>
           </div>
         </section>
@@ -276,16 +286,16 @@ export function CraftingPlanner({
             id="empty-plan-heading"
             className="text-lg font-semibold text-foreground"
           >
-            Select an item to build its dependency plan.
+            Select an encrustment to build its ingredient plan.
           </h2>
           <p className="mt-2 text-sm leading-6">
-            The target, quantity, and explicit source-yield choices stay in the
-            URL so the same plan can be reopened or shared.
+            The selection, application count, and explicit source-yield choices
+            stay in the URL so the same plan can be reopened or shared.
           </p>
         </section>
       ) : null}
 
-      {plan ? (
+      {plan && target ? (
         <>
           <section
             className={`crafting-plan-status ${plan.complete ? "crafting-plan-status-complete" : ""}`}
@@ -295,7 +305,7 @@ export function CraftingPlanner({
               <p className="eyebrow">Plan status</p>
               <h2 id="plan-status-heading" className="text-lg font-semibold">
                 {plan.complete
-                  ? `Ready to craft ${quantity} × ${plan.target.name}`
+                  ? `Plan ready for ${applications} × ${target.name}`
                   : plan.cycles.length > 0
                     ? "A recipe cycle prevents calculation"
                     : plan.choices.length > 0
@@ -303,17 +313,76 @@ export function CraftingPlanner({
                       : "The plan contains unresolved ingredients"}
               </h2>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Quantities combine shared ingredient demand before rounding
-                recipe runs. Inventory, found loot, and surplus reuse are not
-                assumed.
+                This calculates ingredient preparation only. It does not infer
+                equipment ownership, application behavior, or instability
+                outcomes.
               </p>
             </div>
             <Link
               className="entity-link font-semibold"
-              href={`/items/${plan.target.slug}/`}
+              href={`/encrustments/${target.slug}/`}
             >
-              Open {plan.target.name} →
+              Open {target.name} →
             </Link>
+          </section>
+
+          <section
+            className="detail-card"
+            aria-labelledby="application-declaration-heading"
+          >
+            <div className="crafting-card-heading">
+              <div>
+                <p className="eyebrow">Source declaration</p>
+                <h2
+                  id="application-declaration-heading"
+                  className="section-title-sm"
+                >
+                  Application ingredients
+                </h2>
+              </div>
+              <span className="category-chip">
+                {titleCase(target.tool)} · source skill {target.skillLevel}
+              </span>
+            </div>
+            <p className="detail-section-note">
+              Applies to{" "}
+              {target.slots.map(titleCase).join(", ") || "no normalized slots"};
+              source instability {target.instability > 0 ? "+" : ""}
+              {target.instability}.
+            </p>
+            {plan.ingredientRequirements.length > 0 ? (
+              <ul className="crafting-requirement-list">
+                {plan.ingredientRequirements.map((requirement) => (
+                  <li key={`${requirement.itemKey}:${requirement.itemName}`}>
+                    <span>
+                      {requirement.item ? (
+                        <Link
+                          className="entity-link font-semibold"
+                          href={`/items/${requirement.item.slug}/`}
+                        >
+                          {requirement.item.name}
+                        </Link>
+                      ) : (
+                        requirement.itemName
+                      )}
+                      {!requirement.item ? (
+                        <small>Unresolved source item</small>
+                      ) : null}
+                    </span>
+                    <strong>
+                      {requirement.totalAmount}
+                      <small>
+                        {requirement.amountPerApplication} per application
+                      </small>
+                    </strong>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="detail-section-note">
+                No normalized ingredients are declared.
+              </p>
+            )}
           </section>
 
           <CraftingPlanResults

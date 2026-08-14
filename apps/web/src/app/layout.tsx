@@ -47,6 +47,7 @@ export default function RootLayout({
                 <Link href="/browse/">Browse</Link>
                 <Link href="/search">Search</Link>
                 <Link href="/tools/crafting-graph/">Crafting</Link>
+                <Link href="/tools/encrusting-plan/">Encrusting</Link>
                 <Link href="/meta/required-armour-by-monster/">Meta</Link>
                 <Link href="/dataset/">Dataset</Link>
               </nav>

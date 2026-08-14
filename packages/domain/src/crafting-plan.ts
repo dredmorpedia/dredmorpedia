@@ -49,6 +49,10 @@ export interface CraftingPlanChoice {
   options: CraftingOutputOption[];
 }
 
+export interface CraftingPlanSelectedChoice extends CraftingPlanChoice {
+  selected: CraftingOutputOption;
+}
+
 export interface CraftingPlanRequirement {
   item: CraftingPlanItem;
   amount: number;
@@ -64,15 +68,19 @@ export interface CraftingPlanCycle {
   items: CraftingPlanItem[];
 }
 
-export interface CraftingPlan {
-  target: CraftingPlanItem;
-  quantity: number;
+export interface CraftingRequirementsPlan {
   complete: boolean;
   steps: CraftingPlanStep[];
   choices: CraftingPlanChoice[];
+  selectedChoices: CraftingPlanSelectedChoice[];
   baseRequirements: CraftingPlanRequirement[];
   unresolvedRequirements: CraftingPlanUnresolvedRequirement[];
   cycles: CraftingPlanCycle[];
+}
+
+export interface CraftingPlan extends CraftingRequirementsPlan {
+  target: CraftingPlanItem;
+  quantity: number;
 }
 
 type PlanNode =
@@ -91,6 +99,7 @@ type PlanNode =
       kind: "recipe";
       item: CraftingPlanItem;
       option: CraftingOutputOption;
+      options: CraftingOutputOption[];
       inputs: Omit<CraftingPlanInput, "totalAmount">[];
       dependencies: string[];
     };
@@ -199,20 +208,32 @@ function uniqueCycles(cycles: CraftingPlanCycle[]): CraftingPlanCycle[] {
   });
 }
 
-export function createCraftingPlan(
+export function createCraftingPlanFromRequirements(
   items: readonly CraftingPlanItem[],
   recipes: readonly CraftingPlanRecipe[],
-  targetItemId: string,
-  quantity: number,
+  requirements: readonly CraftingPlanRequirement[],
   selections: ReadonlyMap<string, string> = new Map(),
-): CraftingPlan {
+): CraftingRequirementsPlan {
   const itemsById = new Map(items.map((item) => [item.id, item]));
-  const target = itemsById.get(targetItemId);
-  if (!target) {
-    throw new Error(`Crafting target ${targetItemId} is not in the item set.`);
-  }
-  if (!Number.isInteger(quantity) || quantity < 1) {
-    throw new Error("Crafting quantity must be a positive integer.");
+  const combinedRequirements = new Map<string, CraftingPlanRequirement>();
+  for (const requirement of requirements) {
+    const item = itemsById.get(requirement.item.id);
+    if (!item) {
+      throw new Error(
+        `Crafting requirement ${requirement.item.id} is not in the item set.`,
+      );
+    }
+    if (!Number.isInteger(requirement.amount) || requirement.amount < 1) {
+      throw new Error(
+        "Crafting requirement amounts must be positive integers.",
+      );
+    }
+    const existing = combinedRequirements.get(item.id);
+    if (existing) {
+      existing.amount += requirement.amount;
+    } else {
+      combinedRequirements.set(item.id, { item, amount: requirement.amount });
+    }
   }
 
   const optionsByItemId = new Map<string, CraftingOutputOption[]>();
@@ -283,6 +304,7 @@ export function createCraftingPlan(
       kind: "recipe",
       item,
       option: selected,
+      options,
       inputs,
       dependencies,
     });
@@ -293,15 +315,16 @@ export function createCraftingPlan(
     stack.pop();
   };
 
-  visit(target.id);
+  for (const requirement of combinedRequirements.values()) {
+    visit(requirement.item.id);
+  }
   const uniqueCycleList = uniqueCycles(cycles);
   if (uniqueCycleList.length > 0) {
     return {
-      target,
-      quantity,
       complete: false,
       steps: [],
       choices: [],
+      selectedChoices: [],
       baseRequirements: [],
       unresolvedRequirements: [],
       cycles: uniqueCycleList,
@@ -321,11 +344,19 @@ export function createCraftingPlan(
     }
     postorder.push(itemId);
   };
-  order(target.id);
+  for (const requirement of combinedRequirements.values()) {
+    order(requirement.item.id);
+  }
 
-  const demand = new Map<string, number>([[target.id, quantity]]);
+  const demand = new Map(
+    [...combinedRequirements.values()].map((requirement) => [
+      requirement.item.id,
+      requirement.amount,
+    ]),
+  );
   const steps: CraftingPlanStep[] = [];
   const choices: CraftingPlanChoice[] = [];
+  const selectedChoices: CraftingPlanSelectedChoice[] = [];
   const baseRequirements: CraftingPlanRequirement[] = [];
   const unresolved = new Map<string, CraftingPlanUnresolvedRequirement>();
 
@@ -374,10 +405,19 @@ export function createCraftingPlan(
       surplusAmount: producedAmount - requiredAmount,
       inputs,
     });
+    if (node.options.length > 1) {
+      selectedChoices.push({
+        item: node.item,
+        requiredAmount,
+        options: node.options,
+        selected: node.option,
+      });
+    }
   }
 
   baseRequirements.sort((left, right) => compareItems(left.item, right.item));
   choices.sort((left, right) => compareItems(left.item, right.item));
+  selectedChoices.sort((left, right) => compareItems(left.item, right.item));
   const unresolvedRequirements = [...unresolved.values()].sort(
     (left, right) =>
       compareCodeUnits(left.itemKey, right.itemKey) ||
@@ -385,13 +425,39 @@ export function createCraftingPlan(
   );
 
   return {
-    target,
-    quantity,
     complete: choices.length === 0 && unresolvedRequirements.length === 0,
     steps,
     choices,
+    selectedChoices,
     baseRequirements,
     unresolvedRequirements,
     cycles: [],
+  };
+}
+
+export function createCraftingPlan(
+  items: readonly CraftingPlanItem[],
+  recipes: readonly CraftingPlanRecipe[],
+  targetItemId: string,
+  quantity: number,
+  selections: ReadonlyMap<string, string> = new Map(),
+): CraftingPlan {
+  const target = items.find((item) => item.id === targetItemId);
+  if (!target) {
+    throw new Error(`Crafting target ${targetItemId} is not in the item set.`);
+  }
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    throw new Error("Crafting quantity must be a positive integer.");
+  }
+
+  return {
+    target,
+    quantity,
+    ...createCraftingPlanFromRequirements(
+      items,
+      recipes,
+      [{ item: target, amount: quantity }],
+      selections,
+    ),
   };
 }
