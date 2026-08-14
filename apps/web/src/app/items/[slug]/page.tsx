@@ -88,7 +88,7 @@ export default async function ItemPage({
     item.id,
   );
   const craftedBy = recipeRelationships.filter(
-    (relationship) => relationship.outputAmount > 0,
+    (relationship) => relationship.outputs.length > 0,
   );
   const usedToCraft = recipeRelationships.filter(
     (relationship) => relationship.inputAmount > 0,
@@ -806,8 +806,19 @@ export default async function ItemPage({
                   <h3 id="crafted-by-heading" className="relationship-title">
                     Crafted by
                   </h3>
+                  <p className="relationship-note">
+                    <Link
+                      className="entity-link font-semibold"
+                      href={{
+                        pathname: "/tools/crafting-graph/",
+                        query: { item: item.slug },
+                      }}
+                    >
+                      Plan ingredients for {item.name} →
+                    </Link>
+                  </p>
                   <ul className="relation-list">
-                    {craftedBy.map(({ recipe, outputAmount }) => (
+                    {craftedBy.map(({ recipe, outputs }) => (
                       <li key={recipe.id}>
                         <Link
                           className="entity-link font-semibold"
@@ -815,7 +826,14 @@ export default async function ItemPage({
                         >
                           {recipe.name}
                         </Link>
-                        <span>Produces {outputAmount}</span>
+                        <span>
+                          {outputs
+                            .map(
+                              (output) =>
+                                `${output.amount} at skill ${output.skillLevel}`,
+                            )
+                            .join(" · ")}
+                        </span>
                       </li>
                     ))}
                   </ul>

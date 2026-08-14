@@ -13,7 +13,7 @@ describe("dataset health summaries", () => {
     const artifact = loadArtifact();
     const decisions = collectEntitySourceDecisions(artifact);
 
-    expect(allDatasetEntities(artifact)).toHaveLength(25);
+    expect(allDatasetEntities(artifact)).toHaveLength(26);
     expect(decisions).toHaveLength(1);
     expect(decisions[0]).toMatchObject({
       id: "item:clockwork blade",

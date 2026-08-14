@@ -279,7 +279,7 @@ export function SearchExplorer({
     submittedQuery.current = "";
     latestSearchParams.current = "";
     setQuery("");
-    startTransition(() => router.replace(pathname));
+    router.replace(pathname, { scroll: false });
   };
 
   const applySuggestion = (value: string) => {

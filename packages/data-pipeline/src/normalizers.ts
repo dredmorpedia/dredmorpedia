@@ -1940,6 +1940,28 @@ function parseRecipes(
           (reference): reference is NonNullable<typeof reference> =>
             reference !== null,
         );
+    const outputs = outputRecords
+      .map((output) => {
+        const [reference] = references([output]);
+        if (!reference) {
+          return null;
+        }
+        return {
+          ...reference,
+          skillLevel: integerValue(
+            xmlAttribute(output, "skill"),
+            0,
+            context,
+            provenance,
+            "skill",
+            currentEntityId,
+            0,
+          ),
+        };
+      })
+      .filter(
+        (output): output is NonNullable<typeof output> => output !== null,
+      );
     const recipe: Recipe = {
       ...baseEntity("recipe", name, "", provenance),
       tool: childAttribute(record, "tool", "tag") ?? "unknown",
@@ -1951,22 +1973,9 @@ function parseRecipes(
         "recipe hidden",
         currentEntityId,
       ),
-      skillLevel: Math.max(
-        0,
-        ...outputRecords.map((output) =>
-          integerValue(
-            xmlAttribute(output, "skill"),
-            0,
-            context,
-            provenance,
-            "skill",
-            currentEntityId,
-            0,
-          ),
-        ),
-      ),
+      skillLevel: Math.max(0, ...outputs.map((output) => output.skillLevel)),
       inputs: references(xmlChildren(record, "input")),
-      outputs: references(outputRecords),
+      outputs,
     };
     reportUnknownChildren(
       context,

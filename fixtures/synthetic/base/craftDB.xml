@@ -5,5 +5,12 @@
     <input name="Brass Ingot" amount="2" />
     <input name="Missing Cog" amount="1" />
     <output name="Clockwork Blade" amount="1" skill="2" />
+    <output name="Clockwork Blade" amount="2" skill="4" />
+  </craft>
+  <craft id="brass-ingot-recipe" name="Brass Ingot Recipe" hidden="0">
+    <tool tag="ingot" />
+    <input name="Training Gem" amount="1" />
+    <output name="Brass Ingot" amount="1" skill="0" />
+    <output name="Brass Ingot" amount="2" skill="1" />
   </craft>
 </crafts>

@@ -1,10 +1,10 @@
 import { compareCodeUnits } from "./ordering";
-import type { Recipe } from "./types";
+import type { Recipe, RecipeOutput } from "./types";
 
 export interface ItemRecipeRelationship {
   recipe: Recipe;
   inputAmount: number;
-  outputAmount: number;
+  outputs: RecipeOutput[];
 }
 
 function referencedAmount(
@@ -26,11 +26,11 @@ export function itemRecipeRelationships(
     .map((recipe) => ({
       recipe,
       inputAmount: referencedAmount(recipe.inputs, itemId),
-      outputAmount: referencedAmount(recipe.outputs, itemId),
+      outputs: recipe.outputs.filter((output) => output.itemId === itemId),
     }))
     .filter(
       (relationship) =>
-        relationship.inputAmount > 0 || relationship.outputAmount > 0,
+        relationship.inputAmount > 0 || relationship.outputs.length > 0,
     )
     .sort(
       (left, right) =>

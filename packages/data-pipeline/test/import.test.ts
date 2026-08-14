@@ -6364,7 +6364,9 @@ describe("synthetic dataset import", () => {
     const itemByName = new Map(
       result.artifact.entities.items.map((item) => [item.name, item]),
     );
-    const recipe = result.artifact.entities.recipes[0];
+    const recipe = result.artifact.entities.recipes.find(
+      (entry) => entry.name === "Clockwork Blade Recipe",
+    );
     const encrustment = result.artifact.entities.encrustments[0];
     const skill = result.artifact.entities.skills.find(
       (entry) => entry.name === "Clockwork Combat",
@@ -6393,7 +6395,7 @@ describe("synthetic dataset import", () => {
     );
 
     expect(result.artifact.entities.items).toHaveLength(13);
-    expect(result.artifact.entities.recipes).toHaveLength(1);
+    expect(result.artifact.entities.recipes).toHaveLength(2);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(2);
@@ -6645,7 +6647,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(25);
+    expect(result.search.documents).toHaveLength(26);
     expect(result.search).toMatchObject({
       schemaVersion: 2,
       datasetSchemaVersion: 3,
@@ -7080,6 +7082,18 @@ describe("synthetic dataset import", () => {
     });
     expect(encrustment?.inputs[1]?.itemId).toBeUndefined();
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
+    expect(recipe?.outputs).toEqual([
+      expect.objectContaining({
+        itemName: "Clockwork Blade",
+        amount: 1,
+        skillLevel: 2,
+      }),
+      expect.objectContaining({
+        itemName: "Clockwork Blade",
+        amount: 2,
+        skillLevel: 4,
+      }),
+    ]);
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,
     ).toBe(undefined);

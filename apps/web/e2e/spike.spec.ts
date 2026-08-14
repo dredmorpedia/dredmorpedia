@@ -164,7 +164,10 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
-  await page.getByRole("link", { name: "Clockwork Blade" }).click();
+  await page
+    .getByRole("link", { name: "Clockwork Blade", exact: true })
+    .first()
+    .click();
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade" }),
   ).toBeVisible();
@@ -466,6 +469,7 @@ test("groups, bounds, and contextualizes search category filters", async ({
   ]);
   await expect(page.getByRole("option")).toHaveText([
     "All categories",
+    "Ingot",
     "Smithing",
   ]);
   await page.keyboard.press("Escape");
@@ -674,7 +678,7 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade Recipe" }),
   ).toBeVisible();
-  await expect(page.getByText("Required skill")).toBeVisible();
+  await expect(page.getByText("Highest source skill")).toBeVisible();
   await expect(page.getByText("Visible recipe")).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "Ingredients" }),
@@ -682,7 +686,10 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Brass Ingot" })).toBeVisible();
   await expect(page.getByText("Missing Cog", { exact: true })).toBeVisible();
   await expect(page.getByText("Unresolved item")).toBeVisible();
-  await page.getByRole("link", { name: "Clockwork Blade" }).click();
+  await page
+    .getByRole("link", { name: "Clockwork Blade", exact: true })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/items\/clockwork-blade\/$/);
   await expect(
     page.getByRole("heading", { level: 3, name: "Crafted by" }),
@@ -690,6 +697,116 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(
     page.getByRole("link", { name: "Clockwork Blade Recipe" }),
   ).toBeVisible();
+});
+
+test("builds and restores a shareable recursive crafting plan", async ({
+  page,
+}) => {
+  await page.goto("/items/clockwork-blade/");
+  const plannerLink = page.getByRole("link", {
+    name: "Plan ingredients for Clockwork Blade",
+  });
+  await plannerLink.focus();
+  await expect(plannerLink).toBeFocused();
+  await plannerLink.press("Enter");
+
+  await expect(page).toHaveURL(
+    /\/tools\/crafting-graph\/\?item=clockwork-blade/,
+  );
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Crafting dependency planner",
+    }),
+  ).toBeVisible();
+  const quantity = page.getByRole("spinbutton", { name: "Quantity" });
+  await quantity.fill("3");
+  await expect(page).toHaveURL(/quantity=3/);
+  await quantity.fill("");
+  await quantity.press("Tab");
+  await expect(quantity).toHaveValue("3");
+  await expect(page).toHaveURL(/quantity=3/);
+
+  const bladeYield = page.getByRole("combobox", {
+    name: /Clockwork Blade \(3 needed\)/,
+  });
+  await bladeYield.focus();
+  await expect(bladeYield).toBeFocused();
+  await bladeYield.selectOption({
+    label: "2 per craft at source skill 4 — Clockwork Blade Recipe",
+  });
+
+  const ingotYield = page.getByRole("combobox", {
+    name: /Brass Ingot \(4 needed\)/,
+  });
+  await expect(ingotYield).toBeVisible();
+  await ingotYield.selectOption({
+    label: "2 per craft at source skill 1 — Brass Ingot Recipe",
+  });
+
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new URL(window.location.href).searchParams.getAll("choice").length,
+      ),
+    )
+    .toBe(2);
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "The plan contains unresolved ingredients",
+    }),
+  ).toBeVisible();
+  const steps = page.getByRole("region", { name: "Crafting steps" });
+  await expect(
+    steps.getByRole("heading", { level: 3, name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await expect(
+    steps.getByRole("heading", { level: 3, name: "Brass Ingot" }),
+  ).toBeVisible();
+  const shoppingList = page.getByRole("region", {
+    name: "Base requirements",
+  });
+  const trainingGemRequirement = shoppingList
+    .getByRole("listitem")
+    .filter({ hasText: "Training Gem" });
+  await expect(trainingGemRequirement).toContainText("2");
+  const missingCogRequirement = shoppingList
+    .getByRole("listitem")
+    .filter({ hasText: "Missing Cog" });
+  await expect(missingCogRequirement).toContainText("2");
+
+  await page.reload();
+  await expect(page.getByRole("spinbutton", { name: "Quantity" })).toHaveValue(
+    "3",
+  );
+  await expect(
+    page.getByRole("region", { name: "Crafting steps" }),
+  ).toContainText("Brass Ingot Recipe");
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+});
+
+test("explains stale crafting URLs and removes invalid calculation state", async ({
+  page,
+}) => {
+  await page.goto(
+    "/tools/crafting-graph/?item=not-in-dataset&quantity=0&choice=invalid",
+  );
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "This item is not craftable in the active dataset.",
+    }),
+  ).toBeVisible();
+  await expect(page).not.toHaveURL(/quantity=/);
+  await expect(page).not.toHaveURL(/choice=/);
 });
 
 test("shows resolved and unresolved item spell triggers", async ({ page }) => {
@@ -1494,6 +1611,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/spells/clockwork-spark/",
     "/monsters/armored-training-diggle/",
     "/meta/required-armour-by-monster/",
+    "/tools/crafting-graph/?item=clockwork-blade",
     "/stats/melee-power/",
     "/templates/small-cross/",
     "/spells/not-in-active-dataset/",

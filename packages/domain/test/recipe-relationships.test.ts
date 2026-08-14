@@ -50,17 +50,33 @@ describe("item recipe relationships", () => {
         { itemKey: "blade", itemName: "Blade", amount: 2, itemId },
         { itemKey: "blade", itemName: "Blade", amount: 1, itemId },
       ],
-      [{ itemKey: "blade", itemName: "Blade", amount: 4, itemId }],
+      [
+        {
+          itemKey: "blade",
+          itemName: "Blade",
+          amount: 4,
+          itemId,
+          skillLevel: 2,
+        },
+      ],
     );
     const earlier = recipe(
       "Earlier Recipe",
       [],
-      [{ itemKey: "blade", itemName: "Blade", amount: 1, itemId }],
+      [
+        {
+          itemKey: "blade",
+          itemName: "Blade",
+          amount: 1,
+          itemId,
+          skillLevel: 0,
+        },
+      ],
     );
 
     expect(itemRecipeRelationships([later, earlier], itemId)).toEqual([
-      { recipe: earlier, inputAmount: 0, outputAmount: 1 },
-      { recipe: later, inputAmount: 3, outputAmount: 4 },
+      { recipe: earlier, inputAmount: 0, outputs: earlier.outputs },
+      { recipe: later, inputAmount: 3, outputs: later.outputs },
     ]);
   });
 
@@ -74,6 +90,7 @@ describe("item recipe relationships", () => {
           itemName: "Other",
           amount: 1,
           itemId: "item:other",
+          skillLevel: 0,
         },
       ],
     );

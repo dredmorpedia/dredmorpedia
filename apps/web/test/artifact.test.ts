@@ -81,7 +81,7 @@ describe("generated artifact loading", () => {
       await import("../src/lib/artifact");
 
     expect(loadArtifact().entities.items).toHaveLength(13);
-    expect(loadSearchArtifact().documents).toHaveLength(25);
+    expect(loadSearchArtifact().documents).toHaveLength(26);
     expect(loadDiagnostics()).toHaveLength(24);
     expect(
       loadArtifact().entities.spells.find(
@@ -219,6 +219,21 @@ describe("generated artifact loading", () => {
     const { loadArtifact } = await import("../src/lib/artifact");
 
     expect(() => loadArtifact()).toThrow(/entities\.recipes/);
+  });
+
+  it("rejects a recipe output without its source skill tier", async () => {
+    const artifact = readJson("artifact.json") as {
+      entities: { recipes: { outputs: { skillLevel?: number }[] }[] };
+    };
+    const firstOutput = artifact.entities.recipes[0]?.outputs[0];
+    if (!firstOutput) {
+      throw new Error("Synthetic artifact unexpectedly has no recipe output.");
+    }
+    delete firstOutput.skillLevel;
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/outputs\.0\.skillLevel/);
   });
 
   it("rejects an unsafe canonical entity slug", async () => {

@@ -24,6 +24,7 @@ import {
   type EntityProvenance,
   type InputChecksum,
   type Item,
+  type ItemReference,
   type Monster,
   type NormalizedEntity,
   type Recipe,
@@ -663,7 +664,7 @@ function linkRecipes(
 ): Recipe[] {
   const itemAliases = aliasesFor(items);
   return recipes.map((recipe) => {
-    const link = (reference: Recipe["inputs"][number]) => {
+    const link = <T extends ItemReference>(reference: T): T => {
       const item = itemAliases.get(reference.itemKey);
       if (!item) {
         diagnostics.push(

@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-13
+Updated: 2026-08-14
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -590,14 +590,15 @@ frame or resolve the first explicit animation-XML frame; 129 numeric tints and
 two exact named palettes are applied during generation. No slice may bulk-copy
 unrelated resources. With this final identified visual checkpoint complete,
 the deferred search-page filtering rework is also complete at the start of
-Phase 5. The next recommended bounded product slice is an expanded
-crafting/encrusting dependency view, beginning with a product brief and
-URL/shareability contract. Evidence is in
+Phase 5. The first crafting dependency and shopping-list slice is complete;
+the next bounded product task is its separately modeled encrustment extension.
+Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
-`docs/analysis/ability-icon-import-evidence-2026-08-12.md`, and
-`docs/analysis/spell-icon-import-evidence-2026-08-12.md`, and
-`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`, and
-`docs/analysis/search-filtering-rework-evidence-2026-08-13.md`.
+`docs/analysis/ability-icon-import-evidence-2026-08-12.md`,
+`docs/analysis/spell-icon-import-evidence-2026-08-12.md`,
+`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`,
+`docs/analysis/search-filtering-rework-evidence-2026-08-13.md`, and
+`docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`.
 
 ### Exit criteria
 
@@ -605,14 +606,17 @@ All agreed parity concepts have stable routes, tested relationships, provenance,
 
 ## Phase 5 — Differentiating tools
 
-The search-filter interaction foundation is complete: its mixed category facet
-is grouped, bounded, contextual, shareable, and covered on desktop/mobile. The
-next recommended slice is the first expanded crafting/encrusting dependency
-view.
+The search-filter interaction foundation is complete. The first expanded
+crafting dependency and shopping-list tool is also complete with pure domain
+logic, explicit source-yield choices, shareable URL state, responsive keyboard
+flows, and representative browser coverage. The next recommended slice is the
+corresponding encrustment dependency/shopping-list extension under its own
+source-semantics contract.
 
 Recommended sequence after the search-filter foundation:
 
-1. Expanded crafting/encrusting dependency views and shopping lists.
+1. Expanded crafting/encrusting dependency views and shopping lists (crafting
+   implemented; encrusting next).
 2. Rich cross-list filtering and reusable filter views.
 3. Side-by-side comparison and build planning with shareable URLs.
 4. Local tagging, favorites, and custom lists after a separate persistence/portability decision.

@@ -420,7 +420,9 @@ const recipeSchema = z
     hidden: z.boolean(),
     skillLevel: nonnegativeInteger,
     inputs: z.array(itemReferenceSchema),
-    outputs: z.array(itemReferenceSchema),
+    outputs: z.array(
+      itemReferenceSchema.extend({ skillLevel: nonnegativeInteger }).strict(),
+    ),
   })
   .strict();
 

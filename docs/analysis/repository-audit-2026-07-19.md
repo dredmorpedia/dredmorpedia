@@ -2,13 +2,13 @@
 
 Date: 2026-07-19
 Scope: commit `68ee565` on `master`, before modernization documentation was added
-Status: baseline evidence for the rebuild; current resolution summary updated 2026-08-09
+Status: baseline evidence for the rebuild; current resolution summary updated 2026-08-14
 
 > Repository update: commit `ed71652` subsequently relocated all 1,450 tracked baseline files into `legacy/` as exact renames with no content changes. Measurements and observations below describe commit `68ee565`; paths should now be read relative to `legacy/` unless historical root placement is the subject.
 
 > Modernization update: the original audit remains intentionally commit-specific rather than being rewritten as if the modern workspace existed in 2026-07-19. The current implementation status and remaining work are summarized below. Use `docs/handoff/ai-agent-conversation-resume.md` for the latest operational checkpoint.
 
-## Modern rebuild status as of 2026-08-13
+## Modern rebuild status as of 2026-08-14
 
 The audit's main architectural recommendations have been implemented. The modern workspace is split into `apps/web`, `packages/domain`, and `packages/data-pipeline`; tracked tests use independently authored fixtures under `fixtures/synthetic`; and the preserved application remains under `legacy/` as a behavioral reference.
 
@@ -17,8 +17,8 @@ The audit's main architectural recommendations have been implemented. The modern
 | Missing official files made a fresh checkout silently empty | Canonical root commands generate a legal synthetic dataset by default and optionally import the configured ignored official dataset read-only. Source-located diagnostics, strict schemas, manifest-last output coordination, checksums, and a zero-error official publication gate make broken input explicit. | Engineering resolved; local-only policy accepted, future public permission open |
 | Duplicate precedence and runtime IDs depended on AJAX timing | Ordered source precedence, stable identities, collision-safe slugs, aliases, guarded patches, and checksum-bound inherited route registries with tombstones are deterministic domain/pipeline contracts. `/dataset/` now makes ordered sources, diagnostics, affected records, override steps, and reviewed patches discoverable from one static surface. | Resolved; publication gate and active-dataset explorer implemented |
 | Parser, domain rules, and rendering were coupled through globals | XML parsing and normalization stay in the pipeline, framework-independent calculations and relationships stay in the domain package, and the web consumes only verified generated artifacts. | Resolved |
-| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 280 unit/artifact tests, and 42 desktop/mobile Playwright tests are established. | Resolved |
-| Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,982 pages including dataset health and the Meta view. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes |
+| No build, package manifest, fixtures, tests, or CI existed | Node `24.18.0`, pnpm, strict TypeScript, formatting, lint, deterministic generation, CI, 288 unit/artifact tests, and 46 desktop/mobile Playwright tests are established. | Resolved |
+| Fixed-width, all-DOM rendering was inaccessible and did not scale | Static detail routes and 100-record catalogue pages cover all nine entity kinds; the local canonical export currently produces 2,983 pages including dataset health, the Meta view, and the crafting dependency planner. The responsive semantic shell has keyboard flows, representative axe checks, explicit empty/error states, and bounded result rendering. | Resolved for current reference routes and first differentiating tool |
 | Legacy search omitted major entity kinds and cloned rendered DOM | The separate deterministic search artifact currently contains 2,829 canonical documents, including 62 project-authored stat definitions. `/search/` exposes every kind, caps rendering at 50 results, offers bounded user-selected name/route-alias spelling suggestions after zero results, filters direct item/ability/spell/encrustment stat declarations through canonical keys, and presents its category facet as bounded, alphabetized, contextual semantic groups; `/browse/` provides bounded static discovery without JavaScript. ADR 0003's unchanged transfer, parse, query, relevance, and desktop/slowed-mobile browser budgets pass. | Resolved for current search and legacy stat discovery; heterogeneous amount ranking is intentionally not inferred |
 | Imported XML and source metadata had an unclear escaping boundary | The parser rejects DOCTYPE input, validates asset paths host-independently before root probing, checks filesystem references against real source roots, and emits strict normalized schemas. The web verifies safe route/asset-reference shapes and unique same-kind canonical/alias ownership, while React renders imported strings as escaped text. | Resolved for the current local-import model; continue defense-in-depth review |
 | Useful legacy content rules needed verified parity rather than a blind port | Static details and deterministic relationships now cover items, recipes, encrustments, skills, abilities, spells, monsters, stats, and templates. Verified slices preserve provenance and explicitly withhold unsupported behavior/formulas. | In progress |
@@ -28,6 +28,7 @@ The audit's main architectural recommendations have been implemented. The modern
 Current validation and search evidence are recorded in:
 
 - [`codebase-and-parity-review-2026-07-23.md`](codebase-and-parity-review-2026-07-23.md),
+- [`crafting-dependency-planner-evidence-2026-08-14.md`](crafting-dependency-planner-evidence-2026-08-14.md),
 - [`all-entity-search-evidence-2026-07-27.md`](all-entity-search-evidence-2026-07-27.md),
 - [`static-browse-evidence-2026-07-27.md`](static-browse-evidence-2026-07-27.md),
 - [`item-gem-marker-evidence-2026-07-28.md`](item-gem-marker-evidence-2026-07-28.md),

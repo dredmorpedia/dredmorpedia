@@ -252,13 +252,17 @@ export interface ItemReference {
   itemId?: string;
 }
 
+export interface RecipeOutput extends ItemReference {
+  skillLevel: number;
+}
+
 export interface Recipe extends NormalizedEntityBase {
   kind: "recipe";
   tool: string;
   hidden: boolean;
   skillLevel: number;
   inputs: ItemReference[];
-  outputs: ItemReference[];
+  outputs: RecipeOutput[];
 }
 
 export const statModifierKinds = [

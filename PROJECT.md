@@ -56,6 +56,10 @@ The initial canonical source scope is the base game plus all three official expa
   rather than bulk-copying unrelated resources.
 - Keep ordinary search deterministic and add project-owned, user-selected
   spelling suggestions only for zero-result name/alias queries.
+- Provide a shareable crafting dependency planner that preserves exact source
+  yield declarations, combines recursive ingredient demand, and keeps engine
+  eligibility, inventory, and surplus-reuse assumptions explicit. Extend the
+  same product idea to encrustments only through a separate semantics contract.
 - Present the shared category facet as bounded, alphabetized semantic groups;
   restrict those groups to the selected entity type and remove incompatible
   category parameters from shareable URLs.

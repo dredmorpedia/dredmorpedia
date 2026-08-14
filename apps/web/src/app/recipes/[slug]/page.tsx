@@ -8,6 +8,7 @@ import {
   toolkitItemsForTag,
   type Item,
   type ItemReference,
+  type RecipeOutput,
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
@@ -27,7 +28,7 @@ function RecipeReferences({
   itemsById,
   amountLabel,
 }: {
-  references: ItemReference[];
+  references: (ItemReference | RecipeOutput)[];
   itemsById: ReadonlyMap<string, Item>;
   amountLabel: string;
 }) {
@@ -57,9 +58,14 @@ function RecipeReferences({
               )}
               {!item ? <small>Unresolved item</small> : null}
             </span>
-            <strong>
-              {amountLabel} {reference.amount}
-            </strong>
+            <span className="recipe-reference-amount">
+              <strong>
+                {amountLabel} {reference.amount}
+              </strong>
+              {"skillLevel" in reference ? (
+                <small>Source skill {reference.skillLevel}</small>
+              ) : null}
+            </span>
           </li>
         );
       })}
@@ -157,10 +163,8 @@ export default async function RecipePage({
             </dd>
           </div>
           <div>
-            <dt>Required skill</dt>
-            <dd>
-              {recipe.skillLevel > 0 ? recipe.skillLevel : "No requirement"}
-            </dd>
+            <dt>Highest source skill</dt>
+            <dd>{recipe.skillLevel}</dd>
           </div>
           <div>
             <dt>Discovery</dt>
