@@ -190,8 +190,12 @@ Read these files before making a substantial change:
   combined shopping lists, and shareable URL state. Rich cross-list filtering
   now combines recipes and encrustments under one scope, applies a maximum
   declared source-skill filter, and exposes project-authored reusable views as
-  ordinary shareable URLs. The next recommended slice is side-by-side
-  comparison and build planning with shareable URLs.
+  ordinary shareable URLs. The first item-comparison slice is implemented for
+  up to three canonical items with ordered shareable URL state, exact source
+  facts, separate named-stat/direct-modifier tables, and explicit missing
+  declarations. The next recommended slice is a bounded build-planning model;
+  decide its contents and any formula boundary immediately before
+  implementation.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

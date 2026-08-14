@@ -1242,6 +1242,7 @@ select {
 
 .crafting-tool-stack {
   display: grid;
+  min-width: 0;
   gap: 1.25rem;
 }
 
@@ -1263,6 +1264,111 @@ select {
 
 .crafting-controls {
   margin-block-start: 1rem;
+}
+
+.comparison-controls,
+.comparison-item-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.comparison-controls {
+  margin-block-start: 1rem;
+}
+
+.comparison-prompt {
+  margin: 0;
+  border-inline-start: 4px solid var(--info);
+  border-radius: 0.5rem;
+  background: color-mix(in oklch, var(--surface) 90%, var(--info));
+  padding: 1rem 1.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+.comparison-item-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  padding: 1rem;
+}
+
+.comparison-item-art {
+  display: grid;
+  width: 5rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: color-mix(in oklch, var(--surface) 92%, var(--primary));
+  color: var(--muted-foreground);
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.comparison-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  outline: none;
+}
+
+.crafting-tool-stack > .detail-card {
+  min-width: 0;
+}
+
+.comparison-table-scroll:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.comparison-table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+  min-width: 10rem;
+  border-block-end: 1px solid var(--border);
+  padding: 0.75rem;
+  text-align: start;
+  vertical-align: top;
+}
+
+.comparison-table th:first-child {
+  min-width: 11rem;
+}
+
+.comparison-table thead th {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comparison-table tbody th {
+  font-weight: 700;
+}
+
+.comparison-table tbody tr:last-child > * {
+  border-block-end: 0;
+}
+
+.comparison-table .comparison-diff td {
+  background: color-mix(in oklch, var(--accent) 45%, transparent);
 }
 
 .crafting-plan-status {
@@ -1463,6 +1569,11 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .comparison-controls,
+  .comparison-item-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .search-query-field,
   .search-filter-panel > button {
     grid-column: 1 / -1;
@@ -1541,6 +1652,10 @@ select {
 
   .detail-header-aside {
     align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-item-card {
     grid-template-columns: 1fr;
   }
 

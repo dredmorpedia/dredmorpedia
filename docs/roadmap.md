@@ -594,8 +594,10 @@ Phase 5. The crafting dependency and separately modeled encrustment ingredient
 and shopping-list slices are complete. The first rich cross-list filtering
 slice is also complete: recipes and encrustments share a scope and inclusive
 maximum source-skill filter, while project-authored reusable views remain
-ordinary shareable URLs. The next bounded product task is side-by-side
-comparison and build planning.
+ordinary shareable URLs. The first item-comparison slice is also complete for
+up to three canonical items with ordered shareable URL state, exact normalized
+facts, and separate named-stat/direct-modifier tables. The next bounded product
+task is build planning with a separately reviewed model and formula boundary.
 Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
 `docs/analysis/ability-icon-import-evidence-2026-08-12.md`,
@@ -604,7 +606,8 @@ Evidence is in
 `docs/analysis/search-filtering-rework-evidence-2026-08-13.md`, and
 `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, and
 `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, and
-`docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`.
+`docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`, and
+`docs/analysis/item-comparison-evidence-2026-08-14.md`.
 
 ### Exit criteria
 
@@ -618,8 +621,10 @@ The two planners use pure domain logic, editable explicit source-yield choices,
 shareable URL state, responsive keyboard flows, and representative browser
 coverage while retaining separate source-semantics contracts. Search now
 combines recipes and encrustments and applies an inclusive maximum declared
-source-skill bound through reusable shareable views. The next recommended slice
-is side-by-side comparison and build planning with shareable URLs.
+source-skill bound through reusable shareable views. Item comparison now puts
+up to three canonical items into ordered shareable URL state and presents
+exact source facts without combining missing values or inferring formulas. The
+next recommended slice is a bounded build-planning model.
 
 Recommended sequence after the search-filter foundation:
 
@@ -627,7 +632,8 @@ Recommended sequence after the search-filter foundation:
    (implemented).
 2. Rich cross-list filtering and reusable filter views (implemented for the
    shared recipe/encrustment source-skill use case).
-3. Side-by-side comparison and build planning with shareable URLs (next).
+3. Side-by-side comparison and build planning with shareable URLs (item
+   comparison implemented; bounded build planning next).
 4. Local tagging, favorites, and custom lists after a separate persistence/portability decision.
 5. Local mod inspector/validator, conflict view, spell/effect graph, and data-version diff.
 6. Offline installability after artifact/asset sizing.

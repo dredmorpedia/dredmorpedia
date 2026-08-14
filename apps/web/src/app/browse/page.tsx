@@ -111,6 +111,56 @@ export default function BrowsePage() {
           </p>
         </div>
       </section>
+
+      <section aria-labelledby="planning-tools-heading">
+        <h2 id="planning-tools-heading" className="section-title">
+          Planning tools
+        </h2>
+        <ul className="browse-kind-grid mt-5">
+          <li className="browse-kind-card">
+            <div>
+              <h3 className="text-xl font-semibold">
+                <Link className="entity-link" href="/tools/item-compare/">
+                  Item comparison
+                </Link>
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Compare up to three items through exact source facts and a
+                shareable URL without inferring equipment formulas.
+              </p>
+            </div>
+            <p className="result-count">Interactive tool</p>
+          </li>
+          <li className="browse-kind-card">
+            <div>
+              <h3 className="text-xl font-semibold">
+                <Link className="entity-link" href="/tools/crafting-graph/">
+                  Crafting dependency planner
+                </Link>
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Expand recipe yields into ordered steps and a combined
+                base-ingredient list.
+              </p>
+            </div>
+            <p className="result-count">Interactive tool</p>
+          </li>
+          <li className="browse-kind-card">
+            <div>
+              <h3 className="text-xl font-semibold">
+                <Link className="entity-link" href="/tools/encrusting-plan/">
+                  Encrustment ingredient planner
+                </Link>
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Expand encrustment ingredients and their crafting dependencies
+                into one shopping list.
+              </p>
+            </div>
+            <p className="result-count">Interactive tool</p>
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }

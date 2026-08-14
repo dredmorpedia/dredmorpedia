@@ -208,6 +208,24 @@ export default async function ItemPage({
         </aside>
       ) : null}
 
+      <aside className="alias-note" aria-labelledby="compare-item-heading">
+        <div>
+          <p className="eyebrow">Planning tool</p>
+          <h2 id="compare-item-heading" className="font-semibold">
+            Compare {item.name} with other items
+          </h2>
+        </div>
+        <Link
+          className="entity-link font-semibold"
+          href={{
+            pathname: "/tools/item-compare/",
+            query: { item: item.slug },
+          }}
+        >
+          Start comparison →
+        </Link>
+      </aside>
+
       <div className="detail-grid">
         <section className="detail-card" aria-labelledby="item-use-heading">
           <h2 id="item-use-heading" className="section-title-sm">

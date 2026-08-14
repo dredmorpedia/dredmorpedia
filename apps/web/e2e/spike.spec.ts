@@ -977,6 +977,115 @@ test("explains stale encrustment URLs and removes invalid calculation state", as
   await expect(page).not.toHaveURL(/choice=/);
 });
 
+test("builds and restores a shareable item comparison", async ({ page }) => {
+  await page.goto("/items/clockwork-blade/");
+  const comparisonLink = page.getByRole("link", {
+    name: "Start comparison",
+  });
+  await comparisonLink.focus();
+  await expect(comparisonLink).toBeFocused();
+  await comparisonLink.press("Enter");
+
+  await expect(page).toHaveURL(/\/tools\/item-compare\/\?item=clockwork-blade/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Item comparison" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Add another item to see differences side by side."),
+  ).toBeVisible();
+
+  const secondItem = page.getByRole("combobox", { name: "Item 2" });
+  await secondItem.focus();
+  await secondItem.press("Enter");
+  await page
+    .getByRole("option", { name: "Training Cuirass", exact: true })
+    .press("Enter");
+
+  await expect(page).toHaveURL(/item=clockwork-blade&item=training-cuirass/);
+  const selectedItems = page.getByRole("region", { name: "Selected items" });
+  await expect(
+    selectedItems.getByRole("link", { name: "Clockwork Blade" }),
+  ).toBeVisible();
+  await expect(
+    selectedItems.getByRole("link", { name: "Training Cuirass" }),
+  ).toBeVisible();
+
+  const overview = page.getByRole("region", { name: "Overview comparison" });
+  await expect(overview.getByRole("row", { name: /Category/ })).toContainText(
+    "Sword weapon",
+  );
+  await expect(overview.getByRole("row", { name: /Category/ })).toContainText(
+    "Chest armour",
+  );
+  await expect(overview.getByRole("row", { name: /Value/ })).toContainText(
+    "160 zorkmids",
+  );
+  await expect(overview.getByRole("row", { name: /Value/ })).toContainText(
+    "64 zorkmids",
+  );
+  await expect(
+    overview.getByRole("row", { name: /Armour source levels/ }),
+  ).toContainText("4");
+
+  const namedStats = page.getByRole("region", {
+    name: "Named stats comparison",
+  });
+  await expect(
+    namedStats.getByRole("row", { name: /Melee Power/ }),
+  ).toContainText("+6");
+  await expect(
+    namedStats.getByRole("row", { name: /Melee Power/ }),
+  ).toContainText("Not declared");
+  const modifiers = page.getByRole("region", {
+    name: "Direct modifiers comparison",
+  });
+  await expect(
+    modifiers.getByRole("row", { name: /Crushing damage/ }),
+  ).toContainText("+4");
+  await expect(
+    page.getByText(/missing declarations are not zero/i),
+  ).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "Item 1" })).toHaveText(
+    "Clockwork Blade",
+  );
+  await expect(page.getByRole("combobox", { name: "Item 2" })).toHaveText(
+    "Training Cuirass",
+  );
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+});
+
+test("canonicalizes unavailable and repeated item comparison state", async ({
+  page,
+}) => {
+  await page.goto(
+    "/tools/item-compare/?item=not-in-dataset&item=clockwork-blade&item=clockwork-blade&item=training-cuirass&item=training-wand-1&item=training-trap",
+  );
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "Unavailable, repeated, or extra items were removed.",
+    }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        new URL(window.location.href).searchParams.getAll("item"),
+      ),
+    )
+    .toEqual(["clockwork-blade", "training-cuirass", "training-wand-1"]);
+  await expect(page.getByRole("combobox", { name: "Item 3" })).toHaveText(
+    "Training Wand +1",
+  );
+});
+
 test("shows resolved and unresolved item spell triggers", async ({ page }) => {
   await page.goto("/items/clockwork-blade/");
   const weaponUse = page.getByRole("region", { name: "Use metadata" });
@@ -1781,6 +1890,7 @@ test("representative pages have no automatically detectable accessibility violat
     "/meta/required-armour-by-monster/",
     "/tools/crafting-graph/?item=clockwork-blade",
     "/tools/encrusting-plan/?encrustment=synthetic-gear-polish",
+    "/tools/item-compare/?item=clockwork-blade&item=training-cuirass",
     "/stats/melee-power/",
     "/templates/small-cross/",
     "/spells/not-in-active-dataset/",

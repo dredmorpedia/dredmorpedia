@@ -66,6 +66,9 @@ The initial canonical source scope is the base game plus all three official expa
 - Provide reusable, project-authored filter-view links as ordinary search URLs.
   The first rich cross-list view combines recipes and encrustments and filters
   their exact declared source skill without inferring player eligibility.
+- Provide shareable item comparison for up to three canonical items. Keep
+  named stats, direct modifiers, and missing declarations distinct; do not
+  imply equipment, combat, or stacking formulas through the presentation.
 - Intend to license independently authored modern code, scripts,
   documentation, and synthetic fixtures under MIT, with explicit exclusions
   for legacy, official, generated, mod, and inherited content.
@@ -101,6 +104,6 @@ The current read-only measurement baseline is Dungeons of Dredmor `1.1.5 public_
   exclusion.
 - How should extra technical information be progressively disclosed during
   parity polish?
-- What comparison and build-planning scope should follow the implemented
-  crafting/encrusting planners and reusable cross-list filter views?
+- What bounded build-planning model should follow the implemented crafting,
+  encrusting, reusable cross-list filter, and item-comparison tools?
 - Can game progress be observed reliably and safely without modifying the game installation or requiring invasive tooling?
