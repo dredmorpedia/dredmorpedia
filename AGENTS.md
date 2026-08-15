@@ -166,18 +166,26 @@ Read these files before making a substantial change:
   project stat reference is accepted and implemented. Evidence is recorded under
   `docs/analysis/`.
 - The first parity slice is complete from implementation and validation
-  evidence without a separate owner sign-off. The preserved Meta view's
+  evidence as an engineering/content milestone without a separate owner
+  sign-off. Player-experience parity was reopened on 2026-08-15 after a
+  side-by-side review found that generic Browse and advanced Search did not
+  preserve enough direct, image-led discovery. The first correction adds core
+  encyclopedia navigation, a separate Tools directory, and a bounded
+  category-first Items catalogue using the already verified item icons. The
+  next experience slices are Crafts and Encrusts. The preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and
   implemented under its exact legacy-facing name. It ranks the top ten monsters
   from archetype levels plus crushing, slashing, and blasting modifiers. Do not
   treat it as independently verified engine truth; formula verification remains
   a documented possible improvement.
-- The final navigation/tooltip checkpoint restores all 374 canonical recipes
+- The navigation/tooltip mechanics checkpoint restores all 374 canonical recipes
   to seven normalized tool categories in shareable search and explicitly
   supersedes the preserved runtime hashes, cloned-row hover tooltips, and
-  tab-only partitions with stable routes, visible labels, native history,
-  Browse, and structured search. Keep the preserved application until complete
-  parity evidence and a separate archival decision. The non-item visual
+  tab-only partitions with stable routes, visible labels, and native history.
+  Its earlier conclusion that Browse and structured Search fully superseded
+  useful visual grouping is corrected by the 2026-08-15 experience review.
+  Keep the preserved application until complete parity evidence and a separate
+  archival decision. The non-item visual
   inventory is complete, and skill, ability, root spell, plus monster detail
   art are implemented. Monster art is restricted to the first downward idle
   frame with strict XML-frame resolution, measured SPR decoding, and
@@ -193,9 +201,8 @@ Read these files before making a substantial change:
   ordinary shareable URLs. The first item-comparison slice is implemented for
   up to three canonical items with ordered shareable URL state, exact source
   facts, separate named-stat/direct-modifier tables, and explicit missing
-  declarations. The next recommended slice is a bounded build-planning model;
-  decide its contents and any formula boundary immediately before
-  implementation.
+  declarations. A bounded build-planning model remains a later Phase 5 idea;
+  finish the active direct, image-led parity catalogues first.
 - Run `pnpm audit:legacy` for the repeatable legacy audit and `pnpm check` for the non-browser modern workspace checks.
 
 ## Non-negotiable constraints

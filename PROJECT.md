@@ -35,7 +35,14 @@ The project is a clean rebuild informed by the legacy application. It is not a v
 
 ## Current scope
 
-The first release target is complete functional and content coverage of the useful legacy application, not merely a showcase slice. The parity baseline includes items, crafts, encrusts, skills/abilities, spells/effects, monsters, stats, templates, source selection, cross-links, search, and derived/meta views. The rebuild may deliver these incrementally and reorganize them into routes and tools rather than reproducing the old tab layout.
+The first release target is complete functional, content, and player-experience
+coverage of the useful legacy application, not merely a showcase slice. The
+parity baseline includes items, crafts, encrusts, skills/abilities,
+spells/effects, monsters, stats, templates, source selection, cross-links,
+search, and derived/meta views. The rebuild keeps the legacy-facing core
+section names and familiar visual grouping where they help players discover
+content, while replacing the old hash state, all-record DOM, and inaccessible
+tab/tooltip mechanics with static routes and semantic controls.
 
 The initial canonical source scope is the base game plus all three official expansions. General mod support remains an architectural capability, but implementing broad mod compatibility is a lower priority than official-content parity.
 
@@ -73,6 +80,13 @@ The initial canonical source scope is the base game plus all three official expa
   documentation, and synthetic fixtures under MIT, with explicit exclusions
   for legacy, official, generated, mod, and inherited content.
 - Complete legacy coverage before treating quality-of-life additions as the main delivery phase.
+- Keep direct player-facing navigation for Items, Crafts, Encrusts, Skills,
+  Spells, Monsters, Stats, Templates, and Meta. Treat structured Search and
+  planning Tools as additions to those browsing surfaces, not replacements.
+- Restore useful image-led category and record summaries from the preserved
+  experience while keeping modern responsive, keyboard, static-route, and
+  no-JavaScript behavior. Prefer concise player facts on summary cards and
+  progressively disclose source-level technical metadata on detail pages.
 - Continue technical-detail disclosure as page-specific polish. Keep tagging,
   favorites, and custom-list persistence behind a separate decision.
 - Treat live game-progress tracking as a separate later research project; do not constrain the initial architecture around an unproven integration.

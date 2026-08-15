@@ -3,6 +3,31 @@
 Date: 2026-08-11
 Status: navigation/tooltip inventory complete; selected recipe-tool gap implemented
 
+## 2026-08-15 experience-parity correction
+
+The inventory below remains useful evidence about the preserved application's
+mechanics, but its conclusion was too broad. Stable routes, Search, and generic
+Browse catalogues reproduce content reachability; they do not by themselves
+reproduce the preserved site's simple player experience. Direct section tabs,
+image-led category choices, and dense relationship-bearing rows made ordinary
+browsing more obvious than the generic text catalogues.
+
+The project therefore reopens **experience parity** without restoring jQuery UI,
+numeric hashes, the all-record DOM, icon-only labels, or cloned-row hover
+tooltips. The corrected direction is:
+
+- direct primary navigation using the familiar Items, Crafts, Encrusts, Skills,
+  Spells, Monsters, Stats, Templates, and Meta names;
+- image-led, visibly grouped catalogue controls backed by stable static routes;
+- concise player-facing facts and relationships on catalogue cards; and
+- Search, Dataset, and planning tools retained as complementary utilities.
+
+The first corrected slice implements the shell, a Tools directory, and a
+category-first Items catalogue. The table's earlier “superseded” classifications
+should be read as historical implementation decisions, not as the remaining
+product plan. See
+`docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
+
 ## Scope and method
 
 This inventory closes the final navigation/tooltip checkpoint in Phase 4. It

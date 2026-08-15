@@ -21,6 +21,15 @@ effect, spell-requirement, root-spell, skill/ability, or monster child
 declaration. The ignored canonical import retains only four deliberate
 relationship warnings and 90 informational review records.
 
+This conclusion remains valid as an engineering/content milestone: the data
+contracts, entity coverage, relationships, routes, and validation gates are
+complete for its stated scope. A later player-experience review on 2026-08-15
+found that generic Browse and advanced Search did not preserve enough of the
+legacy site's direct, image-led discovery. Experience parity is therefore
+reopened separately; it does not invalidate the compatibility measurements in
+this review. See
+`docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
+
 The review found one documentation omission: the functional acceptance list did
 not explicitly cover targeting-template pages or all completed root spell
 families. The statement now includes:

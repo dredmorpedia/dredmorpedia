@@ -133,9 +133,7 @@ export default async function ItemPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/browse/">Browse</Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/browse/items/1/">Items</Link>
+        <Link href="/items/">Items</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{item.name}</span>
       </nav>
@@ -208,9 +206,12 @@ export default async function ItemPage({
         </aside>
       ) : null}
 
-      <aside className="alias-note" aria-labelledby="compare-item-heading">
+      <aside
+        className="alias-note item-compare-callout"
+        aria-labelledby="compare-item-heading"
+      >
         <div>
-          <p className="eyebrow">Planning tool</p>
+          <p className="eyebrow">Optional planning tool</p>
           <h2 id="compare-item-heading" className="font-semibold">
             Compare {item.name} with other items
           </h2>

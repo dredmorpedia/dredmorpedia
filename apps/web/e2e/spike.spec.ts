@@ -23,6 +23,61 @@ test("shows a dataset-neutral 404 for an unavailable route", async ({
 test.describe("static browse without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
+  test("browses image-led item categories and visible relationships", async ({
+    page,
+  }) => {
+    await page.goto("/items/");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Items" }),
+    ).toBeVisible();
+
+    const categories = page.getByRole("navigation", {
+      name: "Item categories",
+    });
+    const swords = categories.getByRole("link", { name: /Sword weapon/ });
+    await expect(swords).toHaveAttribute("aria-current", "page");
+    await expect(swords).toHaveAttribute(
+      "href",
+      "/items/category/weapon-sword/1/",
+    );
+    await expect(page.locator(".item-summary-card")).toHaveCount(1);
+    await expect(
+      page
+        .locator(".item-summary-card")
+        .getByRole("link", { name: "Clockwork Blade", exact: true }),
+    ).toBeVisible();
+
+    const materials = categories.getByRole("link", { name: /Material/ });
+    await materials.focus();
+    await expect(materials).toBeFocused();
+    await materials.press("Enter");
+
+    await expect(page).toHaveURL(/\/items\/category\/material\/1\/$/);
+    const brassIngot = page.locator(".item-summary-card");
+    await expect(
+      brassIngot.getByRole("heading", { level: 3, name: "Brass Ingot" }),
+    ).toBeVisible();
+    await expect(
+      brassIngot.getByRole("heading", { level: 4, name: "Used to craft" }),
+    ).toBeVisible();
+    await expect(
+      brassIngot.getByRole("link", { name: "Clockwork Blade" }),
+    ).toBeVisible();
+    await expect(
+      brassIngot.getByRole("heading", { level: 4, name: "Used to encrust" }),
+    ).toBeVisible();
+    await expect(
+      brassIngot.getByRole("link", { name: "Synthetic Gear Polish" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
   test("discovers every record kind and opens a detail page", async ({
     page,
   }) => {
@@ -42,7 +97,9 @@ test.describe("static browse without JavaScript", () => {
       page.getByRole("link", { name: "Required Armour by Monster" }),
     ).toHaveAttribute("href", "/meta/required-armour-by-monster/");
 
-    const spells = page.getByRole("link", { name: "Spells", exact: true });
+    const spells = page
+      .getByRole("region", { name: "Record types" })
+      .getByRole("link", { name: "Spells", exact: true });
     await spells.focus();
     await expect(spells).toBeFocused();
     await spells.press("Enter");
@@ -77,6 +134,40 @@ test.describe("static browse without JavaScript", () => {
       ),
     ).toBe(true);
   });
+});
+
+test("separates direct encyclopedia navigation from optional tools", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const primary = page.getByRole("navigation", {
+    name: "Primary navigation",
+  });
+  await expect(primary.getByRole("link")).toHaveCount(9);
+  await expect(primary.getByRole("link", { name: "Items" })).toHaveAttribute(
+    "href",
+    "/items/",
+  );
+
+  const tools = page
+    .getByRole("navigation", { name: "Utility navigation" })
+    .getByRole("link", { name: "Tools" });
+  await tools.focus();
+  await expect(tools).toBeFocused();
+  await tools.press("Enter");
+  await expect(page).toHaveURL(/\/tools\/$/);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Tools for planning a build.",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Item comparison" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Crafting dependency planner" }),
+  ).toBeVisible();
 });
 
 test("ranks required armour by monster and links every result", async ({

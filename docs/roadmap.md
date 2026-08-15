@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-14
+Updated: 2026-08-15
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -520,6 +520,18 @@ Evidence is in
 
 ## Phase 4 — Legacy parity
 
+Status: engineering/content coverage complete; player-experience parity active
+
+The 2026-08-11 completion checkpoint proved the normalized content, route,
+relationship, and validation scope. The 2026-08-15 side-by-side product review
+reopened the presentation layer: direct, image-led browsing and familiar
+grouping are part of useful parity, while advanced Search and differentiating
+tools remain additions. The first corrected slice implements direct core
+navigation, a separate Tools directory, and the category-first Items
+catalogue. Continue with Crafts and Encrusts before returning to new Phase 5
+features. Evidence and order are in
+`docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
+
 Implement in dependency order rather than old-tab order:
 
 1. stats and templates;
@@ -571,7 +583,7 @@ make it discoverable. Documentation retains the evidence limitations and future
 formula-verification opportunity without adding “Legacy” to the UI. Evidence is
 in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`.
 
-The final navigation/tooltip inventory is complete. It found one concrete
+The initial navigation/tooltip inventory is complete. It found one concrete
 omission: recipe search documents discarded their already normalized crafting
 tool. All 374 canonical recipes now participate in seven tool categories
 through the existing deterministic, shareable search filter. Stable routes,
@@ -582,8 +594,13 @@ keyboard-inaccessible, duplicated imported markup, and depended on the
 all-record DOM. Evidence and the complete classification are in
 `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
 
-The navigation/tooltip checkpoint and non-item visual inventory are complete.
-Keep `legacy/` until complete parity evidence and a separate archival decision.
+The navigation/tooltip mechanics inventory and non-item visual inventory are
+complete, but the later experience review supersedes the claim that generic
+Browse/Search fully replace familiar visual grouping. The core item catalogue
+now reuses verified item icons and static category routes; equivalent
+player-facing Craft, Encrust, Skill, Spell, Monster, Stat, and Template
+catalogues remain in the active Phase 4 queue. Keep `legacy/` until complete
+parity evidence and a separate archival decision.
 The implemented direct slices render all 52 skill, 352 ability, 440 root spell,
 and 183 monster references. Monster pages decode only the first idle-down SPR
 frame or resolve the first explicit animation-XML frame; 129 numeric tints and
@@ -596,8 +613,9 @@ slice is also complete: recipes and encrustments share a scope and inclusive
 maximum source-skill filter, while project-authored reusable views remain
 ordinary shareable URLs. The first item-comparison slice is also complete for
 up to three canonical items with ordered shareable URL state, exact normalized
-facts, and separate named-stat/direct-modifier tables. The next bounded product
-task is build planning with a separately reviewed model and formula boundary.
+facts, and separate named-stat/direct-modifier tables. The previously
+recommended build-planning model is postponed until the active
+experience-parity queue is complete.
 Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md`,
 `docs/analysis/ability-icon-import-evidence-2026-08-12.md`,
@@ -615,6 +633,9 @@ All agreed parity concepts have stable routes, tested relationships, provenance,
 
 ## Phase 5 — Differentiating tools
 
+Status: existing slices retained; new slices paused behind active Phase 4
+experience parity
+
 The search-filter interaction foundation, expanded crafting/encrusting
 dependency milestone, and first rich cross-list filtering slice are complete.
 The two planners use pure domain logic, editable explicit source-yield choices,
@@ -624,7 +645,9 @@ combines recipes and encrustments and applies an inclusive maximum declared
 source-skill bound through reusable shareable views. Item comparison now puts
 up to three canonical items into ordered shareable URL state and presents
 exact source facts without combining missing values or inferring formulas. The
-next recommended slice is a bounded build-planning model.
+next differentiating slice remains a bounded build-planning model, but it is
+not the current task while direct legacy-facing browsing surfaces are being
+restored.
 
 Recommended sequence after the search-filter foundation:
 

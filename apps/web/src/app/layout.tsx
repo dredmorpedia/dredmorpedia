@@ -29,33 +29,42 @@ export default function RootLayout({
         </a>
         <div className="app-root">
           <header className="site-header">
-            <Link href="/" className="brand" aria-label="Dredmorpedia home">
-              <span aria-hidden="true" className="brand-mark">
-                D
-              </span>
-              <span>
-                <span className="block text-base font-bold tracking-wide">
-                  Dredmorpedia
+            <div className="header-top-row">
+              <Link href="/" className="brand" aria-label="Dredmorpedia home">
+                <span aria-hidden="true" className="brand-mark">
+                  D
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  Foundation preview
+                <span>
+                  <span className="block text-base font-bold tracking-wide">
+                    Dredmorpedia
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    Local encyclopedia
+                  </span>
                 </span>
-              </span>
-            </Link>
-            <div className="header-actions">
-              <nav aria-label="Primary navigation" className="primary-nav">
-                <Link href="/browse/">Browse</Link>
-                <Link href="/search">Search</Link>
-                <Link href="/tools/crafting-graph/">Crafting</Link>
-                <Link href="/tools/encrusting-plan/">Encrusting</Link>
-                <Link href="/tools/item-compare/">Compare</Link>
-                <Link href="/meta/required-armour-by-monster/">Meta</Link>
-                <Link href="/dataset/">Dataset</Link>
-              </nav>
-              <span className="status-badge">
-                {syntheticDataset ? "Synthetic dataset" : "Local dataset"}
-              </span>
+              </Link>
+              <div className="header-actions">
+                <nav aria-label="Utility navigation" className="utility-nav">
+                  <Link href="/search">Search</Link>
+                  <Link href="/tools/">Tools</Link>
+                  <Link href="/dataset/">Dataset</Link>
+                </nav>
+                <span className="status-badge">
+                  {syntheticDataset ? "Synthetic dataset" : "Local dataset"}
+                </span>
+              </div>
             </div>
+            <nav aria-label="Primary navigation" className="primary-nav">
+              <Link href="/items/">Items</Link>
+              <Link href="/browse/recipes/1/">Crafts</Link>
+              <Link href="/browse/encrustments/1/">Encrusts</Link>
+              <Link href="/browse/skills/1/">Skills</Link>
+              <Link href="/browse/spells/1/">Spells</Link>
+              <Link href="/browse/monsters/1/">Monsters</Link>
+              <Link href="/browse/stats/1/">Stats</Link>
+              <Link href="/browse/templates/1/">Templates</Link>
+              <Link href="/meta/required-armour-by-monster/">Meta</Link>
+            </nav>
           </header>
           <main id="main-content" className="site-main" tabIndex={-1}>
             {children}

@@ -31,8 +31,12 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
   recipes and encrustments by maximum exact source skill, with project-authored
   reusable views represented as ordinary shareable URLs. Item comparison is
   implemented for up to three canonical items with ordered URL state and exact
-  source-field tables. The next recommended task is a bounded build-planning
-  model; presentation of extra technical detail remains a page-specific polish
+  source-field tables. A 2026-08-15 side-by-side review reopened
+  player-experience parity: generic Browse and advanced Search remain useful,
+  but do not replace direct, image-led browsing. The first correction adds the
+  core encyclopedia navigation, `/tools/`, and a category-first `/items/`
+  catalogue. Crafts and Encrusts are next; bounded build planning is postponed.
+  Presentation of extra technical detail remains a page-specific polish
   decision.
 
 ## How the work is organized
@@ -89,7 +93,7 @@ Before handoff, run `git diff --check`, confirm no local installation/user paths
 
 ## Implemented product/data coverage
 
-The rebuild currently has deterministic static routes, structured search, and bounded server-rendered browse catalogues across items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. Search schema 3 retains ordered route aliases and adds exact nullable recipe/encrustment source skill. Search keeps typed input local while debouncing shareable URL updates so an older navigation cannot overwrite newer characters; after a genuine zero-result query, the project-owned domain query can offer at most five name/route-alias spelling suggestions that honor active filters and change the query only when selected. Its stat filter uses canonical reference keys across direct item, ability, spell, and encrustment declarations while accepting historical raw-selector URL aliases; inherited monster bonuses remain on stat detail pages rather than being duplicated or ranked in search. One shared crafting scope and inclusive maximum source-skill filter span recipes and encrustments, while project-authored reusable views remain ordinary shareable URLs. The browse directory and its 100-record pages expose every direct detail route without JavaScript. Detail breadcrumbs, the primary navigation, home item discovery, and the 404 recovery path lead into that catalogue. The application includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal. `/tools/crafting-graph/` expands a selected crafted output, while `/tools/encrusting-plan/` separately multiplies application inputs before expanding their craftable ingredients. Both preserve editable exact source-yield choices, combined shopping lists, stale-link/cycle/unresolved states, and deterministic shareable URL state. `/tools/item-compare/` adds ordered canonical URL state for up to three items and presents exact source facts, named stats, and direct modifiers in separate responsive tables without treating missing declarations as zero. Evidence is in `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`, and `docs/analysis/item-comparison-evidence-2026-08-14.md`.
+The rebuild currently has deterministic static routes, structured search, and bounded server-rendered browse catalogues across items, stats, recipes, encrustments, spells, skills, abilities, monsters, and targeting templates. Search schema 3 retains ordered route aliases and adds exact nullable recipe/encrustment source skill. Search keeps typed input local while debouncing shareable URL updates so an older navigation cannot overwrite newer characters; after a genuine zero-result query, the project-owned domain query can offer at most five name/route-alias spelling suggestions that honor active filters and change the query only when selected. Its stat filter uses canonical reference keys across direct item, ability, spell, and encrustment declarations while accepting historical raw-selector URL aliases; inherited monster bonuses remain on stat detail pages rather than being duplicated or ranked in search. One shared crafting scope and inclusive maximum source-skill filter span recipes and encrustments, while project-authored reusable views remain ordinary shareable URLs. The generic Browse directory and its 100-record pages remain exhaustive no-JavaScript fallbacks. The direct `/items/` experience adds grouped icon categories, bounded 36-item pages, and image-led player summaries with visible crafting, encrusting, effect, and stat relationships. Detail breadcrumbs return to that catalogue, and the header separates nine core encyclopedia sections from Search, Tools, and Dataset utilities. The application includes provenance/override/patch history, route aliases, crafting/encrusting/loadout/spell/monster-family/drop backlinks, explicit missing-reference states, and cycle-safe spell traversal. `/tools/crafting-graph/` expands a selected crafted output, while `/tools/encrusting-plan/` separately multiplies application inputs before expanding their craftable ingredients. Both preserve editable exact source-yield choices, combined shopping lists, stale-link/cycle/unresolved states, and deterministic shareable URL state. `/tools/item-compare/` adds ordered canonical URL state for up to three items and presents exact source facts, named stats, and direct modifiers in separate responsive tables without treating missing declarations as zero. Evidence is in `docs/analysis/legacy-experience-parity-review-2026-08-15.md`, `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`, and `docs/analysis/item-comparison-evidence-2026-08-14.md`.
 
 Important completed item slices include:
 
@@ -219,15 +223,15 @@ PNGs receive complete bounded structural/scanline validation. Evidence is in
 
 ## Last completed slice validation
 
-The first side-by-side comparison slice adds `/tools/item-compare/` with up to
-three ordered canonical item selections in ordinary shareable URL state. It
-compares exact overview fields, named stats, and direct modifiers without
-treating missing declarations as zero or inferring equipment/combat formulas.
-`pnpm.cmd check` passes 302 unit/artifact tests and the 49-page synthetic
-export; all 56 desktop/mobile browser cases pass; and
-`pnpm.cmd build:official` exports all 2,985 local pages from byte-identical
+The first reopened experience-parity slice adds direct core navigation, a
+separate `/tools/` directory, and the category-first, image-led `/items/`
+catalogue. It uses 31 familiar item categories, bounded 36-item static pages,
+and concise player-facing relationship summaries without changing the asset or
+artifact contracts. `pnpm.cmd check` passes 305 unit/artifact tests and the
+63-page synthetic export; all 60 desktop/mobile browser cases pass; and
+`pnpm.cmd build:official` exports all 3,027 local pages from byte-identical
 official output. Evidence is in
-`docs/analysis/item-comparison-evidence-2026-08-14.md`.
+`docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The first rich cross-list filtering slice combines all 374 canonical recipes
 and 57 encrustments under one search scope and applies an inclusive maximum
