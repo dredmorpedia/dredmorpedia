@@ -657,7 +657,7 @@ select {
   padding-block: 1rem 1.25rem;
 }
 
-.item-catalogue-toolbar {
+.catalogue-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1231,6 +1231,305 @@ select {
 
 .item-compare-callout {
   order: 1;
+}
+
+.craft-tool-nav {
+  overflow-x: auto;
+  border-block: 1px solid var(--border);
+  padding-block: 1rem 1.25rem;
+  scrollbar-width: thin;
+}
+
+.craft-tool-list {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.craft-tool-list a {
+  position: relative;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.craft-tool-list a:hover {
+  border-color: var(--primary);
+  background: var(--muted);
+}
+
+.craft-tool-list a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+
+.craft-tool-list a[aria-current="page"] {
+  border-color: var(--primary);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.craft-tool-list img,
+.craft-tool-list .catalogue-art-placeholder {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.craft-tool-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.craft-tool-list small {
+  position: absolute;
+  inset-block-end: -0.35rem;
+  inset-inline-end: -0.35rem;
+  min-width: 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 0.05rem 0.28rem;
+  color: var(--foreground);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15rem;
+  text-align: center;
+}
+
+.craft-tool-nav[data-layout="expanded"] {
+  overflow-x: visible;
+  padding-block: 1.5rem;
+}
+
+.craft-tool-nav[data-layout="expanded"] .craft-tool-list {
+  display: grid;
+  width: auto;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.craft-tool-nav[data-layout="expanded"] .craft-tool-list a {
+  width: auto;
+  height: auto;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  justify-content: initial;
+  min-height: 4rem;
+  gap: 0.65rem;
+  padding: 0.45rem 0.6rem;
+}
+
+.craft-tool-nav[data-layout="expanded"] .craft-tool-label {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  clip-path: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.craft-tool-nav[data-layout="expanded"] .craft-tool-list small {
+  position: static;
+  justify-self: end;
+  min-width: auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+  line-height: normal;
+}
+
+.craft-tool-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-end: 1rem;
+}
+
+.craft-tool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.4rem 1.2rem;
+  font-size: 0.82rem;
+}
+
+.recipe-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 31rem), 1fr));
+  gap: 0.9rem;
+}
+
+.recipe-summary-card {
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--surface) 94%, transparent);
+  padding: 1rem;
+}
+
+.recipe-summary-header,
+.recipe-summary-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+}
+
+.recipe-summary-title {
+  margin-block-start: 0.2rem;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.recipe-summary-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.recipe-visibility-badge {
+  display: inline-flex;
+  min-height: 1.45rem;
+  align-items: center;
+  border: 1px solid color-mix(in oklch, var(--destructive) 38%, var(--border));
+  border-radius: 0.3rem;
+  background: color-mix(in oklch, var(--destructive) 12%, var(--surface));
+  padding-inline: 0.4rem;
+  color: var(--foreground);
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+
+.recipe-summary-description {
+  color: var(--muted-foreground);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.recipe-summary-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+}
+
+.recipe-summary-flow section {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.recipe-summary-flow h4 {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.recipe-summary-arrow {
+  margin-block-start: 1.9rem;
+  color: var(--primary);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.recipe-summary-reference-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipe-summary-reference-list li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+  padding: 0.35rem;
+  font-size: 0.76rem;
+}
+
+.recipe-summary-reference-list img,
+.recipe-summary-reference-list .catalogue-art-placeholder {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.recipe-summary-reference-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.recipe-summary-reference-copy small {
+  color: var(--muted-foreground);
+  font-size: 0.67rem;
+}
+
+.recipe-summary-footer {
+  align-items: center;
+  justify-content: end;
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 0.7rem;
+  color: var(--muted-foreground);
+  font-size: 0.76rem;
+}
+
+@media (max-width: 42rem) {
+  .craft-tool-heading,
+  .craft-tool-actions {
+    align-items: start;
+  }
+
+  .craft-tool-actions {
+    justify-content: start;
+  }
+
+  .recipe-summary-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recipe-summary-arrow {
+    margin: -0.15rem 0;
+    justify-self: center;
+    rotate: 90deg;
+  }
 }
 
 .search-result-list {

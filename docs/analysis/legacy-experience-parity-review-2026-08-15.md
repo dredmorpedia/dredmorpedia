@@ -1,7 +1,7 @@
 # Legacy experience parity review
 
 Date: 2026-08-15
-Status: active; Items catalogue correction complete
+Status: active; Craft catalogue correction implemented
 
 ## Why parity was reopened
 
@@ -95,18 +95,58 @@ The preserved order is evidenced directly in `legacy/js/item.js` and
 first item's icon. It is therefore source/XML order—not alphabetical, price, or
 quality order.
 
-The next parity slice is the Craft catalogue:
+## Craft catalogue foundation
 
-1. Crafts grouped by normalized crafting tool, with ingredient and output art.
-   Define one reusable recipe summary card, then use an accessible bounded
-   preview of that card from item relationships on hover, focus, and tap.
+The Craft catalogue foundation is implemented at `/crafts/` and
+`/crafts/tool/<tool>/`:
+
+- all recipes are grouped under the seven normalized crafting tools in the
+  preserved familiar tool order;
+- tool navigation uses the existing verified toolkit item art, recipe counts,
+  visible selection state, and horizontally scrollable keyboard/touch-safe
+  markup; compact icons are the default and a Detailed toggle keeps every tool
+  name visible;
+- a matching display-settings drawer stores the tool-chooser layout, recipe
+  order, and page size locally. The canonical view shows 36 recipes in
+  deterministic source/XML game order; 24, 36, and All plus name and lowest
+  declared output-level orders have ordinary static shareable routes;
+- the reusable recipe summary card presents ingredient/output art and links,
+  neutral source levels, hidden status, source marker, and a full-detail route.
+  As in the preserved Craft view, unit ingredient quantities are omitted;
+  exceptional input quantities and all output quantities remain explicit. The
+  card suppresses redundant tool identity when the selected catalogue already
+  establishes that context; and
+- recipe detail breadcrumbs now return through the matching Craft tool route,
+  while advanced Search and the crafting planner remain explicit additions.
+
+The aggregate `recipe.skillLevel` is only the maximum of the declared output
+tiers, so the catalogue no longer repeats it as “Highest source skill.” The
+individual output tiers stay visible as neutral source levels; naming a
+specific skill requires a separately verified tool-to-skill mapping.
+
+The current text Hidden badge and compact text expansion markers remain
+functional but are not treated as finished iconography. A later card-polish
+decision may replace them with project-owned or permission-cleared icons; do
+not assume the game supplies suitable assets.
+
+The card is intentionally ordinary page content in this foundation. The next
+Craft task is to reuse a bounded form of it from item “Used to craft”
+relationships through a maintained accessible hover/focus/tap popover. Its
+essential relationship labels and links must remain visible without opening a
+preview. Those cross-context previews should use the verified toolkit icon to
+identify the tool; cards on an already selected tool page should continue to
+suppress that redundant identity.
+
+The remaining parity order is:
+
+1. accessible recipe previews from item relationships;
 2. Encrusts grouped by toolkit, with ingredient, applicability, instability,
-   and output-relevant summaries.
-3. Skills and abilities as image-led progression summaries.
-4. Spells with an accessible alphabetical index and effect-focused summaries.
-5. Monsters grouped by dungeon depth/special classification with existing art.
-6. Stats and templates grouped by their familiar semantic families.
-7. Detail-page progressive disclosure after the catalogue surfaces reveal
+   and output-relevant summaries;
+3. Skills and abilities as image-led progression summaries;
+4. Spells with an accessible alphabetical index and effect-focused summaries;
+5. Monsters grouped by dungeon depth/special classification with existing art;
+6. Stats and templates grouped by their familiar semantic families; and
+7. detail-page progressive disclosure after the catalogue surfaces reveal
    which technical sections distract from common player questions.
 
 Search and the generic exhaustive Browse directory remain available throughout
@@ -114,12 +154,12 @@ this work as advanced and completeness-oriented fallbacks.
 
 ## Validation
 
-- `pnpm check` passes formatting, lint, type checking, all 308 workspace tests,
-  deterministic generation, and the 195-page synthetic static export.
+- `pnpm check` passes formatting, lint, type checking, all 312 workspace tests,
+  deterministic generation, and the 214-page synthetic static export.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 62 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 66 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
   the display drawer, local preference restoration, and representative axe
   scans.
@@ -137,3 +177,12 @@ this work as advanced and completeness-oriented fallbacks.
 - `pnpm build:official` passes deterministic zero-error generation and the
   complete 3,455-page local static export with all canonical and optional
   catalogue view routes.
+- The Craft foundation's focused unit tests cover familiar/fallback tool order,
+  toolkit names and representatives, route collisions, and source/XML recipe
+  order. Its JavaScript-disabled Playwright flow passes on desktop and mobile,
+  including keyboard tool navigation, unresolved ingredients, exact output
+  tiers, and responsive overflow.
+- `pnpm build:official` also verifies all 374 canonical recipes across seven
+  Craft tool routes and 113 optional static view routes with the unchanged
+  1,793-mapping asset set, zero fallbacks, and a complete 3,576-page local
+  static export.

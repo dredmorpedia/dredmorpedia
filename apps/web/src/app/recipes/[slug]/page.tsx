@@ -13,6 +13,7 @@ import {
 
 import { ProvenanceCard } from "@/components/provenance-card";
 import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import { craftCatalogueToolPathForTag } from "@/lib/craft-catalogue";
 import { titleCase } from "@/lib/display-labels";
 
 export const dynamicParams = false;
@@ -125,9 +126,11 @@ export default async function RecipePage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/browse/">Browse</Link>
+        <Link href="/">Home</Link>
         <span aria-hidden="true">/</span>
-        <Link href="/browse/recipes/1/">Recipes</Link>
+        <Link href="/crafts/">Crafts</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={craftCatalogueToolPathForTag(recipe.tool)}>{tool}</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{recipe.name}</span>
       </nav>

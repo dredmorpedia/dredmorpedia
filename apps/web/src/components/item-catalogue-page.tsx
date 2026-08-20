@@ -15,6 +15,7 @@ import {
   ItemCatalogueControls,
   type ItemCatalogueNavigationEntry,
 } from "@/components/item-catalogue-controls";
+import { ItemArt } from "@/components/item-art";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
@@ -38,29 +39,6 @@ interface ItemCataloguePageProps {
   pageSize?: ItemCataloguePageSize;
   redirectToStoredView?: boolean;
   sort?: ItemCatalogueSort;
-}
-
-function ItemArt({
-  item,
-  artifact,
-  artifactSha256,
-  size,
-}: {
-  item: Item;
-  artifact: DatasetArtifact;
-  artifactSha256: string;
-  size: number;
-}) {
-  const url = itemIconUrl(item.id, artifact, artifactSha256);
-  return url ? (
-    // Entity names are supplied by adjacent visible text.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img alt="" height={size} src={url} title={item.name} width={size} />
-  ) : (
-    <span aria-hidden="true" className="catalogue-art-placeholder">
-      ?
-    </span>
-  );
 }
 
 function PriceDisplay({

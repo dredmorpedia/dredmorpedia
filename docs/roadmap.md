@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-15
+Updated: 2026-08-20
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -528,8 +528,9 @@ reopened the presentation layer: direct, image-led browsing and familiar
 grouping are part of useful parity, while advanced Search and differentiating
 tools remain additions. The first corrected slice implements direct core
 navigation, a separate Tools directory, and the category-first Items
-catalogue. The owner-reviewed Items polish is complete; continue with Crafts
-and Encrusts before returning to new Phase 5 features. Evidence and order are in
+catalogue. The owner-reviewed Items polish and the Craft catalogue foundation
+are complete; finish accessible recipe previews, then continue with Encrusts
+before returning to new Phase 5 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The completed Items polish provides compact category icons by default with the
@@ -538,9 +539,14 @@ optional alphabetical/quality/value orders; game-order representative icons;
 locally persisted display settings; measured 24/36/All page-size choices;
 small expansion markers with no base-game badge; and manifest-declared gold
 and quality-star imagery. Stat imagery remains separately gated on a verified
-official mapping. Craft parity next defines reusable recipe cards and
-accessible hover/focus/tap previews for item relationships rather than cloned
-legacy tooltip rows.
+official mapping. Craft parity now provides complete tool-group routes in
+familiar order, verified toolkit art, compact/detailed navigation, persisted
+display settings, a bounded 36-recipe default plus 24/All options, source/name/
+lowest-output-level orders, and reusable ingredient/output summary cards. The
+selected-tool catalogue suppresses redundant tool identity and the derived
+maximum-level footer. Its remaining task is accessible hover/focus/tap previews
+for item relationships rather than cloned legacy tooltip rows; Hidden and
+expansion iconography remain a later card-polish decision.
 
 Implement in dependency order rather than old-tab order:
 

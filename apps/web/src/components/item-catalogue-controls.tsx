@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Drawer } from "@base-ui/react/drawer";
-import { LayoutGrid, ListTree, Settings2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import {
+  CatalogueDisplayControls,
+  type CatalogueLayout,
+  type CatalogueSettingOption,
+} from "@/components/catalogue-display-controls";
 import {
   defaultItemCatalogueView,
   itemCatalogueCategoryPath,
@@ -16,8 +19,6 @@ import {
   type ItemCatalogueView,
 } from "@/lib/item-catalogue";
 
-type CategoryLayout = "compact" | "expanded";
-
 export interface ItemCatalogueNavigationEntry extends ItemCatalogueCategory {
   href: string;
   iconUrl: string | null;
@@ -25,7 +26,7 @@ export interface ItemCatalogueNavigationEntry extends ItemCatalogueCategory {
 }
 
 interface StoredCataloguePreferences extends ItemCatalogueView {
-  categoryLayout: CategoryLayout;
+  categoryLayout: CatalogueLayout;
 }
 
 interface ItemCatalogueControlsProps {
@@ -34,6 +35,49 @@ interface ItemCatalogueControlsProps {
   categories: readonly ItemCatalogueNavigationEntry[];
   redirectToStoredView?: boolean;
 }
+
+const layoutOptions: readonly CatalogueSettingOption<CatalogueLayout>[] = [
+  {
+    value: "compact",
+    label: "Compact icons",
+    description: "A quick, legacy-like strip with counts and image titles.",
+  },
+  {
+    value: "expanded",
+    label: "Detailed categories",
+    description: "Keep every category name visible.",
+  },
+];
+
+const sortOptions: readonly CatalogueSettingOption<ItemCatalogueSort>[] = [
+  {
+    value: "game",
+    label: "Game order",
+    description: "Source and XML order, matching the preserved catalogue.",
+  },
+  {
+    value: "name",
+    label: "Name (A–Z)",
+    description: "Alphabetical by displayed English name.",
+  },
+  {
+    value: "quality",
+    label: "Quality (low to high)",
+    description: "A view preference, not a dungeon-availability claim.",
+  },
+  {
+    value: "price",
+    label: "Value (low to high)",
+    description: "Unknown source values appear last.",
+  },
+];
+
+const pageSizeOptions: readonly CatalogueSettingOption<ItemCataloguePageSize>[] =
+  [
+    { value: 24, label: "24" },
+    { value: 36, label: "36 (default)" },
+    { value: "all", label: "All in this category" },
+  ];
 
 function CategoryNavigationItem({
   activeCategoryKey,
@@ -200,7 +244,7 @@ export function ItemCatalogueControls({
     storedPreferences,
   ]);
 
-  function updateCategoryLayout(layout: CategoryLayout) {
+  function updateCategoryLayout(layout: CatalogueLayout) {
     storePreferences({
       sort: activeView.sort,
       pageSize: activeView.pageSize,
@@ -225,181 +269,36 @@ export function ItemCatalogueControls({
 
   return (
     <>
-      <div className="item-catalogue-toolbar">
-        <div aria-label="Category display" className="catalogue-layout-toggle">
-          <button
-            aria-pressed={categoryLayout === "compact"}
-            onClick={() => updateCategoryLayout("compact")}
-            type="button"
-          >
-            <LayoutGrid aria-hidden="true" size={16} />
-            Compact
-          </button>
-          <button
-            aria-pressed={categoryLayout === "expanded"}
-            onClick={() => updateCategoryLayout("expanded")}
-            type="button"
-          >
-            <ListTree aria-hidden="true" size={16} />
-            Detailed
-          </button>
-        </div>
-
-        <Drawer.Root
-          onOpenChange={(nextOpen) => {
-            setOpen(nextOpen);
-            if (nextOpen) {
-              setDraftSort(activeView.sort);
-              setDraftPageSize(activeView.pageSize);
-            }
-          }}
-          open={open}
-          swipeDirection="right"
-        >
-          <Drawer.Trigger className="catalogue-settings-trigger">
-            <Settings2 aria-hidden="true" size={17} />
-            Display settings
-          </Drawer.Trigger>
-          <Drawer.Portal>
-            <Drawer.Backdrop className="catalogue-drawer-backdrop" />
-            <Drawer.Viewport className="catalogue-drawer-viewport">
-              <Drawer.Popup className="catalogue-drawer-popup">
-                <Drawer.Content className="catalogue-drawer-content">
-                  <div className="catalogue-drawer-heading">
-                    <div>
-                      <Drawer.Title className="catalogue-drawer-title">
-                        Item display settings
-                      </Drawer.Title>
-                      <Drawer.Description className="catalogue-drawer-description">
-                        Choose how this catalogue is arranged. Preferences stay
-                        in this browser.
-                      </Drawer.Description>
-                    </div>
-                    <Drawer.Close
-                      aria-label="Close display settings"
-                      className="catalogue-drawer-close"
-                    >
-                      <X aria-hidden="true" size={20} />
-                    </Drawer.Close>
-                  </div>
-
-                  <fieldset className="catalogue-setting-group">
-                    <legend>Category chooser</legend>
-                    <label>
-                      <input
-                        checked={categoryLayout === "compact"}
-                        name="category-layout"
-                        onChange={() => updateCategoryLayout("compact")}
-                        type="radio"
-                      />
-                      <span>
-                        <strong>Compact icons</strong>
-                        <small>
-                          A quick, legacy-like strip with counts and image
-                          titles.
-                        </small>
-                      </span>
-                    </label>
-                    <label>
-                      <input
-                        checked={categoryLayout === "expanded"}
-                        name="category-layout"
-                        onChange={() => updateCategoryLayout("expanded")}
-                        type="radio"
-                      />
-                      <span>
-                        <strong>Detailed categories</strong>
-                        <small>Keep every category name visible.</small>
-                      </span>
-                    </label>
-                  </fieldset>
-
-                  <fieldset className="catalogue-setting-group">
-                    <legend>Item order</legend>
-                    {[
-                      [
-                        "game",
-                        "Game order",
-                        "Source and XML order, matching the preserved catalogue.",
-                      ],
-                      [
-                        "name",
-                        "Name (A–Z)",
-                        "Alphabetical by displayed English name.",
-                      ],
-                      [
-                        "quality",
-                        "Quality (low to high)",
-                        "A view preference, not a dungeon-availability claim.",
-                      ],
-                      [
-                        "price",
-                        "Value (low to high)",
-                        "Unknown source values appear last.",
-                      ],
-                    ].map(([value, label, description]) => (
-                      <label key={value}>
-                        <input
-                          checked={draftSort === value}
-                          name="item-order"
-                          onChange={() =>
-                            setDraftSort(value as ItemCatalogueSort)
-                          }
-                          type="radio"
-                        />
-                        <span>
-                          <strong>{label}</strong>
-                          <small>{description}</small>
-                        </span>
-                      </label>
-                    ))}
-                  </fieldset>
-
-                  <fieldset className="catalogue-setting-group">
-                    <legend>Items per page</legend>
-                    {[
-                      [24, "24"],
-                      [36, "36 (default)"],
-                      ["all", "All in this category"],
-                    ].map(([value, label]) => (
-                      <label key={value}>
-                        <input
-                          checked={draftPageSize === value}
-                          name="page-size"
-                          onChange={() =>
-                            setDraftPageSize(value as ItemCataloguePageSize)
-                          }
-                          type="radio"
-                        />
-                        <span>
-                          <strong>{label}</strong>
-                        </span>
-                      </label>
-                    ))}
-                  </fieldset>
-
-                  <div className="catalogue-drawer-actions">
-                    <button
-                      className="catalogue-settings-apply"
-                      onClick={applyView}
-                      type="button"
-                    >
-                      Apply settings
-                    </button>
-                    <button
-                      className="catalogue-settings-reset"
-                      onClick={resetView}
-                      type="button"
-                    >
-                      Reset defaults
-                    </button>
-                  </div>
-                </Drawer.Content>
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.Root>
-      </div>
+      <CatalogueDisplayControls
+        description="Choose how this catalogue is arranged. Preferences stay in this browser."
+        layout={categoryLayout}
+        layoutLabel="Category display"
+        layoutLegend="Category chooser"
+        layoutName="category-layout"
+        layoutOptions={layoutOptions}
+        onApply={applyView}
+        onLayoutChange={updateCategoryLayout}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (nextOpen) {
+            setDraftSort(activeView.sort);
+            setDraftPageSize(activeView.pageSize);
+          }
+        }}
+        onPageSizeChange={setDraftPageSize}
+        onReset={resetView}
+        onSortChange={setDraftSort}
+        open={open}
+        pageSize={draftPageSize}
+        pageSizeLegend="Items per page"
+        pageSizeName="page-size"
+        pageSizeOptions={pageSizeOptions}
+        sort={draftSort}
+        sortLegend="Item order"
+        sortName="item-order"
+        sortOptions={sortOptions}
+        title="Item display settings"
+      />
 
       <nav
         aria-label="Item categories"

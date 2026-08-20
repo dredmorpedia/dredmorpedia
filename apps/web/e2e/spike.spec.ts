@@ -80,6 +80,60 @@ test.describe("static browse without JavaScript", () => {
     ).toBe(true);
   });
 
+  test("browses complete image-led craft groups in source order", async ({
+    page,
+  }) => {
+    await page.goto("/crafts/");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Crafts" }),
+    ).toBeVisible();
+
+    const tools = page.getByRole("navigation", { name: "Crafting tools" });
+    const ingot = tools.getByRole("link", { name: "Ingot, 1 recipe" });
+    await expect(ingot).toHaveAttribute("aria-current", "page");
+    await expect(ingot).toHaveAttribute("href", "/crafts/tool/ingot/");
+    await expect(
+      page.getByText("Showing 1–1 of 1 recipe for Ingot"),
+    ).toBeVisible();
+    await expect(page.locator(".recipe-summary-card")).toHaveCount(1);
+    await expect(
+      page.getByRole("link", { name: "Brass Ingot Recipe", exact: true }),
+    ).toBeVisible();
+
+    const smithing = tools.getByRole("link", {
+      name: "Training Smithing Kit, 1 recipe",
+    });
+    await smithing.focus();
+    await expect(smithing).toBeFocused();
+    await smithing.press("Enter");
+
+    await expect(page).toHaveURL(/\/crafts\/tool\/smithing\/$/);
+    const recipe = page.locator(".recipe-summary-card");
+    await expect(
+      recipe.getByRole("heading", {
+        level: 3,
+        name: "Clockwork Blade Recipe",
+      }),
+    ).toBeVisible();
+    await expect(recipe.getByText("2 × Brass Ingot")).toBeVisible();
+    await expect(
+      recipe.getByText("Missing Cog", { exact: true }),
+    ).toBeVisible();
+    await expect(recipe.getByText("1 × Missing Cog")).toHaveCount(0);
+    await expect(recipe.getByText("Unresolved item")).toBeVisible();
+    await expect(recipe.getByText("Source level 2")).toBeVisible();
+    await expect(recipe.getByText("Source level 4")).toBeVisible();
+    await expect(recipe.getByText("Training Smithing Kit")).toHaveCount(0);
+    await expect(recipe.getByText("Highest source skill")).toHaveCount(0);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
   test("discovers every record kind and opens a detail page", async ({
     page,
   }) => {
@@ -201,6 +255,58 @@ test("configures and persists the item catalogue display accessibly", async ({
   expect(accessibility.violations).toEqual([]);
 });
 
+test("configures and persists the Craft catalogue display accessibly", async ({
+  page,
+}) => {
+  await page.goto("/crafts/");
+  const tools = page.getByRole("navigation", { name: "Crafting tools" });
+  await expect(tools).toHaveAttribute("data-layout", "compact");
+  const smithingLabel = tools.getByText("Training Smithing Kit", {
+    exact: true,
+  });
+  expect(
+    await smithingLabel.evaluate(
+      (element) => getComputedStyle(element).clipPath,
+    ),
+  ).toBe("inset(50%)");
+
+  await page.getByRole("button", { name: "Detailed" }).click();
+  await expect(tools).toHaveAttribute("data-layout", "expanded");
+  await expect(smithingLabel).toBeVisible();
+  expect(
+    await smithingLabel.evaluate(
+      (element) => getComputedStyle(element).clipPath,
+    ),
+  ).toBe("none");
+
+  const trigger = page.getByRole("button", { name: "Display settings" });
+  await trigger.focus();
+  await trigger.press("Enter");
+  const drawer = page.getByRole("dialog", { name: "Craft display settings" });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("radio", { name: /Name \(A–Z\)/ }).check();
+  await drawer.getByRole("radio", { name: /All for this tool/ }).check();
+  await drawer.getByRole("button", { name: "Apply settings" }).click();
+
+  await expect(page).toHaveURL(/\/crafts\/tool\/ingot\/view\/name\/all\/1\/$/);
+  await page.reload();
+  await expect(
+    page.getByRole("navigation", { name: "Crafting tools" }),
+  ).toHaveAttribute("data-layout", "expanded");
+
+  await page.getByRole("button", { name: "Display settings" }).click();
+  await expect(page.getByRole("radio", { name: /Name \(A–Z\)/ })).toBeChecked();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Display settings", exact: true }),
+  ).toBeFocused();
+
+  const accessibility = await new AxeBuilder({ page })
+    .include("main")
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
+});
+
 test("separates direct encyclopedia navigation from optional tools", async ({
   page,
 }) => {
@@ -212,6 +318,10 @@ test("separates direct encyclopedia navigation from optional tools", async ({
   await expect(primary.getByRole("link", { name: "Items" })).toHaveAttribute(
     "href",
     "/items/",
+  );
+  await expect(primary.getByRole("link", { name: "Crafts" })).toHaveAttribute(
+    "href",
+    "/crafts/",
   );
 
   const tools = page
@@ -2025,6 +2135,8 @@ test("representative pages have no automatically detectable accessibility violat
     "/dataset/",
     "/browse/",
     "/browse/spells/1/",
+    "/crafts/",
+    "/crafts/tool/smithing/",
     "/search/",
     "/search/?q=clokwork+blade",
     "/items/clockwork-blade/",

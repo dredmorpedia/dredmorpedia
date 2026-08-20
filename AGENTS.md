@@ -177,9 +177,16 @@ Read these files before making a substantial change:
   polish is complete with compact/expanded category controls, preserved game
   order, optional static display views, game-order representatives, smaller
   expansion markers, and manifest-declared gold/quality imagery. Stat imagery
-  remains separately gated on a verified official mapping. Crafts are next,
-  followed by Encrusts; Craft cards must be reusable by accessible
-  hover/focus/tap recipe previews. The preserved Meta view's
+  remains separately gated on a verified official mapping. The Craft catalogue
+  foundation is implemented with all 374 canonical recipes grouped under seven
+  familiar tool routes, existing verified toolkit art, compact/detailed tool
+  navigation, persisted source/name/lowest-output-level ordering, a bounded
+  36-recipe default plus 24/All views, and reusable ingredient/output summary
+  cards. The selected-tool catalogue suppresses redundant tool identity and
+  the derived maximum-level footer. Reuse a bounded card from item relationships
+  through accessible hover/focus/tap previews next, then continue with
+  Encrusts. Keep Hidden and expansion iconography for later card polish. The
+  preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and
   implemented under its exact legacy-facing name. It ranks the top ten monsters
   from archetype levels plus crushing, slashing, and blasting modifiers. Do not

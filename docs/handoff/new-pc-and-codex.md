@@ -139,9 +139,14 @@ Continue toward local parity without assuming permission to publish official con
    compact categories by default, preserved game order, optional static
    sort/page-size views, better category representatives, small expansion
    markers, and manifest-declared gold/quality imagery. Stat imagery remains
-   separately gated on a verified official mapping. Reusable Craft cards and
-   accessible recipe previews are next, then Encrusts. Bounded build planning
-   is postponed. See
+   separately gated on a verified official mapping. The Craft catalogue
+   foundation has all 374 canonical recipes across seven familiar tool routes,
+   verified toolkit art, compact/detailed navigation, persisted display
+   settings, a 36-recipe default plus 24/All views, and reusable summary cards.
+   The selected-tool catalogue hides redundant tool identity and the derived
+   maximum-level footer. Accessible previews from item relationships are next,
+   then Encrusts. Hidden/expansion iconography and bounded build planning are
+   postponed. See
    `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 3. Extend the local asset importer only when another implemented page needs
    concrete art; specialized sprite treatment remains page-specific.
@@ -550,9 +555,11 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
 - The crafting and separately modeled encrustment dependency/shopping-list
   tools plus the shared recipe/encrustment source-skill filter, reusable URL
   views, and up-to-three-item comparison are implemented. Active work returns
-  to direct, image-led parity catalogues, beginning with the completed Items
-  slice and its owner-reviewed display polish, then continuing through Crafts
-  and Encrusts. A bounded build-planning model is postponed. Extra
+  to direct, image-led parity catalogues. The completed Items slice has its
+  owner-reviewed display polish, and the Craft catalogue foundation now groups
+  all canonical recipes by familiar tool. Accessible item-relationship recipe
+  previews are next, then Encrusts. A bounded build-planning model is
+  postponed. Extra
   technical-detail presentation remains a page-specific polish decision.
 - Technical feasibility of live progress tracking, deliberately deferred.
 

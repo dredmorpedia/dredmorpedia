@@ -5,6 +5,8 @@ import {
   type SourceSummary,
 } from "@dredmorpedia/domain";
 
+import { createSourceOrderComparator } from "./source-order";
+
 export const itemCataloguePageSize = 36;
 export const itemCatalogueSorts = ["game", "name", "quality", "price"] as const;
 export const itemCataloguePageSizes = [
@@ -153,38 +155,12 @@ function compareCategories(
   );
 }
 
-function sourcePrecedence(
-  sources: readonly Pick<SourceSummary, "id" | "precedence">[],
-): ReadonlyMap<string, number> {
-  return new Map(sources.map((source) => [source.id, source.precedence]));
-}
-
-function compareGameOrder(
-  left: Item,
-  right: Item,
-  precedenceBySource: ReadonlyMap<string, number>,
-): number {
-  return (
-    (precedenceBySource.get(left.provenance.sourceId) ??
-      Number.MAX_SAFE_INTEGER) -
-      (precedenceBySource.get(right.provenance.sourceId) ??
-        Number.MAX_SAFE_INTEGER) ||
-    compareCodeUnits(left.provenance.sourceId, right.provenance.sourceId) ||
-    compareCodeUnits(left.provenance.file, right.provenance.file) ||
-    left.provenance.line - right.provenance.line ||
-    left.provenance.column - right.provenance.column ||
-    compareCodeUnits(left.id, right.id)
-  );
-}
-
 export function sortItemCatalogueItems(
   items: readonly Item[],
   sources: readonly Pick<SourceSummary, "id" | "precedence">[],
   sort: ItemCatalogueSort,
 ): Item[] {
-  const precedenceBySource = sourcePrecedence(sources);
-  const gameOrder = (left: Item, right: Item) =>
-    compareGameOrder(left, right, precedenceBySource);
+  const gameOrder = createSourceOrderComparator<Item>(sources);
   return [...items].sort((left, right) => {
     switch (sort) {
       case "name":
