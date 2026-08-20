@@ -119,15 +119,18 @@ function fixtureRepository(): {
   writeFileSync(
     manifestPath,
     JSON.stringify({
-      schemaVersion: 1,
+      schemaVersion: 2,
       datasetId: "presented-assets-test",
+      datasetVersion: "1",
       sources: [
         {
           id: "fixture",
           label: "Fixture",
           kind: "fixture",
+          version: "1",
           precedence: 0,
           root: "source",
+          presentedAssets: [{ id: "gold", path: "assets/icon.png" }],
           files: [
             { kind: "items", path: "itemDB.xml" },
             { kind: "skills", path: "skillDB.xml" },
@@ -136,6 +139,7 @@ function fixtureRepository(): {
           ],
         },
       ],
+      patches: [],
     }),
   );
   return { repositoryRoot, manifestPath, iconPath, iconBytes };
@@ -163,14 +167,18 @@ describe("presented asset import", () => {
       JSON.parse(first.manifest) as {
         schemaVersion: number;
         artifactSha256: string;
+        uiAssetIds: string[];
       },
     ).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 3,
       artifactSha256: sha256(serializeOutputs(result).artifact),
+      uiAssetIds: ["gold"],
     });
     const catalog = JSON.parse(first.assets) as {
+      schemaVersion: number;
       assets: { kind: string; entityId: string; file: string }[];
     };
+    expect(catalog.schemaVersion).toBe(2);
     expect(
       catalog.assets.map(({ kind, entityId }) => [kind, entityId]),
     ).toEqual([
@@ -180,6 +188,7 @@ describe("presented asset import", () => {
       ["monster-icon", "monster:copied monster"],
       ["skill-icon", "skill:copied skill"],
       ["spell-icon", "spell:copied spell"],
+      ["ui-icon", "gold"],
     ]);
     expect(new Set(catalog.assets.map((asset) => asset.file)).size).toBe(2);
     expect(

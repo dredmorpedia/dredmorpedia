@@ -1,7 +1,7 @@
 # Legacy experience parity review
 
 Date: 2026-08-15
-Status: active; first implementation slice complete
+Status: active; Items catalogue correction complete
 
 ## Why parity was reopened
 
@@ -53,15 +53,53 @@ The first slice provides:
 - item-detail breadcrumbs returning to the new catalogue, with the comparison
   callout demoted behind core detail content.
 
-No importer or artifact contract changed. The catalogue reuses the existing
-checksummed item icon set, remains server rendered without JavaScript, and
-limits each category page to 36 items.
+The initial catalogue reused the existing checksummed item icon set, remained
+server rendered without JavaScript, and limited each category page to 36
+items. The owner-reviewed correction below subsequently extended the verified
+asset contract for three fixed interface icons.
 
-## Recommended continuation
+## Owner-reviewed Items correction
 
-Continue experience parity before starting another differentiating tool:
+The correction is implemented:
+
+1. A compact legacy-like category strip is the default; the grouped, counted
+   chooser remains available through the adjacent Detailed toggle.
+2. The deterministic default is **game order**, matching source precedence and
+   source/XML order. Name, quality, and value are explicit alternatives and do
+   not claim to model dungeon availability.
+3. Category representatives come from game order rather than alphabetical
+   order. A future curated override still requires a documented reason.
+4. An accessible display-settings drawer controls order and page size. The
+   compact/detailed control also remains visible beside it, and the browser
+   stores the preferences locally without changing entity identity.
+5. The bounded 36-item default remains canonical. Static alternatives provide
+   24, 36, or opt-in **All** views at shareable routes. The largest canonical
+   category contains 54 items; its measured All export remains acceptable for
+   the local MVP.
+6. Base-game records are unmarked. Expansion and mod records use compact,
+   project-owned text markers with the complete source name exposed through
+   accessible names and titles.
+7. The page-driven asset pipeline now imports and verifies the exact gold,
+   filled-quality-star, and empty-quality-star interface icons declared by the
+   official source manifest. Stat icons remain a separate mapping task because
+   ADR 0005 intentionally forbids importing legacy icons through the
+   project-authored stat reference.
+8. Category representative images use native titles for supplementary item
+   identification. Adjacent visible names remain the accessible source of
+   truth; rich recipe previews remain assigned to a maintained
+   tooltip/popover primitive during Craft parity.
+
+The preserved order is evidenced directly in `legacy/js/item.js` and
+`legacy/js/helper.js`: categories sort by type ID, items use `SortBySource`
+(source ID followed by generated object ID), and each category icon is the
+first item's icon. It is therefore source/XML order—not alphabetical, price, or
+quality order.
+
+The next parity slice is the Craft catalogue:
 
 1. Crafts grouped by normalized crafting tool, with ingredient and output art.
+   Define one reusable recipe summary card, then use an accessible bounded
+   preview of that card from item relationships on hover, focus, and tap.
 2. Encrusts grouped by toolkit, with ingredient, applicability, instability,
    and output-relevant summaries.
 3. Skills and abilities as image-led progression summaries.
@@ -76,15 +114,26 @@ this work as advanced and completeness-oriented fallbacks.
 
 ## Validation
 
-- `pnpm check` passes formatting, lint, type checking, all 305 workspace tests,
-  deterministic generation, and the 63-page synthetic static export.
-- `pnpm test:e2e` passes all 60 desktop/mobile cases, including the
+- `pnpm check` passes formatting, lint, type checking, all 308 workspace tests,
+  deterministic generation, and the 195-page synthetic static export.
+- Focused domain, pipeline, and web tests cover deterministic game order,
+  alternative orders, static view paths, source markers, preference controls,
+  and schema-bound interface icons.
+- `pnpm test:e2e` passes all 62 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
-  and representative axe scans.
+  the display drawer, local preference restoration, and representative axe
+  scans.
 - Browser inspection against the ignored official dataset confirms 31 visible
-  item categories with verified art, bounded 36-item pages, and reagent cards
-  rich in visible relationships.
-- `pnpm build:official` remains byte-identical with 763 items, 2,829 search
-  documents, 0 errors, the expected 4 warnings and 90 informational records,
-  1,790 presented icon mappings with no fallbacks, 40 category pages, and the
-  complete 3,027-page local static export.
+  item categories with verified art; Sword begins with Crude Iron Sword, Rough
+  Iron Sword, Iron Sword, and Fine Iron Sword in game order. Its opt-in value
+  view renders all 44 swords at `/items/category/weapon-sword/view/price/all/1/`
+  and Reset returns to the canonical route.
+- The largest official category contains 54 items. Its All-mode HTML measures
+  about 571 KB versus about 442 KB for its default first page, an acceptable
+  bounded opt-in increase for the local MVP.
+- The deterministic official asset set now contains 1,793 mappings to 1,482
+  content-addressed files: the prior 1,790 entity mappings plus the three
+  manifest-declared interface icons, with no fallbacks.
+- `pnpm build:official` passes deterministic zero-error generation and the
+  complete 3,455-page local static export with all canonical and optional
+  catalogue view routes.

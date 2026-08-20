@@ -56,7 +56,7 @@ function writeAssetSet(
   );
   const assets = `${JSON.stringify(
     {
-      schemaVersion: 1,
+      schemaVersion: 2,
       datasetId: "asset-loader-test",
       datasetVersion: "1.0.0",
       assets: [
@@ -95,6 +95,13 @@ function writeAssetSet(
           sha256: digest,
           bytes: bytes.length,
         },
+        {
+          kind: "ui-icon",
+          entityId: "gold",
+          file,
+          sha256: digest,
+          bytes: bytes.length,
+        },
       ],
     },
     null,
@@ -107,11 +114,12 @@ function writeAssetSet(
     path.join(directory, "manifest.json"),
     `${JSON.stringify(
       {
-        schemaVersion: 2,
+        schemaVersion: 3,
         datasetId: "asset-loader-test",
         datasetVersion: "1.0.0",
         artifactSha256: options.artifactSha256 ?? activeArtifactSha256,
         generator: "test",
+        uiAssetIds: ["gold"],
         diagnostics: { info: 0, warning: 0, error: 0 },
         outputs: {
           assets: {
@@ -154,6 +162,7 @@ describe("presented asset consumer", () => {
       monsterIconUrl,
       skillIconUrl,
       spellIconUrl,
+      uiIconUrl,
     } = await import("../src/lib/presented-assets");
 
     expect(itemIconUrl("item:test", artifact(), activeArtifactSha256)).toMatch(
@@ -194,6 +203,9 @@ describe("presented asset consumer", () => {
     expect(
       monsterIconUrl("monster:missing", artifact(), activeArtifactSha256),
     ).toBeNull();
+    expect(uiIconUrl("gold", artifact(), activeArtifactSha256)).toMatch(
+      /^\/dredmorpedia\/generated-assets\/current\/files\/[a-f0-9]{64}\.png$/,
+    );
   });
 
   it("rejects a catalog from a different dataset version", async () => {

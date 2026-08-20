@@ -10,6 +10,8 @@ Source manifest schema version `2` requires:
 
 - a stable `datasetId` and human-readable `datasetVersion`;
 - one or more sources with unique IDs, explicit versions, kinds, integer precedence, roots, and declared database files; and
+- an optional ordered `presentedAssets` array on a source, limited to the
+  project-defined UI asset IDs and safe source-relative paths; and
 - an ordered `patches` array, which may be empty; plus
 - an optional repository-relative `routeRegistry` path; plus
 - an optional repository-relative `previousRouteRegistry` path when the
@@ -23,6 +25,13 @@ the same version, checksum, precedence, containment, provenance, and closed
 schema rules. A reference source does not change the provenance of values read
 from another source. Reference roots are also excluded from entity-asset
 fallback probing.
+
+Presented UI assets are feature inputs, not general asset discovery. Duplicate
+IDs within one source are invalid; safe-path and real-path containment checks
+match database inputs. Higher-precedence sources may intentionally replace a
+lower declaration for the same project-defined ID. Only assets required by an
+implemented page may be added to this closed ID set. Their exact first-read
+bytes participate in input checksums and the generated presented-asset set.
 
 Patch references contain an integer `order` and a repository-relative `path`. Patch paths must resolve inside the repository, are included in input checksums, and are sorted by order then path. Duplicate source IDs and duplicate patch paths are rejected.
 

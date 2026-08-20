@@ -32,13 +32,17 @@ Run the repeatable baseline audit from the repository root:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1
 ```
 
-To view the historical site, serve `legacy/` as the document root rather than opening its HTML directly. For example, with Python installed:
+To view the historical site with the configured local official data, run:
 
 ```powershell
-python -m http.server 8000 --directory legacy
+pnpm dev:legacy
 ```
 
-Then open `http://localhost:8000/`. A clean checkout intentionally lacks proprietary official databases and most official assets, so much of the legacy interface will be empty unless approved local inputs are supplied.
+Then open `http://localhost:3002/`. The command requires the ignored schema-2
+official manifest and exposes its declared base-game and expansion roots through
+a read-only virtual overlay; it does not copy game files into the repository.
+A clean checkout without configured official inputs fails clearly instead of
+silently serving an empty legacy interface.
 
 The instructions in [`legacy/README.md`](legacy/README.md) are preserved historical documentation, not the canonical rebuild workflow. In particular, do not run its mutation commands against a game installation.
 

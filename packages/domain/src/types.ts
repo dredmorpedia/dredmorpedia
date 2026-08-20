@@ -986,9 +986,18 @@ export const presentedAssetKinds = [
   "ability-icon",
   "spell-icon",
   "monster-icon",
+  "ui-icon",
 ] as const;
 
 export type PresentedAssetKind = (typeof presentedAssetKinds)[number];
+
+export const presentedUiAssetIds = [
+  "gold",
+  "quality-empty",
+  "quality-full",
+] as const;
+
+export type PresentedUiAssetId = (typeof presentedUiAssetIds)[number];
 
 export interface PresentedAssetRecord {
   kind: PresentedAssetKind;
@@ -999,7 +1008,7 @@ export interface PresentedAssetRecord {
 }
 
 export interface PresentedAssetCatalog {
-  schemaVersion: 1;
+  schemaVersion: 2;
   datasetId: string;
   datasetVersion: string;
   assets: PresentedAssetRecord[];
@@ -1016,11 +1025,12 @@ export interface PresentedAssetDiagnostic {
 }
 
 export interface PresentedAssetManifest {
-  schemaVersion: 2;
+  schemaVersion: 3;
   datasetId: string;
   datasetVersion: string;
   artifactSha256: string;
   generator: string;
+  uiAssetIds: PresentedUiAssetId[];
   diagnostics: DiagnosticCounts;
   outputs: {
     assets: { file: "assets.json"; sha256: string; bytes: number };

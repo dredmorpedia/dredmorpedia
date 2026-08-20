@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function ItemsPage() {
-  return <ItemCataloguePage page={1} />;
+  return <ItemCataloguePage page={1} redirectToStoredView />;
 }

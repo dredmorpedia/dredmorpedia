@@ -528,9 +528,19 @@ reopened the presentation layer: direct, image-led browsing and familiar
 grouping are part of useful parity, while advanced Search and differentiating
 tools remain additions. The first corrected slice implements direct core
 navigation, a separate Tools directory, and the category-first Items
-catalogue. Continue with Crafts and Encrusts before returning to new Phase 5
-features. Evidence and order are in
+catalogue. The owner-reviewed Items polish is complete; continue with Crafts
+and Encrusts before returning to new Phase 5 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
+
+The completed Items polish provides compact category icons by default with the
+grouped counter view as a toggle; preserved source/XML “game order” plus
+optional alphabetical/quality/value orders; game-order representative icons;
+locally persisted display settings; measured 24/36/All page-size choices;
+small expansion markers with no base-game badge; and manifest-declared gold
+and quality-star imagery. Stat imagery remains separately gated on a verified
+official mapping. Craft parity next defines reusable recipe cards and
+accessible hover/focus/tap previews for item relationships rather than cloned
+legacy tooltip rows.
 
 Implement in dependency order rather than old-tab order:
 
@@ -547,8 +557,9 @@ The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
 second complete, verified dataset. The local visual-parity importer now renders
 normalized item, skill, ability, root spell, and monster detail art through a
 checksummed, manifest-coordinated, ignored asset set bound to the exact active
-artifact checksum; the canonical build maps 1,790 entity references to 1,479
-unique files without fallbacks. Monster art is limited to the first downward
+artifact checksum; the canonical build maps 1,790 entity references plus three
+manifest-declared item-catalogue UI icons to 1,482 unique files without
+fallbacks. Monster art is limited to the first downward
 idle frame, including strict XML-wrapper resolution, measured SPR decoding,
 field-level inherited appearance provenance, and generation-time declared
 palette transforms. Every copied PNG now receives bounded structural and
@@ -596,11 +607,12 @@ all-record DOM. Evidence and the complete classification are in
 
 The navigation/tooltip mechanics inventory and non-item visual inventory are
 complete, but the later experience review supersedes the claim that generic
-Browse/Search fully replace familiar visual grouping. The core item catalogue
-now reuses verified item icons and static category routes; equivalent
-player-facing Craft, Encrust, Skill, Spell, Monster, Stat, and Template
-catalogues remain in the active Phase 4 queue. Keep `legacy/` until complete
-parity evidence and a separate archival decision.
+Browse/Search fully replace familiar visual grouping. The corrected item
+catalogue now combines verified art, familiar game order, optional static view
+variants, and locally persisted display preferences; equivalent player-facing
+Craft, Encrust, Skill, Spell, Monster, Stat, and Template catalogues remain in
+the active Phase 4 queue. Keep `legacy/` until complete parity evidence and a
+separate archival decision.
 The implemented direct slices render all 52 skill, 352 ability, 440 root spell,
 and 183 monster references. Monster pages decode only the first idle-down SPR
 frame or resolve the first explicit animation-XML frame; 129 numeric tints and

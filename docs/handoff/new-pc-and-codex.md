@@ -27,8 +27,33 @@ A useful first prompt on the new machine is:
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
 - Dataset schema 3 separates normalized records from search schema 3; search documents carry ordered route aliases for project-owned zero-result spelling suggestions plus exact nullable recipe/encrustment source skill for the shared crafting filter. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and optional current/predecessor route registries. Route-registry schema 2 implements checksum-bound lineage, stable source-identity ownership, tombstones, reappearance, complete publication coverage, and atomic release failure. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, canonical stat facets for direct item/ability/spell/encrustment declarations, a combined recipe/encrustment scope with inclusive maximum source-skill filtering, reusable project-owned URL views, bounded user-selected typo recovery, and shareable up-to-three-item comparison, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana, root radius/wand/self/item-consumption, non-mana requirement, and buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/wall-sensing/payback/zorkmid-absorption/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling/Midas/created-object/dig-regeneration/buff-tag metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit and dodge buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
-- Synthetic desktop/mobile keyboard and axe checks pass. At the latest checkpoint, all 60 browser tests remain the interaction baseline, while 305 unit/artifact tests, deterministic official dataset and presented-asset generation, and the complete 3,027-page local official export pass. The ignored asset set covers item, skill, ability, root spell, and selected first-frame monster art; its schema-2 manifest binds it to the exact active artifact checksum, inherited monster appearance retains its declaring source, and copied PNGs receive bounded structural/scanline validation. The official artifact contains 2,829 searchable entities, including 62 project-authored stat definitions, and all 4,309 modifier declarations link to those definitions by exact selector. Search offers 61 used stat facets across 1,350 item, ability, spell, and encrustment records plus seven crafting-tool categories across all 374 recipes. Its category popup is bounded, alphabetized by displayed labels, semantically grouped, contextual to the entity type, and removes incompatible URL state. Search schema 3 also preserves exact source skill across all 374 recipes and 57 encrustments; the shared crafting level-2 view matches 165 records. Its deterministic compact representation is 1,263,752 bytes uncompressed, 199,369 gzip, and 145,019 Brotli, retaining 236,248 raw bytes of ADR 0003 headroom. Direct core navigation, `/tools/`, and the 31-category image-led `/items/` catalogue restore the first player-experience parity surface through 36-item static pages. The Phase 5 crafting and separately modeled encrustment tools expand exact recipe output declarations into dependency steps and combined shopping lists at `/tools/crafting-graph/` and `/tools/encrusting-plan/`; all quantities and editable yield choices are stored as dataset-local, shareable URL state. `/tools/item-compare/` preserves up to three ordered canonical items in URL state and keeps exact source fields, named stats, direct modifiers, and missing declarations distinct. The measured root spell audit is complete: all 106 template-spell references and their loss-aware anchor flags are preserved and linked; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and the one active no-animation declaration use explicit loss-aware contracts. `/dataset/` makes its 5 ordered sources, 94 diagnostics, 45 affected records, and 71 override steps discoverable from the verified artifact set. Read-only full-dataset import/build/query measurements are recorded without the local installation path or official content.
-- Playwright shuts down its loopback static server through an explicit bounded global-teardown handshake. This avoids an indefinite wait when Windows process-tree termination is denied; `pnpm test:e2e` must print the final `56 passed` summary and return to the prompt.
+- The current validation checkpoint passes 308 unit/artifact tests, all 62
+  desktop/mobile browser cases, deterministic official dataset and
+  presented-asset generation, and the complete 3,455-page local official
+  export. The ignored asset set covers item, skill, ability, root spell, and
+  selected first-frame monster art plus exactly three item-catalogue UI icons;
+  its schema-3 manifest binds the complete schema-2 catalog and declared UI ID
+  set to the exact active artifact checksum. The canonical set contains 1,793
+  mappings backed by 1,482 files with zero fallbacks. The official artifact
+  contains 2,829 searchable entities, including 62 project-authored stat
+  definitions, and all 4,309 modifier declarations link to those definitions
+  by exact selector. Search offers 61 used stat facets across 1,350 item,
+  ability, spell, and encrustment records plus seven crafting-tool categories
+  across all 374 recipes. Search schema 3 also preserves exact source skill
+  across all 374 recipes and 57 encrustments; the shared crafting level-2 view
+  matches 165 records. Direct core navigation, `/tools/`, and the corrected
+  31-category `/items/` catalogue provide preserved game order, compact and
+  detailed category modes, static sort/page-size views, and verified imagery.
+  The Phase 5 crafting and separately modeled encrustment tools expand exact
+  recipe output declarations into dependency steps and combined shopping lists
+  at `/tools/crafting-graph/` and `/tools/encrusting-plan/`; all quantities and
+  editable yield choices are stored as dataset-local, shareable URL state.
+  `/tools/item-compare/` preserves up to three ordered canonical items in URL
+  state and keeps exact source fields, named stats, direct modifiers, and
+  missing declarations distinct. The measured root spell audit is complete,
+  and `/dataset/` exposes 5 ordered sources, 94 diagnostics, 45 affected
+  records, and 71 override steps without exposing the local installation path.
+- Playwright shuts down its loopback static server through an explicit bounded global-teardown handshake. This avoids an indefinite wait when Windows process-tree termination is denied; `pnpm test:e2e` must print its final pass summary and return to the prompt.
 - Direct `summon` and `summonhostile` spell effects now preserve loss-aware `monsterType` targets. All 21 active official declarations resolve to normalized monsters with reciprocal backlinks; two additional summon-family effects intentionally omit a target and remain valid null records. Runtime availability, allegiance, placement, lifetime, AI state, selection, and spawning behavior remain uninterpreted.
 - Direct `removebuffbyname` spell effects now preserve all 23 active named buff targets. Every target resolves to a normalized buff-bearing spell with reciprocal backlinks; removal eligibility, scope, timing, stack handling, and runtime success remain uninterpreted.
 - Buff-local `<invisible>` elements now preserve all nine active declarations. Eight retain amount `1`, one validly omits the amount, and visibility strength, detection, actor scope, breaking, stacking, duration, targeting, AI, and runtime behavior remain uninterpreted.
@@ -110,8 +135,13 @@ Continue toward local parity without assuming permission to publish official con
    side-by-side review reopened player-experience parity because generic
    Browse/Search did not preserve enough direct, image-led discovery. The
    first correction implements direct core navigation, `/tools/`, and a
-   category-first `/items/` catalogue; Crafts and Encrusts are next. Bounded
-   build planning is postponed. See
+   category-first `/items/` catalogue. Its owner-reviewed polish is complete:
+   compact categories by default, preserved game order, optional static
+   sort/page-size views, better category representatives, small expansion
+   markers, and manifest-declared gold/quality imagery. Stat imagery remains
+   separately gated on a verified official mapping. Reusable Craft cards and
+   accessible recipe previews are next, then Encrusts. Bounded build planning
+   is postponed. See
    `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 3. Extend the local asset importer only when another implemented page needs
    concrete art; specialized sprite treatment remains page-specific.
@@ -521,9 +551,9 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
   tools plus the shared recipe/encrustment source-skill filter, reusable URL
   views, and up-to-three-item comparison are implemented. Active work returns
   to direct, image-led parity catalogues, beginning with the completed Items
-  slice and continuing through Crafts and Encrusts. A bounded build-planning
-  model is postponed. Extra technical-detail presentation remains a
-  page-specific polish decision.
+  slice and its owner-reviewed display polish, then continuing through Crafts
+  and Encrusts. A bounded build-planning model is postponed. Extra
+  technical-detail presentation remains a page-specific polish decision.
 - Technical feasibility of live progress tracking, deliberately deferred.
 
 Do not resolve these by assumption. Ask the owner when a choice would materially change the implementation or publication boundary.

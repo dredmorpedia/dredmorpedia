@@ -87,6 +87,16 @@ The initial canonical source scope is the base game plus all three official expa
   experience while keeping modern responsive, keyboard, static-route, and
   no-JavaScript behavior. Prefer concise player facts on summary cards and
   progressively disclose source-level technical metadata on detail pages.
+- Default category selection to a compact, legacy-like icon strip while
+  retaining the grouped counted chooser as an expanded view. Put persistent
+  display preferences behind an accessible settings drawer, while keeping a
+  visible local control near the catalogue it changes.
+- Default item lists to deterministic source/XML game order. Keep name,
+  quality, value, and page-size alternatives as explicit local view settings;
+  do not present quality or value as proof of dungeon availability.
+- Build reusable recipe summary cards during Craft parity, then expose them as
+  bounded recipe previews from item relationships on hover, focus, and tap.
+  Do not make essential information hover-only or recreate cloned legacy rows.
 - Continue technical-detail disclosure as page-specific polish. Keep tagging,
   favorites, and custom-list persistence behind a separate decision.
 - Treat live game-progress tracking as a separate later research project; do not constrain the initial architecture around an unproven integration.

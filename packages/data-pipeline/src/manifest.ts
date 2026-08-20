@@ -2,6 +2,8 @@ import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 
+import { presentedUiAssetIds } from "@dredmorpedia/domain";
+
 import { isPathWithin, resolveExistingWithin, toPosixPath } from "./safe-path";
 
 export const databaseKinds = [
@@ -20,6 +22,11 @@ const databaseFileSchema = z.strictObject({
   path: z.string().min(1),
 });
 
+const presentedAssetSchema = z.strictObject({
+  id: z.enum(presentedUiAssetIds),
+  path: z.string().min(1),
+});
+
 const sourceV1Schema = z.strictObject({
   id: z.string().min(1),
   label: z.string().min(1),
@@ -33,6 +40,7 @@ const sourceV2Schema = z.strictObject({
   ...sourceV1Schema.shape,
   version: z.string().min(1),
   rootBase: z.enum(["manifest", "repository"]).optional(),
+  presentedAssets: z.array(presentedAssetSchema).optional(),
 });
 
 const patchReferenceSchema = z.strictObject({
@@ -42,7 +50,10 @@ const patchReferenceSchema = z.strictObject({
 
 function validateUniqueEntries(
   manifest: {
-    sources: { id: string }[];
+    sources: {
+      id: string;
+      presentedAssets?: { id: string; path: string }[] | undefined;
+    }[];
     patches?: { path: string }[];
   },
   context: z.RefinementCtx,
@@ -57,6 +68,20 @@ function validateUniqueEntries(
       });
     }
     sourceIds.add(source.id);
+
+    const assetIds = new Set<string>();
+    for (const [assetIndex, asset] of (
+      source.presentedAssets ?? []
+    ).entries()) {
+      if (assetIds.has(asset.id)) {
+        context.addIssue({
+          code: "custom",
+          message: `Duplicate presented asset id in ${source.id}: ${asset.id}`,
+          path: ["sources", index, "presentedAssets", assetIndex, "id"],
+        });
+      }
+      assetIds.add(asset.id);
+    }
   }
 
   const patchPaths = new Set<string>();
@@ -228,6 +253,9 @@ export function loadManifest(
     );
     for (const file of source.files) {
       resolveExistingWithin(sourceRoot, file.path);
+    }
+    for (const asset of source.presentedAssets ?? []) {
+      resolveExistingWithin(sourceRoot, asset.path);
     }
   }
   for (const patch of manifest.patches) {

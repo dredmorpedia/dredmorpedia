@@ -264,6 +264,11 @@ and consumer validation, and a policy review for any specialized conversion.
   its manifest-declared SHA-256 checksum, not only by dataset ID/version.
   Missing or invalid individual art falls back during import; missing, mixed,
   tampered, or stale generated set metadata fails the web build.
+- Presented-asset catalog schema 2 admits typed entity and closed-set UI icon
+  mappings. Presented-asset manifest schema 3 lists every expected UI asset ID
+  in addition to binding the catalog, diagnostics, copied files, and active
+  artifact checksum. The consumer rejects a missing, extra, duplicate, or
+  mismatched UI mapping instead of silently dropping interface imagery.
 - The web consumer initializes `artifact.json`, `search.json`, and
   `diagnostics.json` as one atomic in-memory set. It verifies every checksum and
   schema plus dataset identity, search derivation, diagnostic counts/IDs, and

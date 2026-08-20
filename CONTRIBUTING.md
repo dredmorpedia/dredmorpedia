@@ -38,6 +38,12 @@ pnpm test:e2e
 
 Start synthetic local development with `pnpm dev` (an alias for `pnpm dev:synthetic`), then open `http://localhost:3001/`. It regenerates the legal synthetic spike artifact and its ignored presented-asset set before starting the Next.js application on port 3001. The tracked SVG icon is intentionally unsupported by the PNG-only importer, so synthetic item, skill, ability, and spell pages exercise the graceful icon fallback.
 
+Use `pnpm dev:stop` to stop whichever local process is listening on port 3001,
+including a development server started in a detached or hidden terminal. The
+command is safe to repeat when no server is running. It intentionally targets
+the port rather than a saved process ID, so do not use it while an unrelated
+application owns port 3001.
+
 When the ignored `data/raw/local-official-manifest.json` has been configured for the approved read-only installation, use the equivalent official-data commands:
 
 ```powershell
@@ -84,7 +90,14 @@ powershell -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1
 
 The equivalent canonical command is `pnpm audit:legacy`. Use the script's `-Json` switch for machine-readable output. `-FailOnInvalidXml` and `-FailOnMissingGameData` are opt-in because the committed baseline intentionally lacks proprietary game data and contains one known invalid historical mod XML file.
 
-Serve `legacy/` as the document root for manual behavioral checks. Never point mutation, formatting, patching, or cleanup commands at a local game installation.
+Run `pnpm dev:legacy`, then open `http://localhost:3002/`, for manual checks
+against the preserved application. The command requires the ignored schema-2
+official manifest and overlays its four declared official roots read-only at
+the historical `/data` and `/expansion*` request paths. It neither copies nor
+changes game files, and it fails instead of silently displaying an empty site
+when the configured sources are unavailable. Stop it with `Ctrl+C`. Never point
+mutation, formatting, patching, or cleanup commands at a local game
+installation.
 
 ## Change expectations
 

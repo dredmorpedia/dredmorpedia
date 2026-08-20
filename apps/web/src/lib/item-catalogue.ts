@@ -2,9 +2,29 @@ import {
   compareCodeUnits,
   itemCategoryLabel,
   type Item,
+  type SourceSummary,
 } from "@dredmorpedia/domain";
 
 export const itemCataloguePageSize = 36;
+export const itemCatalogueSorts = ["game", "name", "quality", "price"] as const;
+export const itemCataloguePageSizes = [
+  24,
+  itemCataloguePageSize,
+  "all",
+] as const;
+
+export type ItemCatalogueSort = (typeof itemCatalogueSorts)[number];
+export type ItemCataloguePageSize = (typeof itemCataloguePageSizes)[number];
+
+export interface ItemCatalogueView {
+  sort: ItemCatalogueSort;
+  pageSize: ItemCataloguePageSize;
+}
+
+export const defaultItemCatalogueView = {
+  sort: "game",
+  pageSize: itemCataloguePageSize,
+} as const satisfies ItemCatalogueView;
 
 const preferredCategoryOrder = [
   "weapon:sword",
@@ -72,6 +92,7 @@ export interface ItemCataloguePage {
   items: Item[];
   page: number;
   pageCount: number;
+  pageSize: ItemCataloguePageSize;
   total: number;
 }
 
@@ -132,8 +153,70 @@ function compareCategories(
   );
 }
 
+function sourcePrecedence(
+  sources: readonly Pick<SourceSummary, "id" | "precedence">[],
+): ReadonlyMap<string, number> {
+  return new Map(sources.map((source) => [source.id, source.precedence]));
+}
+
+function compareGameOrder(
+  left: Item,
+  right: Item,
+  precedenceBySource: ReadonlyMap<string, number>,
+): number {
+  return (
+    (precedenceBySource.get(left.provenance.sourceId) ??
+      Number.MAX_SAFE_INTEGER) -
+      (precedenceBySource.get(right.provenance.sourceId) ??
+        Number.MAX_SAFE_INTEGER) ||
+    compareCodeUnits(left.provenance.sourceId, right.provenance.sourceId) ||
+    compareCodeUnits(left.provenance.file, right.provenance.file) ||
+    left.provenance.line - right.provenance.line ||
+    left.provenance.column - right.provenance.column ||
+    compareCodeUnits(left.id, right.id)
+  );
+}
+
+export function sortItemCatalogueItems(
+  items: readonly Item[],
+  sources: readonly Pick<SourceSummary, "id" | "precedence">[],
+  sort: ItemCatalogueSort,
+): Item[] {
+  const precedenceBySource = sourcePrecedence(sources);
+  const gameOrder = (left: Item, right: Item) =>
+    compareGameOrder(left, right, precedenceBySource);
+  return [...items].sort((left, right) => {
+    switch (sort) {
+      case "name":
+        return (
+          compareCodeUnits(left.name.toLowerCase(), right.name.toLowerCase()) ||
+          compareCodeUnits(left.name, right.name) ||
+          gameOrder(left, right)
+        );
+      case "quality":
+        return left.quality - right.quality || gameOrder(left, right);
+      case "price":
+        return (
+          (left.price === null ? 1 : 0) - (right.price === null ? 1 : 0) ||
+          (left.price ?? 0) - (right.price ?? 0) ||
+          gameOrder(left, right)
+        );
+      case "game":
+        return gameOrder(left, right);
+    }
+  });
+}
+
+export function itemCataloguePageCount(
+  itemCount: number,
+  pageSize: ItemCataloguePageSize,
+): number {
+  return pageSize === "all" ? 1 : Math.max(1, Math.ceil(itemCount / pageSize));
+}
+
 export function createItemCatalogueCategories(
   items: readonly Item[],
+  sources: readonly Pick<SourceSummary, "id" | "precedence">[] = [],
 ): ItemCatalogueCategory[] {
   const itemsByCategory = new Map<string, Item[]>();
   for (const item of items) {
@@ -149,20 +232,16 @@ export function createItemCatalogueCategories(
       throw new Error(`Multiple item categories resolve to route ${segment}.`);
     }
     segments.add(segment);
-    const sortedItems = [...categoryItems].sort(
-      (left, right) =>
-        compareCodeUnits(left.name, right.name) ||
-        compareCodeUnits(left.id, right.id),
-    );
+    const sortedItems = sortItemCatalogueItems(categoryItems, sources, "game");
     return {
       key,
       segment,
       label: itemCategoryLabel(key),
       group: categoryGroup(key),
       count: sortedItems.length,
-      pageCount: Math.max(
-        1,
-        Math.ceil(sortedItems.length / itemCataloguePageSize),
+      pageCount: itemCataloguePageCount(
+        sortedItems.length,
+        defaultItemCatalogueView.pageSize,
       ),
       representativeItemId: sortedItems[0]!.id,
     } satisfies ItemCatalogueCategory;
@@ -187,40 +266,67 @@ export function itemCatalogueCategoryForSegment(
   return categories.find((category) => category.segment === segment);
 }
 
+export function isItemCatalogueSort(value: string): value is ItemCatalogueSort {
+  return itemCatalogueSorts.some((sort) => sort === value);
+}
+
+export function parseItemCataloguePageSize(
+  value: string,
+): ItemCataloguePageSize | undefined {
+  if (value === "all") {
+    return value;
+  }
+  const parsed = Number(value);
+  return itemCataloguePageSizes.some((pageSize) => pageSize === parsed)
+    ? (parsed as ItemCataloguePageSize)
+    : undefined;
+}
+
 export function itemCatalogueCategoryPath(
   category: Pick<ItemCatalogueCategory, "segment">,
   page = 1,
+  view: ItemCatalogueView = defaultItemCatalogueView,
 ): string {
-  return `/items/category/${category.segment}/${page}`;
+  if (
+    view.sort === defaultItemCatalogueView.sort &&
+    view.pageSize === defaultItemCatalogueView.pageSize
+  ) {
+    return `/items/category/${category.segment}/${page}`;
+  }
+  return `/items/category/${category.segment}/view/${view.sort}/${view.pageSize}/${page}`;
 }
 
 export function paginateItemCatalogue(
   items: readonly Item[],
   category: Pick<ItemCatalogueCategory, "key">,
   page: number,
+  options: {
+    sources?: readonly Pick<SourceSummary, "id" | "precedence">[];
+    sort?: ItemCatalogueSort;
+    pageSize?: ItemCataloguePageSize;
+  } = {},
 ): ItemCataloguePage | undefined {
   if (!Number.isSafeInteger(page) || page < 1) {
     return undefined;
   }
-  const matchingItems = items
-    .filter((item) => item.category === category.key)
-    .sort(
-      (left, right) =>
-        compareCodeUnits(left.name, right.name) ||
-        compareCodeUnits(left.id, right.id),
-    );
-  const pageCount = Math.max(
-    1,
-    Math.ceil(matchingItems.length / itemCataloguePageSize),
+  const sort = options.sort ?? defaultItemCatalogueView.sort;
+  const pageSize = options.pageSize ?? defaultItemCatalogueView.pageSize;
+  const matchingItems = sortItemCatalogueItems(
+    items.filter((item) => item.category === category.key),
+    options.sources ?? [],
+    sort,
   );
+  const pageCount = itemCataloguePageCount(matchingItems.length, pageSize);
   if (page > pageCount) {
     return undefined;
   }
-  const start = (page - 1) * itemCataloguePageSize;
+  const start = pageSize === "all" ? 0 : (page - 1) * pageSize;
+  const end = pageSize === "all" ? matchingItems.length : start + pageSize;
   return {
-    items: matchingItems.slice(start, start + itemCataloguePageSize),
+    items: matchingItems.slice(start, end),
     page,
     pageCount,
+    pageSize,
     total: matchingItems.length,
   };
 }

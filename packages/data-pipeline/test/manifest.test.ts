@@ -166,6 +166,52 @@ describe("source manifest migration", () => {
     ).toThrow(/must be different files/);
   });
 
+  it("accepts only unique project-defined presented UI asset IDs", () => {
+    const base = {
+      schemaVersion: 2,
+      datasetId: "asset-scope",
+      datasetVersion: "1.0.0",
+      sources: [
+        {
+          id: "fixture",
+          label: "Fixture",
+          kind: "fixture",
+          version: "1.0.0",
+          precedence: 0,
+          root: "fixture",
+          files: [{ kind: "items", path: "itemDB.xml" }],
+        },
+      ],
+      patches: [],
+    };
+
+    expect(() =>
+      parseSourceManifestV2({
+        ...base,
+        sources: [
+          {
+            ...base.sources[0],
+            presentedAssets: [{ id: "unreviewed-icon", path: "icon.png" }],
+          },
+        ],
+      }),
+    ).toThrow(ZodError);
+    expect(() =>
+      parseSourceManifestV2({
+        ...base,
+        sources: [
+          {
+            ...base.sources[0],
+            presentedAssets: [
+              { id: "gold", path: "gold.png" },
+              { id: "gold", path: "duplicate.png" },
+            ],
+          },
+        ],
+      }),
+    ).toThrow(/Duplicate presented asset id/);
+  });
+
   it("migrates only the exact reviewed official source scope", () => {
     const migrated = migrateOfficialSourceManifest(legacyOfficialManifest);
 
@@ -186,6 +232,14 @@ describe("source manifest migration", () => {
       root: "reference-data/dredmor-1.1.5-public-beta",
       files: [{ kind: "stats", path: "statDB.xml" }],
     });
+    expect(
+      migrated.sources.find((source) => source.id === "official-base")
+        ?.presentedAssets,
+    ).toEqual([
+      { id: "gold", path: "items/cash1.png" },
+      { id: "quality-empty", path: "ui/quality_star_empty.png" },
+      { id: "quality-full", path: "ui/quality_star_full.png" },
+    ]);
     expect(parseCurrentOfficialSourceManifest(migrated)).toEqual(migrated);
 
     const currentWithoutReference = {

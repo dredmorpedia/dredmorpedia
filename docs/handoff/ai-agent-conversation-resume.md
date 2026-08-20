@@ -35,7 +35,13 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
   player-experience parity: generic Browse and advanced Search remain useful,
   but do not replace direct, image-led browsing. The first correction adds the
   core encyclopedia navigation, `/tools/`, and a category-first `/items/`
-  catalogue. Crafts and Encrusts are next; bounded build planning is postponed.
+  catalogue. Its owner-reviewed polish is complete: compact categories by
+  default, preserved game order, optional static sort/page settings, improved
+  representative icons, small expansion markers, and manifest-declared
+  gold/quality imagery. Stat imagery remains separately gated on a verified
+  official mapping. Craft parity is next and supplies reusable recipe cards
+  plus accessible previews from item relationships. Encrusts follow; bounded
+  build planning is postponed.
   Presentation of extra technical detail remains a page-specific polish
   decision.
 
@@ -192,7 +198,7 @@ metadata slice raises it to 177, and the damage-effect Midas slice raises it to
 
 After the review-hardening queue, remeasure rather than relying only on the recorded backlog counts. Every measured item family, buff child family, direct effect attribute, spell-requirement family, and root spell attribute is now complete. The non-mana requirement slices preserve all three exact shield declarations, the one exact weapon declaration, all six exact booze declarations, and all three exact zorkmid-family declarations. The booze slice also extracts requirement parsing from the monolithic normalizer and gives generic requirement diagnostics their declaring source location. The original 23 dangling declarations were classified in `docs/analysis/dangling-reference-classification-2026-08-09.md`. The owner approved the 16 `lockpick` loadouts and two `Spores` options as reviewed source-only item labels. These 18 declarations emit informational audit records and create no entity or route. The owner subsequently approved the exact Luckier Find `Acidium Salis` item-list declaration as a reviewed correction to `item:acidum salis`; it retains the original source label, adds stable review provenance and a backlink, and does not patch game data or create a global alias. The loss-aware contract now covers named skill loadouts and named spell item-list options; the canonical split is 47 exact plus 16 source-only named loadouts, 13 type-only loadouts, and 189 exact plus one reviewed correction plus two source-only item-list options. Four dangling warnings remain: the Satanic Locator placeholder and three ambiguous monster spells. Do not alias them without new evidence. The complete canonical set is the same relationship-only subset: 0 errors, 4 warnings, and 90 info. See `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md` and `docs/analysis/spell-root-no-animation-evidence-2026-08-11.md`.
 
-The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release and exact copyright-holder wording and provenance treatment for excluded inherited material. The first parity slice is complete from implementation and validation evidence without a separate owner sign-off. The bounded item, skill, ability, root spell, and monster art importer is implemented; future asset families remain page-driven. The active-dataset source/collision explorer is implemented at `/dataset/`, and preserved stat-search discovery spans 1,350 direct item, ability, spell, and encrustment records through 61 active facets. The ignored canonical artifact has 45 affected records and 71 override steps. The measured root spell compatibility audit is complete. The preserved Meta view's **Required Armour by Monster** compatibility calculation is owner-approved and implemented. The final navigation/tooltip checkpoint restores all 374 canonical recipes to seven normalized tool categories in shareable search. The monster-art decision is implemented for all 183 canonical detail pages, and the deferred search-page filtering rework is complete. The first Phase 5 crafting and encrustment planners preserve editable exact output yield tiers, expand recursive ingredient demand, combine base requirements, and store quantity/yield selections in shareable URL state while keeping encrustment applications distinct from crafted outputs. Search schema 3 now preserves exact recipe/encrustment source skill for one shared crafting scope and inclusive maximum filter; `/browse/` and `/search/` expose project-authored reusable filter views as ordinary shareable URLs. Item comparison preserves up to three ordered canonical items in a shareable URL and compares exact normalized fields without inferring formulas. The next recommended task is a bounded build-planning model. Keep `legacy/` until complete parity evidence and a separate archival decision. Current tool evidence is in `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`, and `docs/analysis/item-comparison-evidence-2026-08-14.md`; stat names/categories continue to come from the versioned project reference, while disputed formulas remain separate evidence decisions.
+The local product boundary and the technical direction in ADR 0001–0005 are now accepted and implemented. Remaining policy/product gates are permission evidence for any future public release and exact copyright-holder wording and provenance treatment for excluded inherited material. The first parity slice is complete from implementation and validation evidence without a separate owner sign-off. The bounded item, skill, ability, root spell, and monster art importer is implemented; its verified asset set also carries exactly three manifest-declared item-catalogue UI icons. Future asset families remain page-driven. The active-dataset source/collision explorer is implemented at `/dataset/`, and preserved stat-search discovery spans 1,350 direct item, ability, spell, and encrustment records through 61 active facets. The ignored canonical artifact has 45 affected records and 71 override steps. The measured root spell compatibility audit is complete. The preserved Meta view's **Required Armour by Monster** compatibility calculation is owner-approved and implemented. The final navigation/tooltip checkpoint restores all 374 canonical recipes to seven normalized tool categories in shareable search. The monster-art decision is implemented for all 183 canonical detail pages, and the deferred search-page filtering rework is complete. The first Phase 5 crafting and encrustment planners preserve editable exact output yield tiers, expand recursive ingredient demand, combine base requirements, and store quantity/yield selections in shareable URL state while keeping encrustment applications distinct from crafted outputs. Search schema 3 now preserves exact recipe/encrustment source skill for one shared crafting scope and inclusive maximum filter; `/browse/` and `/search/` expose project-authored reusable filter views as ordinary shareable URLs. Item comparison preserves up to three ordered canonical items in a shareable URL and compares exact normalized fields without inferring formulas. Active work has returned to player-experience parity: the corrected Items catalogue is complete and the Craft catalogue is next. Keep `legacy/` until complete parity evidence and a separate archival decision. Current tool evidence is in `docs/analysis/legacy-experience-parity-review-2026-08-15.md`, `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`, `docs/analysis/cross-list-crafting-filter-evidence-2026-08-14.md`, and `docs/analysis/item-comparison-evidence-2026-08-14.md`; stat names/categories continue to come from the versioned project reference, while disputed formulas remain separate evidence decisions.
 
 The shared search category control rework is complete. Preserve its bounded
 keyboard/touch-scrolling Base UI list, displayed-label ordering, semantic
@@ -202,12 +208,14 @@ automatic removal of incompatible category parameters.
 The page-driven non-item visual inventory is complete. All 52 skill, 352
 ability, 440 root spell, and 183 monster records with art references now render
 through the existing ignored, checksum-bound presented-asset set. The canonical
-set contains 763 item-icon, 52 skill-icon, 352 ability-icon, 440 spell-icon, and
-183 monster-icon mappings backed by 1,479 unique PNG files with no fallbacks.
+set contains 763 item-icon, 52 skill-icon, 352 ability-icon, 440 spell-icon,
+183 monster-icon, and three UI-icon mappings backed by 1,482 unique PNG files
+with no fallbacks.
 Monster output is restricted to the first downward idle frame; XML wrappers,
 SPR decoding, and declared numeric or named palettes are generation-time,
-snapshot-bound operations. The schema-2 presented-asset manifest is bound to
-the exact active artifact checksum, inherited monster appearance retains its
+snapshot-bound operations. The schema-3 presented-asset manifest is bound to
+the exact active artifact checksum and declares the complete UI-icon ID set;
+inherited monster appearance retains its
 declaring source, named palettes cover XML-backed PNG frames, and all copied
 PNGs receive complete bounded structural/scanline validation. Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md` and
@@ -223,14 +231,13 @@ PNGs receive complete bounded structural/scanline validation. Evidence is in
 
 ## Last completed slice validation
 
-The first reopened experience-parity slice adds direct core navigation, a
+The corrected reopened experience-parity slice adds direct core navigation, a
 separate `/tools/` directory, and the category-first, image-led `/items/`
-catalogue. It uses 31 familiar item categories, bounded 36-item static pages,
-and concise player-facing relationship summaries without changing the asset or
-artifact contracts. `pnpm.cmd check` passes 305 unit/artifact tests and the
-63-page synthetic export; all 60 desktop/mobile browser cases pass; and
-`pnpm.cmd build:official` exports all 3,027 local pages from byte-identical
-official output. Evidence is in
+catalogue. It uses 31 familiar item categories, a compact/detailed chooser,
+preserved game order, optional static sort/page-size views, concise source
+markers, and verified gold/quality imagery. The bounded 36-item canonical pages
+remain fully server rendered, while the largest 54-item category can opt into
+All. Craft parity is next. Evidence is in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The first rich cross-list filtering slice combines all 374 canonical recipes

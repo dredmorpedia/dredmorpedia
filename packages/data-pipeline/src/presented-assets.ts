@@ -17,6 +17,7 @@ import {
   type PresentedAssetDiagnostic,
   type PresentedAssetManifest,
   type PresentedAssetRecord,
+  type PresentedUiAssetId,
 } from "@dredmorpedia/domain";
 
 import type {
@@ -48,6 +49,8 @@ function assetLabel(input: PresentedAssetInput): string {
       return "spell icon";
     case "monster-icon":
       return "monster icon";
+    case "ui-icon":
+      return "interface icon";
   }
 }
 
@@ -223,7 +226,7 @@ export function serializePresentedAssets(
     throw new Error("Presented asset diagnostic IDs are not unique.");
   }
   const catalog: PresentedAssetCatalog = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     datasetId: result.artifact.datasetId,
     datasetVersion: result.artifact.datasetVersion,
     assets: records,
@@ -231,11 +234,14 @@ export function serializePresentedAssets(
   const assets = stableSerialize(catalog);
   const serializedDiagnostics = stableSerialize(diagnostics);
   const manifest: PresentedAssetManifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     datasetId: result.artifact.datasetId,
     datasetVersion: result.artifact.datasetVersion,
     artifactSha256: sha256(stableSerialize(result.artifact)),
     generator: "@dredmorpedia/data-pipeline@0.0.0",
+    uiAssetIds: result.presentedAssetInputs
+      .filter((input) => input.kind === "ui-icon")
+      .map((input) => input.entityId as PresentedUiAssetId),
     diagnostics: diagnosticCounts(diagnostics),
     outputs: {
       assets: {

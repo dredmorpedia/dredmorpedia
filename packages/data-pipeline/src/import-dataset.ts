@@ -275,6 +275,7 @@ function collectPresentedAssetInputs(
   monsterAppearanceSources: Readonly<Record<string, MonsterAppearanceSources>>,
 ): PresentedAssetInput[] {
   return [
+    ...collectUiAssetInputs(resolvedSources, inputSnapshots),
     ...collectIconAssetInputs(
       entities.items,
       "item-icon",
@@ -309,6 +310,30 @@ function collectPresentedAssetInputs(
     (left, right) =>
       compareCodeUnits(left.kind, right.kind) ||
       compareCodeUnits(left.entityId, right.entityId),
+  );
+}
+
+function collectUiAssetInputs(
+  resolvedSources: readonly ResolvedSource[],
+  inputSnapshots: InputSnapshots,
+): PresentedAssetInput[] {
+  const assets = new Map<string, PresentedAssetInput>();
+  for (const resolvedSource of resolvedSources) {
+    for (const asset of resolvedSource.source.presentedAssets ?? []) {
+      const displayPath = toPosixPath(
+        `${resolvedSource.displayPath}/${asset.path}`,
+      );
+      assets.set(asset.id, {
+        kind: "ui-icon",
+        entityId: asset.id,
+        sourceId: resolvedSource.source.id,
+        sourcePath: asset.path,
+        snapshot: inputSnapshots.get(displayPath) ?? null,
+      });
+    }
+  }
+  return [...assets.values()].sort((left, right) =>
+    compareCodeUnits(left.entityId, right.entityId),
   );
 }
 
@@ -1653,6 +1678,18 @@ export function importDataset(
         compareCodeUnits(left.path, right.path) ||
         compareCodeUnits(left.kind, right.kind),
     );
+
+    for (const asset of [...(source.presentedAssets ?? [])].sort(
+      (left, right) =>
+        compareCodeUnits(left.id, right.id) ||
+        compareCodeUnits(left.path, right.path),
+    )) {
+      const absolutePath = resolveExistingWithin(sourceRoot, asset.path);
+      registerInput(
+        absolutePath,
+        toPosixPath(`${sourceDisplayRoot}/${asset.path}`),
+      );
+    }
 
     for (const file of files) {
       const absolutePath = resolveExistingWithin(sourceRoot, file.path);

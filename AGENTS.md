@@ -34,10 +34,12 @@ Read these files before making a substantial change:
   schema/query derivation; do not restore presentation whitespace by accident.
 - The incremental local-asset slices copy normalized item, skill, ability, and
   root spell PNG icons plus the selected first monster idle frame used by their
-  implemented detail pages from those captured snapshots into the ignored
-  managed web asset directory. The schema-1 typed catalog, schema-2 manifest,
-  diagnostics, content-addressed files, and exact artifact checksum must match
-  the active generated dataset before the web renders an icon.
+  implemented detail pages, plus the manifest-declared gold and filled/empty
+  quality interface icons used by the item catalogue, from those captured
+  snapshots into the ignored managed web asset directory. The schema-2 typed
+  catalog, schema-3 manifest, diagnostics, content-addressed files, declared UI
+  asset IDs, and exact artifact checksum must match the active generated
+  dataset before the web renders an icon.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -171,8 +173,13 @@ Read these files before making a substantial change:
   side-by-side review found that generic Browse and advanced Search did not
   preserve enough direct, image-led discovery. The first correction adds core
   encyclopedia navigation, a separate Tools directory, and a bounded
-  category-first Items catalogue using the already verified item icons. The
-  next experience slices are Crafts and Encrusts. The preserved Meta view's
+  category-first Items catalogue using verified item icons. Its owner-reviewed
+  polish is complete with compact/expanded category controls, preserved game
+  order, optional static display views, game-order representatives, smaller
+  expansion markers, and manifest-declared gold/quality imagery. Stat imagery
+  remains separately gated on a verified official mapping. Crafts are next,
+  followed by Encrusts; Craft cards must be reusable by accessible
+  hover/focus/tap recipe previews. The preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and
   implemented under its exact legacy-facing name. It ranks the top ten monsters
   from archetype levels plus crushing, slashing, and blasting modifiers. Do not
@@ -252,6 +259,8 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm install --frozen-lockfile` — install the pinned workspace.
 - `pnpm generate:check` — regenerate the synthetic dataset and presented-asset set twice and prove byte-identical output.
 - `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic dataset and presented-asset fallback set, then start the web application on `http://localhost:3001/`.
+- `pnpm dev:stop` — stop whichever local process is listening on the modern development port 3001; it is safe to repeat when the port is already free.
+- `pnpm dev:legacy` — serve the preserved application on `http://localhost:3002/` with a read-only virtual overlay from the ignored schema-2 official manifest; missing official inputs fail instead of rendering an empty reference site.
 - `pnpm migrate:official-manifest` — idempotently preserve the four ignored game sources, migrate reviewed schema-2 game/build provenance when needed, and add the tracked versioned Dredmorpedia stat reference.
 - `pnpm dev:official` — regenerate the ignored official dataset plus referenced presented icons with a zero-error dataset gate and start the same local application against them.
 - `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced presented icons with a zero-error dataset gate, without starting the web application.

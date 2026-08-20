@@ -34,7 +34,9 @@ test.describe("static browse without JavaScript", () => {
     const categories = page.getByRole("navigation", {
       name: "Item categories",
     });
-    const swords = categories.getByRole("link", { name: /Sword weapon/ });
+    const swords = categories.getByRole("link", {
+      name: /Sword weapon, 1 item/,
+    });
     await expect(swords).toHaveAttribute("aria-current", "page");
     await expect(swords).toHaveAttribute(
       "href",
@@ -134,6 +136,69 @@ test.describe("static browse without JavaScript", () => {
       ),
     ).toBe(true);
   });
+});
+
+test("configures and persists the item catalogue display accessibly", async ({
+  page,
+}) => {
+  await page.goto("/items/");
+  const categories = page.getByRole("navigation", { name: "Item categories" });
+  await expect(categories).toHaveAttribute("data-layout", "compact");
+  await expect(categories.locator(":scope > section")).toHaveCount(0);
+  await expect(categories.locator(":scope > ul")).toHaveCount(1);
+  await expect(
+    categories.getByRole("link", { name: /Sword weapon, 1 item/ }),
+  ).toHaveAttribute("title", /represented by Clockwork Blade/);
+  await expect(page.getByLabel("Source: Synthetic Override")).toHaveText("SO");
+  await expect(page.getByLabel("Quality 3 out of 10")).toBeVisible();
+
+  await page.getByRole("button", { name: "Detailed" }).click();
+  await expect(categories).toHaveAttribute("data-layout", "expanded");
+  await expect(categories.locator(":scope > ul")).toHaveCount(0);
+  await expect(categories.locator("h2", { hasText: "Weapons" })).toBeVisible();
+
+  const valueIcon = page.locator(".item-price-icon").first();
+  await expect(valueIcon).toBeVisible();
+  expect((await valueIcon.boundingBox())?.width).toBeGreaterThanOrEqual(20);
+  expect(
+    await page
+      .locator(".item-quality-stars")
+      .first()
+      .evaluate((element) => getComputedStyle(element).backgroundColor),
+  ).not.toBe("rgba(0, 0, 0, 0)");
+
+  const trigger = page.getByRole("button", { name: "Display settings" });
+  await trigger.focus();
+  await trigger.press("Enter");
+  const drawer = page.getByRole("dialog", { name: "Item display settings" });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("radio", { name: /Name \(A–Z\)/ }).check();
+  await drawer.getByRole("radio", { name: /All in this category/ }).check();
+  await drawer.getByRole("button", { name: "Apply settings" }).click();
+
+  await expect(page).toHaveURL(
+    /\/items\/category\/weapon-sword\/view\/name\/all\/1\/$/,
+  );
+  await expect(categories).toHaveAttribute("data-layout", "expanded");
+  await expect(
+    page.getByText("Showing 1–1 of 1 item in Sword weapon"),
+  ).toBeVisible();
+
+  await page.reload();
+  await expect(
+    page.getByRole("navigation", { name: "Item categories" }),
+  ).toHaveAttribute("data-layout", "expanded");
+  await page.getByRole("button", { name: "Display settings" }).click();
+  await expect(page.getByRole("radio", { name: /Name \(A–Z\)/ })).toBeChecked();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Display settings", exact: true }),
+  ).toBeFocused();
+
+  const accessibility = await new AxeBuilder({ page })
+    .include("main")
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
 });
 
 test("separates direct encyclopedia navigation from optional tools", async ({

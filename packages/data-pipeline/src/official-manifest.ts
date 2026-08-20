@@ -7,6 +7,12 @@ export const officialStatReferenceVersion = "1.0.0";
 
 const officialDatasetId = "dredmor-1.1.5-public-beta-steam-build-22934623";
 
+const officialPresentedAssets = [
+  { id: "gold", path: "items/cash1.png" },
+  { id: "quality-empty", path: "ui/quality_star_empty.png" },
+  { id: "quality-full", path: "ui/quality_star_full.png" },
+] as const;
+
 interface ExpectedOfficialSource {
   id: string;
   kind: "base" | "expansion";
@@ -133,6 +139,58 @@ function assertStatReferenceSource(manifest: SourceManifest): void {
   }
 }
 
+function presentedAssetKey(asset: { id: string; path: string }): string {
+  return `${asset.id}:${asset.path}`;
+}
+
+function assertOfficialPresentedAssets(manifest: SourceManifest): void {
+  const base = manifest.sources.find(({ id }) => id === "official-base");
+  const expected = new Set(officialPresentedAssets.map(presentedAssetKey));
+  if (
+    !base ||
+    base.presentedAssets?.length !== expected.size ||
+    base.presentedAssets.some(
+      (asset) => !expected.has(presentedAssetKey(asset)),
+    )
+  ) {
+    throw new Error(
+      "The canonical official manifest has missing or unexpected interface presentation assets.",
+    );
+  }
+  if (
+    manifest.sources.some(
+      (source) =>
+        source.id !== "official-base" &&
+        (source.presentedAssets?.length ?? 0) > 0,
+    )
+  ) {
+    throw new Error(
+      "The canonical official manifest declares interface presentation assets outside the base-game source.",
+    );
+  }
+}
+
+function addOfficialPresentedAssets(manifest: SourceManifest): SourceManifest {
+  const base = manifest.sources.find(({ id }) => id === "official-base");
+  if (!base) {
+    throw new Error(
+      "The canonical official manifest is missing its base source.",
+    );
+  }
+  if ((base.presentedAssets?.length ?? 0) > 0) {
+    assertOfficialPresentedAssets(manifest);
+    return manifest;
+  }
+  return parseSourceManifestV2({
+    ...manifest,
+    sources: manifest.sources.map((source) =>
+      source.id === base.id
+        ? { ...source, presentedAssets: officialPresentedAssets }
+        : source,
+    ),
+  });
+}
+
 function addStatReferenceSource(manifest: SourceManifest): SourceManifest {
   const existing = manifest.sources.find(
     ({ id }) => id === officialStatReferenceSource.id,
@@ -172,7 +230,7 @@ export function migrateOfficialSourceManifest(input: unknown): SourceManifest {
     sourceVersion: officialDatasetVersion,
   });
   assertOfficialGameScope(manifest);
-  return addStatReferenceSource(manifest);
+  return addStatReferenceSource(addOfficialPresentedAssets(manifest));
 }
 
 export function upgradeCurrentOfficialSourceManifest(
@@ -190,7 +248,7 @@ export function upgradeCurrentOfficialSourceManifest(
       "The schema-2 official manifest has version metadata that differs from the reviewed canonical baseline; update it intentionally instead of overwriting it through migration.",
     );
   }
-  return addStatReferenceSource(manifest);
+  return addStatReferenceSource(addOfficialPresentedAssets(manifest));
 }
 
 export function parseCurrentOfficialSourceManifest(
@@ -199,6 +257,7 @@ export function parseCurrentOfficialSourceManifest(
   const manifest = parseSourceManifestV2(input);
   assertOfficialGameScope(manifest);
   assertStatReferenceSource(manifest);
+  assertOfficialPresentedAssets(manifest);
   if (
     manifest.datasetVersion !== officialDatasetVersion ||
     manifest.sources

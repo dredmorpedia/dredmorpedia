@@ -31,6 +31,11 @@ Repository tools and contributors must not:
 
 Any future importer must accept an explicit source root, validate that reads remain inside it, reject traversal and unsafe links, and write only to a separate configured output directory.
 
+The local legacy comparison server may expose files from the four roots in the
+ignored official manifest through historical request paths. This is a
+localhost-only, read-only virtual overlay: it validates containment, does not
+copy or change installation files, and does not make those inputs publishable.
+
 The implemented source manifest is a trusted local/operator configuration
 boundary. It may name an absolute external source root, but it is not safe to
 accept from an untrusted upload or remote request. Every database path declared
@@ -92,13 +97,17 @@ or exact named palettes are applied during deterministic generation. Complete
 animations and unrelated sprite resources remain out of scope.
 
 The implemented icon slices follow this boundary for item, skill, ability,
-spell, and monster detail pages. They copy referenced PNG item, skill, ability,
-and root spell icons and derive only the selected first monster idle frame from
+spell, and monster detail pages plus three fixed item-catalogue interface
+features. They copy referenced PNG item, skill, ability, and root spell icons,
+derive only the selected first monster idle frame, and copy only the
+manifest-declared gold, filled-quality-star, and empty-quality-star icons from
 the importer's first-registration byte snapshots into the managed, gitignored
-web asset directory. The generated catalog uses typed entity mappings,
-content-addressed filenames, complete bounded PNG validation, exact active
-artifact identity, and fallback diagnostics; the web verifies the complete
-set before rendering an icon.
+web asset directory. The schema-2 generated catalog uses typed entity and UI
+icon mappings, content-addressed filenames, complete bounded PNG validation,
+exact active artifact identity, and fallback diagnostics. Its schema-3
+manifest additionally declares the complete expected UI asset ID set so the
+web can reject a missing, extra, stale, or checksum-mismatched interface icon
+before rendering the asset set.
 Missing, unsupported, or invalid images use a deliberate page fallback. Buff-
 and effect-local spell icons remain out of scope because no implemented page
 presents them as entity art. Other entity art and monster animation frames

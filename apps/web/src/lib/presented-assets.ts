@@ -4,11 +4,13 @@ import path from "node:path";
 
 import {
   presentedAssetKinds,
+  presentedUiAssetIds,
   type DatasetArtifact,
   type PresentedAssetCatalog,
   type PresentedAssetDiagnostic,
   type PresentedAssetKind,
   type PresentedAssetManifest,
+  type PresentedUiAssetId,
 } from "@dredmorpedia/domain";
 import { z } from "zod";
 
@@ -33,7 +35,7 @@ const assetRecordSchema = z
   .strict();
 const assetCatalogSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
     assets: z.array(assetRecordSchema),
@@ -52,11 +54,12 @@ const assetDiagnosticSchema = z
   .strict();
 const assetManifestSchema = z
   .object({
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     datasetId: z.string().min(1),
     datasetVersion: z.string().min(1),
     artifactSha256: sha256Schema,
     generator: z.string().min(1),
+    uiAssetIds: z.array(z.enum(presentedUiAssetIds)),
     diagnostics: z
       .object({
         info: nonnegativeInteger,
@@ -249,6 +252,7 @@ function loadConfiguredAssets(
     ...artifact.entities.monsters
       .filter((monster) => monster.iconPath !== null)
       .map((monster) => assetKey("monster-icon", monster.id)),
+    ...manifest.uiAssetIds.map((iconId) => assetKey("ui-icon", iconId)),
   ]);
   const sourceIds = new Set(artifact.sources.map((source) => source.id));
   for (const diagnostic of diagnostics) {
@@ -392,4 +396,12 @@ export function monsterIconUrl(
   artifactSha256: string,
 ): string | null {
   return presentedAssetUrl("monster-icon", monsterId, artifact, artifactSha256);
+}
+
+export function uiIconUrl(
+  iconId: PresentedUiAssetId,
+  artifact: DatasetArtifact,
+  artifactSha256: string,
+): string | null {
+  return presentedAssetUrl("ui-icon", iconId, artifact, artifactSha256);
 }

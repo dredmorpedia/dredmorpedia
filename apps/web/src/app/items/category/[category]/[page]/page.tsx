@@ -16,12 +16,15 @@ interface ItemCategoryRouteProps {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return createItemCatalogueCategories(loadArtifact().entities.items).flatMap(
-    (category) =>
-      Array.from({ length: category.pageCount }, (_, index) => ({
-        category: category.segment,
-        page: String(index + 1),
-      })),
+  const artifact = loadArtifact();
+  return createItemCatalogueCategories(
+    artifact.entities.items,
+    artifact.sources,
+  ).flatMap((category) =>
+    Array.from({ length: category.pageCount }, (_, index) => ({
+      category: category.segment,
+      page: String(index + 1),
+    })),
   );
 }
 
@@ -29,13 +32,19 @@ export async function generateMetadata({
   params,
 }: ItemCategoryRouteProps): Promise<Metadata> {
   const { category: segment, page: pageParam } = await params;
-  const items = loadArtifact().entities.items;
+  const artifact = loadArtifact();
+  const items = artifact.entities.items;
   const category = itemCatalogueCategoryForSegment(
-    createItemCatalogueCategories(items),
+    createItemCatalogueCategories(items, artifact.sources),
     segment,
   );
   const page = Number(pageParam);
-  if (!category || !paginateItemCatalogue(items, category, page)) {
+  if (
+    !category ||
+    !paginateItemCatalogue(items, category, page, {
+      sources: artifact.sources,
+    })
+  ) {
     return {};
   }
   return {
