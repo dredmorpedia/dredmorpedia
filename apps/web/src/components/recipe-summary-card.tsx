@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Hammer } from "lucide-react";
 
 import type { SourceMarker } from "@/lib/source-markers";
 
@@ -20,6 +21,7 @@ export interface RecipeSummaryData {
   outputs: RecipeSummaryReference[];
   slug: string;
   sourceMarker: SourceMarker | null;
+  toolIconUrl: string | null;
   toolLabel: string;
 }
 
@@ -39,15 +41,19 @@ function ReferenceArt({
 }
 
 function ReferenceList({
+  limit,
   references,
   output,
 }: {
+  limit?: number | undefined;
   references: readonly RecipeSummaryReference[];
   output?: boolean;
 }) {
+  const visibleReferences = limit ? references.slice(0, limit) : references;
+  const hiddenCount = references.length - visibleReferences.length;
   return (
     <ul className="recipe-summary-reference-list">
-      {references.map((reference, index) => (
+      {visibleReferences.map((reference, index) => (
         <li
           key={`${reference.key}:${reference.skillLevel ?? "input"}:${index}`}
         >
@@ -80,25 +86,55 @@ function ReferenceList({
           </span>
         </li>
       ))}
+      {hiddenCount > 0 ? (
+        <li className="recipe-summary-reference-overflow">
+          +{hiddenCount} more {output ? "output tier" : "ingredient"}
+          {hiddenCount === 1 ? "" : "s"} on the recipe page
+        </li>
+      ) : null}
     </ul>
+  );
+}
+
+function RecipeTool({ summary }: { summary: RecipeSummaryData }) {
+  return (
+    <span
+      aria-label={`Crafting tool: ${summary.toolLabel}`}
+      className="recipe-summary-tool-marker"
+      role="img"
+      title={summary.toolLabel}
+    >
+      {summary.toolIconUrl ? (
+        <>
+          {/* The labelled wrapper names this decorative toolkit image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" height={40} src={summary.toolIconUrl} width={40} />
+        </>
+      ) : (
+        <Hammer aria-hidden="true" size={22} strokeWidth={1.8} />
+      )}
+    </span>
   );
 }
 
 export function RecipeSummaryCard({
   showTool = true,
   summary,
+  variant = "full",
 }: {
   showTool?: boolean;
   summary: RecipeSummaryData;
+  variant?: "full" | "preview";
 }) {
+  const referenceLimit = variant === "preview" ? 4 : undefined;
   return (
     <article
       aria-label={`${summary.name} summary`}
       className="recipe-summary-card"
+      data-variant={variant}
     >
       <header className="recipe-summary-header">
         <div>
-          {showTool ? <p className="eyebrow">{summary.toolLabel}</p> : null}
           <h3 className="recipe-summary-title">
             <Link className="entity-link" href={`/recipes/${summary.slug}`}>
               {summary.name}
@@ -128,14 +164,26 @@ export function RecipeSummaryCard({
       <div className="recipe-summary-flow">
         <section aria-label="Ingredients">
           <h4>Ingredients</h4>
-          <ReferenceList references={summary.inputs} />
+          <ReferenceList limit={referenceLimit} references={summary.inputs} />
         </section>
-        <span aria-hidden="true" className="recipe-summary-arrow">
-          →
-        </span>
+        <div className="recipe-summary-method">
+          <span aria-hidden="true" className="recipe-summary-arrow">
+            →
+          </span>
+          {showTool ? <RecipeTool summary={summary} /> : null}
+          {showTool ? (
+            <span aria-hidden="true" className="recipe-summary-arrow">
+              →
+            </span>
+          ) : null}
+        </div>
         <section aria-label="Outputs by source level">
           <h4>Outputs by source level</h4>
-          <ReferenceList output references={summary.outputs} />
+          <ReferenceList
+            limit={referenceLimit}
+            output
+            references={summary.outputs}
+          />
         </section>
       </div>
 

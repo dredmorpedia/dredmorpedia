@@ -11,8 +11,44 @@ import type {
   RecipeSummaryData,
   RecipeSummaryReference,
 } from "@/components/recipe-summary-card";
+import { createCraftCatalogueTools } from "@/lib/craft-catalogue";
 import { itemIconUrl } from "@/lib/presented-assets";
 import { sourceMarker } from "@/lib/source-markers";
+
+export interface RecipeSummaryTool {
+  iconUrl: string | null;
+  label: string;
+}
+
+export function createRecipeSummaryToolMap({
+  artifact,
+  artifactSha256,
+  itemsById,
+}: {
+  artifact: DatasetArtifact;
+  artifactSha256: string;
+  itemsById: ReadonlyMap<string, Item>;
+}): ReadonlyMap<string, RecipeSummaryTool> {
+  return new Map(
+    createCraftCatalogueTools(
+      artifact.entities.recipes,
+      artifact.entities.items,
+    ).map((tool) => {
+      const toolkit = tool.representativeItemId
+        ? itemsById.get(tool.representativeItemId)
+        : undefined;
+      return [
+        tool.tag,
+        {
+          iconUrl: toolkit
+            ? itemIconUrl(toolkit.id, artifact, artifactSha256)
+            : null,
+          label: tool.label,
+        },
+      ];
+    }),
+  );
+}
 
 function summaryReference(
   reference: ItemReference | RecipeOutput,
@@ -33,6 +69,7 @@ function summaryReference(
 
 export function createRecipeSummaryData({
   recipe,
+  toolIconUrl,
   toolLabel,
   itemsById,
   artifact,
@@ -40,6 +77,7 @@ export function createRecipeSummaryData({
   source,
 }: {
   recipe: Recipe;
+  toolIconUrl: string | null;
   toolLabel: string;
   itemsById: ReadonlyMap<string, Item>;
   artifact: DatasetArtifact;
@@ -59,6 +97,7 @@ export function createRecipeSummaryData({
     ),
     slug: recipe.slug,
     sourceMarker: sourceMarker(source),
+    toolIconUrl,
     toolLabel,
   };
 }

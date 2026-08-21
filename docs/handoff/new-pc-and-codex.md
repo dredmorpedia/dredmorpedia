@@ -143,9 +143,12 @@ Continue toward local parity without assuming permission to publish official con
    foundation has all 374 canonical recipes across seven familiar tool routes,
    verified toolkit art, compact/detailed navigation, persisted display
    settings, a 36-recipe default plus 24/All views, and reusable summary cards.
-   The selected-tool catalogue hides redundant tool identity and the derived
-   maximum-level footer. Accessible previews from item relationships are next,
-   then Encrusts. Hidden/expansion iconography and bounded build planning are
+   Items and selected-tool Craft routes share a compact sticky active-group
+   context bar. Selected-tool cards hide the now-persistent tool identity and
+   the derived maximum-level footer. Whole-relationship mouse hover plus an icon-only
+   focus/tap control now expose those cards while keeping direct links visible;
+   toolkit art sits between ingredients and outputs in the preview. Encrusts is
+   next. Hidden/expansion iconography and bounded build planning are
    postponed. See
    `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 3. Extend the local asset importer only when another implemented page needs
@@ -558,7 +561,7 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
   to direct, image-led parity catalogues. The completed Items slice has its
   owner-reviewed display polish, and the Craft catalogue foundation now groups
   all canonical recipes by familiar tool. Accessible item-relationship recipe
-  previews are next, then Encrusts. A bounded build-planning model is
+  previews are complete; Encrusts is next. A bounded build-planning model is
   postponed. Extra
   technical-detail presentation remains a page-specific polish decision.
 - Technical feasibility of live progress tracking, deliberately deferred.

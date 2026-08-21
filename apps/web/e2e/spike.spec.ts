@@ -55,6 +55,15 @@ test.describe("static browse without JavaScript", () => {
     await materials.press("Enter");
 
     await expect(page).toHaveURL(/\/items\/category\/material\/1\/$/);
+    const itemContext = page.locator(".catalogue-context-bar");
+    await expect(
+      itemContext.getByRole("heading", { level: 2, name: "Material" }),
+    ).toBeVisible();
+    expect(
+      await itemContext.evaluate(
+        (element) => getComputedStyle(element).position,
+      ),
+    ).toBe("sticky");
     const brassIngot = page.locator(".item-summary-card");
     await expect(
       brassIngot.getByRole("heading", { level: 3, name: "Brass Ingot" }),
@@ -108,6 +117,18 @@ test.describe("static browse without JavaScript", () => {
     await smithing.press("Enter");
 
     await expect(page).toHaveURL(/\/crafts\/tool\/smithing\/$/);
+    const craftContext = page.locator(".catalogue-context-bar");
+    await expect(
+      craftContext.getByRole("heading", {
+        level: 2,
+        name: "Training Smithing Kit",
+      }),
+    ).toBeVisible();
+    expect(
+      await craftContext.evaluate(
+        (element) => getComputedStyle(element).position,
+      ),
+    ).toBe("sticky");
     const recipe = page.locator(".recipe-summary-card");
     await expect(
       recipe.getByRole("heading", {
@@ -124,6 +145,11 @@ test.describe("static browse without JavaScript", () => {
     await expect(recipe.getByText("Source level 2")).toBeVisible();
     await expect(recipe.getByText("Source level 4")).toBeVisible();
     await expect(recipe.getByText("Training Smithing Kit")).toHaveCount(0);
+    await expect(
+      recipe.getByRole("img", {
+        name: "Crafting tool: Training Smithing Kit",
+      }),
+    ).toHaveCount(0);
     await expect(recipe.getByText("Highest source skill")).toHaveCount(0);
     expect(
       await page.evaluate(
@@ -253,6 +279,74 @@ test("configures and persists the item catalogue display accessibly", async ({
     .include("main")
     .analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test("previews a Used to craft recipe without replacing direct navigation", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/items/category/material/1/");
+  const itemCard = page.locator(".item-summary-card");
+  await expect(
+    itemCard.getByRole("link", { name: "Clockwork Blade", exact: true }),
+  ).toHaveAttribute("href", "/items/clockwork-blade/");
+
+  const trigger = itemCard.getByRole("button", {
+    name: "Preview Clockwork Blade Recipe",
+  });
+  const hoverTarget = itemCard.locator(".recipe-preview-target");
+  const preview = page.getByRole("dialog", {
+    name: "Recipe preview: Clockwork Blade Recipe",
+  });
+  await expect(trigger).toHaveText("");
+  await expect(trigger).toHaveAttribute(
+    "title",
+    "Preview Clockwork Blade Recipe",
+  );
+
+  await trigger.focus();
+  await expect(preview).toBeVisible();
+  await expect(
+    preview.getByRole("link", {
+      name: "Clockwork Blade Recipe",
+      exact: true,
+    }),
+  ).toBeFocused();
+  const tool = preview.getByRole("img", {
+    name: "Crafting tool: Training Smithing Kit",
+  });
+  await expect(tool).toBeVisible();
+  await expect(tool).toHaveAttribute("title", "Training Smithing Kit");
+  await expect(preview.getByText("Training Smithing Kit")).toHaveCount(0);
+  await expect(preview.locator(".recipe-summary-method > *")).toHaveCount(3);
+  await expect(preview.getByText("2 × Brass Ingot")).toBeVisible();
+  await expect(preview.getByText("Missing Cog", { exact: true })).toBeVisible();
+  await expect(preview.getByText("1 × Missing Cog")).toHaveCount(0);
+  await expect(preview.getByText("Source level 4")).toBeVisible();
+  await expect(
+    preview.getByRole("link", { name: "Full recipe details" }),
+  ).toHaveAttribute("href", "/recipes/clockwork-blade-recipe/");
+
+  const accessibility = await new AxeBuilder({ page })
+    .include(".recipe-preview-popup")
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
+
+  await page.keyboard.press("Escape");
+  await expect(preview).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    await trigger.tap();
+  } else {
+    await hoverTarget.hover();
+  }
+  await expect(preview).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(preview).toBeHidden();
+
+  await page.keyboard.press("Tab");
+  await trigger.focus();
+  await expect(preview).toBeVisible();
 });
 
 test("configures and persists the Craft catalogue display accessibly", async ({

@@ -1,7 +1,7 @@
 # Legacy experience parity review
 
 Date: 2026-08-15
-Status: active; Craft catalogue correction implemented
+Status: active; Craft catalogue correction and relationship previews implemented
 
 ## Why parity was reopened
 
@@ -86,8 +86,7 @@ The correction is implemented:
    project-authored stat reference.
 8. Category representative images use native titles for supplementary item
    identification. Adjacent visible names remain the accessible source of
-   truth; rich recipe previews remain assigned to a maintained
-   tooltip/popover primitive during Craft parity.
+   truth; recipe previews use the maintained popover described below.
 
 The preserved order is evidenced directly in `legacy/js/item.js` and
 `legacy/js/helper.js`: categories sort by type ID, items use `SortBySource`
@@ -114,8 +113,9 @@ The Craft catalogue foundation is implemented at `/crafts/` and
   neutral source levels, hidden status, source marker, and a full-detail route.
   As in the preserved Craft view, unit ingredient quantities are omitted;
   exceptional input quantities and all output quantities remain explicit. The
-  card suppresses redundant tool identity when the selected catalogue already
-  establishes that context; and
+  Items and selected-tool Craft routes share a compact sticky active-group
+  context bar. The card suppresses redundant tool identity when that persistent
+  selected-tool context already establishes it; and
 - recipe detail breadcrumbs now return through the matching Craft tool route,
   while advanced Search and the crafting planner remain explicit additions.
 
@@ -129,24 +129,29 @@ functional but are not treated as finished iconography. A later card-polish
 decision may replace them with project-owned or permission-cleared icons; do
 not assume the game supplies suitable assets.
 
-The card is intentionally ordinary page content in this foundation. The next
-Craft task is to reuse a bounded form of it from item “Used to craft”
-relationships through a maintained accessible hover/focus/tap popover. Its
-essential relationship labels and links must remain visible without opening a
-preview. Those cross-context previews should use the verified toolkit icon to
-identify the tool; cards on an already selected tool page should continue to
-suppress that redundant identity.
+Item catalogue and item-detail “Used to craft” relationships now reuse a
+bounded form of the same card through a maintained Base UI popover. The
+crafted-item or recipe link remains visible and usable without opening the
+preview. Fine-pointer hover applies to the whole relationship chip; a compact
+icon-only button remains the explicit keyboard and touch control with a full
+accessible name and native title. Keyboard focus enters the interactive card,
+and Escape closes it and returns focus without reopening. The bounded popup
+does not create an internal scrollbar. Each side is limited to four references
+with an explicit overflow message. Cross-context cards place the verified
+toolkit icon between their ingredient and output lists when the active asset
+set provides it; cards on an already selected tool page continue to suppress
+that redundant identity because its sticky context bar remains visible while
+scrolling.
 
 The remaining parity order is:
 
-1. accessible recipe previews from item relationships;
-2. Encrusts grouped by toolkit, with ingredient, applicability, instability,
+1. Encrusts grouped by toolkit, with ingredient, applicability, instability,
    and output-relevant summaries;
-3. Skills and abilities as image-led progression summaries;
-4. Spells with an accessible alphabetical index and effect-focused summaries;
-5. Monsters grouped by dungeon depth/special classification with existing art;
-6. Stats and templates grouped by their familiar semantic families; and
-7. detail-page progressive disclosure after the catalogue surfaces reveal
+2. Skills and abilities as image-led progression summaries;
+3. Spells with an accessible alphabetical index and effect-focused summaries;
+4. Monsters grouped by dungeon depth/special classification with existing art;
+5. Stats and templates grouped by their familiar semantic families; and
+6. detail-page progressive disclosure after the catalogue surfaces reveal
    which technical sections distract from common player questions.
 
 Search and the generic exhaustive Browse directory remain available throughout
@@ -159,10 +164,11 @@ this work as advanced and completeness-oriented fallbacks.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 66 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 68 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
-  the display drawer, local preference restoration, and representative axe
-  scans.
+  the display drawer, local preference restoration, whole-relationship hover,
+  icon-only focus/tap recipe controls, Escape focus restoration, and
+  representative axe scans.
 - Browser inspection against the ignored official dataset confirms 31 visible
   item categories with verified art; Sword begins with Crude Iron Sword, Rough
   Iron Sword, Iron Sword, and Fine Iron Sword in game order. Its opt-in value
@@ -182,6 +188,10 @@ this work as advanced and completeness-oriented fallbacks.
   order. Its JavaScript-disabled Playwright flow passes on desktop and mobile,
   including keyboard tool navigation, unresolved ingredients, exact output
   tiers, and responsive overflow.
+- The official static export verifies the relationship preview's toolkit and
+  item art. Playwright preserves the adjacent direct item link, recipe link,
+  per-output source level, full-detail route, centered transformation icon, and
+  popup without an internal scrollbar.
 - `pnpm build:official` also verifies all 374 canonical recipes across seven
   Craft tool routes and 113 optional static view routes with the unchanged
   1,793-mapping asset set, zero fallbacks, and a complete 3,576-page local

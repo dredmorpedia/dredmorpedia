@@ -182,10 +182,16 @@ Read these files before making a substantial change:
   familiar tool routes, existing verified toolkit art, compact/detailed tool
   navigation, persisted source/name/lowest-output-level ordering, a bounded
   36-recipe default plus 24/All views, and reusable ingredient/output summary
-  cards. The selected-tool catalogue suppresses redundant tool identity and
-  the derived maximum-level footer. Reuse a bounded card from item relationships
-  through accessible hover/focus/tap previews next, then continue with
-  Encrusts. Keep Hidden and expansion iconography for later card polish. The
+  cards. Items and selected-tool Craft routes share a compact sticky active-
+  category/tool context bar; Craft cards suppress the now-persistent tool
+  identity and the derived maximum-level footer. Item catalogue and detail relationships
+  reuse a bounded card through whole-relationship mouse hover and an icon-only
+  focus/tap control while preserving their visible primary links. The preview
+  places verified toolkit art in the transformation between ingredients and
+  outputs when available,
+  has no internal scrollbar, restores focus on Escape, and remains bounded to
+  four references per side. Continue with Encrusts next. Keep Hidden and
+  expansion iconography for later card polish. The
   preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and
   implemented under its exact legacy-facing name. It ranks the top ten monsters

@@ -17,6 +17,7 @@ import {
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
+import { RecipePreview } from "@/components/recipe-preview";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import {
   loadArtifact,
@@ -25,6 +26,10 @@ import {
 } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
 import { itemIconUrl } from "@/lib/presented-assets";
+import {
+  createRecipeSummaryData,
+  createRecipeSummaryToolMap,
+} from "@/lib/recipe-summary";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
@@ -73,6 +78,7 @@ export default async function ItemPage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
+  const artifactSha256 = loadArtifactSha256();
   const item = artifact.entities.items.find((entry) =>
     matchesEntityRoute(entry, slug),
   );
@@ -127,8 +133,19 @@ export default async function ItemPage({
   const spellsById = new Map(
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
+  const itemsById = new Map(
+    artifact.entities.items.map((candidate) => [candidate.id, candidate]),
+  );
+  const sourcesById = new Map(
+    artifact.sources.map((source) => [source.id, source]),
+  );
+  const recipeSummaryTools = createRecipeSummaryToolMap({
+    artifact,
+    artifactSha256,
+    itemsById,
+  });
   const isAlias = slug !== item.slug;
-  const iconUrl = itemIconUrl(item.id, artifact, loadArtifactSha256());
+  const iconUrl = itemIconUrl(item.id, artifact, artifactSha256);
 
   return (
     <article className="detail-page">
@@ -864,17 +881,34 @@ export default async function ItemPage({
                     Used to craft
                   </h3>
                   <ul className="relation-list">
-                    {usedToCraft.map(({ recipe, inputAmount }) => (
-                      <li key={recipe.id}>
-                        <Link
-                          className="entity-link font-semibold"
-                          href={`/recipes/${recipe.slug}`}
-                        >
-                          {recipe.name}
-                        </Link>
-                        <span>Uses {inputAmount}</span>
-                      </li>
-                    ))}
+                    {usedToCraft.map(({ recipe, inputAmount }) => {
+                      const tool = recipeSummaryTools.get(recipe.tool);
+                      return (
+                        <li key={recipe.id}>
+                          <RecipePreview
+                            summary={createRecipeSummaryData({
+                              artifact,
+                              artifactSha256,
+                              itemsById,
+                              recipe,
+                              source: sourcesById.get(
+                                recipe.provenance.sourceId,
+                              ),
+                              toolIconUrl: tool?.iconUrl ?? null,
+                              toolLabel: tool?.label ?? recipe.tool,
+                            })}
+                          >
+                            <Link
+                              className="entity-link font-semibold"
+                              href={`/recipes/${recipe.slug}`}
+                            >
+                              {recipe.name}
+                            </Link>
+                          </RecipePreview>
+                          <span>Uses {inputAmount}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               ) : null}

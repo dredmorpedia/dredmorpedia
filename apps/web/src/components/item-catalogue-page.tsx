@@ -8,6 +8,7 @@ import {
   type DatasetArtifact,
   type Item,
   type ItemReference,
+  type Recipe,
   type SourceSummary,
 } from "@dredmorpedia/domain";
 
@@ -15,7 +16,9 @@ import {
   ItemCatalogueControls,
   type ItemCatalogueNavigationEntry,
 } from "@/components/item-catalogue-controls";
+import { CatalogueContextBar } from "@/components/catalogue-context-bar";
 import { ItemArt } from "@/components/item-art";
+import { RecipePreview } from "@/components/recipe-preview";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
@@ -29,6 +32,11 @@ import {
   type ItemCatalogueSort,
 } from "@/lib/item-catalogue";
 import { itemIconUrl, uiIconUrl } from "@/lib/presented-assets";
+import {
+  createRecipeSummaryData,
+  createRecipeSummaryToolMap,
+  type RecipeSummaryTool,
+} from "@/lib/recipe-summary";
 import { sourceMarker } from "@/lib/source-markers";
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
@@ -165,6 +173,8 @@ function ItemSummaryCard({
   goldIconUrl,
   qualityEmptyIconUrl,
   qualityFullIconUrl,
+  recipeSummaryTools,
+  sourcesById,
 }: {
   item: Item;
   artifact: DatasetArtifact;
@@ -174,6 +184,8 @@ function ItemSummaryCard({
   goldIconUrl: string | null;
   qualityEmptyIconUrl: string | null;
   qualityFullIconUrl: string | null;
+  recipeSummaryTools: ReadonlyMap<string, RecipeSummaryTool>;
+  sourcesById: ReadonlyMap<string, SourceSummary>;
 }) {
   const recipeRelationships = itemRecipeRelationships(
     artifact.entities.recipes,
@@ -185,13 +197,13 @@ function ItemSummaryCard({
   const usedToCraft = recipeRelationships.filter(
     (relationship) => relationship.inputAmount > 0,
   );
-  const usedToCraftItems = new Map<string, Item>();
+  const usedToCraftItems = new Map<string, { item: Item; recipe: Recipe }>();
   for (const { recipe } of usedToCraft) {
     for (const output of recipe.outputs) {
       if (output.itemId && output.itemId !== item.id) {
         const outputItem = itemById.get(output.itemId);
-        if (outputItem) {
-          usedToCraftItems.set(outputItem.id, outputItem);
+        if (outputItem && !usedToCraftItems.has(outputItem.id)) {
+          usedToCraftItems.set(outputItem.id, { item: outputItem, recipe });
         }
       }
     }
@@ -346,22 +358,37 @@ function ItemSummaryCard({
           <section className="item-summary-relationship">
             <h4>Used to craft</h4>
             <ul className="catalogue-chip-list">
-              {visibleCraftedItems.map((craftedItem) => (
-                <li key={craftedItem.id}>
-                  <ItemArt
-                    artifact={artifact}
-                    artifactSha256={artifactSha256}
-                    item={craftedItem}
-                    size={28}
-                  />
-                  <Link
-                    className="entity-link"
-                    href={`/items/${craftedItem.slug}`}
-                  >
-                    {craftedItem.name}
-                  </Link>
-                </li>
-              ))}
+              {visibleCraftedItems.map(({ item: craftedItem, recipe }) => {
+                const tool = recipeSummaryTools.get(recipe.tool);
+                return (
+                  <li key={craftedItem.id}>
+                    <RecipePreview
+                      summary={createRecipeSummaryData({
+                        artifact,
+                        artifactSha256,
+                        itemsById: itemById,
+                        recipe,
+                        source: sourcesById.get(recipe.provenance.sourceId),
+                        toolIconUrl: tool?.iconUrl ?? null,
+                        toolLabel: tool?.label ?? recipe.tool,
+                      })}
+                    >
+                      <ItemArt
+                        artifact={artifact}
+                        artifactSha256={artifactSha256}
+                        item={craftedItem}
+                        size={28}
+                      />
+                      <Link
+                        className="entity-link"
+                        href={`/items/${craftedItem.slug}`}
+                      >
+                        {craftedItem.name}
+                      </Link>
+                    </RecipePreview>
+                  </li>
+                );
+              })}
             </ul>
             {usedToCraftItems.size > visibleCraftedItems.length ? (
               <p className="supporting-note">
@@ -470,6 +497,11 @@ export function ItemCataloguePage({
   const sourcesById = new Map(
     artifact.sources.map((source) => [source.id, source]),
   );
+  const recipeSummaryTools = createRecipeSummaryToolMap({
+    artifact,
+    artifactSha256,
+    itemsById: itemById,
+  });
   const goldIconUrl = uiIconUrl("gold", artifact, artifactSha256);
   const qualityEmptyIconUrl = uiIconUrl(
     "quality-empty",
@@ -493,6 +525,9 @@ export function ItemCataloguePage({
         representativeName: representative?.name ?? candidate.label,
       };
     },
+  );
+  const activeCategoryEntry = navigationEntries.find(
+    (candidate) => candidate.key === category.key,
   );
   const firstRecord =
     result.total === 0 || result.pageSize === "all"
@@ -533,13 +568,14 @@ export function ItemCataloguePage({
       />
 
       <section aria-labelledby="item-category-heading">
-        <div className="item-category-heading">
-          <div>
-            <p className="eyebrow">Selected category</p>
-            <h2 id="item-category-heading" className="section-title">
-              {category.label}
-            </h2>
-          </div>
+        <CatalogueContextBar
+          headingId="item-category-heading"
+          iconTitle={activeCategoryEntry?.representativeName ?? category.label}
+          iconUrl={activeCategoryEntry?.iconUrl ?? null}
+          kindLabel="Selected category"
+          label={category.label}
+        />
+        <div className="catalogue-context-actions">
           <Link
             className="entity-link"
             href={`/search/?category=${category.key}`}
@@ -558,7 +594,9 @@ export function ItemCataloguePage({
               goldIconUrl={goldIconUrl}
               qualityEmptyIconUrl={qualityEmptyIconUrl}
               qualityFullIconUrl={qualityFullIconUrl}
+              recipeSummaryTools={recipeSummaryTools}
               source={sourcesById.get(item.provenance.sourceId)}
+              sourcesById={sourcesById}
             />
           ))}
         </ul>

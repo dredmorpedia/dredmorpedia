@@ -7,6 +7,7 @@ import {
   CraftCatalogueControls,
   type CraftCatalogueNavigationEntry,
 } from "@/components/craft-catalogue-controls";
+import { CatalogueContextBar } from "@/components/catalogue-context-bar";
 import { RecipeSummaryCard } from "@/components/recipe-summary-card";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
@@ -80,6 +81,9 @@ export function CraftCataloguePage({
       };
     },
   );
+  const activeToolIconUrl = navigationEntries.find(
+    (candidate) => candidate.tag === activeTool?.tag,
+  )?.iconUrl;
   const firstRecord =
     !result || result.total === 0 || result.pageSize === "all"
       ? result?.total === 0
@@ -125,24 +129,23 @@ export function CraftCataloguePage({
 
       {activeTool && result ? (
         <section aria-labelledby="craft-tool-heading">
-          <div className="craft-tool-heading">
-            <div>
-              <p className="eyebrow">Selected tool</p>
-              <h2 id="craft-tool-heading" className="section-title">
-                {activeTool.label}
-              </h2>
-            </div>
-            <div className="craft-tool-actions">
-              <Link
-                className="entity-link"
-                href={`/search/?kind=recipe&category=${activeTool.tag}`}
-              >
-                Refine in advanced search
-              </Link>
-              <Link className="entity-link" href="/tools/crafting-graph/">
-                Plan a crafted item
-              </Link>
-            </div>
+          <CatalogueContextBar
+            headingId="craft-tool-heading"
+            iconTitle={activeTool.label}
+            iconUrl={activeToolIconUrl ?? null}
+            kindLabel="Selected tool"
+            label={activeTool.label}
+          />
+          <div className="catalogue-context-actions">
+            <Link
+              className="entity-link"
+              href={`/search/?kind=recipe&category=${activeTool.tag}`}
+            >
+              Refine in advanced search
+            </Link>
+            <Link className="entity-link" href="/tools/crafting-graph/">
+              Plan a crafted item
+            </Link>
           </div>
 
           <div className="recipe-summary-grid">
@@ -156,6 +159,7 @@ export function CraftCataloguePage({
                   itemsById,
                   recipe,
                   source: sourcesById.get(recipe.provenance.sourceId),
+                  toolIconUrl: activeToolIconUrl ?? null,
                   toolLabel: activeTool.label,
                 })}
               />
