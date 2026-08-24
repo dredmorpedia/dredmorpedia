@@ -6,6 +6,7 @@ import {
 } from "@/components/catalogue-item-reference-list";
 import { CatalogueToolMarker } from "@/components/catalogue-tool-marker";
 import type { SourceMarker } from "@/lib/source-markers";
+import type { StatLinkPresentation } from "@/lib/stat-presentation-types";
 
 export type RecipeSummaryReference = CatalogueItemReference;
 
@@ -18,6 +19,7 @@ export interface RecipeSummaryData {
   outputs: RecipeSummaryReference[];
   slug: string;
   sourceMarker: SourceMarker | null;
+  sourceStats: StatLinkPresentation[];
   toolIconUrl: string | null;
   toolLabel: string;
 }
@@ -99,6 +101,7 @@ export function RecipeSummaryCard({
             output
             overflowNoun="output tier"
             references={summary.outputs}
+            sourceStats={summary.sourceStats}
           />
         </section>
       </div>

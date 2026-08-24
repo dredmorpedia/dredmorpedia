@@ -23,7 +23,10 @@ import {
 import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ItemArt } from "@/components/item-art";
 import { RecipePreview } from "@/components/recipe-preview";
-import { StatModifierLink } from "@/components/stat-modifier-link";
+import {
+  StatDefinitionLink,
+  StatModifierLink,
+} from "@/components/stat-modifier-link";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
   createItemCatalogueCategories,
@@ -329,12 +332,13 @@ function ItemSummaryCard({
                 <div key={`${stat.statKey}:${index}`}>
                   <dt>
                     {definition ? (
-                      <Link
-                        className="entity-link"
-                        href={`/stats/${definition.slug}`}
-                      >
-                        {definition.name}
-                      </Link>
+                      <StatDefinitionLink
+                        artifact={artifact}
+                        artifactSha256={artifactSha256}
+                        display="icon"
+                        label={stat.statName}
+                        stat={definition}
+                      />
                     ) : (
                       stat.statName
                     )}
@@ -347,6 +351,9 @@ function ItemSummaryCard({
               <div key={`${modifier.kind}:${modifier.sourceKey}:${index}`}>
                 <dt>
                   <StatModifierLink
+                    artifact={artifact}
+                    artifactSha256={artifactSha256}
+                    display="icon"
                     modifier={modifier}
                     stats={artifact.entities.stats}
                   />

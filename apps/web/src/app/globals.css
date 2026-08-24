@@ -1166,6 +1166,11 @@ select {
   gap: 0.35rem;
 }
 
+.item-summary-modifiers div {
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .item-summary-facts dt,
 .item-summary-modifiers dt {
   color: var(--muted-foreground);
@@ -1228,6 +1233,58 @@ select {
 .item-summary-modifiers {
   border-block: 1px solid var(--border);
   padding-block: 0.65rem;
+}
+
+.stat-definition-link {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.stat-icon {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.stat-detail-heading {
+  display: flex;
+  align-items: start;
+  gap: 0.85rem;
+}
+
+.stat-detail-heading > .stat-icon {
+  margin-block-start: 0.15rem;
+}
+
+.crafting-source-level {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.crafting-source-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.crafting-source-stat .stat-definition-link {
+  min-height: 1.5rem;
+}
+
+.recipe-reference-amount .crafting-source-level {
+  justify-content: end;
 }
 
 .item-summary-relationship {
@@ -1722,6 +1779,10 @@ select {
 }
 
 .recipe-summary-reference-list li {
+  min-width: 0;
+}
+
+.recipe-summary-reference-item {
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
   align-items: center;
@@ -1734,12 +1795,25 @@ select {
   font-size: 0.76rem;
 }
 
-.recipe-summary-reference-list img,
-.recipe-summary-reference-list .catalogue-art-placeholder {
+.recipe-summary-reference-item > img,
+.recipe-summary-reference-item > .catalogue-art-placeholder {
   width: 2.5rem;
   height: 2.5rem;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.recipe-summary-output-reference {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.recipe-summary-output-reference > .crafting-source-level {
+  flex-wrap: nowrap;
+  justify-content: end;
+  white-space: nowrap;
 }
 
 .recipe-summary-reference-copy {
@@ -1756,7 +1830,9 @@ select {
 .recipe-summary-reference-list .recipe-summary-reference-overflow {
   display: block;
   grid-template-columns: none;
-  border-style: dashed;
+  border: 1px dashed var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
   padding: 0.45rem 0.55rem;
   color: var(--muted-foreground);
   font-size: 0.7rem;
@@ -2244,6 +2320,10 @@ select {
   gap: 1rem;
   border-top: 1px solid var(--border);
   padding-block: 0.75rem;
+}
+
+.stat-list div {
+  align-items: center;
 }
 
 .stat-list div:first-child,

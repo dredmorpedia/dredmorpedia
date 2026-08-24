@@ -16,7 +16,10 @@ function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function artifact(datasetVersion = "1.0.0"): DatasetArtifact {
+function artifact(
+  datasetVersion = "1.0.0",
+  requiredStatIcon = false,
+): DatasetArtifact {
   return {
     datasetId: "asset-loader-test",
     datasetVersion,
@@ -27,6 +30,9 @@ function artifact(datasetVersion = "1.0.0"): DatasetArtifact {
       abilities: [{ id: "ability:test", iconPath: "skills/ability.png" }],
       spells: [{ id: "spell:test", iconPath: "spells/test.png" }],
       monsters: [{ id: "monster:test", iconPath: "monsters/test.spr" }],
+      stats: requiredStatIcon
+        ? [{ id: "stat:burliness", iconAssetId: "stat-primary-0" }]
+        : [],
     },
   } as unknown as DatasetArtifact;
 }
@@ -226,6 +232,16 @@ describe("presented asset consumer", () => {
     expect(() => itemIconUrl("item:test", artifact(), "b".repeat(64))).toThrow(
       /do not match the active dataset/,
     );
+  });
+
+  it("rejects an asset set that omits an icon required by a stat definition", async () => {
+    process.env.DREDMORPEDIA_ASSET_DIRECTORY = writeAssetSet();
+    process.env.DREDMORPEDIA_ASSET_BASE_PATH = "/generated-assets/current";
+    const { uiIconUrl } = await import("../src/lib/presented-assets");
+
+    expect(() =>
+      uiIconUrl("gold", artifact("1.0.0", true), activeArtifactSha256),
+    ).toThrow(/required stat icon stat-primary-0/);
   });
 
   it("rejects a copied file that no longer matches its catalog checksum", async () => {

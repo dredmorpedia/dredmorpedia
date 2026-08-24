@@ -557,15 +557,20 @@ locally persisted display settings; measured 24/36/All page-size choices;
 small expansion markers with no base-game badge; and manifest-declared gold
 and quality-star imagery. Catalogue and detail cards also expose the distinct
 source-declared **Artifact / Quality x** property without inferring Archaeology
-or other engine behavior. Stat imagery remains separately gated on a verified
-official mapping. Craft parity now provides complete tool-group routes in
+or other engine behavior. The verified 62-selector stat-icon mapping now gives
+catalogue modifiers compact image-plus-value links and detail modifiers
+image-plus-name links, with native titles and text fallbacks. Encrustment
+modifier rows reuse the image-plus-name treatment. Craft parity now
+provides complete tool-group routes in
 familiar order, verified toolkit art, compact/detailed navigation, persisted
 display settings, a bounded 36-recipe default plus 24/All options, source/name/
 lowest-output-level orders, and reusable ingredient/output summary cards. The
 actual selected category/tool tab becomes a compact upper-right return control
 after its chooser scrolls away, with ordinary navigation as the no-JavaScript
 fallback. Selected-tool recipe cards suppress redundant tool identity while
-retaining the per-output source levels. Item catalogue and detail relationships
+retaining the per-output source levels. Those levels now use the preserved
+tool-to-stat icon order directly beside each tier; dual-stat tools show both
+without an inferred eligibility rule. Item catalogue and detail relationships
 reuse that card through whole-relationship mouse hover and an icon-only
 focus/tap control while preserving visible primary links and Escape focus
 restoration. **Crafted from** now uses each complete ingredient group plus one
@@ -584,7 +589,9 @@ default; optional 12/24/All static views support game, name, required source-
 level, and declared-instability ordering. Summary cards expose ingredients,
 applicable slots with the exact 11 verified blue schematic icons and visible
 text fallbacks, exact source level, direct modifiers and power hooks without
-inferring risk or final item formulas. Item **Used to encrust** relationships
+inferring risk or final item formulas. Required levels use the same preserved
+crafting-stat presentation, and direct modifiers retain their names beside the
+verified stat icons. Item **Used to encrust** relationships
 reuse this summary card and show every applicable slot in a compact icon stack,
 including all three Fireproof Coating slots. The preserved orphaned output `x`
 is excluded as a legacy template defect rather than copied as a mechanic. Evidence is in
@@ -605,9 +612,9 @@ The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
 second complete, verified dataset. The local visual-parity importer now renders
 normalized item, skill, ability, root spell, and monster detail art through a
 checksummed, manifest-coordinated, ignored asset set bound to the exact active
-artifact checksum; the canonical build maps 1,791 entity references plus 14
-manifest-declared UI icons (three item-catalogue and 11 Encrust applicability)
-to 1,494 unique files without
+artifact checksum; the canonical build maps 1,791 entity references plus 76
+manifest-declared UI identities (three item-catalogue, 11 Encrust
+applicability, and 62 stat identities) to 1,555 unique files without
 fallbacks. Monster art is limited to the first downward
 idle frame, including strict XML-wrapper resolution, measured SPR decoding,
 field-level inherited appearance provenance, and generation-time declared

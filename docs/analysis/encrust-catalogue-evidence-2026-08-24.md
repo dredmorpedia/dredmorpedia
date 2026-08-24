@@ -76,7 +76,9 @@ The modern catalogue deliberately does not reproduce this rendering defect.
   regression tests.
 - Summary cards show exact ingredient quantities and art, applicable slots,
   required source level, declared instability, direct stat modifiers, power
-  hooks, Hidden state, and source marker. Repeated
+  hooks, Hidden state, and source marker. Required levels use the preserved
+  tool-to-stat icon association, and modifier names retain their readable text
+  beside the verified stat icons. Repeated
   ingredient declarations are aggregated only for catalogue presentation;
   unit quantities remain visually omitted and detail records are unchanged.
 - Source `<encrustwith>` descriptors are deliberately omitted from generic
@@ -123,9 +125,11 @@ The modern catalogue deliberately does not reproduce this rendering defect.
 
 ## Interpretation boundaries
 
-The page does not infer a skill name from a source level, apply modifiers to an
-item, combine repeated modifiers into a final result, calculate instability
-risk, assign shared instability effects to a record, or infer engine runtime
+The page preserves the familiar tool-to-stat presentation association from the
+reference application; that association is not derived from the encrustment
+XML. It does not interpret dual icons as AND or OR, apply modifiers to an item,
+combine repeated modifiers into a final result, calculate instability risk,
+assign shared instability effects to a record, or infer engine runtime
 behavior. It labels exact declarations and links normalized entities only.
 
 ## Validation
@@ -133,18 +137,20 @@ behavior. It labels exact declarations and links normalized entities only.
 - Focused Craft/Encrust catalogue tests cover familiar
   toolkit order, source ordering, alternate static views, optional pagination,
   route-collision rejection, repeated-input aggregation, and all 11 exact
-  normalized-slot-to-UI-asset mappings. Manifest tests additionally prove that
+  normalized-slot-to-UI-asset mappings. Craft tests also cover the exact
+  seven-tool source-stat order and unknown-tool fallback. Manifest tests additionally prove that
   the prior three-icon local manifest migrates to the closed current set and
   that unexpected mappings still fail.
-- `pnpm check` passes formatting, lint, type checking, all 318 workspace tests,
+- `pnpm check` passes formatting, lint, type checking, all 321 workspace tests,
   deterministic generation, and the 240-page synthetic static export.
-- `pnpm test:e2e` exports 240 synthetic pages and passes all 76 desktop/mobile
+- `pnpm test:e2e` exports 240 synthetic pages and passes all 78 desktop/mobile
   Playwright cases. Coverage includes JavaScript-disabled browsing, keyboard
   links, responsive overflow, persisted compact/detailed settings, the drawer,
-  focus restoration, and representative axe scans.
+  focus restoration, per-output source-level fallback, and representative axe
+  scans.
 - `pnpm build:official` regenerates the canonical artifact and presented assets
-  byte-identically with 0 errors, 4 warnings, 74 informational records, 1,805
-  mappings to 1,494 files, and 0 asset fallbacks. The full local export contains
+  byte-identically with 0 errors, 4 warnings, 74 informational records, 1,867
+  mappings to 1,555 files, and 0 asset fallbacks. The full local export contains
   3,658 pages, including all 57 detail routes, five toolkit routes, and 63
   optional Encrust view routes.
 - The relationship-heavy Reagent item category measures about 1.77 MB for its

@@ -12,6 +12,7 @@ import {
   itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
+  presentedStatIconIds,
   spellBuffEventHookKinds,
   statModifierKinds,
   type ArtifactManifest,
@@ -1138,6 +1139,7 @@ const statSchema = z
     ...entityBaseShape,
     kind: z.literal("stat"),
     group: z.string(),
+    iconAssetId: z.enum(presentedStatIconIds).nullable(),
     modifier: z
       .object({
         kind: z.enum(statModifierKinds),

@@ -868,6 +868,7 @@ export interface Monster extends NormalizedEntityBase {
 export interface Stat extends NormalizedEntityBase {
   kind: "stat";
   group: string;
+  iconAssetId: PresentedStatIconId | null;
   modifier: {
     kind: StatModifierKind;
     sourceKey: string;
@@ -991,6 +992,73 @@ export const presentedAssetKinds = [
 
 export type PresentedAssetKind = (typeof presentedAssetKinds)[number];
 
+export const presentedStatIconIds = [
+  "stat-damage-acidic",
+  "stat-damage-aethereal",
+  "stat-damage-asphyxiative",
+  "stat-damage-blasting",
+  "stat-damage-conflagratory",
+  "stat-damage-crushing",
+  "stat-damage-existential",
+  "stat-damage-hyperborean",
+  "stat-damage-necromantic",
+  "stat-damage-piercing",
+  "stat-damage-putrefying",
+  "stat-damage-righteous",
+  "stat-damage-slashing",
+  "stat-damage-toxic",
+  "stat-damage-transmutative",
+  "stat-damage-voltaic",
+  "stat-resistance-acidic",
+  "stat-resistance-aethereal",
+  "stat-resistance-asphyxiative",
+  "stat-resistance-blasting",
+  "stat-resistance-conflagratory",
+  "stat-resistance-crushing",
+  "stat-resistance-existential",
+  "stat-resistance-hyperborean",
+  "stat-resistance-necromantic",
+  "stat-resistance-piercing",
+  "stat-resistance-putrefying",
+  "stat-resistance-righteous",
+  "stat-resistance-slashing",
+  "stat-resistance-toxic",
+  "stat-resistance-transmutative",
+  "stat-resistance-voltaic",
+  "stat-primary-0",
+  "stat-primary-1",
+  "stat-primary-2",
+  "stat-primary-3",
+  "stat-primary-4",
+  "stat-primary-5",
+  "stat-secondary-0",
+  "stat-secondary-1",
+  "stat-secondary-2",
+  "stat-secondary-3",
+  "stat-secondary-4",
+  "stat-secondary-5",
+  "stat-secondary-6",
+  "stat-secondary-7",
+  "stat-secondary-8",
+  "stat-secondary-9",
+  "stat-secondary-10",
+  "stat-secondary-11",
+  "stat-secondary-12",
+  "stat-secondary-13",
+  "stat-secondary-14",
+  "stat-secondary-15",
+  "stat-secondary-16",
+  "stat-secondary-17",
+  "stat-secondary-18",
+  "stat-secondary-19",
+  "stat-secondary-20",
+  "stat-secondary-21",
+  "stat-secondary-22",
+  "stat-secondary-23",
+] as const;
+
+export type PresentedStatIconId = (typeof presentedStatIconIds)[number];
+
 export const presentedUiAssetIds = [
   "gold",
   "quality-empty",
@@ -1006,6 +1074,7 @@ export const presentedUiAssetIds = [
   "encrust-slot-ring",
   "encrust-slot-shield",
   "encrust-slot-weapon",
+  ...presentedStatIconIds,
 ] as const;
 
 export type PresentedUiAssetId = (typeof presentedUiAssetIds)[number];

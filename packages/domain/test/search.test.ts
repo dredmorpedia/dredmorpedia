@@ -28,6 +28,7 @@ function searchStat(id: string, slug: string): Stat {
     name: "Shared Name",
     description: "",
     group: "secondary",
+    iconAssetId: null,
     modifier: null,
     provenance,
     variants: [provenance],

@@ -36,11 +36,13 @@ Read these files before making a substantial change:
   root spell PNG icons plus the selected first monster idle frame used by their
   implemented detail pages, plus the manifest-declared gold and filled/empty
   quality interface icons used by the item catalogue and the 11 exact Encrust
-  applicability interface icons used by catalogue/detail pages, from those
-  captured snapshots into the ignored managed web asset directory. The schema-2 typed
-  catalog, schema-3 manifest, diagnostics, content-addressed files, declared UI
-  asset IDs, and exact artifact checksum must match the active generated
-  dataset before the web renders an icon.
+  applicability interface icons used by catalogue/detail pages, plus the 62
+  reviewed stat-icon identities backed by 61 official UI PNGs, from those
+  captured snapshots into the ignored managed web asset directory. The
+  schema-2 typed catalog, schema-3 manifest, diagnostics, content-addressed
+  files, declared UI asset IDs, and exact artifact checksum must match the
+  active generated dataset before the web renders an icon. Every icon requested
+  by an active stat must be declared by that manifest.
 - Item catalogue and detail cards expose direct item artifact declarations as
   the legacy-facing **Artifact / Quality x** property. Keep it distinct from
   ordinary item quality, and do not infer Archaeology, Museum, generation,
@@ -169,9 +171,10 @@ Read these files before making a substantial change:
 - Trap activation, caster-targeting, and placement fields remain direct source metadata; consumers must not infer reset timing, target selection, or placement behavior, and raw origin asset paths stay hidden while publication rights are unresolved.
 - The canonical project-authored stat reference maps 62 verified modifier
   selectors as a separately versioned `reference` source. It supplies only
-  names/categories and exact kind/key mappings; modifier values retain official
-  entity provenance, and consumers must not import legacy prose, icons, or
-  formulas through this catalogue.
+  names/categories, exact kind/key mappings, and closed project-owned stat-icon
+  identities; modifier values retain official entity provenance. Official icon
+  paths/bytes remain in the ignored local manifest/output, and consumers must
+  not import legacy prose or formulas through this catalogue.
 - The canonical project-authored engine-item reference supplies only identities
   separately evidenced by active relationships but omitted from the active
   entity database. Its first record is Lockpick. Reference status is derived
@@ -199,13 +202,19 @@ Read these files before making a substantial change:
   order, optional static display views, game-order representatives, smaller
   expansion markers, manifest-declared gold/quality imagery, a distinct
   Macguffin category, and an explicitly labelled Lockpick engine reference with
-  exact loadout backlinks. Stat imagery
-  remains separately gated on a verified official mapping. The Craft catalogue
+  exact loadout backlinks. Its 62 stat selectors now have verified local icon
+  identities: item summaries use compact icon/value links, item details retain
+  icon/name/value presentation, and stat headers reuse the same art with text
+  fallbacks. Encrustment modifiers now reuse the icon/name/value treatment.
+  Recipe output tiers and encrustment requirements use the preserved
+  tool-to-stat icon mapping beside each exact source level; dual-stat tools
+  show both identities without an inferred AND/OR or eligibility rule. The Craft catalogue
   foundation is implemented with all 374 canonical recipes grouped under seven
   familiar tool routes, existing verified toolkit art, compact/detailed tool
   navigation, persisted source/name/lowest-output-level ordering, a bounded
   36-recipe default plus 24/All views, and reusable ingredient/output summary
-  cards. In Items and selected-tool Craft routes, the actual selected tab
+  cards. Output levels stay attached to the output they qualify rather than
+  being replaced by the recipe's derived maximum. In Items and selected-tool Craft routes, the actual selected tab
   progressively detaches into a compact upper-right return-to-chooser control
   after the chooser scrolls away; without JavaScript it remains an ordinary
   selected link. Craft cards suppress the repeated tool identity and the

@@ -5,14 +5,17 @@ import {
   type CatalogueItemReference,
 } from "@/components/catalogue-item-reference-list";
 import { CatalogueToolMarker } from "@/components/catalogue-tool-marker";
+import { CraftingSourceLevel } from "@/components/crafting-source-level";
 import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
+import { StatPresentationLink } from "@/components/stat-presentation-link";
 import type { EncrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
 import type { SourceMarker } from "@/lib/source-markers";
+import type { StatLinkPresentation } from "@/lib/stat-presentation-types";
 
 export interface EncrustmentSummaryModifier {
   key: string;
   label: string;
-  slug: string | null;
+  stat: StatLinkPresentation | null;
   value: string;
 }
 
@@ -31,10 +34,11 @@ export interface EncrustmentSummaryData {
   modifiers: EncrustmentSummaryModifier[];
   name: string;
   powers: EncrustmentSummaryPower[];
-  skillLevel: string;
+  skillLevel: number;
   slots: EncrustmentSlotPresentation[];
   slug: string;
   sourceMarker: SourceMarker | null;
+  sourceStats: StatLinkPresentation[];
   toolIconUrl: string | null;
   toolLabel: string;
 }
@@ -85,7 +89,12 @@ export function EncrustmentSummaryCard({
       <dl className="encrustment-summary-facts">
         <div>
           <dt>Required source level</dt>
-          <dd>{summary.skillLevel}</dd>
+          <dd>
+            <CraftingSourceLevel
+              level={summary.skillLevel}
+              stats={summary.sourceStats}
+            />
+          </dd>
         </div>
         <div>
           <dt>Declared instability</dt>
@@ -132,13 +141,11 @@ export function EncrustmentSummaryCard({
               {summary.modifiers.map((modifier) => (
                 <li key={modifier.key}>
                   <span>
-                    {modifier.slug ? (
-                      <Link
-                        className="entity-link"
-                        href={`/stats/${modifier.slug}`}
-                      >
-                        {modifier.label}
-                      </Link>
+                    {modifier.stat ? (
+                      <StatPresentationLink
+                        display="icon-label"
+                        presentation={modifier.stat}
+                      />
                     ) : (
                       modifier.label
                     )}

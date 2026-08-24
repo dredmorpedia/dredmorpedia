@@ -15,6 +15,7 @@ import {
   paginateCraftCatalogue,
   recipesForCraftCatalogueTool,
 } from "../src/lib/craft-catalogue";
+import { craftingSourceStatKeysForTool } from "../src/lib/crafting-source-stats";
 
 const sources: SourceSummary[] = [
   {
@@ -130,6 +131,17 @@ function recipe(
 }
 
 describe("craft catalogue", () => {
+  it("preserves the familiar source-stat order for crafting tools", () => {
+    expect(craftingSourceStatKeysForTool("lathe")).toEqual(["23"]);
+    expect(craftingSourceStatKeysForTool("grinder")).toEqual(["21", "20"]);
+    expect(craftingSourceStatKeysForTool("alchemy")).toEqual(["21"]);
+    expect(craftingSourceStatKeysForTool("still")).toEqual(["21"]);
+    expect(craftingSourceStatKeysForTool("ingot")).toEqual(["19", "20"]);
+    expect(craftingSourceStatKeysForTool("smithing")).toEqual(["19"]);
+    expect(craftingSourceStatKeysForTool("tinkerer")).toEqual(["20"]);
+    expect(craftingSourceStatKeysForTool("Custom Tool")).toEqual([]);
+  });
+
   it("uses familiar tool order and toolkit names before fallback tools", () => {
     const recipes = [
       recipe("smith", "smithing"),

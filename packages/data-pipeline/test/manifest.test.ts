@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
+import { presentedUiAssetIds } from "@dredmorpedia/domain";
+
 import {
   migrateSourceManifestV1,
   parseSourceManifestV2,
@@ -247,58 +249,39 @@ describe("source manifest migration", () => {
       root: "reference-data/dredmor-1.1.5-public-beta",
       files: [{ kind: "items", path: "itemDB.xml" }],
     });
-    expect(
-      migrated.sources.find((source) => source.id === "official-base")
-        ?.presentedAssets,
-    ).toEqual([
-      { id: "gold", path: "items/cash1.png" },
-      { id: "quality-empty", path: "ui/quality_star_empty.png" },
-      { id: "quality-full", path: "ui/quality_star_full.png" },
-      {
-        id: "encrust-slot-neck",
-        path: "expansion3/ui/encrusting/encrust_amulet.png",
-      },
-      {
-        id: "encrust-slot-chest",
-        path: "expansion3/ui/encrusting/encrust_armour.png",
-      },
-      {
-        id: "encrust-slot-waist",
-        path: "expansion3/ui/encrusting/encrust_belt.png",
-      },
-      {
-        id: "encrust-slot-feet",
-        path: "expansion3/ui/encrusting/encrust_boots.png",
-      },
-      {
-        id: "encrust-slot-ranged",
-        path: "expansion3/ui/encrusting/encrust_crossbow.png",
-      },
-      {
-        id: "encrust-slot-hands",
-        path: "expansion3/ui/encrusting/encrust_gauntlets.png",
-      },
-      {
-        id: "encrust-slot-head",
-        path: "expansion3/ui/encrusting/encrust_helm.png",
-      },
-      {
-        id: "encrust-slot-legs",
-        path: "expansion3/ui/encrusting/encrust_pants.png",
-      },
-      {
-        id: "encrust-slot-ring",
-        path: "expansion3/ui/encrusting/encrust_ring.png",
-      },
-      {
-        id: "encrust-slot-shield",
-        path: "expansion3/ui/encrusting/encrust_shield.png",
-      },
-      {
-        id: "encrust-slot-weapon",
-        path: "expansion3/ui/encrusting/encrust_weapon.png",
-      },
-    ]);
+    const presentedAssets = migrated.sources.find(
+      (source) => source.id === "official-base",
+    )?.presentedAssets;
+    expect(presentedAssets?.map(({ id }) => id)).toEqual(presentedUiAssetIds);
+    expect(presentedAssets).toEqual(
+      expect.arrayContaining([
+        { id: "gold", path: "items/cash1.png" },
+        {
+          id: "encrust-slot-weapon",
+          path: "expansion3/ui/encrusting/encrust_weapon.png",
+        },
+        {
+          id: "stat-damage-asphyxiative",
+          path: "ui/icons/dmg_aphyxiative.png",
+        },
+        {
+          id: "stat-resistance-necromantic",
+          path: "ui/icons/dmg_necromatic_resist.png",
+        },
+        {
+          id: "stat-primary-4",
+          path: "ui/icons/stat_stubborness.png",
+        },
+        {
+          id: "stat-secondary-15",
+          path: "ui/icons/stat_wandburn.png",
+        },
+        {
+          id: "stat-secondary-23",
+          path: "ui/icons/stat_wandburn.png",
+        },
+      ]),
+    );
     expect(parseCurrentOfficialSourceManifest(migrated)).toEqual(migrated);
 
     const currentWithPriorInterfaceAssets = {
@@ -311,6 +294,18 @@ describe("source manifest migration", () => {
     };
     expect(
       upgradeCurrentOfficialSourceManifest(currentWithPriorInterfaceAssets),
+    ).toEqual(migrated);
+
+    const currentWithPriorStatReference = {
+      ...migrated,
+      sources: migrated.sources.map((source) =>
+        source.id === "dredmorpedia-stat-reference"
+          ? { ...source, version: "1.0.0" }
+          : source,
+      ),
+    };
+    expect(
+      upgradeCurrentOfficialSourceManifest(currentWithPriorStatReference),
     ).toEqual(migrated);
 
     const currentWithUnexpectedInterfaceAsset = {

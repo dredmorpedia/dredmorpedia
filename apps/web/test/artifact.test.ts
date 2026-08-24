@@ -1629,6 +1629,24 @@ describe("generated artifact loading", () => {
     expect(() => loadArtifact()).toThrow(/invalid definition reference/);
   });
 
+  it("rejects an unreviewed stat icon asset ID", async () => {
+    const artifact = readJson("artifact.json");
+    const typedArtifact = artifact as unknown as {
+      entities: { stats: { iconAssetId: string | null }[] };
+    };
+    const stat = typedArtifact.entities.stats.at(0);
+    if (!stat) {
+      throw new Error(
+        "Synthetic artifact unexpectedly has no stat definition.",
+      );
+    }
+    stat.iconAssetId = "stat-unreviewed";
+    writeOutput("artifact.json", artifact, true);
+    const { loadArtifact } = await import("../src/lib/artifact");
+
+    expect(() => loadArtifact()).toThrow(/iconAssetId/);
+  });
+
   it("rejects malformed item artifact metadata", async () => {
     const artifact = readJson("artifact.json");
     const typedArtifact = artifact as unknown as {

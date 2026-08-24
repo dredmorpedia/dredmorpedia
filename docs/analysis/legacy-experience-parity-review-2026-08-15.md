@@ -81,10 +81,12 @@ The correction is implemented:
    project-owned text markers with the complete source name exposed through
    accessible names and titles.
 7. The page-driven asset pipeline now imports and verifies the exact gold,
-   filled-quality-star, and empty-quality-star interface icons declared by the
-   official source manifest. Stat icons remain a separate mapping task because
-   ADR 0005 intentionally forbids importing legacy icons through the
-   project-authored stat reference.
+   filled-quality-star, empty-quality-star, Encrust applicability, and stat
+   interface icons declared by the official source manifest. ADR 0005's
+   2026-08-24 amendment keeps official paths/bytes outside the project stat
+   reference while adding 62 reviewed stat-icon identities. Item catalogue
+   modifiers use compact icon-plus-value links; item details retain names
+   beside the same icons, and missing configured imagery falls back to text.
 8. Category representative images use native titles for supplementary item
    identification. Adjacent visible names remain the accessible source of
    truth; recipe previews use the maintained popover described below.
@@ -123,9 +125,10 @@ The Craft catalogue foundation is implemented at `/crafts/` and
   while advanced Search and the crafting planner remain explicit additions.
 
 The aggregate `recipe.skillLevel` is only the maximum of the declared output
-tiers, so the catalogue no longer repeats it as “Highest source skill.” The
-individual output tiers stay visible as neutral source levels; naming a
-specific skill requires a separately verified tool-to-skill mapping.
+tiers, so cards and details no longer repeat it as “Highest source skill.” The
+individual output tiers remain attached to their outputs and now use the
+preserved tool-to-stat icon mapping. Dual-stat tools show both familiar icons
+without claiming an AND/OR eligibility rule or another engine formula.
 
 The current text Hidden badge and compact text expansion markers remain
 functional but are not treated as finished iconography. A later card-polish
@@ -169,6 +172,9 @@ The Encrust catalogue is implemented at `/encrusts/` and
   source markers. Exact `<encrustwith>` descriptors remain on detail pages as
   **Encrusted with** but are omitted from generic catalogue cards. The pages do not derive an
   instability probability, final item stats, or another engine formula;
+- required levels use the preserved crafting-stat icon associated with the
+  toolkit, while modifier rows retain their names and add the same verified
+  stat imagery used by Items;
 - applicable slots pair their visible labels with the exact 11 manifest-
   declared blue schematic icons on catalogue and detail routes. Missing
   verified imagery, including the synthetic fixture, retains the text-only
@@ -221,12 +227,12 @@ this work as advanced and completeness-oriented fallbacks.
 
 ## Validation
 
-- `pnpm check` passes formatting, lint, type checking, all 318 workspace tests,
+- `pnpm check` passes formatting, lint, type checking, all 321 workspace tests,
   deterministic generation, and the 240-page synthetic static export.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 76 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 78 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
   the display drawer, local preference restoration, whole-relationship hover,
   icon-only focus/tap recipe controls, Escape focus restoration, and
@@ -240,8 +246,10 @@ this work as advanced and completeness-oriented fallbacks.
   default 36-item page and 2.05 MB for its explicit All view. The increase pays
   for every disclosed recipe/encrustment relationship retaining its complete
   preview behavior as well as its direct detail link.
-- The deterministic official asset set now contains 1,805 mappings to 1,494
-  content-addressed files, with no fallbacks.
+- The deterministic official asset set now contains 1,867 mappings to 1,555
+  content-addressed files, with no fallbacks. All 62 reviewed stat identities
+  resolve to verified local icon assets; catalogue modifiers retain accessible
+  names and titles while using the compact image-led presentation.
 - `pnpm build:official` passes deterministic zero-error generation and the
   complete 3,658-page local static export with all canonical and optional
   catalogue view routes.

@@ -11,6 +11,7 @@ import {
 } from "@dredmorpedia/domain";
 
 import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
+import { CraftingSourceLevel } from "@/components/crafting-source-level";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import {
@@ -21,6 +22,7 @@ import {
 import { titleCase } from "@/lib/display-labels";
 import { encrustCatalogueToolPathForTag } from "@/lib/encrust-catalogue";
 import { encrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
+import { craftingSourceStatPresentations } from "@/lib/crafting-source-stats";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
@@ -136,6 +138,12 @@ export default async function EncrustmentPage({
   );
   const isAlias = slug !== encrustment.slug;
   const tool = titleCase(encrustment.tool);
+  const sourceStats = craftingSourceStatPresentations({
+    artifact,
+    artifactSha256,
+    stats: artifact.entities.stats,
+    tool: encrustment.tool,
+  });
 
   return (
     <article className="detail-page">
@@ -182,11 +190,12 @@ export default async function EncrustmentPage({
             </dd>
           </div>
           <div>
-            <dt>Required skill</dt>
+            <dt>Required source level</dt>
             <dd>
-              {encrustment.skillLevel > 0
-                ? encrustment.skillLevel
-                : "No requirement"}
+              <CraftingSourceLevel
+                level={encrustment.skillLevel}
+                stats={sourceStats}
+              />
             </dd>
           </div>
           <div>
@@ -282,6 +291,9 @@ export default async function EncrustmentPage({
                       >
                         <dt>
                           <StatModifierLink
+                            artifact={artifact}
+                            artifactSha256={artifactSha256}
+                            display="icon-label"
                             modifier={modifier}
                             stats={artifact.entities.stats}
                           />

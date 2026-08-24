@@ -1,14 +1,20 @@
+import type {
+  PresentedStatIconId,
+  PresentedUiAssetId,
+} from "@dredmorpedia/domain";
+
 import type { DatabaseKind, SourceManifest } from "./manifest";
 import { migrateSourceManifestV1, parseSourceManifestV2 } from "./manifest";
 
 export const officialDatasetVersion =
   "1.1.5 public_beta (Steam build 22934623)";
-export const officialStatReferenceVersion = "1.0.0";
+export const officialStatReferenceVersion = "1.1.0";
 export const officialEngineItemReferenceVersion = "1.0.0";
+const previousOfficialStatReferenceVersion = "1.0.0";
 
 const officialDatasetId = "dredmor-1.1.5-public-beta-steam-build-22934623";
 
-const officialPresentedAssets = [
+const officialCorePresentedAssets = [
   { id: "gold", path: "items/cash1.png" },
   { id: "quality-empty", path: "ui/quality_star_empty.png" },
   { id: "quality-full", path: "ui/quality_star_full.png" },
@@ -57,6 +63,97 @@ const officialPresentedAssets = [
     path: "expansion3/ui/encrusting/encrust_weapon.png",
   },
 ] as const;
+
+const officialDamageIconFiles = [
+  ["acidic", "dmg_acidic"],
+  ["aethereal", "dmg_aethereal"],
+  ["asphyxiative", "dmg_aphyxiative"],
+  ["blasting", "dmg_blast"],
+  ["conflagratory", "dmg_conflagratory"],
+  ["crushing", "dmg_crushing"],
+  ["existential", "dmg_existential"],
+  ["hyperborean", "dmg_hyperborean"],
+  ["necromantic", "dmg_necromatic"],
+  ["piercing", "dmg_piercing"],
+  ["putrefying", "dmg_putrefying"],
+  ["righteous", "dmg_righteous"],
+  ["slashing", "dmg_slashing"],
+  ["toxic", "dmg_toxic"],
+  ["transmutative", "dmg_transmutative"],
+  ["voltaic", "dmg_voltaic"],
+] as const;
+
+const officialPrimaryIconFiles = [
+  "stat_burliness",
+  "stat_sagacity",
+  "stat_nimbleness",
+  "stat_caddishness",
+  "stat_stubborness",
+  "stat_savvy",
+] as const;
+
+const officialSecondaryIconFiles = [
+  "stat_life",
+  "stat_mana",
+  "stat_meleepower",
+  "stat_magicpower",
+  "stat_crit",
+  "stat_haywire",
+  "stat_dodge",
+  "stat_block",
+  "stat_counter",
+  "stat_edr",
+  "stat_armourabsorption",
+  "stat_magicresistance",
+  "stat_sneakiness",
+  "stat_liferegen",
+  "stat_manaregen",
+  "stat_wandburn",
+  "stat_traplevel",
+  "stat_trapsense",
+  "stat_sight",
+  "stat_smithing",
+  "stat_tinkerer",
+  "stat_alchemy",
+  "stat_reflection",
+  "stat_wandburn",
+] as const;
+
+function statPresentedAsset(
+  id: PresentedStatIconId,
+  file: string,
+): { id: PresentedUiAssetId; path: string } {
+  return { id, path: `ui/icons/${file}.png` };
+}
+
+const officialStatPresentedAssets = [
+  ...officialDamageIconFiles.map(([sourceKey, file]) =>
+    statPresentedAsset(`stat-damage-${sourceKey}` as PresentedStatIconId, file),
+  ),
+  ...officialDamageIconFiles.map(([sourceKey, file]) =>
+    statPresentedAsset(
+      `stat-resistance-${sourceKey}` as PresentedStatIconId,
+      `${file}_resist`,
+    ),
+  ),
+  ...officialPrimaryIconFiles.map((file, sourceKey) =>
+    statPresentedAsset(
+      `stat-primary-${sourceKey}` as PresentedStatIconId,
+      file,
+    ),
+  ),
+  ...officialSecondaryIconFiles.map((file, sourceKey) =>
+    statPresentedAsset(
+      `stat-secondary-${sourceKey}` as PresentedStatIconId,
+      file,
+    ),
+  ),
+];
+
+const officialPresentedAssets = [
+  ...officialCorePresentedAssets,
+  ...officialStatPresentedAssets,
+];
 
 interface ExpectedOfficialSource {
   id: string;
@@ -299,10 +396,14 @@ function addStatReferenceSource(manifest: SourceManifest): SourceManifest {
   if (existing) {
     if (
       existing.kind === officialStatReferenceSource.kind &&
-      existing.version === officialStatReferenceSource.version &&
+      (existing.version === officialStatReferenceSource.version ||
+        existing.version === previousOfficialStatReferenceVersion) &&
       existing.precedence === officialStatReferenceSource.precedence &&
-      existing.rootBase === undefined &&
-      existing.root === "../../reference-data/dredmor-1.1.5-public-beta" &&
+      ((existing.rootBase === officialStatReferenceSource.rootBase &&
+        existing.root === officialStatReferenceSource.root) ||
+        (existing.rootBase === undefined &&
+          existing.root ===
+            "../../reference-data/dredmor-1.1.5-public-beta")) &&
       existing.files.length === 1 &&
       fileKey(existing.files[0]!) ===
         fileKey(officialStatReferenceSource.files[0]!)

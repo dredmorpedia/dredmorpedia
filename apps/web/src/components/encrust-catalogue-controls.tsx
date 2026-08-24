@@ -62,7 +62,8 @@ const sortOptions: readonly CatalogueSettingOption<EncrustCatalogueSort>[] = [
   {
     value: "skill",
     label: "Required source level",
-    description: "Lowest declared source level first; no skill is inferred.",
+    description:
+      "Lowest declared source level first; stat icons provide familiar context.",
   },
   {
     value: "instability",

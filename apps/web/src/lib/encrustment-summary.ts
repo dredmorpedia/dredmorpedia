@@ -11,6 +11,7 @@ import type { EncrustmentSummaryData } from "@/components/encrustment-summary-ca
 import { createEncrustCatalogueTools } from "./encrust-catalogue";
 import { aggregateEncrustmentInputs } from "./encrustment-inputs";
 import { encrustmentSlotPresentation } from "./encrustment-slot-icons";
+import { craftingSourceStatPresentations } from "./crafting-source-stats";
 import { itemIconUrl } from "./presented-assets";
 import {
   signedStatModifierValue,
@@ -18,6 +19,7 @@ import {
   statModifierLabel,
 } from "./stat-modifiers";
 import { sourceMarker } from "./source-markers";
+import { createStatLinkPresentation } from "./stat-presentations";
 
 export interface EncrustmentSummaryTool {
   iconUrl: string | null;
@@ -113,7 +115,9 @@ export function createEncrustmentSummaryData({
       return {
         key: `${modifier.kind}:${modifier.sourceKey}:${index}`,
         label: statModifierLabel(modifier, artifact.entities.stats),
-        slug: definition?.slug ?? null,
+        stat: definition
+          ? createStatLinkPresentation(definition, artifact, artifactSha256)
+          : null,
         value: signedStatModifierValue(modifier.amount),
       };
     }),
@@ -123,15 +127,18 @@ export function createEncrustmentSummaryData({
       key: `${power.name}:${index}`,
       name: power.name,
     })),
-    skillLevel:
-      encrustment.skillLevel > 0
-        ? String(encrustment.skillLevel)
-        : "No requirement",
+    skillLevel: encrustment.skillLevel,
     slots: encrustment.slots.map((slot) =>
       encrustmentSlotPresentation(slot, artifact, artifactSha256),
     ),
     slug: encrustment.slug,
     sourceMarker: sourceMarker(source),
+    sourceStats: craftingSourceStatPresentations({
+      artifact,
+      artifactSha256,
+      stats: artifact.entities.stats,
+      tool: encrustment.tool,
+    }),
     toolIconUrl,
     toolLabel,
   };

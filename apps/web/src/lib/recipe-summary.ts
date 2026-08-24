@@ -12,6 +12,7 @@ import type {
   RecipeSummaryReference,
 } from "@/components/recipe-summary-card";
 import { createCraftCatalogueTools } from "@/lib/craft-catalogue";
+import { craftingSourceStatPresentations } from "@/lib/crafting-source-stats";
 import { itemIconUrl } from "@/lib/presented-assets";
 import { sourceMarker } from "@/lib/source-markers";
 
@@ -97,6 +98,12 @@ export function createRecipeSummaryData({
     ),
     slug: recipe.slug,
     sourceMarker: sourceMarker(source),
+    sourceStats: craftingSourceStatPresentations({
+      artifact,
+      artifactSha256,
+      stats: artifact.entities.stats,
+      tool: recipe.tool,
+    }),
     toolIconUrl,
     toolLabel,
   };

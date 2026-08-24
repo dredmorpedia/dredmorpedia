@@ -8,6 +8,7 @@ import {
   itemTrapActivationModes,
   itemTriggerKinds,
   monsterSpellTriggerKinds,
+  presentedStatIconIds,
   slugify,
   statModifierKinds,
   unresolvedRelationship,
@@ -6401,9 +6402,27 @@ function parseStats(
     const currentEntityId = entityId("stat", name);
     const modifierKind = xmlAttribute(record, "modifierKind");
     const modifierSourceKey = xmlAttribute(record, "sourceKey");
+    const sourceIconAssetId = xmlAttribute(record, "iconAssetId");
     const hasModifierKind = modifierKind !== undefined;
     const hasModifierSourceKey = modifierSourceKey !== undefined;
     let modifier: Stat["modifier"] = null;
+    let iconAssetId: Stat["iconAssetId"] = null;
+    if (sourceIconAssetId !== undefined) {
+      if (
+        (presentedStatIconIds as readonly string[]).includes(sourceIconAssetId)
+      ) {
+        iconAssetId = sourceIconAssetId as Stat["iconAssetId"];
+      } else {
+        context.diagnostics.push({
+          severity: "error",
+          code: "invalid_stat_icon_asset_id",
+          message: `${name} declares an unsupported stat icon asset ID: ${sourceIconAssetId}.`,
+          source: provenance,
+          entityId: currentEntityId,
+          details: { iconAssetId: sourceIconAssetId },
+        });
+      }
+    }
     if (hasModifierKind !== hasModifierSourceKey) {
       context.diagnostics.push({
         severity: "error",
@@ -6445,6 +6464,7 @@ function parseStats(
         provenance,
       ),
       group: xmlAttribute(record, "group") ?? "unknown",
+      iconAssetId,
       modifier,
     };
     reportUnknownLeafContent(
@@ -6455,6 +6475,7 @@ function parseStats(
         "id",
         "name",
         "group",
+        "iconAssetId",
         "description",
         "modifierKind",
         "sourceKey",

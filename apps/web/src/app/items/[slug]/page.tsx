@@ -22,7 +22,10 @@ import { EncrustmentSlotIconStack } from "@/components/encrustment-slot-list";
 import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { RecipePreview } from "@/components/recipe-preview";
-import { StatModifierLink } from "@/components/stat-modifier-link";
+import {
+  StatDefinitionLink,
+  StatModifierLink,
+} from "@/components/stat-modifier-link";
 import {
   loadArtifact,
   loadArtifactSha256,
@@ -693,25 +696,29 @@ export default async function ItemPage({
                     Named stats
                   </h3>
                   <dl className="stat-list">
-                    {item.stats.map((stat) => (
-                      <div key={stat.statKey}>
-                        <dt>
-                          {stat.statId && statsById.get(stat.statId) ? (
-                            <Link
-                              className="entity-link"
-                              href={`/stats/${statsById.get(stat.statId)?.slug}`}
-                            >
-                              {stat.statName}
-                            </Link>
-                          ) : (
-                            stat.statName
-                          )}
-                        </dt>
-                        <dd>
-                          {stat.amount > 0 ? `+${stat.amount}` : stat.amount}
-                        </dd>
-                      </div>
-                    ))}
+                    {item.stats.map((stat) => {
+                      const definition = stat.statId
+                        ? statsById.get(stat.statId)
+                        : undefined;
+                      return (
+                        <div key={stat.statKey}>
+                          <dt>
+                            {definition ? (
+                              <StatDefinitionLink
+                                artifact={artifact}
+                                artifactSha256={artifactSha256}
+                                display="icon-label"
+                                label={stat.statName}
+                                stat={definition}
+                              />
+                            ) : (
+                              stat.statName
+                            )}
+                          </dt>
+                          <dd>{signedStatModifierValue(stat.amount)}</dd>
+                        </div>
+                      );
+                    })}
                   </dl>
                 </section>
               ) : null}
@@ -730,6 +737,9 @@ export default async function ItemPage({
                       >
                         <dt>
                           <StatModifierLink
+                            artifact={artifact}
+                            artifactSha256={artifactSha256}
+                            display="icon-label"
                             modifier={modifier}
                             stats={artifact.entities.stats}
                           />

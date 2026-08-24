@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { CraftingSourceLevel } from "@/components/crafting-source-level";
+import type { StatLinkPresentation } from "@/lib/stat-presentation-types";
+
 export interface CatalogueItemReference {
   amount: number;
   iconUrl: string | null;
@@ -29,11 +32,13 @@ export function CatalogueItemReferenceList({
   output = false,
   overflowNoun,
   references,
+  sourceStats = [],
 }: {
   limit?: number | undefined;
   output?: boolean;
   overflowNoun: string;
   references: readonly CatalogueItemReference[];
+  sourceStats?: readonly StatLinkPresentation[];
 }) {
   const visibleReferences = limit ? references.slice(0, limit) : references;
   const hiddenCount = references.length - visibleReferences.length;
@@ -41,34 +46,46 @@ export function CatalogueItemReferenceList({
     <ul className="recipe-summary-reference-list">
       {visibleReferences.map((reference, index) => (
         <li
+          className={
+            output && reference.skillLevel !== null && reference.skillLevel > 0
+              ? "recipe-summary-output-reference"
+              : undefined
+          }
           key={`${reference.key}:${reference.skillLevel ?? "input"}:${index}`}
         >
-          <ReferenceArt
-            iconUrl={reference.iconUrl}
-            itemName={reference.itemName}
-          />
-          <span className="recipe-summary-reference-copy">
-            <span>
-              {output || reference.amount !== 1 ? (
-                <>
-                  <strong>{reference.amount} ×</strong>{" "}
-                </>
-              ) : null}
-              {reference.itemSlug ? (
-                <Link
-                  className="entity-link"
-                  href={`/items/${reference.itemSlug}`}
-                >
-                  {reference.itemName}
-                </Link>
-              ) : (
-                reference.itemName
-              )}
+          {output &&
+          reference.skillLevel !== null &&
+          reference.skillLevel > 0 ? (
+            <CraftingSourceLevel
+              level={reference.skillLevel}
+              stats={sourceStats}
+            />
+          ) : null}
+          <span className="recipe-summary-reference-item">
+            <ReferenceArt
+              iconUrl={reference.iconUrl}
+              itemName={reference.itemName}
+            />
+            <span className="recipe-summary-reference-copy">
+              <span>
+                {output || reference.amount !== 1 ? (
+                  <>
+                    <strong>{reference.amount} ×</strong>{" "}
+                  </>
+                ) : null}
+                {reference.itemSlug ? (
+                  <Link
+                    className="entity-link"
+                    href={`/items/${reference.itemSlug}`}
+                  >
+                    {reference.itemName}
+                  </Link>
+                ) : (
+                  reference.itemName
+                )}
+              </span>
+              {!reference.itemSlug ? <small>Unresolved item</small> : null}
             </span>
-            {output && reference.skillLevel !== null ? (
-              <small>Source level {reference.skillLevel}</small>
-            ) : null}
-            {!reference.itemSlug ? <small>Unresolved item</small> : null}
           </span>
         </li>
       ))}

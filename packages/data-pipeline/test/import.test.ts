@@ -397,7 +397,7 @@ describe("synthetic dataset import", () => {
     );
     writeFileSync(
       path.join(sourceRoot, "statDB.xml"),
-      '<stats><stat id="burliness" name="Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="duplicate-burliness" name="Duplicate Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="mana" name="Mana" group="secondary" modifierKind="secondary" sourceKey="1"/></stats>',
+      '<stats><stat id="burliness" name="Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="duplicate-burliness" name="Duplicate Burliness" group="primary" modifierKind="primary" sourceKey="0"/><stat id="mana" name="Mana" group="secondary" iconAssetId="stat-unreviewed" modifierKind="secondary" sourceKey="1"/></stats>',
     );
     const referenceManifestPath = path.join(temporaryRoot, "manifest.json");
     writeFileSync(
@@ -445,6 +445,15 @@ describe("synthetic dataset import", () => {
         details: expect.objectContaining({ selector: "primary:0" }),
       }),
     );
+    expect(result.artifact.entities.stats).toContainEqual(
+      expect.objectContaining({ id: "stat:mana", iconAssetId: null }),
+    );
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "invalid_stat_icon_asset_id",
+        entityId: "stat:mana",
+      }),
+    );
   });
 
   it("loads the complete project-authored canonical stat reference", () => {
@@ -484,9 +493,16 @@ describe("synthetic dataset import", () => {
     const selectors = result.artifact.entities.stats.map(
       (stat) => `${stat.modifier?.kind}:${stat.modifier?.sourceKey}`,
     );
+    const iconAssetIds = result.artifact.entities.stats.map(
+      (stat) => stat.iconAssetId,
+    );
 
     expect(result.artifact.entities.stats).toHaveLength(62);
     expect(new Set(selectors).size).toBe(62);
+    expect(iconAssetIds.every((iconAssetId) => iconAssetId !== null)).toBe(
+      true,
+    );
+    expect(new Set(iconAssetIds).size).toBe(62);
     expect(selectors).toEqual(
       expect.arrayContaining([
         "damage:acidic",
@@ -495,6 +511,14 @@ describe("synthetic dataset import", () => {
         "primary:5",
         "secondary:0",
         "secondary:23",
+      ]),
+    );
+    expect(iconAssetIds).toEqual(
+      expect.arrayContaining([
+        "stat-damage-asphyxiative",
+        "stat-primary-4",
+        "stat-secondary-15",
+        "stat-secondary-23",
       ]),
     );
     expect(result.diagnostics).toEqual([]);

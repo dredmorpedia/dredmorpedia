@@ -1329,12 +1329,14 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade Recipe" }),
   ).toBeVisible();
-  await expect(page.getByText("Highest source skill")).toBeVisible();
+  await expect(page.getByText("Highest source skill")).toHaveCount(0);
   await expect(page.getByText("Visible recipe")).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "Ingredients" }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Brass Ingot" })).toBeVisible();
+  await expect(page.getByText("Source level 2", { exact: true })).toBeVisible();
+  await expect(page.getByText("Source level 4", { exact: true })).toBeVisible();
   await expect(page.getByText("Missing Cog", { exact: true })).toBeVisible();
   await expect(page.getByText("Unresolved item")).toBeVisible();
   await page

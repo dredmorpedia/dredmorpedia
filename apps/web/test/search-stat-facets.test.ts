@@ -20,6 +20,7 @@ function stat(id: string, name: string, modifier: Stat["modifier"]): Stat {
     name,
     description: "",
     group: modifier?.kind ?? "other",
+    iconAssetId: null,
     modifier,
     provenance,
     variants: [provenance],

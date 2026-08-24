@@ -68,9 +68,11 @@ Generated output is not automatically safe to publish merely because it is trans
 
 The tracked Dredmorpedia stat and engine-item references are independently
 authored project data, not extracts of an official database. The stat reference
-contains only reviewed modifier-selector/name/category mappings and
-intentionally excludes preserved legacy prose, legacy icon references, and
-gameplay formulas. The engine-item reference contains only separately
+contains only reviewed modifier-selector/name/category mappings plus closed
+project-owned stat-icon identities; it intentionally excludes preserved legacy
+prose, official icon paths/bytes, and gameplay formulas. The ignored official
+manifest resolves those identities within the same local-only asset boundary.
+The engine-item reference contains only separately
 evidenced identity/absence facts and an official source path for local asset
 resolution. Importing either as a separately versioned `reference` source does
 not broaden permission to publish official entity values or assets.
@@ -104,17 +106,17 @@ or exact named palettes are applied during deterministic generation. Complete
 animations and unrelated sprite resources remain out of scope.
 
 The implemented icon slices follow this boundary for item, skill, ability,
-spell, and monster detail pages plus three fixed item-catalogue interface
-features. They copy referenced PNG item, skill, ability, and root spell icons,
-derive only the selected first monster idle frame, and copy only the
-manifest-declared gold, filled-quality-star, and empty-quality-star icons from
-the importer's first-registration byte snapshots into the managed, gitignored
-web asset directory. The schema-2 generated catalog uses typed entity and UI
-icon mappings, content-addressed filenames, complete bounded PNG validation,
-exact active artifact identity, and fallback diagnostics. Its schema-3
-manifest additionally declares the complete expected UI asset ID set so the
-web can reject a missing, extra, stale, or checksum-mismatched interface icon
-before rendering the asset set.
+spell, monster, item-catalogue, Encrust-slot, and stat presentation. They copy
+referenced PNG item, skill, ability, and root spell icons, derive only the
+selected first monster idle frame, and copy only the manifest-declared gold,
+quality-star, Encrust applicability, and reviewed stat icons from the
+importer's first-registration byte snapshots into the managed, gitignored web
+asset directory. The schema-2 generated catalog uses typed entity and UI icon
+mappings, content-addressed filenames, complete bounded PNG validation, exact
+active artifact identity, and fallback diagnostics. Its schema-3 manifest
+additionally declares the complete expected UI asset ID set so the web can
+reject a missing, extra, stale, checksum-mismatched, or stat-required interface
+icon before rendering the asset set.
 Missing, unsupported, or invalid images use a deliberate page fallback. Buff-
 and effect-local spell icons remain out of scope because no implemented page
 presents them as entity art. Other entity art and monster animation frames

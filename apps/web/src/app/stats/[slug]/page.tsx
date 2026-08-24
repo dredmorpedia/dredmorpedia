@@ -9,7 +9,8 @@ import {
 } from "@dredmorpedia/domain";
 
 import { ProvenanceCard } from "@/components/provenance-card";
-import { loadArtifact } from "@/lib/artifact";
+import { StatIcon } from "@/components/stat-modifier-link";
+import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 
 export const dynamicParams = false;
 const unavailableSlug = "unavailable";
@@ -63,6 +64,7 @@ export default async function StatPage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
+  const artifactSha256 = loadArtifactSha256();
   const stat = artifact.entities.stats.find((entry) =>
     matchesEntityRoute(entry, slug),
   );
@@ -142,16 +144,23 @@ export default async function StatPage({
       </nav>
 
       <header className="detail-header">
-        <div>
-          <p className="eyebrow">{stat.group} stat</p>
-          <h1 className="detail-title">{stat.name}</h1>
-          <p className="detail-copy">
-            {stat.description
-              ? stat.description
-              : stat.modifier
-                ? `${isProjectReference ? "Project" : "Source"} reference mapping for source selector ${stat.modifier.kind}:${stat.modifier.sourceKey}.`
-                : "No standalone description is available for this definition."}
-          </p>
+        <div className="stat-detail-heading">
+          <StatIcon
+            artifact={artifact}
+            artifactSha256={artifactSha256}
+            stat={stat}
+          />
+          <div>
+            <p className="eyebrow">{stat.group} stat</p>
+            <h1 className="detail-title">{stat.name}</h1>
+            <p className="detail-copy">
+              {stat.description
+                ? stat.description
+                : stat.modifier
+                  ? `${isProjectReference ? "Project" : "Source"} reference mapping for source selector ${stat.modifier.kind}:${stat.modifier.sourceKey}.`
+                  : "No standalone description is available for this definition."}
+            </p>
+          </div>
         </div>
         <dl className="price-block">
           <dt>Referenced by</dt>

@@ -62,7 +62,7 @@ const sortOptions: readonly CatalogueSettingOption<CraftCatalogueSort>[] = [
     value: "skill",
     label: "First output level",
     description:
-      "Lowest declared source level first; no skill name is inferred.",
+      "Lowest declared output level first; stat icons provide familiar context.",
   },
 ];
 

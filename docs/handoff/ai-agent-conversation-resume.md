@@ -24,7 +24,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - The current target is a locally complete product based on `1.1.5 public_beta`, including only the official assets needed by entities and features the product actually presents. Public deployment and a dataset-version switcher are postponed.
 - Official XML, generated official datasets, and copied official assets stay ignored and non-public. Selected screenshots may be prepared when requesting permission, but a screenshot does not establish permission to publish the underlying material.
 - New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are outside that intended scope. Scoped license files remain pending until the copyright-holder wording is supplied.
-- ADR 0001 through ADR 0006 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented. ADR 0005 supplies an independently authored, separately versioned 62-selector stat reference without legacy prose, icons, or formulas. ADR 0006 supplies one explicitly labelled Lockpick engine-item reference from active relationship evidence, with no legacy price or other inferred item facts, and gives direct Macguffin records their semantic catalogue category.
+- ADR 0001 through ADR 0006 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented. ADR 0005 supplies an independently authored, separately versioned 62-selector stat reference without legacy prose or formulas; its 1.1.0 amendment adds closed stat-icon identities while official paths/bytes remain ignored local assets. ADR 0006 supplies one explicitly labelled Lockpick engine-item reference from active relationship evidence, with no legacy price or other inferred item facts, and gives direct Macguffin records their semantic catalogue category.
 - Engine mechanics absent from XML must be evaluated individually immediately before their implementation. Legacy formulas are evidence to test, not automatically authoritative or automatically excluded.
 - The first Phase 5 crafting and separately modeled encrustment dependency and
   shopping-list slices are complete. The first rich cross-list filter combines
@@ -38,8 +38,12 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
   catalogue. Its owner-reviewed polish is complete: compact categories by
   default, preserved game order, optional static sort/page settings, improved
   representative icons, small expansion markers, and manifest-declared
-  gold/quality imagery. Stat imagery remains separately gated on a verified
-  official mapping. The Craft catalogue foundation has seven familiar tool
+  gold/quality imagery. The verified stat-icon slice adds compact icon/value
+  links to item summaries, icon/name/value links to item details, and matching
+  stat-header art with text fallbacks. Encrust modifiers retain names beside
+  those icons, while Craft output tiers and Encrust requirements use the
+  preserved tool-to-stat icon order beside their exact source levels without
+  inferring AND/OR eligibility. The Craft catalogue foundation has seven familiar tool
   routes, verified toolkit art, compact/detailed navigation, persisted display
   settings, a 36-recipe default plus 24/All views, source/name/lowest-level
   orders and reusable recipe summary cards. In both Items and selected-tool
@@ -291,11 +295,12 @@ keyboard/touch-scrolling Base UI list, displayed-label ordering, semantic
 groups, contextual entity-type options, exact generated facet tokens, and
 automatic removal of incompatible category parameters.
 
-The page-driven non-item visual inventory is complete. All 52 skill, 352
+The page-driven visual inventory now also includes the reviewed stat-icon
+slice. All 52 skill, 352
 ability, 440 root spell, and 183 monster records with art references now render
 through the existing ignored, checksum-bound presented-asset set. The canonical
 set contains 764 item-icon, 52 skill-icon, 352 ability-icon, 440 spell-icon,
-183 monster-icon, and 14 UI-icon mappings backed by 1,494 unique PNG files
+183 monster-icon, and 76 UI-icon mappings backed by 1,555 unique PNG files
 with no fallbacks.
 Monster output is restricted to the first downward idle frame; XML wrappers,
 SPR decoding, and declared numeric or named palettes are generation-time,
@@ -306,7 +311,8 @@ declaring source, named palettes cover XML-backed PNG frames, and all copied
 PNGs receive complete bounded structural/scanline validation. Evidence is in
 `docs/analysis/non-item-asset-inventory-and-skill-icons-2026-08-11.md` and
 `docs/analysis/spell-icon-import-evidence-2026-08-12.md` and
-`docs/analysis/monster-art-rendering-evidence-2026-08-12.md`.
+`docs/analysis/monster-art-rendering-evidence-2026-08-12.md` and
+`docs/analysis/stat-icon-parity-evidence-2026-08-24.md`.
 
 ## Git and owner handoff convention
 
@@ -321,7 +327,8 @@ The corrected reopened experience-parity slice adds direct core navigation, a
 separate `/tools/` directory, and the category-first, image-led `/items/`
 catalogue. It uses 31 familiar item categories, a compact/detailed chooser,
 preserved game order, optional static sort/page-size views, concise source
-markers, and verified gold/quality imagery. The bounded 36-item canonical pages
+markers, verified gold/quality imagery, and verified stat icon/value links.
+The bounded 36-item canonical pages
 remain fully server rendered, while the largest 54-item category can opt into
 All. The Craft and Encrust catalogue foundations plus accessible item-
 relationship recipe/encrustment previews and complete native overflow

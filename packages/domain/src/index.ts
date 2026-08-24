@@ -26,6 +26,7 @@ export {
   itemTriggerKinds,
   monsterSpellTriggerKinds,
   presentedAssetKinds,
+  presentedStatIconIds,
   presentedUiAssetIds,
   spellBuffEventHookKinds,
   statModifierKinds,

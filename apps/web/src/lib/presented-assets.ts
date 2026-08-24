@@ -201,6 +201,18 @@ function loadConfiguredAssets(
       "Generated presented assets do not match the active dataset.",
     );
   }
+  const declaredUiAssetIds = new Set(manifest.uiAssetIds);
+  const missingStatIconAssetId = artifact.entities.stats
+    .map((stat) => stat.iconAssetId)
+    .find(
+      (iconAssetId) =>
+        iconAssetId !== null && !declaredUiAssetIds.has(iconAssetId),
+    );
+  if (missingStatIconAssetId) {
+    throw new Error(
+      `Generated presented assets do not declare required stat icon ${missingStatIconAssetId}.`,
+    );
+  }
 
   const catalogResult = assetCatalogSchema.safeParse(
     parseJson(

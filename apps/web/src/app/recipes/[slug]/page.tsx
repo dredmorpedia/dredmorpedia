@@ -11,10 +11,17 @@ import {
   type RecipeOutput,
 } from "@dredmorpedia/domain";
 
+import { CraftingSourceLevel } from "@/components/crafting-source-level";
 import { ProvenanceCard } from "@/components/provenance-card";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { craftCatalogueToolPathForTag } from "@/lib/craft-catalogue";
+import { craftingSourceStatPresentations } from "@/lib/crafting-source-stats";
 import { titleCase } from "@/lib/display-labels";
+import type { StatLinkPresentation } from "@/lib/stat-presentation-types";
 
 export const dynamicParams = false;
 
@@ -28,10 +35,12 @@ function RecipeReferences({
   references,
   itemsById,
   amountLabel,
+  sourceStats = [],
 }: {
   references: (ItemReference | RecipeOutput)[];
   itemsById: ReadonlyMap<string, Item>;
   amountLabel: string;
+  sourceStats?: readonly StatLinkPresentation[];
 }) {
   if (references.length === 0) {
     return (
@@ -64,7 +73,10 @@ function RecipeReferences({
                 {amountLabel} {reference.amount}
               </strong>
               {"skillLevel" in reference ? (
-                <small>Source skill {reference.skillLevel}</small>
+                <CraftingSourceLevel
+                  level={reference.skillLevel}
+                  stats={sourceStats}
+                />
               ) : null}
             </span>
           </li>
@@ -103,6 +115,7 @@ export default async function RecipePage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
+  const artifactSha256 = loadArtifactSha256();
   const recipe = artifact.entities.recipes.find((entry) =>
     matchesEntityRoute(entry, slug),
   );
@@ -122,6 +135,12 @@ export default async function RecipePage({
   );
   const isAlias = slug !== recipe.slug;
   const tool = titleCase(recipe.tool);
+  const sourceStats = craftingSourceStatPresentations({
+    artifact,
+    artifactSha256,
+    stats: artifact.entities.stats,
+    tool: recipe.tool,
+  });
 
   return (
     <article className="detail-page">
@@ -166,10 +185,6 @@ export default async function RecipePage({
             </dd>
           </div>
           <div>
-            <dt>Highest source skill</dt>
-            <dd>{recipe.skillLevel}</dd>
-          </div>
-          <div>
             <dt>Discovery</dt>
             <dd>{recipe.hidden ? "Hidden recipe" : "Visible recipe"}</dd>
           </div>
@@ -210,6 +225,7 @@ export default async function RecipePage({
             references={recipe.outputs}
             itemsById={itemsById}
             amountLabel="Produces"
+            sourceStats={sourceStats}
           />
         </section>
 

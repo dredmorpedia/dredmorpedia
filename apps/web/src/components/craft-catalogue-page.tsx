@@ -105,8 +105,8 @@ export function CraftCataloguePage({
           <h1 className="section-title">Crafts</h1>
           <p className="hero-copy">
             Browse complete recipes by their familiar crafting tool, with
-            ingredients, output art, source skill tiers, and hidden-recipe
-            status visible together.
+            ingredients, output art, source levels, and hidden-recipe status
+            visible together.
           </p>
         </div>
         {activeTool && result ? (
