@@ -77,9 +77,12 @@ Keep the placeholder and ambiguous spell labels unresolved absent new evidence.
 
 On 2026-08-22, ADR 0006 superseded only the Lockpick portion of this
 classification. A separately versioned project reference now creates an
-explicitly labelled `item:lockpick` identity from the 16 active relationship
-declarations plus the verified official icon path, without importing the
-legacy-authored price. Those relationships resolve exactly and no longer emit
-source-only audit records. The two `Spores` options retain this document's
-source-only classification and stable review ID. Current measurements are in
+explicitly labelled `item:lockpick` identity from the 16 active loadout
+declarations, the active `Lucky Pick` direct item target, and the verified
+official icon path, without importing the legacy-authored price. Those
+relationships resolve exactly and no longer emit source-only audit records. A
+later read-only installation search found additional room, tweak,
+configuration-text, and executable evidence but did not expand the generated
+item contract. The two `Spores` options retain this document's source-only
+classification and stable review ID. Current measurements are in
 [`engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`](engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md).

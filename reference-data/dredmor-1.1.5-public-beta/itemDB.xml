@@ -2,6 +2,6 @@
 <!-- Independently authored Dredmorpedia reference data. This is not game XML. -->
 <items>
   <item name="Lockpick" iconFile="items/lockpick.png">
-    <description text="An engine item referenced by active skill starting loadouts but not declared in the active item database." />
+    <description text="An engine item referenced by active game data but not declared in the active item database." />
   </item>
 </items>

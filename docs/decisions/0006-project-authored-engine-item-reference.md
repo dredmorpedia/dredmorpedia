@@ -7,12 +7,18 @@ Owners: repository owner + maintainer
 ## Context
 
 The canonical Dungeons of Dredmor `1.1.5 public_beta` sources contain 16
-active skill-loadout declarations for `lockpick`, and the base installation
-contains `items/lockpick.png`, but no active item database record defines the
-item. A Lockpick recipe is present only inside an XML comment. The preserved
-site worked around this gap by mutating its local item database and assigning
-the item a price of 10; that value is project-authored legacy behavior, not
-canonical source evidence.
+active skill-loadout declarations for `lockpick`, an active `Lucky Pick`
+direct spell effect that names `Lockpick` with source amount 3, and an active
+room-loot declaration that uses the engine `misc`/`lockpick` classification
+with source amount 8. The installation also contains `items/lockpick.png`,
+Lockpick-specific UI/configuration text and tweak names, and matching literal
+engine strings, but no active item database record defines the item.
+
+A Lockpick recipe, the old Lockpicking skill group, its `Blast Key` spells,
+and the Lockpick tutorial entry are present only inside XML comments. The
+preserved site worked around the missing item record by mutating its local item
+database and assigning the item a price of 10; that value is project-authored
+legacy behavior, not canonical source evidence.
 
 Treating the loadout declarations as permanently source-only prevents a useful
 item route, image, and backlink surface. Copying the legacy mutation would hide
@@ -27,21 +33,23 @@ clearer source-backed category than the generic fallback.
 
 Maintain a narrowly scoped, independently authored, versioned engine-item
 reference for the canonical dataset. Its first record identifies Lockpick by
-name and official icon path and explains that it is referenced by active
-starting-loadout declarations but absent from the active item database.
+name and official icon path and explains that it is referenced by active game
+data but absent from the active item database.
 
 The reference is imported as a distinct `reference` source after the measured
 game sources. It creates the stable `item:lockpick` identity and route, resolves
-the existing loadout relationships, and may use the verified base-game icon in
-the ignored local presented-asset output. The UI must label the record as an
-engine reference and render undeclared item facts such as price and quality as
-`Not declared`.
+the existing loadout relationships and already-normalized `Lucky Pick` direct
+item target, and may use the verified base-game icon in the ignored local
+presented-asset output. The UI must label the record as an engine reference and
+render undeclared item facts such as price and quality as `Not declared`.
 
 The reference does not patch the game installation or generated official XML,
 does not activate commented XML, and does not import the preserved site's
-invented price. A future complete dataset must first be checked for an active
-official Lockpick record; if one exists, the reference must be retired rather
-than override it.
+invented price. Room, tweak, text, changelog, and executable evidence remains a
+documented read-only finding rather than becoming an item-source contract or a
+claim about undeclared runtime formulas. A future complete dataset must first
+be checked for an active official Lockpick record; if one exists, the reference
+must be retired rather than override it.
 
 Items with a direct `macguffin` declaration use the semantic `macguffin`
 catalogue category. This changes presentation only; it does not infer engine
@@ -55,8 +63,9 @@ because the exact labels can now resolve without an alias or correction.
 
 ### Positive
 
-- Lockpick gains an image-led item route and complete starting-loadout
-  backlinks without fabricating official item facts.
+- Lockpick gains an image-led item route, complete starting-loadout backlinks,
+  and its exact normalized `Lucky Pick` backlink without fabricating official
+  item facts.
 - Provenance remains explicit and queryable at the artifact and UI boundaries.
 - Voodoo Globe and Satanic Locator remain visible under a source-backed
   Macguffin category instead of the generic Item fallback.
@@ -88,7 +97,8 @@ because the exact labels can now resolve without an alias or correction.
 - Import tests enforce Macguffin categorization and exact relationship
   resolution without a reviewed correction.
 - Web tests cover the reference badge, undeclared facts, item route, category,
-  and keyboard-accessible relationships.
+  and keyboard-accessible relationships; the shared direct-item relationship
+  contract covers the `Lucky Pick` backlink.
 - Official generation must preserve zero errors and the existing four
   deliberate relationship warnings.
 

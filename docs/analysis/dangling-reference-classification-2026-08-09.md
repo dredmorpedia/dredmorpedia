@@ -41,11 +41,13 @@ message and source location.
 
 The 16 `lockpick` declarations are named `misc` loadout subtypes across three
 skills. The installed skill schema makes `subtype` an unconstrained string,
-and the base recipe source separately produces `Lockpick` at multiple skill
-levels without an item database record. The preserved application retains the
-subtype label but its item renderer emits an icon/link only when the item
-database contains the same name. This is consistent with an engine-defined
-inventory/subtype token, but it does not establish a normalized item entity.
+and the active `Lucky Pick` spell separately names `Lockpick` as a direct item
+target without an item database record. A base recipe produces Lockpick at
+multiple skill levels only inside an XML comment and is not active. The
+preserved application retains the subtype label but its item renderer emits an
+icon/link only when the item database contains the same name. This was
+consistent with an engine-defined inventory/subtype token, but at this stage it
+did not yet establish a normalized item entity.
 
 The two `Spores` declarations are separate amount-bearing options in one
 `spawnitemfromlist` effect. No normalized `Spores` item exists. Other source
@@ -131,9 +133,12 @@ with the reviewed correction recorded separately in
 On 2026-08-22, ADR 0006 revised only the Lockpick conclusion after a focused
 legacy/source comparison. A versioned, visibly project-authored engine-item
 reference now supplies the identity and verified icon path but no legacy price
-or inferred ordinary item facts. All 16 loadouts consequently resolve exactly.
-`Spores` remains source-only, while the placeholder and ambiguous spell labels
-remain unresolved. See
+or inferred ordinary item facts. All 16 loadouts and the already-normalized
+`Lucky Pick` direct item target consequently resolve exactly. A 2026-08-24
+read-only follow-up also found active room, tweak, configuration-text, and
+literal executable evidence, which remains documented rather than imported as
+ordinary item facts. `Spores` remains source-only, while the placeholder and
+ambiguous spell labels remain unresolved. See
 [`engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`](engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md).
 
 ## Verification

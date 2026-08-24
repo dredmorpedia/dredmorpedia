@@ -213,6 +213,11 @@ ADR 0006 is also accepted and implemented; its current canonical measurements
 and source boundary are recorded in
 `docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
 
+A 2026-08-24 read-only whole-installation follow-up confirms that the reference
+also resolves the active `Lucky Pick` direct item target and records supporting
+room, tweak, configuration-text, and literal executable evidence. Those source
+families remain documented rather than imported merely to enrich one item.
+
 The shared search category control rework is complete. Preserve its bounded
 keyboard/touch-scrolling Base UI list, displayed-label ordering, semantic
 groups, contextual entity-type options, exact generated facet tokens, and

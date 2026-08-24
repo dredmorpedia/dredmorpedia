@@ -160,6 +160,10 @@ Continue toward local parity without assuming permission to publish official con
 6. ADR 0004 is implemented; keep `--publication-routes` off local official commands until content permission exists, and keep the version switcher deferred until a second complete dataset exists. Evidence is in `docs/analysis/published-route-registry-lifecycle-evidence-2026-08-09.md`.
 7. ADR 0003 is accepted: `pnpm benchmark:search:official` enforces the transfer, parse, ordinary/suggestion query, concrete relevance, and desktop/4x-CPU-mobile browser budgets recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
 8. The presented-asset set now maps all 764 canonical items, including the labelled Lockpick engine reference, while retaining official asset provenance and zero fallbacks; current measurements are in `docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
+   A 2026-08-24 read-only whole-installation follow-up also confirms the exact
+   `Lucky Pick` direct-item link and supporting room, tweak,
+   configuration-text, and literal executable evidence without expanding the
+   generated item contract.
 9. `/dataset/` exposes the active source order, grouped diagnostics, affected
    records, 71 canonical override steps, and reviewed patches from the verified
    artifact set. It is not a source selector or version switcher. Evidence is

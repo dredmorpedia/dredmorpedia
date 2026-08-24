@@ -501,8 +501,11 @@ set is now four declarations, with 90 informational records. Evidence is recorde
 The 2026-08-22 legacy/source comparison subsequently replaces only the
 Lockpick source-only classification. ADR 0006 adds a visibly project-authored,
 versioned engine-item reference with no price or inferred ordinary item facts;
-all 16 loadouts now resolve exactly and the verified official icon is copied
-only into ignored local output. The two `Spores` options remain source-only.
+all 16 loadouts and the active `Lucky Pick` direct item target now resolve
+exactly, and the verified official icon is copied only into ignored local
+output. A later read-only search found supporting room, tweak,
+configuration-text, and executable evidence without expanding the item-source
+contract. The two `Spores` options remain source-only.
 The same slice gives the two active official Macguffin item records their own
 semantic catalogue category instead of hiding them or leaving them in generic
 Item. Current canonical generation contains 764 items, 2,830 search documents,

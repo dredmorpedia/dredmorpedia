@@ -96,8 +96,11 @@ Read these files before making a substantial change:
   0006 subsequently replaces the former source-only treatment of the 16 exact
   `lockpick` loadouts with a separately versioned, visibly project-authored
   engine-item reference. It creates `item:lockpick`, links all 16 declarations,
-  and uses the verified official icon locally while declaring no price,
-  quality, stats, or ordinary item behavior. The
+  links the active `Lucky Pick` direct item target, and uses the verified
+  official icon locally while declaring no price, quality, stats, or ordinary
+  item behavior. A read-only whole-installation follow-up also found active
+  room, tweak, configuration-text, and literal executable evidence; those
+  source families remain documented rather than imported for this one item. The
   owner also approved one narrowly scoped reviewed correction from Luckier
   Find's source label `Acidium Salis` to the existing `Acidum Salis` item. It
   retains the original label and a stable review ID, creates a resolved

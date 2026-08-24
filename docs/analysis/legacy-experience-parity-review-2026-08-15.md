@@ -147,11 +147,12 @@ that redundant identity because its selected tab provides scrolling context.
 The follow-up generic Item comparison is also resolved. Voodoo Globe and
 Satanic Locator are active official records, so they remain visible under a
 new semantic Macguffin category. Lockpick is absent from the active item
-database but present in 16 starting-loadout declarations with a verified
-official icon. ADR 0006 therefore exposes it as a visibly labelled,
-project-authored engine reference with exact loadout backlinks and `Not
-declared` value/quality facts; the preserved setup's invented price is not
-copied. Evidence is in
+database but present in 16 starting-loadout declarations, the active `Lucky
+Pick` direct item target, further read-only engine data, and a verified official
+icon. ADR 0006 therefore exposes it as a visibly labelled, project-authored
+engine reference with exact normalized backlinks and `Not declared`
+value/quality facts; the preserved setup's invented price is not copied.
+Evidence is in
 `docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
 
 The remaining parity order is:
