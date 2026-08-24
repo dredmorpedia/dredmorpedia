@@ -8,30 +8,31 @@ import {
   type CatalogueLayout,
   type CatalogueSettingOption,
 } from "@/components/catalogue-display-controls";
-import { CatalogueToolNavigation } from "@/components/catalogue-tool-navigation";
 import {
-  craftCatalogueToolPath,
-  defaultCraftCatalogueView,
-  type CraftCataloguePageSize,
-  type CraftCatalogueSort,
-  type CraftCatalogueTool,
-  type CraftCatalogueView,
-} from "@/lib/craft-catalogue";
+  CatalogueToolNavigation,
+  type CatalogueToolNavigationEntry,
+} from "@/components/catalogue-tool-navigation";
+import {
+  defaultEncrustCatalogueView,
+  encrustCatalogueToolPath,
+  type EncrustCataloguePageSize,
+  type EncrustCatalogueSort,
+  type EncrustCatalogueTool,
+  type EncrustCatalogueView,
+} from "@/lib/encrust-catalogue";
 
-export interface CraftCatalogueNavigationEntry extends CraftCatalogueTool {
-  href: string;
-  iconUrl: string | null;
-}
+export interface EncrustCatalogueNavigationEntry
+  extends EncrustCatalogueTool, CatalogueToolNavigationEntry {}
 
-interface StoredCraftPreferences extends CraftCatalogueView {
+interface StoredEncrustPreferences extends EncrustCatalogueView {
   toolLayout: CatalogueLayout;
 }
 
-interface CraftCatalogueControlsProps {
-  activeTool: Pick<CraftCatalogueTool, "segment" | "tag">;
-  activeView: CraftCatalogueView;
+interface EncrustCatalogueControlsProps {
+  activeTool: Pick<EncrustCatalogueTool, "segment" | "tag">;
+  activeView: EncrustCatalogueView;
   redirectToStoredView?: boolean;
-  tools: readonly CraftCatalogueNavigationEntry[];
+  tools: readonly EncrustCatalogueNavigationEntry[];
 }
 
 const layoutOptions: readonly CatalogueSettingOption<CatalogueLayout>[] = [
@@ -43,11 +44,11 @@ const layoutOptions: readonly CatalogueSettingOption<CatalogueLayout>[] = [
   {
     value: "expanded",
     label: "Detailed tools",
-    description: "Keep every crafting-tool name visible.",
+    description: "Keep every encrusting-tool name visible.",
   },
 ];
 
-const sortOptions: readonly CatalogueSettingOption<CraftCatalogueSort>[] = [
+const sortOptions: readonly CatalogueSettingOption<EncrustCatalogueSort>[] = [
   {
     value: "game",
     label: "Game order",
@@ -56,40 +57,44 @@ const sortOptions: readonly CatalogueSettingOption<CraftCatalogueSort>[] = [
   {
     value: "name",
     label: "Name (A–Z)",
-    description: "Alphabetical by displayed English recipe name.",
+    description: "Alphabetical by displayed English encrustment name.",
   },
   {
     value: "skill",
-    label: "First output level",
-    description:
-      "Lowest declared source level first; no skill name is inferred.",
+    label: "Required source level",
+    description: "Lowest declared source level first; no skill is inferred.",
+  },
+  {
+    value: "instability",
+    label: "Instability",
+    description: "Lowest declared instability value first.",
   },
 ];
 
-const pageSizeOptions: readonly CatalogueSettingOption<CraftCataloguePageSize>[] =
+const pageSizeOptions: readonly CatalogueSettingOption<EncrustCataloguePageSize>[] =
   [
+    { value: 12, label: "12" },
     { value: 24, label: "24" },
-    { value: 36, label: "36 (default)" },
-    { value: "all", label: "All for this tool" },
+    { value: "all", label: "All for this tool (default)" },
   ];
 
-const storageKey = "dredmorpedia:craft-catalogue-preferences:v1";
+const storageKey = "dredmorpedia:encrust-catalogue-preferences:v1";
 const preferenceListeners = new Set<() => void>();
-let preferenceSnapshot: StoredCraftPreferences | null | undefined;
+let preferenceSnapshot: StoredEncrustPreferences | null | undefined;
 
-function isPageSize(value: unknown): value is CraftCataloguePageSize {
-  return value === 24 || value === 36 || value === "all";
+function isPageSize(value: unknown): value is EncrustCataloguePageSize {
+  return value === 12 || value === 24 || value === "all";
 }
 
-function isSort(value: unknown): value is CraftCatalogueSort {
-  return ["game", "name", "skill"].includes(String(value));
+function isSort(value: unknown): value is EncrustCatalogueSort {
+  return ["game", "name", "skill", "instability"].includes(String(value));
 }
 
-function readStoredPreferences(): StoredCraftPreferences | null {
+function readStoredPreferences(): StoredEncrustPreferences | null {
   try {
     const parsed = JSON.parse(
       localStorage.getItem(storageKey) ?? "null",
-    ) as Partial<StoredCraftPreferences> | null;
+    ) as Partial<StoredEncrustPreferences> | null;
     if (
       !parsed ||
       !isSort(parsed.sort) ||
@@ -108,7 +113,7 @@ function readStoredPreferences(): StoredCraftPreferences | null {
   }
 }
 
-function getPreferenceSnapshot(): StoredCraftPreferences | null {
+function getPreferenceSnapshot(): StoredEncrustPreferences | null {
   preferenceSnapshot ??= readStoredPreferences();
   return preferenceSnapshot;
 }
@@ -134,7 +139,7 @@ function notifyPreferenceListeners(): void {
   }
 }
 
-function storePreferences(preferences: StoredCraftPreferences): void {
+function storePreferences(preferences: StoredEncrustPreferences): void {
   preferenceSnapshot = preferences;
   try {
     localStorage.setItem(storageKey, JSON.stringify(preferences));
@@ -154,12 +159,12 @@ function clearPreferences(): void {
   notifyPreferenceListeners();
 }
 
-export function CraftCatalogueControls({
+export function EncrustCatalogueControls({
   activeTool,
   activeView,
   redirectToStoredView = false,
   tools,
-}: CraftCatalogueControlsProps) {
+}: EncrustCatalogueControlsProps) {
   const router = useRouter();
   const storedPreferences = useSyncExternalStore(
     subscribeToPreferences,
@@ -175,8 +180,12 @@ export function CraftCatalogueControls({
     if (!storedPreferences || !redirectToStoredView) {
       return;
     }
-    const storedPath = craftCatalogueToolPath(activeTool, 1, storedPreferences);
-    const currentPath = craftCatalogueToolPath(activeTool, 1, activeView);
+    const storedPath = encrustCatalogueToolPath(
+      activeTool,
+      1,
+      storedPreferences,
+    );
+    const currentPath = encrustCatalogueToolPath(activeTool, 1, activeView);
     if (storedPath !== currentPath) {
       router.replace(storedPath);
     }
@@ -194,25 +203,25 @@ export function CraftCatalogueControls({
     const view = { sort: draftSort, pageSize: draftPageSize };
     storePreferences({ ...view, toolLayout });
     setOpen(false);
-    router.push(craftCatalogueToolPath(activeTool, 1, view));
+    router.push(encrustCatalogueToolPath(activeTool, 1, view));
   }
 
   function resetView() {
-    setDraftSort(defaultCraftCatalogueView.sort);
-    setDraftPageSize(defaultCraftCatalogueView.pageSize);
+    setDraftSort(defaultEncrustCatalogueView.sort);
+    setDraftPageSize(defaultEncrustCatalogueView.pageSize);
     clearPreferences();
     setOpen(false);
-    router.push(craftCatalogueToolPath(activeTool));
+    router.push(encrustCatalogueToolPath(activeTool));
   }
 
   return (
     <>
       <CatalogueDisplayControls
-        description="Choose how recipes are arranged. Preferences stay in this browser."
+        description="Choose how encrustments are arranged. Preferences stay in this browser."
         layout={toolLayout}
         layoutLabel="Tool display"
         layoutLegend="Tool chooser"
-        layoutName="craft-tool-layout"
+        layoutName="encrust-tool-layout"
         layoutOptions={layoutOptions}
         onApply={applyView}
         onLayoutChange={updateToolLayout}
@@ -228,25 +237,25 @@ export function CraftCatalogueControls({
         onSortChange={setDraftSort}
         open={open}
         pageSize={draftPageSize}
-        pageSizeLegend="Recipes per page"
-        pageSizeName="craft-page-size"
+        pageSizeLegend="Encrustments per page"
+        pageSizeName="encrust-page-size"
         pageSizeOptions={pageSizeOptions}
         sort={draftSort}
-        sortLegend="Recipe order"
-        sortName="recipe-order"
+        sortLegend="Encrustment order"
+        sortName="encrustment-order"
         sortOptions={sortOptions}
-        title="Craft display settings"
+        title="Encrust display settings"
       />
 
       <CatalogueToolNavigation
         activeToolTag={activeTool.tag}
-        anchorId="crafting-tools"
-        ariaLabel="Crafting tools"
+        anchorId="encrusting-tools"
+        ariaLabel="Encrusting tools"
         entries={tools}
-        itemNounPlural="recipes"
-        itemNounSingular="recipe"
+        itemNounPlural="encrustments"
+        itemNounSingular="encrustment"
         layout={toolLayout}
-        returnLabel="crafting tools"
+        returnLabel="encrusting tools"
       />
     </>
   );

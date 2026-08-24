@@ -995,6 +995,17 @@ export const presentedUiAssetIds = [
   "gold",
   "quality-empty",
   "quality-full",
+  "encrust-slot-neck",
+  "encrust-slot-chest",
+  "encrust-slot-waist",
+  "encrust-slot-feet",
+  "encrust-slot-ranged",
+  "encrust-slot-hands",
+  "encrust-slot-head",
+  "encrust-slot-legs",
+  "encrust-slot-ring",
+  "encrust-slot-shield",
+  "encrust-slot-weapon",
 ] as const;
 
 export type PresentedUiAssetId = (typeof presentedUiAssetIds)[number];

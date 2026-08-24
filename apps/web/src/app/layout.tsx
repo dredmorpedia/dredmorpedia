@@ -57,7 +57,7 @@ export default function RootLayout({
             <nav aria-label="Primary navigation" className="primary-nav">
               <Link href="/items/">Items</Link>
               <Link href="/crafts/">Crafts</Link>
-              <Link href="/browse/encrustments/1/">Encrusts</Link>
+              <Link href="/encrusts/">Encrusts</Link>
               <Link href="/browse/skills/1/">Skills</Link>
               <Link href="/browse/spells/1/">Spells</Link>
               <Link href="/browse/monsters/1/">Monsters</Link>

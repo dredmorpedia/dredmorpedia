@@ -10,10 +10,17 @@ import {
   type ItemReference,
 } from "@dredmorpedia/domain";
 
+import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
-import { loadArtifact, loadDiagnostics } from "@/lib/artifact";
+import {
+  loadArtifact,
+  loadArtifactSha256,
+  loadDiagnostics,
+} from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import { encrustCatalogueToolPathForTag } from "@/lib/encrust-catalogue";
+import { encrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
@@ -103,6 +110,7 @@ export default async function EncrustmentPage({
 }) {
   const { slug } = await params;
   const artifact = loadArtifact();
+  const artifactSha256 = loadArtifactSha256();
   const encrustment = artifact.entities.encrustments.find((entry) =>
     matchesEntityRoute(entry, slug),
   );
@@ -132,9 +140,13 @@ export default async function EncrustmentPage({
   return (
     <article className="detail-page">
       <nav aria-label="Breadcrumb" className="breadcrumb">
-        <Link href="/browse/">Browse</Link>
+        <Link href="/">Home</Link>
         <span aria-hidden="true">/</span>
-        <Link href="/browse/encrustments/1/">Encrustments</Link>
+        <Link href="/encrusts/">Encrusts</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={encrustCatalogueToolPathForTag(encrustment.tool)}>
+          {tool}
+        </Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{encrustment.name}</span>
       </nav>
@@ -238,13 +250,11 @@ export default async function EncrustmentPage({
             Applies to
           </h2>
           {encrustment.slots.length > 0 ? (
-            <ul className="encrustment-slot-list">
-              {encrustment.slots.map((slot) => (
-                <li key={slot} className="category-chip">
-                  {titleCase(slot)}
-                </li>
-              ))}
-            </ul>
+            <EncrustmentSlotList
+              slots={encrustment.slots.map((slot) =>
+                encrustmentSlotPresentation(slot, artifact, artifactSha256),
+              )}
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               No normalized equipment slots.
@@ -311,7 +321,7 @@ export default async function EncrustmentPage({
               {encrustment.appearanceDescriptors.length > 0 ? (
                 <section aria-labelledby="appearance-heading">
                   <h3 id="appearance-heading" className="relationship-title">
-                    Appearance descriptors
+                    Encrusted with
                   </h3>
                   <ul className="encrustment-descriptor-list">
                     {encrustment.appearanceDescriptors.map(

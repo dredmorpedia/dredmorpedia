@@ -35,11 +35,16 @@ Read these files before making a substantial change:
 - The incremental local-asset slices copy normalized item, skill, ability, and
   root spell PNG icons plus the selected first monster idle frame used by their
   implemented detail pages, plus the manifest-declared gold and filled/empty
-  quality interface icons used by the item catalogue, from those captured
-  snapshots into the ignored managed web asset directory. The schema-2 typed
+  quality interface icons used by the item catalogue and the 11 exact Encrust
+  applicability interface icons used by catalogue/detail pages, from those
+  captured snapshots into the ignored managed web asset directory. The schema-2 typed
   catalog, schema-3 manifest, diagnostics, content-addressed files, declared UI
   asset IDs, and exact artifact checksum must match the active generated
   dataset before the web renders an icon.
+- Item catalogue and detail cards expose direct item artifact declarations as
+  the legacy-facing **Artifact / Quality x** property. Keep it distinct from
+  ordinary item quality, and do not infer Archaeology, Museum, generation,
+  corruption, or other runtime behavior from the declaration.
 - The web initializes generated output as one verified artifact set. It checks
   every declared output checksum, schema, and cross-file invariant before
   caching or returning even the main artifact.
@@ -210,8 +215,26 @@ Read these files before making a substantial change:
   places verified toolkit art in the transformation between ingredients and
   outputs when available,
   has no internal scrollbar, restores focus on Escape, and remains bounded to
-  four references per side. Continue with Encrusts next. Keep Hidden and
-  expansion iconography for later card polish. The
+  four references per side. The Encrust catalogue foundation groups all 57
+  canonical encrustments under the five used toolkits in preserved familiar
+  order. It reuses verified toolkit/item art, compact/detailed navigation, the
+  progressive selected-tab return control, and persisted game/name/source-
+  level/instability ordering. Complete tool groups are the default, with
+  optional 12/24/All static views. Its cards expose exact ingredients,
+  applicability through the 11 exact manifest-declared schematic icons plus
+  visible text fallbacks, declared instability, direct modifiers, and powers
+  without inferring risk or final item formulas. Exact `<encrustwith>` values
+  remain detail-only under **Encrusted with** rather than cluttering generic
+  cards. Item catalogue/detail Encrust relationships reuse the same accessible
+  preview interaction as recipes and show every applicability icon in a compact
+  stack. **Crafted from** uses each complete ingredient group plus one adjacent
+  eye control to preview a recipe, without unit quantities or recipe-name rows;
+  native disclosure replaces passive `+N more` text and exposes all overflow
+  relationships with the same preview controls and direct links. Its Hide
+  control is visually placed after the revealed rows.
+  The preserved bare output `x` is a legacy template defect and is not reproduced.
+  Continue with image-led Skills and Abilities next. Keep Hidden and expansion
+  iconography for later card polish. The
   preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and
   implemented under its exact legacy-facing name. It ranks the top ten monsters

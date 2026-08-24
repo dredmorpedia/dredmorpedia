@@ -9,7 +9,12 @@ The preserved application treats each direct item `<artifact>` declaration as an
 
 Each declaration has a loss-aware nullable non-negative integer quality. `null` distinguishes a declaration whose quality is absent or invalid from an item with no artifact declaration. Repeated declarations remain repeated because broad mod behavior has not been measured. Unknown attributes and nested elements remain source-located diagnostics; recognizing the verified `quality` field does not silently claim support for future content.
 
-The item detail header displays artifact quality only when at least one declaration exists. An unavailable supplied value is shown as `Unavailable` rather than being converted to zero or hiding the declaration.
+The item catalogue and detail header display the legacy-facing **Artifact** /
+**Quality x** property only when at least one declaration exists. An unavailable
+supplied value is shown as `Quality Unavailable` rather than being converted to
+zero or hiding the declaration. This presentation does not infer Archaeology,
+Museum, artifact-generation, corruption, or another engine behavior from the
+source property.
 
 ## Canonical aggregate measurement
 

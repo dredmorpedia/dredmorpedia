@@ -12,6 +12,50 @@ const officialPresentedAssets = [
   { id: "gold", path: "items/cash1.png" },
   { id: "quality-empty", path: "ui/quality_star_empty.png" },
   { id: "quality-full", path: "ui/quality_star_full.png" },
+  {
+    id: "encrust-slot-neck",
+    path: "expansion3/ui/encrusting/encrust_amulet.png",
+  },
+  {
+    id: "encrust-slot-chest",
+    path: "expansion3/ui/encrusting/encrust_armour.png",
+  },
+  {
+    id: "encrust-slot-waist",
+    path: "expansion3/ui/encrusting/encrust_belt.png",
+  },
+  {
+    id: "encrust-slot-feet",
+    path: "expansion3/ui/encrusting/encrust_boots.png",
+  },
+  {
+    id: "encrust-slot-ranged",
+    path: "expansion3/ui/encrusting/encrust_crossbow.png",
+  },
+  {
+    id: "encrust-slot-hands",
+    path: "expansion3/ui/encrusting/encrust_gauntlets.png",
+  },
+  {
+    id: "encrust-slot-head",
+    path: "expansion3/ui/encrusting/encrust_helm.png",
+  },
+  {
+    id: "encrust-slot-legs",
+    path: "expansion3/ui/encrusting/encrust_pants.png",
+  },
+  {
+    id: "encrust-slot-ring",
+    path: "expansion3/ui/encrusting/encrust_ring.png",
+  },
+  {
+    id: "encrust-slot-shield",
+    path: "expansion3/ui/encrusting/encrust_shield.png",
+  },
+  {
+    id: "encrust-slot-weapon",
+    path: "expansion3/ui/encrusting/encrust_weapon.png",
+  },
 ] as const;
 
 interface ExpectedOfficialSource {
@@ -222,10 +266,22 @@ function addOfficialPresentedAssets(manifest: SourceManifest): SourceManifest {
       "The canonical official manifest is missing its base source.",
     );
   }
-  if ((base.presentedAssets?.length ?? 0) > 0) {
+  const expected = new Set(officialPresentedAssets.map(presentedAssetKey));
+  const existing = base.presentedAssets ?? [];
+  if (
+    existing.some((asset) => !expected.has(presentedAssetKey(asset))) ||
+    manifest.sources.some(
+      (source) =>
+        source.id !== base.id && (source.presentedAssets?.length ?? 0) > 0,
+    )
+  ) {
+    assertOfficialPresentedAssets(manifest);
+  }
+  if (existing.length === expected.size) {
     assertOfficialPresentedAssets(manifest);
     return manifest;
   }
+
   return parseSourceManifestV2({
     ...manifest,
     sources: manifest.sources.map((source) =>

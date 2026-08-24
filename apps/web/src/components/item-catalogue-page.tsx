@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Coins, Star } from "lucide-react";
 
 import {
+  canonicalKey,
   itemEncrustmentRelationships,
   itemRecipeRelationships,
   type DatasetArtifact,
@@ -12,10 +13,14 @@ import {
   type SourceSummary,
 } from "@dredmorpedia/domain";
 
+import { EncrustmentPreview } from "@/components/encrustment-preview";
+import { EncrustmentSlotIconStack } from "@/components/encrustment-slot-list";
+import { ExpandableCatalogueList } from "@/components/expandable-catalogue-list";
 import {
   ItemCatalogueControls,
   type ItemCatalogueNavigationEntry,
 } from "@/components/item-catalogue-controls";
+import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ItemArt } from "@/components/item-art";
 import { RecipePreview } from "@/components/recipe-preview";
 import { StatModifierLink } from "@/components/stat-modifier-link";
@@ -30,6 +35,11 @@ import {
   type ItemCataloguePageSize,
   type ItemCatalogueSort,
 } from "@/lib/item-catalogue";
+import {
+  createEncrustmentSummaryData,
+  createEncrustmentSummaryToolMap,
+  type EncrustmentSummaryTool,
+} from "@/lib/encrustment-summary";
 import { itemIconUrl, uiIconUrl } from "@/lib/presented-assets";
 import {
   createRecipeSummaryData,
@@ -157,7 +167,7 @@ function ItemReferenceRow({
         </span>
       )}
       <span>
-        {reference.amount} ×{" "}
+        {reference.amount !== 1 ? `${reference.amount} × ` : ""}
         {referencedItem ? (
           <Link className="entity-link" href={`/items/${referencedItem.slug}`}>
             {referencedItem.name}
@@ -180,6 +190,7 @@ function ItemSummaryCard({
   qualityEmptyIconUrl,
   qualityFullIconUrl,
   recipeSummaryTools,
+  encrustmentSummaryTools,
   sourcesById,
 }: {
   item: Item;
@@ -191,6 +202,7 @@ function ItemSummaryCard({
   qualityEmptyIconUrl: string | null;
   qualityFullIconUrl: string | null;
   recipeSummaryTools: ReadonlyMap<string, RecipeSummaryTool>;
+  encrustmentSummaryTools: ReadonlyMap<string, EncrustmentSummaryTool>;
   sourcesById: ReadonlyMap<string, SourceSummary>;
 }) {
   const recipeRelationships = itemRecipeRelationships(
@@ -218,10 +230,9 @@ function ItemSummaryCard({
     artifact.entities.encrustments,
     item.id,
   );
-  const primaryRecipe = craftedBy[0];
   const stats = item.stats.slice(0, 4);
   const modifiers = item.modifiers.slice(0, Math.max(0, 6 - stats.length));
-  const visibleCraftedItems = [...usedToCraftItems.values()].slice(0, 4);
+  const craftedItems = [...usedToCraftItems.values()];
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
@@ -295,6 +306,7 @@ function ItemSummaryCard({
               />
             </dd>
           </div>
+          <ItemArtifactFact artifacts={item.artifacts} />
           {item.recoveries.map((recovery, index) => (
             <div key={`${recovery.resource}:${index}`}>
               <dt>{recovery.resource === "life" ? "Health" : "Mana"}</dt>
@@ -345,42 +357,67 @@ function ItemSummaryCard({
           </dl>
         ) : null}
 
-        {primaryRecipe ? (
+        {craftedBy.length > 0 ? (
           <section className="item-summary-relationship">
             <h4>Crafted from</h4>
-            <ul className="catalogue-reference-list">
-              {primaryRecipe.recipe.inputs
-                .slice(0, 4)
-                .map((reference, index) => (
-                  <ItemReferenceRow
-                    key={`${reference.itemKey}:${index}`}
-                    artifact={artifact}
-                    artifactSha256={artifactSha256}
-                    itemById={itemById}
-                    reference={reference}
-                  />
-                ))}
-            </ul>
-            <p className="supporting-note">
-              <Link
-                className="entity-link"
-                href={`/recipes/${primaryRecipe.recipe.slug}`}
-              >
-                {primaryRecipe.recipe.name}
-              </Link>
-              {craftedBy.length > 1
-                ? ` · ${craftedBy.length - 1} more recipe option${craftedBy.length === 2 ? "" : "s"}`
-                : ""}
-            </p>
+            <div className="crafted-from-options">
+              {craftedBy.map(({ recipe }) => {
+                const tool = recipeSummaryTools.get(recipe.tool);
+                return (
+                  <RecipePreview
+                    key={recipe.id}
+                    summary={createRecipeSummaryData({
+                      artifact,
+                      artifactSha256,
+                      itemsById: itemById,
+                      recipe,
+                      source: sourcesById.get(recipe.provenance.sourceId),
+                      toolIconUrl: tool?.iconUrl ?? null,
+                      toolLabel: tool?.label ?? recipe.tool,
+                    })}
+                  >
+                    <ul className="catalogue-reference-list">
+                      {recipe.inputs.map((reference, index) => (
+                        <ItemReferenceRow
+                          key={`${reference.itemKey}:${index}`}
+                          artifact={artifact}
+                          artifactSha256={artifactSha256}
+                          itemById={itemById}
+                          reference={reference}
+                        />
+                      ))}
+                    </ul>
+                  </RecipePreview>
+                );
+              })}
+            </div>
           </section>
         ) : null}
 
-        {visibleCraftedItems.length > 0 ? (
+        {craftedItems.length > 0 ? (
           <section className="item-summary-relationship">
             <h4>Used to craft</h4>
-            <ul className="catalogue-chip-list">
-              {visibleCraftedItems.map(({ item: craftedItem, recipe }) => {
+            <ExpandableCatalogueList
+              className="catalogue-chip-list"
+              initialCount={4}
+              items={craftedItems.map(({ item: craftedItem, recipe }) => {
                 const tool = recipeSummaryTools.get(recipe.tool);
+                const relationship = (
+                  <>
+                    <ItemArt
+                      artifact={artifact}
+                      artifactSha256={artifactSha256}
+                      item={craftedItem}
+                      size={32}
+                    />
+                    <Link
+                      className="entity-link"
+                      href={`/items/${craftedItem.slug}`}
+                    >
+                      {craftedItem.name}
+                    </Link>
+                  </>
+                );
                 return (
                   <li key={craftedItem.id}>
                     <RecipePreview
@@ -394,47 +431,56 @@ function ItemSummaryCard({
                         toolLabel: tool?.label ?? recipe.tool,
                       })}
                     >
-                      <ItemArt
-                        artifact={artifact}
-                        artifactSha256={artifactSha256}
-                        item={craftedItem}
-                        size={28}
-                      />
-                      <Link
-                        className="entity-link"
-                        href={`/items/${craftedItem.slug}`}
-                      >
-                        {craftedItem.name}
-                      </Link>
+                      {relationship}
                     </RecipePreview>
                   </li>
                 );
               })}
-            </ul>
-            {usedToCraftItems.size > visibleCraftedItems.length ? (
-              <p className="supporting-note">
-                +{usedToCraftItems.size - visibleCraftedItems.length} more on
-                the detail page
-              </p>
-            ) : null}
+              noun="crafted item"
+            />
           </section>
         ) : null}
 
         {encrustments.length > 0 ? (
           <section className="item-summary-relationship">
             <h4>Used to encrust</h4>
-            <ul className="catalogue-text-links">
-              {encrustments.slice(0, 3).map(({ encrustment }) => (
-                <li key={encrustment.id}>
-                  <Link
-                    className="entity-link"
-                    href={`/encrustments/${encrustment.slug}`}
-                  >
-                    {encrustment.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <ExpandableCatalogueList
+              className="catalogue-chip-list"
+              initialCount={3}
+              items={encrustments.map(({ encrustment }) => {
+                const tool = encrustmentSummaryTools.get(
+                  canonicalKey(encrustment.tool),
+                );
+                const summary = createEncrustmentSummaryData({
+                  artifact,
+                  artifactSha256,
+                  encrustment,
+                  itemsById: itemById,
+                  source: sourcesById.get(encrustment.provenance.sourceId),
+                  toolIconUrl: tool?.iconUrl ?? null,
+                  toolLabel: tool?.label ?? encrustment.tool,
+                });
+                const relationship = (
+                  <>
+                    <EncrustmentSlotIconStack slots={summary.slots} />
+                    <Link
+                      className="entity-link"
+                      href={`/encrustments/${encrustment.slug}`}
+                    >
+                      {encrustment.name}
+                    </Link>
+                  </>
+                );
+                return (
+                  <li key={encrustment.id}>
+                    <EncrustmentPreview summary={summary}>
+                      {relationship}
+                    </EncrustmentPreview>
+                  </li>
+                );
+              })}
+              noun="encrustment"
+            />
           </section>
         ) : null}
 
@@ -519,6 +565,11 @@ export function ItemCataloguePage({
     artifact.sources.map((source) => [source.id, source]),
   );
   const recipeSummaryTools = createRecipeSummaryToolMap({
+    artifact,
+    artifactSha256,
+    itemsById: itemById,
+  });
+  const encrustmentSummaryTools = createEncrustmentSummaryToolMap({
     artifact,
     artifactSha256,
     itemsById: itemById,
@@ -608,6 +659,7 @@ export function ItemCataloguePage({
               artifactSha256={artifactSha256}
               item={item}
               itemById={itemById}
+              encrustmentSummaryTools={encrustmentSummaryTools}
               goldIconUrl={goldIconUrl}
               qualityEmptyIconUrl={qualityEmptyIconUrl}
               qualityFullIconUrl={qualityFullIconUrl}

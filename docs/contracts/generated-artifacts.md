@@ -278,7 +278,11 @@ and consumer validation, and a policy review for any specialized conversion.
   mappings. Presented-asset manifest schema 3 lists every expected UI asset ID
   in addition to binding the catalog, diagnostics, copied files, and active
   artifact checksum. The consumer rejects a missing, extra, duplicate, or
-  mismatched UI mapping instead of silently dropping interface imagery.
+  mismatched UI mapping instead of silently dropping interface imagery. The
+  current closed set contains the item-catalogue gold and filled/empty quality
+  icons plus 11 Encrust applicability icons. Consumers select the latter from
+  normalized slot semantics, retain visible text and title labels, and never
+  resolve raw game paths at render time.
 - The web consumer initializes `artifact.json`, `search.json`, and
   `diagnostics.json` as one atomic in-memory set. It verifies every checksum and
   schema plus dataset identity, search derivation, diagnostic counts/IDs, and

@@ -1074,8 +1074,8 @@ select {
 
 .catalogue-chip-list img,
 .catalogue-chip-list .catalogue-art-placeholder {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .catalogue-art-placeholder {
@@ -1179,6 +1179,16 @@ select {
   font-weight: 800;
 }
 
+.item-summary-facts .item-artifact-fact dt,
+.price-block .item-artifact-fact dt {
+  color: var(--foreground);
+  font-weight: 800;
+}
+
+.item-summary-facts .item-artifact-fact dd {
+  font-weight: 500;
+}
+
 .item-icon-fact,
 .item-quality-stars {
   display: inline-flex;
@@ -1251,6 +1261,63 @@ select {
 .catalogue-text-links {
   gap: 0.3rem 1rem;
   font-size: 0.8rem;
+}
+
+.catalogue-overflow-details {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.catalogue-overflow-details summary {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  padding: 0.3rem 0.55rem;
+  color: var(--foreground);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.catalogue-overflow-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.catalogue-overflow-details summary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.catalogue-overflow-details summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.catalogue-overflow-show,
+.catalogue-overflow-hide {
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.catalogue-overflow-hide,
+.catalogue-overflow-details[open] .catalogue-overflow-show {
+  display: none;
+}
+
+.catalogue-overflow-details[open] .catalogue-overflow-hide {
+  display: inline-flex;
+}
+
+.catalogue-overflow-details[open] > ul {
+  order: 1;
+}
+
+.catalogue-overflow-details[open] > summary {
+  order: 2;
 }
 
 .item-summary-more {
@@ -1580,6 +1647,38 @@ select {
   line-height: 1.5;
 }
 
+.encrustment-summary-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.encrustment-summary-facts div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--muted);
+  padding: 0.35rem 0.5rem;
+}
+
+.encrustment-summary-facts dt {
+  color: var(--muted-foreground);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.encrustment-summary-facts dd {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 .recipe-summary-flow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -1662,6 +1761,41 @@ select {
   color: var(--muted-foreground);
   font-size: 0.7rem;
   line-height: 1.4;
+}
+
+.encrustment-summary-outcomes-heading {
+  margin-block-start: 0.35rem;
+}
+
+.encrustment-summary-outcomes {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.encrustment-summary-outcomes li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border-block-end: 1px solid var(--border);
+  padding-block-end: 0.25rem;
+  font-size: 0.72rem;
+}
+
+.encrustment-summary-outcomes li:last-child {
+  border-block-end: 0;
+}
+
+.encrustment-summary-outcomes strong {
+  text-align: end;
+}
+
+.encrustment-summary-empty {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
 }
 
 .recipe-summary-footer {
@@ -1754,6 +1888,15 @@ select {
 
 .recipe-preview-target {
   max-width: 100%;
+}
+
+.crafted-from-options {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.crafted-from-options .recipe-preview-target {
+  width: fit-content;
 }
 
 @media (max-width: 42rem) {
@@ -2667,6 +2810,54 @@ select {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.encrustment-slot-chip {
+  gap: 0.4rem;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.3rem;
+}
+
+.encrustment-slot-chip img {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.encrustment-slot-icon-stack {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 0.1rem;
+}
+
+.encrustment-slot-icon-stack img {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.encrustment-slot-icon-stack img + img {
+  margin-inline-start: -0.4rem;
+}
+
+.encrustment-slot-list[data-variant="compact"] {
+  gap: 0.3rem;
+}
+
+.encrustment-slot-list[data-variant="compact"] .encrustment-slot-chip {
+  gap: 0.3rem;
+  padding: 0.18rem 0.4rem 0.18rem 0.22rem;
+  font-size: 0.66rem;
+}
+
+.encrustment-slot-list[data-variant="compact"] img {
+  width: 2rem;
+  height: 2rem;
+  flex-basis: 2rem;
 }
 
 .diagnostic-list {

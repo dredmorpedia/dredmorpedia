@@ -542,11 +542,12 @@ reopened the presentation layer: direct, image-led browsing and familiar
 grouping are part of useful parity, while advanced Search and differentiating
 tools remain additions. The first corrected slice implements direct core
 navigation, a separate Tools directory, and the category-first Items
-catalogue. The owner-reviewed Items polish and the Craft catalogue foundation
-are complete, including progressively floating selected category/tool tabs and
-accessible recipe previews from item relationships;
-continue with Encrusts before returning to new Phase 5 features. Evidence and
-order are in
+catalogue. The owner-reviewed Items polish plus the Craft and Encrust catalogue
+foundations are complete, including progressively floating selected
+category/tool tabs, accessible recipe and encrustment previews from item
+relationships, complete in-place relationship disclosure, and toolkit-grouped
+encrustment summaries. Continue with image-led Skills and Abilities before
+returning to new Phase 5 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The completed Items polish provides compact category icons by default with the
@@ -554,7 +555,9 @@ grouped counter view as a toggle; preserved source/XML “game order” plus
 optional alphabetical/quality/value orders; game-order representative icons;
 locally persisted display settings; measured 24/36/All page-size choices;
 small expansion markers with no base-game badge; and manifest-declared gold
-and quality-star imagery. Stat imagery remains separately gated on a verified
+and quality-star imagery. Catalogue and detail cards also expose the distinct
+source-declared **Artifact / Quality x** property without inferring Archaeology
+or other engine behavior. Stat imagery remains separately gated on a verified
 official mapping. Craft parity now provides complete tool-group routes in
 familiar order, verified toolkit art, compact/detailed navigation, persisted
 display settings, a bounded 36-recipe default plus 24/All options, source/name/
@@ -562,11 +565,30 @@ lowest-output-level orders, and reusable ingredient/output summary cards. The
 actual selected category/tool tab becomes a compact upper-right return control
 after its chooser scrolls away, with ordinary navigation as the no-JavaScript
 fallback. Selected-tool recipe cards suppress redundant tool identity while
-retaining the per-output source levels. Item catalogue and detail relationships now reuse that
-card through whole-relationship mouse hover and an icon-only focus/tap control
-while preserving visible primary links and Escape focus restoration. Toolkit
-art sits between ingredients and outputs as the recipe transformation; Hidden and expansion
-iconography remain a later card-polish decision.
+retaining the per-output source levels. Item catalogue and detail relationships
+reuse that card through whole-relationship mouse hover and an icon-only
+focus/tap control while preserving visible primary links and Escape focus
+restoration. **Crafted from** now uses each complete ingredient group plus one
+adjacent eye control to preview its recipe, without redundant unit quantities
+or recipe-name rows; native disclosure exposes every overflow relationship in place
+instead of sending users to a detail page merely to discover the remaining
+names. Toolkit art sits between ingredients and outputs as the recipe
+transformation; Hidden and expansion iconography remain a later card-polish
+decision.
+
+Encrust parity now groups all 57 canonical records under the five toolkits used
+by the active dataset in preserved familiar order. It reuses verified toolkit
+and item art, compact/detailed navigation, the progressive selected-tab return
+control, and locally persisted display settings. Complete tool groups are the
+default; optional 12/24/All static views support game, name, required source-
+level, and declared-instability ordering. Summary cards expose ingredients,
+applicable slots with the exact 11 verified blue schematic icons and visible
+text fallbacks, exact source level, direct modifiers and power hooks without
+inferring risk or final item formulas. Item **Used to encrust** relationships
+reuse this summary card and show every applicable slot in a compact icon stack,
+including all three Fireproof Coating slots. The preserved orphaned output `x`
+is excluded as a legacy template defect rather than copied as a mechanic. Evidence is in
+`docs/analysis/encrust-catalogue-evidence-2026-08-24.md`.
 
 Implement in dependency order rather than old-tab order:
 
@@ -583,8 +605,9 @@ The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
 second complete, verified dataset. The local visual-parity importer now renders
 normalized item, skill, ability, root spell, and monster detail art through a
 checksummed, manifest-coordinated, ignored asset set bound to the exact active
-artifact checksum; the canonical build maps 1,790 entity references plus three
-manifest-declared item-catalogue UI icons to 1,482 unique files without
+artifact checksum; the canonical build maps 1,791 entity references plus 14
+manifest-declared UI icons (three item-catalogue and 11 Encrust applicability)
+to 1,494 unique files without
 fallbacks. Monster art is limited to the first downward
 idle frame, including strict XML-wrapper resolution, measured SPR decoding,
 field-level inherited appearance provenance, and generation-time declared
@@ -636,8 +659,9 @@ complete, but the later experience review supersedes the claim that generic
 Browse/Search fully replace familiar visual grouping. The corrected item
 catalogue now combines verified art, familiar game order, optional static view
 variants, and locally persisted display preferences; equivalent player-facing
-Craft, Encrust, Skill, Spell, Monster, Stat, and Template catalogues remain in
-the active Phase 4 queue. Keep `legacy/` until complete parity evidence and a
+Craft and Encrust catalogues are now implemented. Skill, Spell, Monster, Stat,
+and Template catalogues remain in the active Phase 4 queue. Keep `legacy/`
+until complete parity evidence and a
 separate archival decision.
 The implemented direct slices render all 52 skill, 352 ability, 440 root spell,
 and 183 monster references. Monster pages decode only the first idle-down SPR

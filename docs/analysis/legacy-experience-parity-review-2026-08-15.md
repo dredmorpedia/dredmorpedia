@@ -1,7 +1,7 @@
 # Legacy experience parity review
 
 Date: 2026-08-15
-Status: active; Craft catalogue correction and relationship previews implemented
+Status: active; Items, Crafts, and Encrusts catalogue corrections implemented
 
 ## Why parity was reopened
 
@@ -46,7 +46,8 @@ The first slice provides:
   `/items/category/<category>/<page>/` routes;
 - visible category groups ordered by familiar player concepts, each with an
   existing verified item icon, label, and count;
-- image-led item summary cards with description, value, quality, recovery,
+- image-led item summary cards with description, value, quality, the distinct
+  source-declared **Artifact / Quality x** property, recovery,
   named stats/modifiers, representative crafting inputs, “Used to craft,”
   “Used to encrust,” effects, and a detail link when those declarations exist;
   and
@@ -144,6 +145,57 @@ toolkit icon between their ingredient and output lists when the active asset
 set provides it; cards on an already selected tool page continue to suppress
 that redundant identity because its selected tab provides scrolling context.
 
+## Encrust catalogue foundation
+
+The Encrust catalogue is implemented at `/encrusts/` and
+`/encrusts/tool/<tool>/`:
+
+- all 57 canonical encrustments are grouped under their five used toolkits in
+  the preserved familiar order: Lathe, Alchemy, Ingot Press, Smithing Kit, and
+  Tinkerer Parts;
+- the compact/detailed chooser, toolkit art, counts, floating selected tab,
+  local preference behavior, and no-JavaScript fallback reuse the maintained
+  catalogue navigation shared with Crafts;
+- the complete selected tool group is the default, matching the preserved
+  catalogue's unpaginated behavior. Optional 12, 24, and All views plus game,
+  name, required source-level, and declared-instability orders have ordinary
+  static routes;
+- summary cards reuse the maintained ingredient rows and omit redundant unit
+  quantities. Repeated declarations of the same ingredient are combined for
+  catalogue presentation while the normalized detail record remains
+  unchanged; and
+- cards expose exact source level, declared instability, ingredient links and
+  art, applicable slots, direct modifiers, power hooks, Hidden status, and
+  source markers. Exact `<encrustwith>` descriptors remain on detail pages as
+  **Encrusted with** but are omitted from generic catalogue cards. The pages do not derive an
+  instability probability, final item stats, or another engine formula;
+- applicable slots pair their visible labels with the exact 11 manifest-
+  declared blue schematic icons on catalogue and detail routes. Missing
+  verified imagery, including the synthetic fixture, retains the text-only
+  fallback; and
+- item **Used to encrust** relationships reuse the maintained summary card and
+  show every applicable slot as an icon stack. Recipe relationships now give
+  **Crafted from** the same preview behavior as **Used to craft**: each whole
+  ingredient group previews its recipe through hover or one adjacent eye
+  control, without a repeated recipe-name row or unit quantities. Passive
+  `+N more` text is replaced with native in-place
+  disclosure. Overflow rows keep their art, direct detail links, and preview
+  cards, while the expanded Hide control follows the revealed rows visually;
+  and
+- the preserved table's orphaned `x` output marker is intentionally omitted.
+  It comes from a Craft output template whose amount and item are never
+  populated by the Encrust loader, not from a game quantity or mechanic.
+
+The selected toolkit remains visible through the floating selected tab after
+the chooser scrolls away, so cards suppress repeated tool identity on these
+tool-group routes. Advanced Search, the encrustment planner, exhaustive Browse,
+and the existing detail routes remain distinct additions and fallbacks. The
+detail breadcrumb now returns through the matching direct toolkit route.
+Existing item and toolkit icons covered the entity art. The page-driven asset
+importer expanded only for the 11 exact applicability UI icons now rendered by
+this slice. Detailed evidence is in
+`encrust-catalogue-evidence-2026-08-24.md`.
+
 The follow-up generic Item comparison is also resolved. Voodoo Globe and
 Satanic Locator are active official records, so they remain visible under a
 new semantic Macguffin category. Lockpick is absent from the active item
@@ -157,13 +209,11 @@ Evidence is in
 
 The remaining parity order is:
 
-1. Encrusts grouped by toolkit, with ingredient, applicability, instability,
-   and output-relevant summaries;
-2. Skills and abilities as image-led progression summaries;
-3. Spells with an accessible alphabetical index and effect-focused summaries;
-4. Monsters grouped by dungeon depth/special classification with existing art;
-5. Stats and templates grouped by their familiar semantic families; and
-6. detail-page progressive disclosure after the catalogue surfaces reveal
+1. Skills and abilities as image-led progression summaries;
+2. Spells with an accessible alphabetical index and effect-focused summaries;
+3. Monsters grouped by dungeon depth/special classification with existing art;
+4. Stats and templates grouped by their familiar semantic families; and
+5. detail-page progressive disclosure after the catalogue surfaces reveal
    which technical sections distract from common player questions.
 
 Search and the generic exhaustive Browse directory remain available throughout
@@ -171,12 +221,12 @@ this work as advanced and completeness-oriented fallbacks.
 
 ## Validation
 
-- `pnpm check` passes formatting, lint, type checking, all 312 workspace tests,
-  deterministic generation, and the 214-page synthetic static export.
+- `pnpm check` passes formatting, lint, type checking, all 318 workspace tests,
+  deterministic generation, and the 240-page synthetic static export.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 70 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 76 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
   the display drawer, local preference restoration, whole-relationship hover,
   icon-only focus/tap recipe controls, Escape focus restoration, and
@@ -186,14 +236,14 @@ this work as advanced and completeness-oriented fallbacks.
   Iron Sword, Iron Sword, and Fine Iron Sword in game order. Its opt-in value
   view renders all 44 swords at `/items/category/weapon-sword/view/price/all/1/`
   and Reset returns to the canonical route.
-- The largest official category contains 54 items. Its All-mode HTML measures
-  about 571 KB versus about 442 KB for its default first page, an acceptable
-  bounded opt-in increase for the local MVP.
-- The deterministic official asset set now contains 1,793 mappings to 1,482
-  content-addressed files: the prior 1,790 entity mappings plus the three
-  manifest-declared interface icons, with no fallbacks.
+- The relationship-heavy Reagent category now measures about 1.77 MB for its
+  default 36-item page and 2.05 MB for its explicit All view. The increase pays
+  for every disclosed recipe/encrustment relationship retaining its complete
+  preview behavior as well as its direct detail link.
+- The deterministic official asset set now contains 1,805 mappings to 1,494
+  content-addressed files, with no fallbacks.
 - `pnpm build:official` passes deterministic zero-error generation and the
-  complete 3,455-page local static export with all canonical and optional
+  complete 3,658-page local static export with all canonical and optional
   catalogue view routes.
 - The Craft foundation's focused unit tests cover familiar/fallback tool order,
   toolkit names and representatives, route collisions, and source/XML recipe
@@ -214,3 +264,11 @@ this work as advanced and completeness-oriented fallbacks.
   mappings to 1,483 files, zero fallbacks, and 3,589 static pages. The four
   deliberate relationship warnings are unchanged; informational records fall
   to 74 because all 16 Lockpick loadouts now resolve exactly.
+- The Encrust foundation verifies all 57 canonical records across five toolkit
+  routes and 63 optional static view routes. Its focused tests cover source
+  order, alternate orders, page sizes, collisions, and repeated-input
+  presentation plus all 11 exact applicability-icon mappings; its JavaScript-
+  disabled and interactive Playwright flows pass on desktop and mobile. The
+  official HTML contains titled slot imagery while the synthetic export keeps
+  readable label fallbacks. Detailed evidence is in
+  `encrust-catalogue-evidence-2026-08-24.md`.

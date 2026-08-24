@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  canonicalKey,
   entityRouteSlugs,
   itemCategoryLabel,
   itemEncrustmentRelationships,
@@ -16,6 +17,9 @@ import {
   spellEffectOptionItemBacklinks,
 } from "@dredmorpedia/domain";
 
+import { EncrustmentPreview } from "@/components/encrustment-preview";
+import { EncrustmentSlotIconStack } from "@/components/encrustment-slot-list";
+import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { RecipePreview } from "@/components/recipe-preview";
 import { StatModifierLink } from "@/components/stat-modifier-link";
@@ -25,6 +29,10 @@ import {
   loadDiagnostics,
 } from "@/lib/artifact";
 import { titleCase } from "@/lib/display-labels";
+import {
+  createEncrustmentSummaryData,
+  createEncrustmentSummaryToolMap,
+} from "@/lib/encrustment-summary";
 import { itemIconUrl } from "@/lib/presented-assets";
 import {
   createRecipeSummaryData,
@@ -146,6 +154,11 @@ export default async function ItemPage({
     artifactSha256,
     itemsById,
   });
+  const encrustmentSummaryTools = createEncrustmentSummaryToolMap({
+    artifact,
+    artifactSha256,
+    itemsById,
+  });
   const isAlias = slug !== item.slug;
   const iconUrl = itemIconUrl(item.id, artifact, artifactSha256);
 
@@ -199,16 +212,7 @@ export default async function ItemPage({
               <dt>Quality</dt>
               <dd>{isEngineReference ? "Not declared" : item.quality}</dd>
             </div>
-            {item.artifacts.length > 0 ? (
-              <div>
-                <dt>Artifact quality</dt>
-                <dd>
-                  {item.artifacts
-                    .map((artifact) => artifact.quality ?? "Unavailable")
-                    .join(", ")}
-                </dd>
-              </div>
-            ) : null}
+            <ItemArtifactFact artifacts={item.artifacts} />
           </dl>
         </div>
       </header>
@@ -878,24 +882,41 @@ export default async function ItemPage({
                     </Link>
                   </p>
                   <ul className="relation-list">
-                    {craftedBy.map(({ recipe, outputs }) => (
-                      <li key={recipe.id}>
-                        <Link
-                          className="entity-link font-semibold"
-                          href={`/recipes/${recipe.slug}`}
-                        >
-                          {recipe.name}
-                        </Link>
-                        <span>
-                          {outputs
-                            .map(
-                              (output) =>
-                                `${output.amount} at skill ${output.skillLevel}`,
-                            )
-                            .join(" · ")}
-                        </span>
-                      </li>
-                    ))}
+                    {craftedBy.map(({ recipe, outputs }) => {
+                      const tool = recipeSummaryTools.get(recipe.tool);
+                      return (
+                        <li key={recipe.id}>
+                          <RecipePreview
+                            summary={createRecipeSummaryData({
+                              artifact,
+                              artifactSha256,
+                              itemsById,
+                              recipe,
+                              source: sourcesById.get(
+                                recipe.provenance.sourceId,
+                              ),
+                              toolIconUrl: tool?.iconUrl ?? null,
+                              toolLabel: tool?.label ?? recipe.tool,
+                            })}
+                          >
+                            <Link
+                              className="entity-link font-semibold"
+                              href={`/recipes/${recipe.slug}`}
+                            >
+                              {recipe.name}
+                            </Link>
+                          </RecipePreview>
+                          <span>
+                            {outputs
+                              .map(
+                                (output) =>
+                                  `${output.amount} at skill ${output.skillLevel}`,
+                              )
+                              .join(" · ")}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               ) : null}
@@ -1105,17 +1126,36 @@ export default async function ItemPage({
                   </h3>
                   <ul className="relation-list">
                     {encrustmentRelationships.map(
-                      ({ encrustment, inputAmount }) => (
-                        <li key={encrustment.id}>
-                          <Link
-                            className="entity-link font-semibold"
-                            href={`/encrustments/${encrustment.slug}`}
-                          >
-                            {encrustment.name}
-                          </Link>
-                          <span>Uses {inputAmount}</span>
-                        </li>
-                      ),
+                      ({ encrustment, inputAmount }) => {
+                        const tool = encrustmentSummaryTools.get(
+                          canonicalKey(encrustment.tool),
+                        );
+                        const summary = createEncrustmentSummaryData({
+                          artifact,
+                          artifactSha256,
+                          encrustment,
+                          itemsById,
+                          source: sourcesById.get(
+                            encrustment.provenance.sourceId,
+                          ),
+                          toolIconUrl: tool?.iconUrl ?? null,
+                          toolLabel: tool?.label ?? encrustment.tool,
+                        });
+                        return (
+                          <li key={encrustment.id}>
+                            <EncrustmentPreview summary={summary}>
+                              <EncrustmentSlotIconStack slots={summary.slots} />
+                              <Link
+                                className="entity-link font-semibold"
+                                href={`/encrustments/${encrustment.slug}`}
+                              >
+                                {encrustment.name}
+                              </Link>
+                            </EncrustmentPreview>
+                            <span>Uses {inputAmount}</span>
+                          </li>
+                        );
+                      },
                     )}
                   </ul>
                 </section>

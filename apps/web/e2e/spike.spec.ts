@@ -150,6 +150,55 @@ test.describe("static browse without JavaScript", () => {
     ).toBe(true);
   });
 
+  test("browses complete image-led encrust groups with source facts", async ({
+    page,
+  }) => {
+    await page.goto("/encrusts/");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Encrusts" }),
+    ).toBeVisible();
+
+    const tools = page.getByRole("navigation", { name: "Encrusting tools" });
+    const smithing = tools.getByRole("link", {
+      name: "Training Smithing Kit, 1 encrustment",
+    });
+    await expect(smithing).toHaveAttribute("aria-current", "page");
+    await expect(smithing).toHaveAttribute("href", "/encrusts/tool/smithing/");
+    await expect(
+      page.getByText("Showing 1–1 of 1 encrustment for Training Smithing Kit"),
+    ).toBeVisible();
+
+    const card = page.locator(".encrustment-summary-card");
+    await expect(card).toHaveCount(1);
+    await expect(
+      card.getByRole("heading", { level: 3, name: "Synthetic Gear Polish" }),
+    ).toBeVisible();
+    await expect(card.getByText("Brass Ingot", { exact: true })).toBeVisible();
+    await expect(card.getByText("1 × Brass Ingot")).toHaveCount(0);
+    await expect(
+      card.getByText("Missing Polish", { exact: true }),
+    ).toBeVisible();
+    await expect(card.getByText("Unresolved item")).toBeVisible();
+    await expect(card.getByText("Required source level")).toBeVisible();
+    await expect(card.getByText("Declared instability")).toBeVisible();
+    await expect(card.getByText("+5", { exact: true })).toBeVisible();
+    await expect(card.getByText("Weapon", { exact: true })).toBeVisible();
+    await expect(card.getByText("Ranged", { exact: true })).toBeVisible();
+    await expect(
+      card.getByText("Synthetic Pulse", { exact: true }),
+    ).toBeVisible();
+    await expect(card.getByText("25%", { exact: true })).toBeVisible();
+    await expect(card.getByText("polished brass")).toHaveCount(0);
+    await expect(card.getByText("Training Smithing Kit")).toHaveCount(0);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+  });
+
   test("discovers every record kind and opens a detail page", async ({
     page,
   }) => {
@@ -221,6 +270,13 @@ test("configures and persists the item catalogue display accessibly", async ({
   ).toHaveAttribute("title", /represented by Clockwork Blade/);
   await expect(page.getByLabel("Source: Synthetic Override")).toHaveText("SO");
   await expect(page.getByLabel("Quality 3 out of 10")).toBeVisible();
+  const catalogueFacts = page.locator(".item-summary-facts");
+  await expect(
+    catalogueFacts.getByText("Artifact", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    catalogueFacts.getByText("Quality 8", { exact: true }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Detailed" }).click();
   await expect(categories).toHaveAttribute("data-layout", "expanded");
@@ -271,11 +327,41 @@ test("configures and persists the item catalogue display accessibly", async ({
   expect(accessibility.violations).toEqual([]);
 });
 
-test("previews a Used to craft recipe without replacing direct navigation", async ({
+test("previews item crafting relationships without replacing direct navigation", async ({
   page,
 }, testInfo) => {
   await page.goto("/items/category/material/1/");
   const itemCard = page.locator(".item-summary-card");
+  await expect(
+    itemCard.getByText("Training Gem", { exact: true }),
+  ).toBeVisible();
+  await expect(itemCard.getByText("1 × Training Gem")).toHaveCount(0);
+  const craftedFrom = itemCard
+    .locator(".item-summary-relationship")
+    .filter({ has: page.getByRole("heading", { name: "Crafted from" }) });
+  await expect(craftedFrom.locator(".catalogue-reference-list")).toHaveCount(1);
+  await expect(
+    craftedFrom.getByRole("link", {
+      name: "Brass Ingot Recipe",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  const craftedFromTrigger = itemCard.getByRole("button", {
+    name: "Preview Brass Ingot Recipe",
+  });
+  const craftedFromPreview = page.getByRole("dialog", {
+    name: "Recipe preview: Brass Ingot Recipe",
+  });
+  await expect(craftedFromTrigger).toBeVisible();
+  await craftedFrom.locator(".recipe-preview-target").hover();
+  await expect(craftedFromPreview).toBeVisible();
+  await page.mouse.move(0, 0);
+  await expect(craftedFromPreview).toBeHidden();
+  await craftedFromTrigger.focus();
+  await expect(craftedFromPreview).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(craftedFromTrigger).toBeFocused();
+
   await expect(
     itemCard.getByRole("link", { name: "Clockwork Blade", exact: true }),
   ).toHaveAttribute("href", "/items/clockwork-blade/");
@@ -283,7 +369,7 @@ test("previews a Used to craft recipe without replacing direct navigation", asyn
   const trigger = itemCard.getByRole("button", {
     name: "Preview Clockwork Blade Recipe",
   });
-  const hoverTarget = itemCard.locator(".recipe-preview-target");
+  const hoverTarget = trigger.locator("..");
   const preview = page.getByRole("dialog", {
     name: "Recipe preview: Clockwork Blade Recipe",
   });
@@ -337,6 +423,58 @@ test("previews a Used to craft recipe without replacing direct navigation", asyn
   await page.keyboard.press("Tab");
   await trigger.focus();
   await expect(preview).toBeVisible();
+  await page.keyboard.press("Escape");
+});
+
+test("previews an item encrusting relationship with accessible focus", async ({
+  page,
+}) => {
+  await page.goto("/items/category/material/1/");
+  const itemCard = page.locator(".item-summary-card");
+  await expect(
+    itemCard.getByRole("link", {
+      name: "Synthetic Gear Polish",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/encrustments/synthetic-gear-polish/");
+  const encrustmentTrigger = itemCard.getByRole("button", {
+    name: "Preview Synthetic Gear Polish",
+  });
+  const encrustmentPreview = page.getByRole("dialog", {
+    name: "Encrustment preview: Synthetic Gear Polish",
+  });
+  await encrustmentTrigger.focus();
+  await expect(encrustmentPreview).toBeVisible();
+  await expect(
+    encrustmentPreview.getByRole("link", {
+      name: "Synthetic Gear Polish",
+      exact: true,
+    }),
+  ).toBeFocused();
+  await expect(encrustmentPreview.locator("article")).toHaveAttribute(
+    "data-variant",
+    "preview",
+  );
+  await expect(
+    encrustmentPreview.getByText("Weapon", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    encrustmentPreview.getByText("Ranged", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    encrustmentPreview.getByRole("link", {
+      name: "Full encrustment details",
+    }),
+  ).toHaveAttribute("href", "/encrustments/synthetic-gear-polish/");
+
+  const accessibility = await new AxeBuilder({ page })
+    .include(".recipe-preview-popup")
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
+
+  await page.keyboard.press("Escape");
+  await expect(encrustmentPreview).toBeHidden();
+  await expect(encrustmentTrigger).toBeFocused();
 });
 
 test("promotes the selected item tab into a return control", async ({
@@ -445,6 +583,55 @@ test("configures and persists the Craft catalogue display accessibly", async ({
   expect(accessibility.violations).toEqual([]);
 });
 
+test("configures and persists the Encrust catalogue display accessibly", async ({
+  page,
+}) => {
+  await page.goto("/encrusts/");
+  const tools = page.getByRole("navigation", { name: "Encrusting tools" });
+  await expect(tools).toHaveAttribute("data-layout", "compact");
+  const smithingLabel = tools.getByText("Training Smithing Kit", {
+    exact: true,
+  });
+  expect(
+    await smithingLabel.evaluate(
+      (element) => getComputedStyle(element).clipPath,
+    ),
+  ).toBe("inset(50%)");
+
+  await page.getByRole("button", { name: "Detailed" }).click();
+  await expect(tools).toHaveAttribute("data-layout", "expanded");
+  await expect(smithingLabel).toBeVisible();
+
+  const trigger = page.getByRole("button", { name: "Display settings" });
+  await trigger.focus();
+  await trigger.press("Enter");
+  const drawer = page.getByRole("dialog", { name: "Encrust display settings" });
+  await expect(drawer).toBeVisible();
+  await drawer.getByRole("radio", { name: /Instability/ }).check();
+  await drawer.getByRole("radio", { name: /^12$/ }).check();
+  await drawer.getByRole("button", { name: "Apply settings" }).click();
+
+  await expect(page).toHaveURL(
+    /\/encrusts\/tool\/smithing\/view\/instability\/12\/1\/$/,
+  );
+  await page.reload();
+  await expect(
+    page.getByRole("navigation", { name: "Encrusting tools" }),
+  ).toHaveAttribute("data-layout", "expanded");
+
+  await page.getByRole("button", { name: "Display settings" }).click();
+  await expect(page.getByRole("radio", { name: /Instability/ })).toBeChecked();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "Display settings", exact: true }),
+  ).toBeFocused();
+
+  const accessibility = await new AxeBuilder({ page })
+    .include("main")
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
+});
+
 test("separates direct encyclopedia navigation from optional tools", async ({
   page,
 }) => {
@@ -460,6 +647,10 @@ test("separates direct encyclopedia navigation from optional tools", async ({
   await expect(primary.getByRole("link", { name: "Crafts" })).toHaveAttribute(
     "href",
     "/crafts/",
+  );
+  await expect(primary.getByRole("link", { name: "Encrusts" })).toHaveAttribute(
+    "href",
+    "/encrusts/",
   );
 
   const tools = page
@@ -613,8 +804,8 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   const itemFacts = page.locator(".price-block");
   await expect(itemFacts.getByText("Quality", { exact: true })).toBeVisible();
   await expect(itemFacts.getByText("3", { exact: true })).toBeVisible();
-  await expect(itemFacts.getByText("Artifact quality")).toBeVisible();
-  await expect(itemFacts.getByText("8", { exact: true })).toBeVisible();
+  await expect(itemFacts.getByText("Artifact", { exact: true })).toBeVisible();
+  await expect(itemFacts.getByText("Quality 8", { exact: true })).toBeVisible();
   await expect(page.getByText("Sword weapon", { exact: true })).toBeVisible();
   const itemStats = page.getByRole("region", { name: "Stats", exact: true });
   const itemModifiers = itemStats.getByRole("region", {
@@ -1102,7 +1293,10 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(outcomes.getByText("Secondary stat 6")).toBeVisible();
   await expect(outcomes.getByText("Synthetic Pulse")).toBeVisible();
   await expect(outcomes.getByText("25% chance")).toBeVisible();
-  await expect(outcomes.getByText("polished brass")).toBeVisible();
+  const encrustedWith = outcomes.getByRole("region", {
+    name: "Encrusted with",
+  });
+  await expect(encrustedWith.getByText("polished brass")).toBeVisible();
   const instabilityPool = page.getByRole("region", {
     name: "Shared instability pool",
   });
@@ -2318,6 +2512,8 @@ test("representative pages have no automatically detectable accessibility violat
     "/browse/spells/1/",
     "/crafts/",
     "/crafts/tool/smithing/",
+    "/encrusts/",
+    "/encrusts/tool/smithing/",
     "/search/",
     "/search/?q=clokwork+blade",
     "/items/clockwork-blade/",

@@ -363,7 +363,9 @@ export function SearchExplorer({
     submittedQuery.current = "";
     latestSearchParams.current = "";
     setQuery("");
-    router.replace(pathname, { scroll: false });
+    // A full same-route replacement cancels any earlier filter transition that
+    // may still be committing under load. This keeps Reset authoritative.
+    window.location.replace(pathname);
   };
 
   const applySuggestion = (value: string) => {

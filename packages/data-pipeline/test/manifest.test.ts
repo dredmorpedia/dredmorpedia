@@ -254,8 +254,85 @@ describe("source manifest migration", () => {
       { id: "gold", path: "items/cash1.png" },
       { id: "quality-empty", path: "ui/quality_star_empty.png" },
       { id: "quality-full", path: "ui/quality_star_full.png" },
+      {
+        id: "encrust-slot-neck",
+        path: "expansion3/ui/encrusting/encrust_amulet.png",
+      },
+      {
+        id: "encrust-slot-chest",
+        path: "expansion3/ui/encrusting/encrust_armour.png",
+      },
+      {
+        id: "encrust-slot-waist",
+        path: "expansion3/ui/encrusting/encrust_belt.png",
+      },
+      {
+        id: "encrust-slot-feet",
+        path: "expansion3/ui/encrusting/encrust_boots.png",
+      },
+      {
+        id: "encrust-slot-ranged",
+        path: "expansion3/ui/encrusting/encrust_crossbow.png",
+      },
+      {
+        id: "encrust-slot-hands",
+        path: "expansion3/ui/encrusting/encrust_gauntlets.png",
+      },
+      {
+        id: "encrust-slot-head",
+        path: "expansion3/ui/encrusting/encrust_helm.png",
+      },
+      {
+        id: "encrust-slot-legs",
+        path: "expansion3/ui/encrusting/encrust_pants.png",
+      },
+      {
+        id: "encrust-slot-ring",
+        path: "expansion3/ui/encrusting/encrust_ring.png",
+      },
+      {
+        id: "encrust-slot-shield",
+        path: "expansion3/ui/encrusting/encrust_shield.png",
+      },
+      {
+        id: "encrust-slot-weapon",
+        path: "expansion3/ui/encrusting/encrust_weapon.png",
+      },
     ]);
     expect(parseCurrentOfficialSourceManifest(migrated)).toEqual(migrated);
+
+    const currentWithPriorInterfaceAssets = {
+      ...migrated,
+      sources: migrated.sources.map((source) =>
+        source.id === "official-base"
+          ? { ...source, presentedAssets: source.presentedAssets?.slice(0, 3) }
+          : source,
+      ),
+    };
+    expect(
+      upgradeCurrentOfficialSourceManifest(currentWithPriorInterfaceAssets),
+    ).toEqual(migrated);
+
+    const currentWithUnexpectedInterfaceAsset = {
+      ...currentWithPriorInterfaceAssets,
+      sources: currentWithPriorInterfaceAssets.sources.map((source) =>
+        source.id === "official-base"
+          ? {
+              ...source,
+              presentedAssets: [
+                ...(source.presentedAssets ?? []),
+                {
+                  id: "encrust-slot-neck",
+                  path: "ui/unexpected.png",
+                },
+              ],
+            }
+          : source,
+      ),
+    };
+    expect(() =>
+      upgradeCurrentOfficialSourceManifest(currentWithUnexpectedInterfaceAsset),
+    ).toThrow(/missing or unexpected interface presentation assets/);
 
     const currentWithoutReference = {
       ...migrated,
