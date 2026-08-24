@@ -25,6 +25,9 @@ export default function ItemComparePage() {
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
+  const sourcesById = new Map(
+    artifact.sources.map((source) => [source.id, source]),
+  );
   const items: ItemComparisonEntry[] = artifact.entities.items
     .map((item) => ({
       id: item.id,
@@ -34,6 +37,8 @@ export default function ItemComparePage() {
       categoryLabel: itemCategoryLabel(item.category),
       price: item.price,
       quality: item.quality,
+      isEngineReference:
+        sourcesById.get(item.provenance.sourceId)?.kind === "reference",
       iconUrl: itemIconUrl(item.id, artifact, artifactSha256),
       armourSlots: item.armourDeclarations.flatMap((entry) =>
         entry.slot === null ? [] : [titleCase(entry.slot)],

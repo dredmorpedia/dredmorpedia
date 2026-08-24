@@ -26,6 +26,16 @@ Items also include an ordered `weaponDeclarations` array for the direct weapon v
 
 Items also include an ordered `macguffinDeclarations` array. Each declaration preserves paired nullable source/canonical spell names, an optional resolved `spellId`, a nullable source item-class name, and a loss-aware nullable consumable flag. Missing or dangling spells, invalid booleans, empty supplied class names, unknown attributes, text, and nested content remain diagnostics. Resolved spells link in both directions, and spell/class names contribute to deterministic search text. Consumers may present the direct values but must not convert them into an ordinary activation trigger or infer activation, targeting, or actual-consumption behavior.
 
+An item with a direct macguffin declaration uses the semantic `macguffin`
+category rather than the generic `item` fallback. Separately versioned
+project-authored engine-item references are ordinary normalized items only for
+identity, routing, exact relationship linking, and explicitly declared fields.
+Consumers must derive their reference status from the owning source's
+`reference` kind, label that distinction, and render absent price/quality or
+other ordinary item facts as undeclared rather than zero or inferred values.
+An official presentation asset used by such a record retains its own official
+asset-source identity.
+
 Items also include an ordered `toolkitDeclarations` array. Each declaration preserves a nullable crafting tag, non-negative slot count, symbolic sound cue, safe missing/present/active/background presentation references, ordered numbered slot rectangles, output bounds, craft/recipe/autofill control references and positions, and a close position. Missing required tags/slot counts, invalid coordinates, partial groups, coordinates beyond the declared slot count, unsafe references, unknown attributes, text, and nested content remain diagnostics. Matching tags form deterministic computed recipe/encrustment relationships in both directions, while tags and sound cues contribute to search text. Detailed cue IDs, raw references, and coordinates stay hidden; consumers must not use old game-interface coordinates to lay out the modern site or infer ingredient placement, item consumption, control behavior, sound timing, or a complete crafting formula.
 
 Each item also has a deterministic semantic `category` key. Weapon root type codes map to nine weapon classes; armour slot types plus the verified Orb/Tome overrides map to equipment categories; and food/booze, trap, wand, potion, mushroom, gem, toolkit, and reagent shapes map to named categories. Unrecognized records use `item`, while a non-numeric explicit fixture/mod type remains a normalized fallback. Consumers render category keys through project-owned labels rather than exposing engine codes. Category recognition does not imply that every attribute within a partially supported source element is normalized.

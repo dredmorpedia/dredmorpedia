@@ -139,6 +139,8 @@ export default async function ItemPage({
   const sourcesById = new Map(
     artifact.sources.map((source) => [source.id, source]),
   );
+  const source = sourcesById.get(item.provenance.sourceId);
+  const isEngineReference = source?.kind === "reference";
   const recipeSummaryTools = createRecipeSummaryToolMap({
     artifact,
     artifactSha256,
@@ -187,13 +189,15 @@ export default async function ItemPage({
               <dt>Value</dt>
               <dd>
                 {item.price === null
-                  ? "Unknown"
+                  ? isEngineReference
+                    ? "Not declared"
+                    : "Unknown"
                   : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
               </dd>
             </div>
             <div>
               <dt>Quality</dt>
-              <dd>{item.quality}</dd>
+              <dd>{isEngineReference ? "Not declared" : item.quality}</dd>
             </div>
             {item.artifacts.length > 0 ? (
               <div>
@@ -220,6 +224,26 @@ export default async function ItemPage({
           <Link className="entity-link" href={`/items/${item.slug}`}>
             Open canonical URL
           </Link>
+        </aside>
+      ) : null}
+
+      {isEngineReference ? (
+        <aside
+          className="alias-note engine-reference-note"
+          aria-labelledby="engine-reference-heading"
+        >
+          <div>
+            <p className="eyebrow">Project reference</p>
+            <h2 id="engine-reference-heading" className="font-semibold">
+              Engine item reference
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Active game relationships name this item, but the active item
+              database does not define an ordinary item record. Dredmorpedia
+              supplies this labelled reference and leaves undeclared facts
+              unavailable.
+            </p>
+          </div>
         </aside>
       ) : null}
 

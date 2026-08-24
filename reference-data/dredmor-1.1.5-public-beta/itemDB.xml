@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Independently authored Dredmorpedia reference data. This is not game XML. -->
+<items>
+  <item name="Lockpick" iconFile="items/lockpick.png">
+    <description text="An engine item referenced by active skill starting loadouts but not declared in the active item database." />
+  </item>
+</items>

@@ -2025,6 +2025,7 @@ describe("synthetic dataset import", () => {
   <item name="Potion"><potion /></item>
   <item name="Mushroom"><mushroom /></item>
   <item name="Gem"><gem /></item>
+  <item name="Macguffin"><macguffin spell="Synthetic Macguffin Spell" /></item>
   <item name="Malformed Gem"><gem future="kept"><future /></gem></item>
   <item name="Toolkit" alchemical="1"><toolkit /></item>
   <item name="Reagent" alchemical="1" />
@@ -2079,6 +2080,7 @@ describe("synthetic dataset import", () => {
         ["Head", "armour:head"],
         ["Legs", "armour:legs"],
         ["Mace", "weapon:mace"],
+        ["Macguffin", "macguffin"],
         ["Malformed Gem", "gem"],
         ["Mixed Food", "food"],
         ["Mushroom", "mushroom"],
@@ -6394,7 +6396,7 @@ describe("synthetic dataset import", () => {
       (diagnostic) => diagnostic.code,
     );
 
-    expect(result.artifact.entities.items).toHaveLength(13);
+    expect(result.artifact.entities.items).toHaveLength(14);
     expect(result.artifact.entities.recipes).toHaveLength(2);
     expect(result.artifact.entities.encrustments).toHaveLength(1);
     expect(result.artifact.entities.skills).toHaveLength(1);
@@ -6647,7 +6649,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(26);
+    expect(result.search.documents).toHaveLength(27);
     expect(result.search).toMatchObject({
       schemaVersion: 3,
       datasetSchemaVersion: 3,
@@ -6814,6 +6816,7 @@ describe("synthetic dataset import", () => {
     expect(itemByName.get("Training Cuirass")?.category).toBe("armour:chest");
     expect(itemByName.get("Training Gem")?.category).toBe("gem");
     expect(itemByName.get("Training Smithing Kit")?.category).toBe("toolkit");
+    expect(itemByName.get("Training Relic")?.category).toBe("macguffin");
     expect(itemByName.get("Training Trap")?.category).toBe("trap");
     expect(itemByName.get("Training Wand +1")?.category).toBe("wand");
     expect(itemByName.get("Training Ration")?.recoveries).toEqual([
@@ -6848,6 +6851,26 @@ describe("synthetic dataset import", () => {
         consumable: false,
       },
     ]);
+    expect(itemByName.get("Training Lockpick")).toMatchObject({
+      id: "item:training lockpick",
+      category: "item",
+      price: null,
+      slugAliases: [],
+      provenance: { sourceId: "synthetic-engine-item-reference" },
+    });
+    expect(
+      skill?.loadouts.find(
+        (loadout) => loadout.itemName === "Training Lockpick",
+      ),
+    ).toMatchObject({
+      amount: 2,
+      itemId: "item:training lockpick",
+      itemResolution: {
+        status: "resolved",
+        resolutionMethod: "exact",
+        targetId: "item:training lockpick",
+      },
+    });
     expect(
       itemByName.get("Training Smithing Kit")?.toolkitDeclarations,
     ).toEqual([
@@ -7008,6 +7031,20 @@ describe("synthetic dataset import", () => {
           },
           amount: 1,
           always: true,
+        },
+        {
+          itemKey: "training lockpick",
+          itemName: "Training Lockpick",
+          itemId: "item:training lockpick",
+          itemResolution: {
+            status: "resolved",
+            resolutionMethod: "exact",
+            targetKind: "item",
+            sourceLabel: "Training Lockpick",
+            targetId: "item:training lockpick",
+          },
+          amount: 2,
+          always: false,
         },
         {
           itemKey: "missing kit",

@@ -89,10 +89,15 @@ Read these files before making a substantial change:
   Consumers must not infer target selection, rotation, placement, obstruction,
   or runtime success from the targeting-template declaration.
 - The original canonical 23 dangling-reference warnings were 23 declarations,
-  nine owner/reference pairs, and seven labels. The owner has approved the 16
-  `lockpick` loadouts and two `Spores` list options as reviewed source-only item
-  labels. They retain their original labels, carry a stable review ID, emit 18
-  informational audit records, and do not fabricate entities or routes. The
+  nine owner/reference pairs, and seven labels. The owner approved the two
+  `Spores` list options as reviewed source-only item labels. They retain their
+  original labels, carry the historical stable review ID, emit two
+  informational audit records, and do not fabricate entities or routes. ADR
+  0006 subsequently replaces the former source-only treatment of the 16 exact
+  `lockpick` loadouts with a separately versioned, visibly project-authored
+  engine-item reference. It creates `item:lockpick`, links all 16 declarations,
+  and uses the verified official icon locally while declaring no price,
+  quality, stats, or ordinary item behavior. The
   owner also approved one narrowly scoped reviewed correction from Luckier
   Find's source label `Acidium Salis` to the existing `Acidum Salis` item. It
   retains the original label and a stable review ID, creates a resolved
@@ -159,14 +164,22 @@ Read these files before making a substantial change:
   names/categories and exact kind/key mappings; modifier values retain official
   entity provenance, and consumers must not import legacy prose, icons, or
   formulas through this catalogue.
+- The canonical project-authored engine-item reference supplies only identities
+  separately evidenced by active relationships but omitted from the active
+  entity database. Its first record is Lockpick. Reference status is derived
+  from source provenance and must remain visible; undeclared item facts remain
+  unavailable. Its verified official icon stays in ignored local output with
+  official asset provenance. Direct macguffin item records use the semantic
+  `macguffin` catalogue category without adding mechanic interpretation.
 - ADR 0001, ADR 0002, and ADR 0003 are accepted under the owner-approved
   local-first official-content boundary. ADR 0003's split artifact/query path,
   bounded user-selected zero-result name/alias suggestions, concrete relevance
   examples, and local desktop/slowed-mobile response budgets are implemented.
   ADR 0004's inherited reservations, tombstones, stable-identity reappearance,
   and publication enforcement are implemented. ADR 0005's separately versioned
-  project stat reference is accepted and implemented. Evidence is recorded under
-  `docs/analysis/`.
+  project stat reference is accepted and implemented. ADR 0006's narrowly
+  scoped engine-item reference is accepted and implemented. Evidence is
+  recorded under `docs/analysis/`.
 - The first parity slice is complete from implementation and validation
   evidence as an engineering/content milestone without a separate owner
   sign-off. Player-experience parity was reopened on 2026-08-15 after a
@@ -176,15 +189,19 @@ Read these files before making a substantial change:
   category-first Items catalogue using verified item icons. Its owner-reviewed
   polish is complete with compact/expanded category controls, preserved game
   order, optional static display views, game-order representatives, smaller
-  expansion markers, and manifest-declared gold/quality imagery. Stat imagery
+  expansion markers, manifest-declared gold/quality imagery, a distinct
+  Macguffin category, and an explicitly labelled Lockpick engine reference with
+  exact loadout backlinks. Stat imagery
   remains separately gated on a verified official mapping. The Craft catalogue
   foundation is implemented with all 374 canonical recipes grouped under seven
   familiar tool routes, existing verified toolkit art, compact/detailed tool
   navigation, persisted source/name/lowest-output-level ordering, a bounded
   36-recipe default plus 24/All views, and reusable ingredient/output summary
-  cards. Items and selected-tool Craft routes share a compact sticky active-
-  category/tool context bar; Craft cards suppress the now-persistent tool
-  identity and the derived maximum-level footer. Item catalogue and detail relationships
+  cards. In Items and selected-tool Craft routes, the actual selected tab
+  progressively detaches into a compact upper-right return-to-chooser control
+  after the chooser scrolls away; without JavaScript it remains an ordinary
+  selected link. Craft cards suppress the repeated tool identity and the
+  derived maximum-level footer. Item catalogue and detail relationships
   reuse a bounded card through whole-relationship mouse hover and an icon-only
   focus/tap control while preserving their visible primary links. The preview
   places verified toolkit art in the transformation between ingredients and
@@ -274,7 +291,7 @@ Keep canonical commands in the root `package.json`, `CONTRIBUTING.md`, and this 
 - `pnpm dev` / `pnpm dev:synthetic` — regenerate the legal synthetic dataset and presented-asset fallback set, then start the web application on `http://localhost:3001/`.
 - `pnpm dev:stop` — stop whichever local process is listening on the modern development port 3001; it is safe to repeat when the port is already free.
 - `pnpm dev:legacy` — serve the preserved application on `http://localhost:3002/` with a read-only virtual overlay from the ignored schema-2 official manifest; missing official inputs fail instead of rendering an empty reference site.
-- `pnpm migrate:official-manifest` — idempotently preserve the four ignored game sources, migrate reviewed schema-2 game/build provenance when needed, and add the tracked versioned Dredmorpedia stat reference.
+- `pnpm migrate:official-manifest` — idempotently preserve the four ignored game sources, migrate reviewed schema-2 game/build provenance when needed, and add the tracked versioned Dredmorpedia stat and engine-item references.
 - `pnpm dev:official` — regenerate the ignored official dataset plus referenced presented icons with a zero-error dataset gate and start the same local application against them.
 - `pnpm generate:official:check` — deterministically regenerate the ignored official dataset and referenced presented icons with a zero-error dataset gate, without starting the web application.
 - `pnpm build:official` — deterministically regenerate the ignored official dataset and referenced presented icons with a zero-error dataset gate and verify the full local static export.

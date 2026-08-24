@@ -76,6 +76,10 @@ The initial canonical source scope is the base game plus all three official expa
 - Provide shareable item comparison for up to three canonical items. Keep
   named stats, direct modifiers, and missing declarations distinct; do not
   imply equipment, combat, or stacking formulas through the presentation.
+- Permit narrowly scoped, versioned project reference records when active
+  source relationships prove an engine identity but the active entity database
+  omits an ordinary record. Label them in the UI, retain separate provenance,
+  and never fill undeclared facts from legacy guesses.
 - Intend to license independently authored modern code, scripts,
   documentation, and synthetic fixtures under MIT, with explicit exclusions
   for legacy, official, generated, mod, and inherited content.

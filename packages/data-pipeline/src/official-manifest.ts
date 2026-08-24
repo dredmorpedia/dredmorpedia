@@ -4,6 +4,7 @@ import { migrateSourceManifestV1, parseSourceManifestV2 } from "./manifest";
 export const officialDatasetVersion =
   "1.1.5 public_beta (Steam build 22934623)";
 export const officialStatReferenceVersion = "1.0.0";
+export const officialEngineItemReferenceVersion = "1.0.0";
 
 const officialDatasetId = "dredmor-1.1.5-public-beta-steam-build-22934623";
 
@@ -30,6 +31,22 @@ const officialStatReferenceSource = {
   root: "reference-data/dredmor-1.1.5-public-beta",
   files: [{ kind: "stats" as const, path: "statDB.xml" }],
 };
+
+const officialEngineItemReferenceSource = {
+  id: "dredmorpedia-engine-item-reference",
+  label: "Dredmorpedia engine item reference",
+  kind: "reference" as const,
+  version: officialEngineItemReferenceVersion,
+  precedence: 40,
+  rootBase: "repository" as const,
+  root: "reference-data/dredmor-1.1.5-public-beta",
+  files: [{ kind: "items" as const, path: "itemDB.xml" }],
+};
+
+const officialReferenceSources = [
+  officialStatReferenceSource,
+  officialEngineItemReferenceSource,
+] as const;
 
 const commonExpansionFiles = [
   { kind: "items", path: "game/itemDB.xml" },
@@ -82,8 +99,18 @@ function assertOfficialGameScope(manifest: SourceManifest): void {
       `Refusing to label unexpected dataset ${manifest.datasetId} as the canonical official build.`,
     );
   }
+  const unexpectedReference = manifest.sources.find(
+    (source) =>
+      source.kind === "reference" &&
+      !officialReferenceSources.some(({ id }) => id === source.id),
+  );
+  if (unexpectedReference) {
+    throw new Error(
+      `Refusing to migrate unexpected reference source metadata for ${unexpectedReference.id}.`,
+    );
+  }
   const gameSources = manifest.sources.filter(
-    (source) => source.id !== officialStatReferenceSource.id,
+    (source) => source.kind !== "reference",
   );
   if (gameSources.length !== expectedOfficialSources.length) {
     throw new Error(
@@ -118,23 +145,41 @@ function assertOfficialGameScope(manifest: SourceManifest): void {
   }
 }
 
+function matchesReferenceSource(
+  source: SourceManifest["sources"][number] | undefined,
+  expected: (typeof officialReferenceSources)[number],
+): boolean {
+  return (
+    source !== undefined &&
+    source.label === expected.label &&
+    source.kind === expected.kind &&
+    source.version === expected.version &&
+    source.precedence === expected.precedence &&
+    source.rootBase === expected.rootBase &&
+    source.root === expected.root &&
+    source.files.length === 1 &&
+    fileKey(source.files[0]!) === fileKey(expected.files[0]!)
+  );
+}
+
 function assertStatReferenceSource(manifest: SourceManifest): void {
   const source = manifest.sources.find(
     ({ id }) => id === officialStatReferenceSource.id,
   );
-  if (
-    source === undefined ||
-    source.label !== officialStatReferenceSource.label ||
-    source.kind !== officialStatReferenceSource.kind ||
-    source.version !== officialStatReferenceSource.version ||
-    source.precedence !== officialStatReferenceSource.precedence ||
-    source.rootBase !== officialStatReferenceSource.rootBase ||
-    source.root !== officialStatReferenceSource.root ||
-    source.files.length !== 1 ||
-    fileKey(source.files[0]!) !== fileKey(officialStatReferenceSource.files[0]!)
-  ) {
+  if (!matchesReferenceSource(source, officialStatReferenceSource)) {
     throw new Error(
       "The canonical official manifest has missing or unexpected Dredmorpedia stat-reference metadata.",
+    );
+  }
+}
+
+function assertEngineItemReferenceSource(manifest: SourceManifest): void {
+  const source = manifest.sources.find(
+    ({ id }) => id === officialEngineItemReferenceSource.id,
+  );
+  if (!matchesReferenceSource(source, officialEngineItemReferenceSource)) {
+    throw new Error(
+      "The canonical official manifest has missing or unexpected Dredmorpedia engine-item-reference metadata.",
     );
   }
 }
@@ -224,13 +269,33 @@ function addStatReferenceSource(manifest: SourceManifest): SourceManifest {
   });
 }
 
+function addEngineItemReferenceSource(
+  manifest: SourceManifest,
+): SourceManifest {
+  const existing = manifest.sources.find(
+    ({ id }) => id === officialEngineItemReferenceSource.id,
+  );
+  if (existing) {
+    assertEngineItemReferenceSource(manifest);
+    return manifest;
+  }
+  return parseSourceManifestV2({
+    ...manifest,
+    sources: [...manifest.sources, officialEngineItemReferenceSource],
+  });
+}
+
+function addOfficialReferenceSources(manifest: SourceManifest): SourceManifest {
+  return addEngineItemReferenceSource(addStatReferenceSource(manifest));
+}
+
 export function migrateOfficialSourceManifest(input: unknown): SourceManifest {
   const manifest = migrateSourceManifestV1(input, {
     datasetVersion: officialDatasetVersion,
     sourceVersion: officialDatasetVersion,
   });
   assertOfficialGameScope(manifest);
-  return addStatReferenceSource(addOfficialPresentedAssets(manifest));
+  return addOfficialReferenceSources(addOfficialPresentedAssets(manifest));
 }
 
 export function upgradeCurrentOfficialSourceManifest(
@@ -241,14 +306,14 @@ export function upgradeCurrentOfficialSourceManifest(
   if (
     manifest.datasetVersion !== officialDatasetVersion ||
     manifest.sources
-      .filter((source) => source.id !== officialStatReferenceSource.id)
+      .filter((source) => source.kind !== "reference")
       .some((source) => source.version !== officialDatasetVersion)
   ) {
     throw new Error(
       "The schema-2 official manifest has version metadata that differs from the reviewed canonical baseline; update it intentionally instead of overwriting it through migration.",
     );
   }
-  return addStatReferenceSource(addOfficialPresentedAssets(manifest));
+  return addOfficialReferenceSources(addOfficialPresentedAssets(manifest));
 }
 
 export function parseCurrentOfficialSourceManifest(
@@ -257,11 +322,12 @@ export function parseCurrentOfficialSourceManifest(
   const manifest = parseSourceManifestV2(input);
   assertOfficialGameScope(manifest);
   assertStatReferenceSource(manifest);
+  assertEngineItemReferenceSource(manifest);
   assertOfficialPresentedAssets(manifest);
   if (
     manifest.datasetVersion !== officialDatasetVersion ||
     manifest.sources
-      .filter((source) => source.id !== officialStatReferenceSource.id)
+      .filter((source) => source.kind !== "reference")
       .some((source) => source.version !== officialDatasetVersion)
   ) {
     throw new Error(

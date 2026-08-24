@@ -37,6 +37,7 @@ export interface ItemComparisonEntry {
   categoryLabel: string;
   price: number | null;
   quality: number;
+  isEngineReference: boolean;
   iconUrl: string | null;
   armourSlots: string[];
   armourLevels: Array<number | null>;
@@ -272,15 +273,19 @@ export function ItemComparison({ items }: { items: ItemComparisonEntry[] }) {
       key: "value",
       label: "Value",
       values: selectedItems.map((item) =>
-        item.price === null
-          ? "Unknown"
-          : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`,
+        item.isEngineReference
+          ? "Not declared"
+          : item.price === null
+            ? "Unknown"
+            : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`,
       ),
     },
     {
       key: "quality",
       label: "Quality",
-      values: selectedItems.map((item) => String(item.quality)),
+      values: selectedItems.map((item) =>
+        item.isEngineReference ? "Not declared" : String(item.quality),
+      ),
     },
     {
       key: "armour-slots",
@@ -468,6 +473,14 @@ export function ItemComparison({ items }: { items: ItemComparisonEntry[] }) {
                 )}
                 <div>
                   <p className="eyebrow">{item.categoryLabel}</p>
+                  {item.isEngineReference ? (
+                    <p
+                      className="item-reference-marker"
+                      title="Project-authored reference for an engine item absent from the active item database"
+                    >
+                      Engine reference
+                    </p>
+                  ) : null}
                   <h2 className="text-xl font-semibold">
                     <Link className="entity-link" href={`/items/${item.slug}/`}>
                       {item.name}

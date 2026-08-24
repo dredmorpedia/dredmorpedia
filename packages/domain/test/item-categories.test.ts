@@ -8,6 +8,7 @@ describe("item category labels", () => {
     expect(itemCategoryLabel("armour:chest")).toBe("Chest armour");
     expect(itemCategoryLabel("weapon:ammunition")).toBe("Ammunition");
     expect(itemCategoryLabel("gem")).toBe("Gem");
+    expect(itemCategoryLabel("macguffin")).toBe("Macguffin");
   });
 
   it("keeps custom fixture and mod categories readable", () => {

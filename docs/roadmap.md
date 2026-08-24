@@ -498,6 +498,17 @@ set is now four declarations, with 90 informational records. Evidence is recorde
 `docs/analysis/dangling-reference-classification-2026-08-09.md` and
 `docs/analysis/relationship-reviewed-correction-evidence-2026-08-09.md`.
 
+The 2026-08-22 legacy/source comparison subsequently replaces only the
+Lockpick source-only classification. ADR 0006 adds a visibly project-authored,
+versioned engine-item reference with no price or inferred ordinary item facts;
+all 16 loadouts now resolve exactly and the verified official icon is copied
+only into ignored local output. The two `Spores` options remain source-only.
+The same slice gives the two active official Macguffin item records their own
+semantic catalogue category instead of hiding them or leaving them in generic
+Item. Current canonical generation contains 764 items, 2,830 search documents,
+four warnings, and 74 informational records. Evidence is in
+`docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
+
 Targeting-template parity now includes searchable static detail routes, strict three-character grid validation, responsive visual previews, assistive descriptions, anchor inclusion, provenance, and reciprocal spell relationships. Root spell attributes are now audited rather than silently discarded. The measured targeting family contains 105 canonical `templateID` declarations, one lowercase `templateid` source alias, and 42 explicit `anchored` flags; all 106 active template spells resolve to normalized templates. The cooldown family recognizes all 133 source-candidate `downtime` declarations; 131 active spells retain the effective exact loss-aware value. The melee-attack family recognizes all 40 source-candidate `attack="1"` declarations; 39 active spells retain the effective true flag. The mine family recognizes all 71 source-candidate root declarations and preserves 70 effective active records across exact mechanic, placement, and hidden presentation fields without treating the measured `minePermanent="2"` value as boolean. The paired item-consumption family recognizes all 11 active `consumeItem` declarations through the strict binary grammar, with seven exact nonblank `consumeItemType` tokens. The root wand family recognizes all 192 source-candidate declarations and preserves 191 effective strict binary flags without treating them as wand-item compatibility or eligibility. The root radius family recognizes all four active declarations and preserves exact non-negative source values without claiming geometry or targeting behavior. The root self family recognizes all three active declarations as strict source-binary flags, keeps them distinct from buff/effect self fields, and withholds actor and targeting semantics. The one active root `noanimation` declaration is preserved as a strict source-binary presentation flag, separate from direct-effect skip-animation controls. These values are presented without inferring engine behavior, and the measured root spell compatibility audit is complete. The full canonical import therefore reports 0 errors, 4 relationship warnings, and 90 informational records. Evidence is in `docs/analysis/spell-targeting-template-evidence-2026-08-11.md`, `docs/analysis/spell-cooldown-evidence-2026-08-11.md`, `docs/analysis/spell-melee-attack-evidence-2026-08-11.md`, `docs/analysis/spell-mine-declaration-evidence-2026-08-11.md`, `docs/analysis/spell-item-consumption-evidence-2026-08-11.md`, `docs/analysis/spell-wand-flag-evidence-2026-08-11.md`, `docs/analysis/spell-radius-evidence-2026-08-11.md`, `docs/analysis/spell-root-self-flag-evidence-2026-08-11.md`, and `docs/analysis/spell-root-no-animation-evidence-2026-08-11.md`.
 
 The first-parity completion review reconciles the functional criteria with the
@@ -529,7 +540,7 @@ grouping are part of useful parity, while advanced Search and differentiating
 tools remain additions. The first corrected slice implements direct core
 navigation, a separate Tools directory, and the category-first Items
 catalogue. The owner-reviewed Items polish and the Craft catalogue foundation
-are complete, including shared sticky active-category/tool context and
+are complete, including progressively floating selected category/tool tabs and
 accessible recipe previews from item relationships;
 continue with Encrusts before returning to new Phase 5 features. Evidence and
 order are in
@@ -544,10 +555,11 @@ and quality-star imagery. Stat imagery remains separately gated on a verified
 official mapping. Craft parity now provides complete tool-group routes in
 familiar order, verified toolkit art, compact/detailed navigation, persisted
 display settings, a bounded 36-recipe default plus 24/All options, source/name/
-lowest-output-level orders, and reusable ingredient/output summary cards.
-Items and selected-tool Craft routes share a compact sticky context bar, so
-selected-tool recipe cards suppress redundant tool identity while retaining
-the per-output source levels. Item catalogue and detail relationships now reuse that
+lowest-output-level orders, and reusable ingredient/output summary cards. The
+actual selected category/tool tab becomes a compact upper-right return control
+after its chooser scrolls away, with ordinary navigation as the no-JavaScript
+fallback. Selected-tool recipe cards suppress redundant tool identity while
+retaining the per-output source levels. Item catalogue and detail relationships now reuse that
 card through whole-relationship mouse hover and an icon-only focus/tap control
 while preserving visible primary links and Escape focus restoration. Toolkit
 art sits between ingredients and outputs as the recipe transformation; Hidden and expansion

@@ -7,7 +7,7 @@ This is the durable handoff for moving Dredmorpedia to another computer or openi
 ## Resume checklist for Codex
 
 1. Read `AGENTS.md` completely and follow it.
-2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0005.
+2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0006.
 3. Run `git status -sb`, `git log --oneline --decorate -5`, and `git remote -v` before changing anything.
 4. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` to confirm the preserved baseline.
 5. Install the pinned workspace and run `pnpm generate:check` plus `pnpm check`. Run `pnpm test:e2e` when Chromium is installed.
@@ -62,7 +62,7 @@ A useful first prompt on the new machine is:
 - Item use metadata preserves Life/Mana recovery declarations, exact extra food source flags, wand charge ranges, and loss-aware trap activation/targeting/placement declarations; potion, mushroom, and trap leaves are fully validated. Armour metadata separately preserves loss-aware slot, level, and optional `randoms` declarations. Complete weapon leaves combine existing category/quality/fixed-damage/hit relationships with loss-aware floor-target and safe hidden thrown-presentation metadata. Recovery timing, charge consumption, trap runtime behavior, random-stat selection, equipment formulas, weapon recoverability/combat formulas, and neutral flag behavior remain deliberately uninterpreted.
 - Generated datasets remain ignored under `data/generated/`; managed presented assets remain ignored under `apps/web/public/generated-assets/`. Dependencies and Playwright browser downloads are local machine state and are not transferred through Git.
 - `pnpm dev`/`pnpm dev:synthetic` regenerate and serve the tracked synthetic fixture plus its deliberate item-icon fallback; `pnpm dev:official` regenerates and serves the ignored canonical artifact and referenced item PNG icons from the ignored local manifest. `pnpm generate:official:check` and `pnpm build:official` provide deterministic import-only and full-static-build verification for both output sets. `pnpm benchmark:search:official` additionally enforces ADR 0003's accepted transfer, parse, query, relevance, and desktop/4x-CPU-mobile browser budgets. Every official command enables the zero-error dataset gate and replaces only a managed asset directory. These root commands explicitly select matching outputs; optional direct web commands may use an ignored `apps/web/.env.local` copied from the tracked example.
-- Existing machines run `pnpm migrate:official-manifest` idempotently. It preserves the four ignored game roots/files, adds the reviewed `1.1.5 public_beta (Steam build 22934623)` dataset/source provenance when needed, and adds the tracked versioned Dredmorpedia stat reference; official generation commands invoke it automatically.
+- Existing machines run `pnpm migrate:official-manifest` idempotently. It preserves the four ignored game roots/files, adds the reviewed `1.1.5 public_beta (Steam build 22934623)` dataset/source provenance when needed, and adds the tracked versioned Dredmorpedia stat and engine-item references; official generation commands invoke it automatically.
 - `pnpm audit:dependencies` checks the production dependency graph against the live advisory database. The current graph uses Next.js 16.2.12 plus reviewed PostCSS and Sharp overrides and reports no known vulnerabilities; weekly Dependabot updates and a separate scheduled dependency-audit workflow provide ongoing coverage.
 - Development servers omit the production-only static-export mode so a stale URL from another selected dataset reaches the accessible dataset-neutral 404 page. Production and official builds still require `output: "export"` and prove every generated route statically.
 - The preserved application is served with `legacy/` as its document root and must remain runnable until parity is demonstrated.
@@ -78,7 +78,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
 | Official sources | Use `1.1.5 public_beta` with the base game and all three official expansions for the MVP. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. Postpone a dataset-version switcher until a second complete, verified dataset exists. |
-| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001–0005 are Accepted within the local-only product boundary. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001–0006 are Accepted within the local-only product boundary. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Local assets | The first incremental, read-only slice copies referenced item PNG icons from captured source snapshots into an ignored, checksummed, managed output and renders them with a safe fallback. Extend it only for assets an implemented page presents; do not bulk-copy unrelated resources. |
@@ -143,9 +143,11 @@ Continue toward local parity without assuming permission to publish official con
    foundation has all 374 canonical recipes across seven familiar tool routes,
    verified toolkit art, compact/detailed navigation, persisted display
    settings, a 36-recipe default plus 24/All views, and reusable summary cards.
-   Items and selected-tool Craft routes share a compact sticky active-group
-   context bar. Selected-tool cards hide the now-persistent tool identity and
-   the derived maximum-level footer. Whole-relationship mouse hover plus an icon-only
+   In Items and selected-tool Craft routes, the actual selected tab
+   progressively becomes a compact upper-right return-to-chooser control after
+   the chooser scrolls away. No-JavaScript navigation remains unchanged.
+   Selected-tool cards hide repeated tool identity and the derived maximum-
+   level footer. Whole-relationship mouse hover plus an icon-only
    focus/tap control now expose those cards while keeping direct links visible;
    toolkit art sits between ingredients and outputs in the preview. Encrusts is
    next. Hidden/expansion iconography and bounded build planning are
@@ -154,10 +156,10 @@ Continue toward local parity without assuming permission to publish official con
 3. Extend the local asset importer only when another implemented page needs
    concrete art; specialized sprite treatment remains page-specific.
 4. Keep disputed monster Life, Mana, secondary-stat, and damage formulas unavailable until the documented source conflicts are resolved against the canonical build; all measured official monster child elements and the six independently evidenced primary attributes are already implemented.
-5. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the 18 reviewed source-only records, one reviewed correction, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
+5. No measured item, spell-child/effect, spell-requirement, or root spell compatibility diagnostic remains. The targeting-template family is complete with all 106 active references resolved; root radius, self, cooldown, melee-attack, mine, item-consumption, wand, and no-animation declarations are preserved through their loss-aware contracts. The three exact shield requirements, one exact weapon requirement, six exact booze requirements, and three exact zorkmid requirements are preserved. Treat the two reviewed `Spores` source-only records, one reviewed correction, 16 exact Lockpick links through ADR 0006's labelled engine-item reference, and four remaining dangling references as explicit parity evidence. No measured official skill/ability or monster child element remains unsupported.
 6. ADR 0004 is implemented; keep `--publication-routes` off local official commands until content permission exists, and keep the version switcher deferred until a second complete dataset exists. Evidence is in `docs/analysis/published-route-registry-lifecycle-evidence-2026-08-09.md`.
 7. ADR 0003 is accepted: `pnpm benchmark:search:official` enforces the transfer, parse, ordinary/suggestion query, concrete relevance, and desktop/4x-CPU-mobile browser budgets recorded in `docs/analysis/search-response-budgets-evidence-2026-08-09.md`.
-8. The item-icon slice maps all 763 canonical items to 722 unique copied PNGs with zero fallbacks; its evidence is in `docs/analysis/item-icon-import-evidence-2026-08-09.md`.
+8. The presented-asset set now maps all 764 canonical items, including the labelled Lockpick engine reference, while retaining official asset provenance and zero fallbacks; current measurements are in `docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
 9. `/dataset/` exposes the active source order, grouped diagnostics, affected
    records, 71 canonical override steps, and reviewed patches from the verified
    artifact set. It is not a source selector or version switcher. Evidence is

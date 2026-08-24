@@ -12,9 +12,9 @@ import {
 const approvedQuery: SourceOnlyItemReviewQuery = {
   ...canonicalRelationshipReviewDataset,
   sourceId: "official-base",
-  ownerId: "skill:perception",
-  relationship: "skill-loadout-item",
-  sourceLabel: "lockpick",
+  ownerId: "spell:spore stash",
+  relationship: "spell-effect-item-option",
+  sourceLabel: "Spores",
 };
 
 const approvedCorrectionQuery: SourceOnlyItemReviewQuery = {
@@ -31,11 +31,11 @@ describe("reviewed relationship classifications", () => {
     expect(
       sourceOnlyItemReview({
         ...approvedQuery,
-        ownerId: "spell:spore stash",
-        relationship: "spell-effect-item-option",
-        sourceLabel: "Spores",
+        ownerId: "skill:perception",
+        relationship: "skill-loadout-item",
+        sourceLabel: "lockpick",
       }),
-    ).toBe(sourceOnlyItemReviewId);
+    ).toBeNull();
   });
 
   it.each([
@@ -43,9 +43,9 @@ describe("reviewed relationship classifications", () => {
     ["dataset version", { datasetVersion: "another-version" }],
     ["source", { sourceId: "official-expansion-1" }],
     ["source version", { sourceVersion: "another-version" }],
-    ["owner", { ownerId: "skill:another" }],
-    ["relationship", { relationship: "spell-effect-item-option" as const }],
-    ["source label", { sourceLabel: "Lockpick" }],
+    ["owner", { ownerId: "spell:another stash" }],
+    ["relationship", { relationship: "skill-loadout-item" as const }],
+    ["source label", { sourceLabel: "spores" }],
   ])("does not broaden the review across a changed %s", (_label, change) => {
     expect(sourceOnlyItemReview({ ...approvedQuery, ...change })).toBeNull();
   });

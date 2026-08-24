@@ -4,6 +4,8 @@ export const canonicalRelationshipReviewDataset = {
   sourceVersion: "1.1.5 public_beta (Steam build 22934623)",
 } as const;
 
+// This historical ID remains stable for the two Spores records after ADR 0006
+// replaced the Lockpick portion with an exact project-reference relationship.
 export const sourceOnlyItemReviewId =
   "relationship-review:2026-08-09:lockpick-and-spores-source-only";
 
@@ -40,30 +42,6 @@ interface ItemCorrectionReviewRule extends SourceOnlyItemReviewQuery {
 }
 
 const sourceOnlyItemReviewRules: readonly SourceOnlyItemReviewRule[] = [
-  {
-    ...canonicalRelationshipReviewDataset,
-    sourceId: "official-base",
-    ownerId: "skill:burglary",
-    relationship: "skill-loadout-item",
-    sourceLabel: "lockpick",
-    reviewId: sourceOnlyItemReviewId,
-  },
-  {
-    ...canonicalRelationshipReviewDataset,
-    sourceId: "official-base",
-    ownerId: "skill:perception",
-    relationship: "skill-loadout-item",
-    sourceLabel: "lockpick",
-    reviewId: sourceOnlyItemReviewId,
-  },
-  {
-    ...canonicalRelationshipReviewDataset,
-    sourceId: "official-expansion-1",
-    ownerId: "skill:piracy",
-    relationship: "skill-loadout-item",
-    sourceLabel: "lockpick",
-    reviewId: sourceOnlyItemReviewId,
-  },
   {
     ...canonicalRelationshipReviewDataset,
     sourceId: "official-base",

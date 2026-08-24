@@ -8,8 +8,8 @@ const itemPreviewLimit = 24;
 
 export default function HomePage() {
   const artifact = loadArtifact();
-  const sourceLabels = new Map(
-    artifact.sources.map((source) => [source.id, source.label]),
+  const sourcesById = new Map(
+    artifact.sources.map((source) => [source.id, source]),
   );
   const items = artifact.entities.items.slice(0, itemPreviewLimit);
   const counts = artifact.diagnostics;
@@ -117,35 +117,44 @@ export default function HomePage() {
 
         {items.length > 0 ? (
           <ul className="item-grid">
-            {items.map((item) => (
-              <li key={item.id} className="item-card">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="category-chip">
-                    {itemCategoryLabel(item.category)}
-                  </span>
-                  <span className="grid justify-items-end gap-1 text-xs text-muted-foreground">
-                    <span>
-                      {item.price === null
-                        ? "No price"
-                        : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
+            {items.map((item) => {
+              const source = sourcesById.get(item.provenance.sourceId);
+              const isEngineReference = source?.kind === "reference";
+              return (
+                <li key={item.id} className="item-card">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="category-chip">
+                      {itemCategoryLabel(item.category)}
                     </span>
-                    <span>Quality {item.quality}</span>
-                  </span>
-                </div>
-                <h3 className="mt-4 text-xl font-semibold">
-                  <Link className="entity-link" href={`/items/${item.slug}`}>
-                    {item.name}
-                  </Link>
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {item.description}
-                </p>
-                <p className="mt-4 text-xs font-medium text-muted-foreground">
-                  {sourceLabels.get(item.provenance.sourceId) ??
-                    item.provenance.sourceId}
-                </p>
-              </li>
-            ))}
+                    <span className="grid justify-items-end gap-1 text-xs text-muted-foreground">
+                      <span>
+                        {isEngineReference
+                          ? "Value not declared"
+                          : item.price === null
+                            ? "No price"
+                            : `${new Intl.NumberFormat("en").format(item.price)} zorkmids`}
+                      </span>
+                      <span>
+                        {isEngineReference
+                          ? "Quality not declared"
+                          : `Quality ${item.quality}`}
+                      </span>
+                    </span>
+                  </div>
+                  <h3 className="mt-4 text-xl font-semibold">
+                    <Link className="entity-link" href={`/items/${item.slug}`}>
+                      {item.name}
+                    </Link>
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {item.description}
+                  </p>
+                  <p className="mt-4 text-xs font-medium text-muted-foreground">
+                    {source?.label ?? item.provenance.sourceId}
+                  </p>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <div className="empty-state" role="status">

@@ -3,12 +3,14 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUp } from "lucide-react";
 
 import {
   CatalogueDisplayControls,
   type CatalogueLayout,
   type CatalogueSettingOption,
 } from "@/components/catalogue-display-controls";
+import { useFloatingCatalogueTab } from "@/components/use-floating-catalogue-tab";
 import {
   defaultItemCatalogueView,
   itemCatalogueCategoryPath,
@@ -82,20 +84,36 @@ const pageSizeOptions: readonly CatalogueSettingOption<ItemCataloguePageSize>[] 
 function CategoryNavigationItem({
   activeCategoryKey,
   candidate,
+  floating,
 }: {
   activeCategoryKey: string;
   candidate: ItemCatalogueNavigationEntry;
+  floating: boolean;
 }) {
+  const active = candidate.key === activeCategoryKey;
+  const floatingActive = active && floating;
   return (
-    <li>
+    <li className={active ? "catalogue-active-tab-slot" : undefined}>
       <Link
-        aria-current={candidate.key === activeCategoryKey ? "page" : undefined}
-        aria-label={`${candidate.label}, ${candidate.count} ${
-          candidate.count === 1 ? "item" : "items"
-        }`}
-        href={candidate.href}
-        title={`${candidate.label} — represented by ${candidate.representativeName}`}
+        aria-current={active ? "page" : undefined}
+        aria-label={
+          floatingActive
+            ? `Back to item categories; current category: ${candidate.label}`
+            : `${candidate.label}, ${candidate.count} ${
+                candidate.count === 1 ? "item" : "items"
+              }`
+        }
+        data-floating={floatingActive ? "" : undefined}
+        href={floatingActive ? "#item-categories" : candidate.href}
+        title={
+          floatingActive
+            ? `Back to item categories — ${candidate.label}`
+            : `${candidate.label} — represented by ${candidate.representativeName}`
+        }
       >
+        <span aria-hidden="true" className="catalogue-floating-arrow">
+          <ArrowUp size={16} strokeWidth={2.2} />
+        </span>
         {candidate.iconUrl ? (
           // The title identifies which representative game item supplies the category art.
           // eslint-disable-next-line @next/next/no-img-element
@@ -207,6 +225,7 @@ export function ItemCatalogueControls({
   redirectToStoredView = false,
 }: ItemCatalogueControlsProps) {
   const router = useRouter();
+  const { floating, sentinelRef } = useFloatingCatalogueTab();
   const storedPreferences = useSyncExternalStore(
     subscribeToPreferences,
     getPreferenceSnapshot,
@@ -304,6 +323,7 @@ export function ItemCatalogueControls({
         aria-label="Item categories"
         className="item-category-nav"
         data-layout={categoryLayout}
+        id="item-categories"
       >
         {categoryLayout === "compact" ? (
           <ul className="item-category-compact-list">
@@ -311,6 +331,7 @@ export function ItemCatalogueControls({
               <CategoryNavigationItem
                 activeCategoryKey={activeCategory.key}
                 candidate={candidate}
+                floating={floating}
                 key={candidate.key}
               />
             ))}
@@ -328,6 +349,7 @@ export function ItemCatalogueControls({
                     <CategoryNavigationItem
                       activeCategoryKey={activeCategory.key}
                       candidate={candidate}
+                      floating={floating}
                       key={candidate.key}
                     />
                   ))}
@@ -337,6 +359,11 @@ export function ItemCatalogueControls({
           })
         )}
       </nav>
+      <span
+        aria-hidden="true"
+        className="catalogue-floating-sentinel"
+        ref={sentinelRef}
+      />
     </>
   );
 }

@@ -80,8 +80,8 @@ describe("generated artifact loading", () => {
     const { loadArtifact, loadDiagnostics, loadSearchArtifact } =
       await import("../src/lib/artifact");
 
-    expect(loadArtifact().entities.items).toHaveLength(13);
-    expect(loadSearchArtifact().documents).toHaveLength(26);
+    expect(loadArtifact().entities.items).toHaveLength(14);
+    expect(loadSearchArtifact().documents).toHaveLength(27);
     expect(loadDiagnostics()).toHaveLength(24);
     expect(
       loadArtifact().entities.spells.find(
@@ -179,7 +179,7 @@ describe("generated artifact loading", () => {
       path.join(artifactDirectory, "diagnostics.json"),
       diagnostics,
     );
-    expect(loadArtifact().entities.items).toHaveLength(13);
+    expect(loadArtifact().entities.items).toHaveLength(14);
   });
 
   it("rejects checksummed diagnostic inconsistencies while loading only the main artifact", async () => {

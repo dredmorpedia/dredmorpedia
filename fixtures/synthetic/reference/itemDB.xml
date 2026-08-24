@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Independently authored fixture reference data, not game content. -->
+<items>
+  <item name="Training Lockpick" iconFile="assets/synthetic.svg">
+    <description text="A synthetic engine-item reference used to verify explicit provenance and undeclared item facts." />
+  </item>
+</items>

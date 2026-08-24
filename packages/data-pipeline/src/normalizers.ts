@@ -181,6 +181,10 @@ function itemCategory(record: XmlRecord): string {
     return "food";
   }
 
+  if (Object.hasOwn(record, "macguffin")) {
+    return "macguffin";
+  }
+
   for (const category of [
     "trap",
     "wand",

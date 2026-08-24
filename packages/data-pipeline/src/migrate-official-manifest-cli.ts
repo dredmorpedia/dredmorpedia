@@ -71,13 +71,13 @@ if (schemaVersion === 2) {
   } else {
     writeAtomically(upgradedContents);
     process.stdout.write(
-      `Added the versioned Dredmorpedia stat reference to the current official manifest at ${officialDatasetVersion}.\n`,
+      `Added the versioned Dredmorpedia project references to the current official manifest at ${officialDatasetVersion}.\n`,
     );
   }
 } else {
   const manifest = migrateOfficialSourceManifest(input);
   writeAtomically(`${JSON.stringify(manifest, null, 2)}\n`);
   process.stdout.write(
-    `Migrated official manifest from schema 1 to schema 2 at ${officialDatasetVersion}; preserved four local game roots and added the versioned Dredmorpedia stat reference.\n`,
+    `Migrated official manifest from schema 1 to schema 2 at ${officialDatasetVersion}; preserved four local game roots and added the versioned Dredmorpedia project references.\n`,
   );
 }

@@ -16,7 +16,6 @@ import {
   ItemCatalogueControls,
   type ItemCatalogueNavigationEntry,
 } from "@/components/item-catalogue-controls";
-import { CatalogueContextBar } from "@/components/catalogue-context-bar";
 import { ItemArt } from "@/components/item-art";
 import { RecipePreview } from "@/components/recipe-preview";
 import { StatModifierLink } from "@/components/stat-modifier-link";
@@ -52,9 +51,11 @@ interface ItemCataloguePageProps {
 function PriceDisplay({
   price,
   iconUrl,
+  unavailableLabel = "Unknown",
 }: {
   price: number | null;
   iconUrl: string | null;
+  unavailableLabel?: string;
 }) {
   return (
     <span className="item-icon-fact">
@@ -70,7 +71,9 @@ function PriceDisplay({
         )}
       </span>
       <span>
-        {price === null ? "Unknown" : new Intl.NumberFormat("en").format(price)}
+        {price === null
+          ? unavailableLabel
+          : new Intl.NumberFormat("en").format(price)}
       </span>
     </span>
   );
@@ -81,10 +84,13 @@ function QualityDisplay({
   emptyIconUrl,
   fullIconUrl,
 }: {
-  quality: number;
+  quality: number | null;
   emptyIconUrl: string | null;
   fullIconUrl: string | null;
 }) {
+  if (quality === null) {
+    return <span>Not declared</span>;
+  }
   if (quality <= 0) {
     return <span>0</span>;
   }
@@ -223,6 +229,7 @@ function ItemSummaryCard({
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
   const marker = sourceMarker(source);
+  const isEngineReference = source?.kind === "reference";
 
   return (
     <li className="item-summary-card">
@@ -251,6 +258,14 @@ function ItemSummaryCard({
                 {marker.shortLabel}
               </span>
             ) : null}
+            {isEngineReference ? (
+              <span
+                className="item-reference-marker"
+                title="Project-authored reference for an engine item absent from the active item database"
+              >
+                Engine reference
+              </span>
+            ) : null}
           </div>
           <p className="item-summary-description">
             {item.description || "No description is supplied by this dataset."}
@@ -261,7 +276,13 @@ function ItemSummaryCard({
           <div>
             <dt>Value</dt>
             <dd>
-              <PriceDisplay iconUrl={goldIconUrl} price={item.price} />
+              <PriceDisplay
+                iconUrl={goldIconUrl}
+                price={item.price}
+                unavailableLabel={
+                  isEngineReference ? "Not declared" : "Unknown"
+                }
+              />
             </dd>
           </div>
           <div>
@@ -270,7 +291,7 @@ function ItemSummaryCard({
               <QualityDisplay
                 emptyIconUrl={qualityEmptyIconUrl}
                 fullIconUrl={qualityFullIconUrl}
-                quality={item.quality}
+                quality={isEngineReference ? null : item.quality}
               />
             </dd>
           </div>
@@ -526,9 +547,6 @@ export function ItemCataloguePage({
       };
     },
   );
-  const activeCategoryEntry = navigationEntries.find(
-    (candidate) => candidate.key === category.key,
-  );
   const firstRecord =
     result.total === 0 || result.pageSize === "all"
       ? result.total === 0
@@ -568,14 +586,13 @@ export function ItemCataloguePage({
       />
 
       <section aria-labelledby="item-category-heading">
-        <CatalogueContextBar
-          headingId="item-category-heading"
-          iconTitle={activeCategoryEntry?.representativeName ?? category.label}
-          iconUrl={activeCategoryEntry?.iconUrl ?? null}
-          kindLabel="Selected category"
-          label={category.label}
-        />
-        <div className="catalogue-context-actions">
+        <div className="item-category-heading">
+          <div>
+            <p className="eyebrow">Selected category</p>
+            <h2 id="item-category-heading" className="section-title">
+              {category.label}
+            </h2>
+          </div>
           <Link
             className="entity-link"
             href={`/search/?category=${category.key}`}

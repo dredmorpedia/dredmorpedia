@@ -55,15 +55,10 @@ test.describe("static browse without JavaScript", () => {
     await materials.press("Enter");
 
     await expect(page).toHaveURL(/\/items\/category\/material\/1\/$/);
-    const itemContext = page.locator(".catalogue-context-bar");
     await expect(
-      itemContext.getByRole("heading", { level: 2, name: "Material" }),
+      page.getByRole("heading", { level: 2, name: "Material" }),
     ).toBeVisible();
-    expect(
-      await itemContext.evaluate(
-        (element) => getComputedStyle(element).position,
-      ),
-    ).toBe("sticky");
+    await expect(materials).not.toHaveAttribute("data-floating", "");
     const brassIngot = page.locator(".item-summary-card");
     await expect(
       brassIngot.getByRole("heading", { level: 3, name: "Brass Ingot" }),
@@ -117,18 +112,13 @@ test.describe("static browse without JavaScript", () => {
     await smithing.press("Enter");
 
     await expect(page).toHaveURL(/\/crafts\/tool\/smithing\/$/);
-    const craftContext = page.locator(".catalogue-context-bar");
     await expect(
-      craftContext.getByRole("heading", {
+      page.getByRole("heading", {
         level: 2,
         name: "Training Smithing Kit",
       }),
     ).toBeVisible();
-    expect(
-      await craftContext.evaluate(
-        (element) => getComputedStyle(element).position,
-      ),
-    ).toBe("sticky");
+    await expect(smithing).not.toHaveAttribute("data-floating", "");
     const recipe = page.locator(".recipe-summary-card");
     await expect(
       recipe.getByRole("heading", {
@@ -349,6 +339,60 @@ test("previews a Used to craft recipe without replacing direct navigation", asyn
   await expect(preview).toBeVisible();
 });
 
+test("promotes the selected item tab into a return control", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/items/category/material/1/");
+  const categories = page.getByRole("navigation", {
+    name: "Item categories",
+  });
+  const selected = categories.locator('a[aria-current="page"]');
+  const sentinel = page.locator(".catalogue-floating-sentinel");
+
+  await expect(selected).toHaveAttribute("href", "/items/category/material/1/");
+  await expect(selected).not.toHaveAttribute("data-floating", "");
+
+  // The synthetic category has one item; emulate an official-data catalogue
+  // that is long enough for its category chooser to leave the viewport.
+  await page.evaluate(() => {
+    document.documentElement.style.minHeight = "300vh";
+  });
+
+  await sentinel.evaluate((element) => {
+    window.scrollTo(
+      0,
+      element.getBoundingClientRect().top + window.scrollY + 16,
+    );
+  });
+  await expect(selected).toHaveAttribute("data-floating", "");
+  await expect(selected).toHaveAttribute("href", "#item-categories");
+  await expect(selected).toHaveAttribute(
+    "aria-label",
+    "Back to item categories; current category: Material",
+  );
+  const floatingLabel = selected.getByText("Material", { exact: true });
+  if (testInfo.project.name === "mobile-chromium") {
+    await expect(floatingLabel).toBeHidden();
+  } else {
+    await expect(floatingLabel).toBeVisible();
+  }
+
+  await selected.click();
+  await expect(page).toHaveURL(/#item-categories$/);
+  await expect(selected).not.toHaveAttribute("data-floating", "");
+
+  await page.getByRole("button", { name: "Detailed" }).click();
+  await expect(categories).toHaveAttribute("data-layout", "expanded");
+  await sentinel.evaluate((element) => {
+    window.scrollTo(
+      0,
+      element.getBoundingClientRect().top + window.scrollY + 16,
+    );
+  });
+  await expect(selected).toHaveAttribute("data-floating", "");
+  await expect(categories.locator('a[aria-current="page"]')).toHaveCount(1);
+});
+
 test("configures and persists the Craft catalogue display accessibly", async ({
   page,
 }) => {
@@ -514,7 +558,7 @@ test("previews a bounded catalogue and exposes a static detail route", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Item preview" }),
   ).toBeVisible();
-  await expect(page.getByText("Showing 13 of 13 items")).toBeVisible();
+  await expect(page.getByText("Showing 14 of 14 items")).toBeVisible();
   expect(await page.locator(".item-card").count()).toBeLessThanOrEqual(24);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
@@ -802,6 +846,7 @@ test("groups, bounds, and contextualizes search category filters", async ({
     "Food",
     "Gem",
     "Item",
+    "Macguffin",
     "Material",
     "Mushroom",
     "Potion",
@@ -1593,6 +1638,14 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
 test("shows linked macguffin source metadata without inferring behavior", async ({
   page,
 }) => {
+  await page.goto("/items/category/macguffin/1/");
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Macguffin" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Training Relic" }),
+  ).toBeVisible();
+
   await page.goto("/items/training-relic/");
   const useMetadata = page.getByRole("region", { name: "Use metadata" });
   await expect(
@@ -1634,6 +1687,40 @@ test("shows linked macguffin source metadata without inferring behavior", async 
         document.documentElement.clientWidth,
     ),
   ).toBe(true);
+});
+
+test("labels an engine item reference and keeps undeclared facts explicit", async ({
+  page,
+}) => {
+  await page.goto("/items/category/item/1/");
+  const card = page.locator(".item-summary-card", {
+    has: page.getByRole("link", { name: "Training Lockpick" }),
+  });
+  await expect(card).toBeVisible();
+  await expect(
+    card.getByText("Engine reference", { exact: true }),
+  ).toBeVisible();
+  await expect(card.getByText("Not declared", { exact: true })).toHaveCount(2);
+
+  await card.getByRole("link", { name: "Training Lockpick" }).first().click();
+  await expect(page).toHaveURL(/\/items\/training-lockpick\/$/);
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Engine item reference" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      /active item database does not define an ordinary item record/i,
+    ),
+  ).toBeVisible();
+  await expect(
+    page.locator(".price-block").getByText("Not declared", { exact: true }),
+  ).toHaveCount(2);
+  const loadouts = page.getByRole("region", {
+    name: "Starting loadout relationships",
+  });
+  await expect(
+    loadouts.getByRole("link", { name: "Clockwork Combat" }),
+  ).toBeVisible();
 });
 
 test("shows toolkit metadata and navigates crafting tool relationships", async ({

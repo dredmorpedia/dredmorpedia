@@ -8,6 +8,7 @@ import {
 import {
   migrateOfficialSourceManifest,
   officialDatasetVersion,
+  officialEngineItemReferenceVersion,
   officialStatReferenceVersion,
   parseCurrentOfficialSourceManifest,
   upgradeCurrentOfficialSourceManifest,
@@ -216,14 +217,16 @@ describe("source manifest migration", () => {
     const migrated = migrateOfficialSourceManifest(legacyOfficialManifest);
 
     expect(migrated.datasetVersion).toBe(officialDatasetVersion);
-    expect(migrated.sources).toHaveLength(5);
+    expect(migrated.sources).toHaveLength(6);
     expect(
       migrated.sources
         .filter((source) => source.kind !== "reference")
         .every((source) => source.version === officialDatasetVersion),
     ).toBe(true);
     expect(
-      migrated.sources.find((source) => source.kind === "reference"),
+      migrated.sources.find(
+        (source) => source.id === "dredmorpedia-stat-reference",
+      ),
     ).toMatchObject({
       id: "dredmorpedia-stat-reference",
       version: officialStatReferenceVersion,
@@ -231,6 +234,18 @@ describe("source manifest migration", () => {
       rootBase: "repository",
       root: "reference-data/dredmor-1.1.5-public-beta",
       files: [{ kind: "stats", path: "statDB.xml" }],
+    });
+    expect(
+      migrated.sources.find(
+        (source) => source.id === "dredmorpedia-engine-item-reference",
+      ),
+    ).toMatchObject({
+      id: "dredmorpedia-engine-item-reference",
+      version: officialEngineItemReferenceVersion,
+      precedence: 40,
+      rootBase: "repository",
+      root: "reference-data/dredmor-1.1.5-public-beta",
+      files: [{ kind: "items", path: "itemDB.xml" }],
     });
     expect(
       migrated.sources.find((source) => source.id === "official-base")
@@ -252,6 +267,19 @@ describe("source manifest migration", () => {
     expect(() =>
       parseCurrentOfficialSourceManifest(currentWithoutReference),
     ).toThrow(/stat-reference metadata/);
+
+    const currentWithoutEngineItemReference = {
+      ...migrated,
+      sources: migrated.sources.filter(
+        (source) => source.id !== "dredmorpedia-engine-item-reference",
+      ),
+    };
+    expect(
+      upgradeCurrentOfficialSourceManifest(currentWithoutEngineItemReference),
+    ).toEqual(migrated);
+    expect(() =>
+      parseCurrentOfficialSourceManifest(currentWithoutEngineItemReference),
+    ).toThrow(/engine-item-reference metadata/);
 
     expect(() =>
       migrateOfficialSourceManifest({

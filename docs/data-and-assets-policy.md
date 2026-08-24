@@ -66,12 +66,19 @@ Generated output is not automatically safe to publish merely because it is trans
 4. whether users instead need a local import workflow;
 5. a repeatable check preventing restricted inputs from entering the deployment artifact.
 
-The tracked Dredmorpedia stat reference is independently authored project data,
-not an extraction of an official database. It contains only reviewed
-modifier-selector/name/category mappings and intentionally excludes preserved
-legacy prose, legacy icon references, and gameplay formulas. Importing it as a
-separately versioned `reference` source does not broaden permission to publish
-official entity values or assets.
+The tracked Dredmorpedia stat and engine-item references are independently
+authored project data, not extracts of an official database. The stat reference
+contains only reviewed modifier-selector/name/category mappings and
+intentionally excludes preserved legacy prose, legacy icon references, and
+gameplay formulas. The engine-item reference contains only separately
+evidenced identity/absence facts and an official source path for local asset
+resolution. Importing either as a separately versioned `reference` source does
+not broaden permission to publish official entity values or assets.
+Engine-item references must be visibly
+distinguished from ordinary game records, may claim only separately evidenced
+facts, and must be reverified for each complete game dataset. A referenced
+official icon remains local-only official content even when a tracked project
+reference points to its source path.
 
 ## Local product and asset scope
 

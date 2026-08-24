@@ -3,12 +3,14 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUp } from "lucide-react";
 
 import {
   CatalogueDisplayControls,
   type CatalogueLayout,
   type CatalogueSettingOption,
 } from "@/components/catalogue-display-controls";
+import { useFloatingCatalogueTab } from "@/components/use-floating-catalogue-tab";
 import {
   craftCatalogueToolPath,
   defaultCraftCatalogueView,
@@ -157,20 +159,36 @@ function clearPreferences(): void {
 function ToolNavigationItem({
   activeToolTag,
   candidate,
+  floating,
 }: {
   activeToolTag: string;
   candidate: CraftCatalogueNavigationEntry;
+  floating: boolean;
 }) {
+  const active = candidate.tag === activeToolTag;
+  const floatingActive = active && floating;
   return (
-    <li>
+    <li className={active ? "catalogue-active-tab-slot" : undefined}>
       <Link
-        aria-current={candidate.tag === activeToolTag ? "page" : undefined}
-        aria-label={`${candidate.label}, ${candidate.count} ${
-          candidate.count === 1 ? "recipe" : "recipes"
-        }`}
-        href={candidate.href}
-        title={candidate.label}
+        aria-current={active ? "page" : undefined}
+        aria-label={
+          floatingActive
+            ? `Back to crafting tools; current tool: ${candidate.label}`
+            : `${candidate.label}, ${candidate.count} ${
+                candidate.count === 1 ? "recipe" : "recipes"
+              }`
+        }
+        data-floating={floatingActive ? "" : undefined}
+        href={floatingActive ? "#crafting-tools" : candidate.href}
+        title={
+          floatingActive
+            ? `Back to crafting tools — ${candidate.label}`
+            : candidate.label
+        }
       >
+        <span aria-hidden="true" className="catalogue-floating-arrow">
+          <ArrowUp size={16} strokeWidth={2.2} />
+        </span>
         {candidate.iconUrl ? (
           // The visible detailed label and link title identify the toolkit.
           // eslint-disable-next-line @next/next/no-img-element
@@ -200,6 +218,7 @@ export function CraftCatalogueControls({
   tools,
 }: CraftCatalogueControlsProps) {
   const router = useRouter();
+  const { floating, sentinelRef } = useFloatingCatalogueTab();
   const storedPreferences = useSyncExternalStore(
     subscribeToPreferences,
     getPreferenceSnapshot,
@@ -281,17 +300,24 @@ export function CraftCatalogueControls({
         aria-label="Crafting tools"
         className="craft-tool-nav"
         data-layout={toolLayout}
+        id="crafting-tools"
       >
         <ul className="craft-tool-list">
           {tools.map((candidate) => (
             <ToolNavigationItem
               activeToolTag={activeTool.tag}
               candidate={candidate}
+              floating={floating}
               key={candidate.tag}
             />
           ))}
         </ul>
       </nav>
+      <span
+        aria-hidden="true"
+        className="catalogue-floating-sentinel"
+        ref={sentinelRef}
+      />
     </>
   );
 }

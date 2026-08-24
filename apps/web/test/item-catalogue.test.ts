@@ -82,6 +82,7 @@ describe("item catalogue", () => {
   it("groups and orders known and fallback categories deterministically", () => {
     const categories = createItemCatalogueCategories([
       item("misc", "Misc", "item"),
+      item("quest", "Quest", "macguffin"),
       item("ingot", "Ingot", "material"),
       item("axe", "Axe", "weapon:axe"),
       item("sword", "Sword", "weapon:sword"),
@@ -92,6 +93,7 @@ describe("item catalogue", () => {
       "weapon:sword",
       "weapon:axe",
       "material",
+      "macguffin",
       "item",
       "unusual:thing",
     ]);

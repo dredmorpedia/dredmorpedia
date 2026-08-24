@@ -128,6 +128,14 @@ and
 with the reviewed correction recorded separately in
 [`relationship-reviewed-correction-evidence-2026-08-09.md`](relationship-reviewed-correction-evidence-2026-08-09.md).
 
+On 2026-08-22, ADR 0006 revised only the Lockpick conclusion after a focused
+legacy/source comparison. A versioned, visibly project-authored engine-item
+reference now supplies the identity and verified icon path but no legacy price
+or inferred ordinary item facts. All 16 loadouts consequently resolve exactly.
+`Spores` remains source-only, while the placeholder and ambiguous spell labels
+remain unresolved. See
+[`engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`](engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md).
+
 ## Verification
 
 - Before reviewed classification, the ignored canonical artifact reported 0

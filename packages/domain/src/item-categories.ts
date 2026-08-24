@@ -29,6 +29,7 @@ const itemCategoryLabels: Readonly<Record<string, string>> = {
   potion: "Potion",
   mushroom: "Mushroom",
   gem: "Gem",
+  macguffin: "Macguffin",
   toolkit: "Toolkit",
   reagent: "Reagent",
   item: "Item",

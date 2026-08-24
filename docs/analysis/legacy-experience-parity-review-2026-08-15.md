@@ -112,10 +112,12 @@ The Craft catalogue foundation is implemented at `/crafts/` and
 - the reusable recipe summary card presents ingredient/output art and links,
   neutral source levels, hidden status, source marker, and a full-detail route.
   As in the preserved Craft view, unit ingredient quantities are omitted;
-  exceptional input quantities and all output quantities remain explicit. The
-  Items and selected-tool Craft routes share a compact sticky active-group
-  context bar. The card suppresses redundant tool identity when that persistent
-  selected-tool context already establishes it; and
+  exceptional input quantities and all output quantities remain explicit. In
+  Items and selected-tool Craft routes, the actual selected tab progressively
+  detaches into a compact upper-right return-to-chooser control after the
+  chooser scrolls away. Without JavaScript it remains an ordinary selected
+  link. The card suppresses redundant tool identity when the selected route and
+  floating tab already establish it; and
 - recipe detail breadcrumbs now return through the matching Craft tool route,
   while advanced Search and the crafting planner remain explicit additions.
 
@@ -140,8 +142,17 @@ does not create an internal scrollbar. Each side is limited to four references
 with an explicit overflow message. Cross-context cards place the verified
 toolkit icon between their ingredient and output lists when the active asset
 set provides it; cards on an already selected tool page continue to suppress
-that redundant identity because its sticky context bar remains visible while
-scrolling.
+that redundant identity because its selected tab provides scrolling context.
+
+The follow-up generic Item comparison is also resolved. Voodoo Globe and
+Satanic Locator are active official records, so they remain visible under a
+new semantic Macguffin category. Lockpick is absent from the active item
+database but present in 16 starting-loadout declarations with a verified
+official icon. ADR 0006 therefore exposes it as a visibly labelled,
+project-authored engine reference with exact loadout backlinks and `Not
+declared` value/quality facts; the preserved setup's invented price is not
+copied. Evidence is in
+`docs/analysis/engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`.
 
 The remaining parity order is:
 
@@ -164,7 +175,7 @@ this work as advanced and completeness-oriented fallbacks.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 68 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 70 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
   the display drawer, local preference restoration, whole-relationship hover,
   icon-only focus/tap recipe controls, Escape focus restoration, and
@@ -196,3 +207,9 @@ this work as advanced and completeness-oriented fallbacks.
   Craft tool routes and 113 optional static view routes with the unchanged
   1,793-mapping asset set, zero fallbacks, and a complete 3,576-page local
   static export.
+- The later engine-reference/Macguffin correction passes the full 312-test
+  repository gate and all 72 desktop/mobile browser cases. Its deterministic
+  official build contains 764 items, 2,830 search documents, 1,794 asset
+  mappings to 1,483 files, zero fallbacks, and 3,589 static pages. The four
+  deliberate relationship warnings are unchanged; informational records fall
+  to 74 because all 16 Lockpick loadouts now resolve exactly.

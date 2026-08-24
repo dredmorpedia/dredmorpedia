@@ -47,6 +47,15 @@
       "precedence": 20,
       "root": "broken",
       "files": [{ "kind": "spells", "path": "spellDB.xml" }]
+    },
+    {
+      "id": "synthetic-engine-item-reference",
+      "label": "Synthetic engine item reference",
+      "kind": "reference",
+      "version": "1.0.0",
+      "precedence": 30,
+      "root": "reference",
+      "files": [{ "kind": "items", "path": "itemDB.xml" }]
     }
   ],
   "routeRegistry": "fixtures/synthetic/routes.json",

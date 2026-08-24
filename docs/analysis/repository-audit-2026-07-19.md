@@ -137,9 +137,11 @@ The following audit concerns are still actionable:
    Exact shield, weapon, booze, and zorkmid requirement slices preserve all 13
    measured non-mana declarations. The original 23 dangling-reference warnings were classified
    as 23 declarations, nine owner/reference pairs, and seven labels. The owner
-   approved the 16 `lockpick` loadouts and two `Spores` options as reviewed
-   source-only labels; they now emit informational audit records and create no
-   entity or route. The owner subsequently approved a narrowly scoped reviewed
+   approved the two `Spores` options as reviewed source-only labels; they emit
+   informational audit records and create no entity or route. ADR 0006 later
+   replaced the former Lockpick source-only treatment with an explicitly
+   labelled project reference entity, no invented price, and 16 exact loadout
+   links. The owner also approved a narrowly scoped reviewed
    correction from Luckier Find's `Acidium Salis` source label to the existing
    `Acidum Salis` item. It preserves source/review provenance and adds a
    backlink without changing the game data or creating a global alias. Four

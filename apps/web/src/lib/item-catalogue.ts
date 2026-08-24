@@ -62,6 +62,7 @@ const preferredCategoryOrder = [
   "gem",
   "reagent",
   "material",
+  "macguffin",
   "item",
 ] as const;
 

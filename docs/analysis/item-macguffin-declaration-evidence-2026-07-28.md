@@ -91,3 +91,11 @@ previously hidden dangling relationship. Total warnings therefore fall by one.
   flows, and representative axe scans.
 - `pnpm.cmd build:official` repeats the deterministic zero-error canonical
   import and exports all 2,857 local static pages.
+
+## Subsequent catalogue decision
+
+On 2026-08-22 the two active records were given the source-backed semantic
+`macguffin` catalogue category. This changes discovery only: both records and
+their exact declaration contracts remain intact, and no runtime mechanic is
+inferred. See
+[`engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md`](engine-item-reference-and-macguffin-catalogue-evidence-2026-08-22.md).
