@@ -1230,9 +1230,29 @@ select {
   box-shadow: inset 0 1px 0 color-mix(in oklch, white 8%, transparent);
 }
 
-.item-summary-modifiers {
+.item-summary-modifier-block {
   border-block: 1px solid var(--border);
   padding-block: 0.65rem;
+}
+
+.item-summary-modifier-overflow {
+  margin-block-start: 0.55rem;
+}
+
+.item-summary-modifier-overflow[open] {
+  position: relative;
+  padding-block-end: 3.25rem;
+}
+
+.item-summary-modifier-overflow[open] > summary {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+}
+
+.item-summary-modifiers-additional {
+  border-block-start: 1px solid var(--border);
+  padding-block-start: 0.55rem;
 }
 
 .stat-definition-link {
@@ -1407,6 +1427,10 @@ select {
 }
 
 .catalogue-overflow-details[open] > ul {
+  order: 1;
+}
+
+.catalogue-overflow-details[open] > .item-summary-modifiers-additional {
   order: 1;
 }
 

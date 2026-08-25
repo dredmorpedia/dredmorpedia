@@ -15,5 +15,6 @@
     <resistbuff toxic="3" />
     <primarybuff id="2" amount="1" />
     <secondarybuff id="6" amount="5" />
+    <secondarybuff id="7" amount="2" />
   </item>
 </items>

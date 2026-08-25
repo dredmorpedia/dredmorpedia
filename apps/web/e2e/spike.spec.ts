@@ -280,6 +280,41 @@ test("configures and persists the item catalogue display accessibly", async ({
   await expect(
     catalogueFacts.getByText("Quality 8", { exact: true }),
   ).toBeVisible();
+  await expect(
+    catalogueFacts.getByText("Can target the floor", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("Cannot be recovered")).toHaveCount(0);
+
+  const visibleModifiers = page.locator('dl[aria-label="Item modifiers"]');
+  await expect(visibleModifiers.locator(":scope > div")).toHaveCount(6);
+  const modifierDisclosure = page.locator(".item-summary-modifier-overflow");
+  const modifierDisclosureTrigger = modifierDisclosure.locator("summary");
+  await expect(
+    modifierDisclosure.getByText("Show 1 more stat", { exact: true }),
+  ).toBeVisible();
+  await modifierDisclosureTrigger.focus();
+  await modifierDisclosureTrigger.press("Enter");
+  const additionalModifiers = modifierDisclosure.locator(
+    'dl[aria-label="Additional item modifiers"]',
+  );
+  await expect(additionalModifiers).toBeVisible();
+  await expect(additionalModifiers.locator(":scope > div")).toHaveCount(1);
+  await expect(
+    modifierDisclosure.getByText("Hide additional stats", { exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(async () => {
+      const additionalBox = await additionalModifiers.boundingBox();
+      const disclosureBox = await modifierDisclosureTrigger.boundingBox();
+      return Boolean(
+        additionalBox &&
+        disclosureBox &&
+        additionalBox.y + additionalBox.height <= disclosureBox.y,
+      );
+    })
+    .toBe(true);
+  await modifierDisclosureTrigger.press("Enter");
+  await expect(additionalModifiers).toBeHidden();
 
   await page.getByRole("button", { name: "Detailed" }).click();
   await expect(categories).toHaveAttribute("data-layout", "expanded");
@@ -346,6 +381,10 @@ test("presents complete item-trigger context in non-weapon catalogue cards", asy
   const effects = card
     .locator(".item-summary-relationship")
     .filter({ has: page.getByRole("heading", { name: "Effects" }) });
+  const facts = card.locator(".item-summary-facts");
+
+  await expect(facts.getByText("Random Stats", { exact: true })).toBeVisible();
+  await expect(facts.getByText("1", { exact: true })).toBeVisible();
 
   await expect(effects.getByText(/25% chance of/)).toBeVisible();
   const primaryEffect = effects.locator(".item-trigger-primary").first();

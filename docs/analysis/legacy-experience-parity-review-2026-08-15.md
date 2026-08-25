@@ -106,28 +106,31 @@ The preserved order is evidenced directly in `legacy/js/item.js` and
 first item's icon. It is therefore source/XML order—not alphabetical, price, or
 quality order.
 
-### Remaining item-card parity findings
+### Item-card parity findings
 
 A 2026-08-25 comparison of every branch in `legacy/js/item.js` against the
 official normalized dataset found that the modern detail routes already retain
-the source facts used by the preserved item table. The remaining card-level
-presentation gaps are narrower:
+the source facts used by the preserved item table. The card-level presentation
+review found four narrower gaps.
+
+Three are now closed:
+
+- the three non-zero direct armour random-stat declarations render as
+  **Random Stats** with their exact source values;
+- the 20 positive direct `canTargetFloor` declarations render as **Can target
+  the floor**, while the preserved application's accompanying **Cannot be
+  recovered** text remains intentionally excluded as an unsupported inference;
+  and
+- all 35 official items with more than six combined named stats and direct
+  modifiers retain a six-entry default while exposing every later entry through
+  a keyboard-operable native disclosure. The expanded entries precede the Hide
+  control visually and remain available without JavaScript.
+
+One reviewed gap remains:
 
 - the 21 wand records keep their exact minimum/maximum charge range on detail
   pages, but catalogue cards do not yet show the preserved player-facing
-  `x–y charges` summary;
-- three armour records retain a non-zero direct random-stat declaration on
-  detail pages, but catalogue cards do not yet reproduce the preserved
-  **Random Stats** marker;
-- 20 weapon declarations retain a direct `canTargetFloor` source flag on
-  detail pages, but catalogue cards do not yet show **Can target the floor**.
-  The preserved application's accompanying **Cannot be recovered** text is an
-  inference from that flag and remains intentionally excluded until separate
-  engine evidence supports it; and
-- 35 official items have more than six combined named stats and direct
-  modifiers. Catalogue cards currently cap that block without an explicit
-  disclosure, unlike the preserved table's complete stat block. Add a compact
-  native disclosure rather than making every default card permanently taller.
+  `x–y charges` summary.
 
 Price, quality, Artifact quality, health/mana recovery, trap quality and cast
 spell, item/spell triggers, direct stats, craft inputs/outputs, description,
@@ -286,7 +289,7 @@ this work as advanced and completeness-oriented fallbacks.
   default 36-item page and 2.05 MB for its explicit All view. The increase pays
   for every disclosed recipe/encrustment relationship retaining its complete
   preview behavior as well as its direct detail link.
-- The deterministic official asset set now contains 1,867 mappings to 1,555
+- The deterministic official asset set now contains 1,868 mappings to 1,556
   content-addressed files, with no fallbacks. All 62 reviewed stat identities
   resolve to verified local icon assets; catalogue modifiers retain accessible
   names and titles while using the compact image-led presentation.

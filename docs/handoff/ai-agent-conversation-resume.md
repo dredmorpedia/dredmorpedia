@@ -274,10 +274,12 @@ Item effect cards now preserve explicit chance, verified spell icon, linked
 spell, and natural trigger context in one sentence for weapon and non-weapon families, including available
 duration, delay, taxonomy, and resistance qualifiers. Their Value/Quality row
 uses centered icon alignment, and uncommon later effects use native disclosure
-rather than silent truncation. Finish the reviewed remaining item-card gaps
-(wand charges, random-stat markers, direct floor targeting without inferring
-recoverability, and long stat-block disclosure) before moving to image-led
-Skills and Abilities.
+rather than silent truncation. The three non-zero random-stat declarations and
+20 positive floor-target flags now appear as source-exact catalogue facts
+without the preserved recoverability inference. All 35 long stat/modifier
+blocks retain a six-entry default and expose their remaining entries through
+native disclosure. Finish the remaining wand-charge summary gap before moving
+to image-led Skills and Abilities.
 The preserved orphaned output `x` is omitted as a template defect. Image-led
 Skills and Abilities follow; Hidden and expansion
 iconography remain later card polish. Keep `legacy/` until complete parity
@@ -310,7 +312,7 @@ slice. All 52 skill, 352
 ability, 440 root spell, and 183 monster records with art references now render
 through the existing ignored, checksum-bound presented-asset set. The canonical
 set contains 764 item-icon, 52 skill-icon, 352 ability-icon, 440 spell-icon,
-183 monster-icon, and 76 UI-icon mappings backed by 1,555 unique PNG files
+183 monster-icon, and 77 UI-icon mappings backed by 1,556 unique PNG files
 with no fallbacks.
 Monster output is restricted to the first downward idle frame; XML wrappers,
 SPR decoding, and declared numeric or named palettes are generation-time,

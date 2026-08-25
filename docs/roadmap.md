@@ -546,7 +546,7 @@ catalogue. The owner-reviewed Items polish plus the Craft and Encrust catalogue
 foundations are complete, including progressively floating selected
 category/tool tabs, accessible recipe and encrustment previews from item
 relationships, complete in-place relationship disclosure, and toolkit-grouped
-encrustment summaries. Finish the reopened item-card findings below, then
+encrustment summaries. Finish the remaining reopened item-card finding below, then
 continue with image-led Skills and Abilities before returning to new Phase 5
 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
@@ -566,7 +566,12 @@ source-declared **Artifact / Quality x** property without inferring Archaeology
 or other engine behavior. The verified 62-selector stat-icon mapping now gives
 catalogue modifiers compact image-plus-value links and detail modifiers
 image-plus-name links, with native titles and text fallbacks. Encrustment
-modifier rows reuse the image-plus-name treatment. Craft parity now
+modifier rows reuse the image-plus-name treatment. The three non-zero armour
+random-stat declarations and 20 positive floor-target flags now appear as
+source-exact catalogue facts without the preserved site's unsupported
+recoverability inference. Native disclosure preserves a six-entry default for
+the 35 long stat/modifier blocks while making every later entry available in
+place. Craft parity now
 provides complete tool-group routes in
 familiar order, verified toolkit art, compact/detailed navigation, persisted
 display settings, a bounded 36-recipe default plus 24/All options, source/name/
@@ -587,12 +592,8 @@ names. Toolkit art sits between ingredients and outputs as the recipe
 transformation; Hidden and expansion iconography remain a later card-polish
 decision.
 
-The remaining reviewed Items work precedes Skills/Abilities: expose the 21
-wand charge ranges, three non-zero armour random-stat markers, and 20 direct
-floor-target flags on catalogue cards, while continuing to omit the preserved
-site's unsupported recoverability inference; then add native disclosure for
-the 35 official items whose combined stat/modifier block exceeds the current
-six-entry card cap.
+The remaining reviewed Items work before Skills/Abilities is the player-facing
+summary of all 21 exact wand charge ranges on catalogue cards.
 
 Encrust parity now groups all 57 canonical records under the five toolkits used
 by the active dataset in preserved familiar order. It reuses verified toolkit
@@ -627,9 +628,9 @@ The single-version MVP uses `1.1.5 public_beta`. A version switcher waits for a
 second complete, verified dataset. The local visual-parity importer now renders
 normalized item, skill, ability, root spell, and monster detail art through a
 checksummed, manifest-coordinated, ignored asset set bound to the exact active
-artifact checksum; the canonical build maps 1,791 entity references plus 76
+artifact checksum; the canonical build maps 1,791 entity references plus 77
 manifest-declared UI identities (three item-catalogue, 11 Encrust
-applicability, and 62 stat identities) to 1,555 unique files without
+applicability, one Encrust instability, and 62 stat identities) to 1,556 unique files without
 fallbacks. Monster art is limited to the first downward
 idle frame, including strict XML-wrapper resolution, measured SPR decoding,
 field-level inherited appearance provenance, and generation-time declared

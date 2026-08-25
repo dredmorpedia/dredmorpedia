@@ -211,9 +211,11 @@ Read these files before making a substantial change:
   weapon, armour, tome, trap, wand, consumable, and
   food/booze families; duration, delay, taxonomy, and resistance qualifiers
   remain visible when declared, and native disclosure exposes later effects.
-  The remaining reviewed item-card gaps are wand charge ranges, random-stat
-  markers, direct floor-target flags without the legacy recoverability
-  inference, and disclosure for the 35 long stat/modifier blocks.
+  The three non-zero armour random-stat declarations and 20 positive direct
+  floor-target flags now appear on catalogue cards without the legacy
+  recoverability inference. The 35 long stat/modifier blocks retain a six-entry
+  default and expose every later entry through native disclosure. Wand charge
+  ranges are the remaining reviewed item-card gap.
   Recipe output tiers and encrustment requirements use the preserved
   tool-to-stat icon mapping beside each exact source level; dual-stat tools
   show both identities without an inferred AND/OR or eligibility rule. The Craft catalogue

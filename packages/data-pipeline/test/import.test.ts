@@ -6656,6 +6656,7 @@ describe("synthetic dataset import", () => {
       { kind: "resistance", sourceKey: "toxic", amount: 3 },
       { kind: "primary", sourceKey: "2", amount: 1 },
       { kind: "secondary", sourceKey: "6", amount: 5 },
+      { kind: "secondary", sourceKey: "7", amount: 2 },
     ]);
     expect(result.diagnostics).not.toContainEqual(
       expect.objectContaining({
@@ -6690,6 +6691,7 @@ describe("synthetic dataset import", () => {
       "modifier:primary:2",
       "modifier:resistance:toxic",
       "modifier:secondary:6",
+      "modifier:secondary:7",
     ]);
     expect(
       result.search.documents.find(
@@ -6805,7 +6807,7 @@ describe("synthetic dataset import", () => {
     expect(blade?.appliedOverrides[1]).toMatchObject({
       previous: { sourceId: "synthetic-expansion" },
       replacement: { sourceId: "synthetic-override" },
-      changedFields: ["description"],
+      changedFields: ["description", "modifiers"],
     });
     expect(blade?.triggers).toEqual([
       {

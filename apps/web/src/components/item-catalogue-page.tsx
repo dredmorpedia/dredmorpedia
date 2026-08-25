@@ -22,12 +22,9 @@ import {
 } from "@/components/item-catalogue-controls";
 import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ItemArt } from "@/components/item-art";
+import { ItemSummaryModifierList } from "@/components/item-summary-modifier-list";
 import { ItemTriggerEffect } from "@/components/item-trigger-effect";
 import { RecipePreview } from "@/components/recipe-preview";
-import {
-  StatDefinitionLink,
-  StatModifierLink,
-} from "@/components/stat-modifier-link";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
   createItemCatalogueCategories,
@@ -233,12 +230,13 @@ function ItemSummaryCard({
     artifact.entities.encrustments,
     item.id,
   );
-  const stats = item.stats.slice(0, 4);
-  const modifiers = item.modifiers.slice(0, Math.max(0, 6 - stats.length));
-  const craftedItems = [...usedToCraftItems.values()];
-  const statsById = new Map(
-    artifact.entities.stats.map((stat) => [stat.id, stat]),
+  const randomStatCounts = item.armourDeclarations.flatMap(({ randoms }) =>
+    randoms !== null && randoms > 0 ? [randoms] : [],
   );
+  const canTargetFloor = item.weaponDeclarations.some(
+    ({ canTargetFloor: declaration }) => declaration === true,
+  );
+  const craftedItems = [...usedToCraftItems.values()];
   const spellsById = new Map(
     artifact.entities.spells.map((spell) => [spell.id, spell]),
   );
@@ -320,49 +318,25 @@ function ItemSummaryCard({
               </dd>
             </div>
           ))}
+          {randomStatCounts.length > 0 ? (
+            <div>
+              <dt>Random Stats</dt>
+              <dd>{randomStatCounts.join(", ")}</dd>
+            </div>
+          ) : null}
+          {canTargetFloor ? (
+            <div>
+              <dt>Targeting</dt>
+              <dd>Can target the floor</dd>
+            </div>
+          ) : null}
         </dl>
 
-        {stats.length > 0 || modifiers.length > 0 ? (
-          <dl className="item-summary-modifiers" aria-label="Item modifiers">
-            {stats.map((stat, index) => {
-              const definition = stat.statId
-                ? statsById.get(stat.statId)
-                : undefined;
-              return (
-                <div key={`${stat.statKey}:${index}`}>
-                  <dt>
-                    {definition ? (
-                      <StatDefinitionLink
-                        artifact={artifact}
-                        artifactSha256={artifactSha256}
-                        display="icon"
-                        label={stat.statName}
-                        stat={definition}
-                      />
-                    ) : (
-                      stat.statName
-                    )}
-                  </dt>
-                  <dd>{signedStatModifierValue(stat.amount)}</dd>
-                </div>
-              );
-            })}
-            {modifiers.map((modifier, index) => (
-              <div key={`${modifier.kind}:${modifier.sourceKey}:${index}`}>
-                <dt>
-                  <StatModifierLink
-                    artifact={artifact}
-                    artifactSha256={artifactSha256}
-                    display="icon"
-                    modifier={modifier}
-                    stats={artifact.entities.stats}
-                  />
-                </dt>
-                <dd>{signedStatModifierValue(modifier.amount)}</dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
+        <ItemSummaryModifierList
+          artifact={artifact}
+          artifactSha256={artifactSha256}
+          item={item}
+        />
 
         {craftedBy.length > 0 ? (
           <section className="item-summary-relationship">
