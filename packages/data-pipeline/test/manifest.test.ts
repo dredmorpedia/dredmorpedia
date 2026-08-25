@@ -261,6 +261,10 @@ describe("source manifest migration", () => {
           path: "expansion3/ui/encrusting/encrust_weapon.png",
         },
         {
+          id: "encrust-instability",
+          path: "expansion3/ui/encrusting/encrustment_instability.png",
+        },
+        {
           id: "stat-damage-asphyxiative",
           path: "ui/icons/dmg_aphyxiative.png",
         },

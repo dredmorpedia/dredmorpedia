@@ -22,6 +22,7 @@ import {
 } from "@/components/item-catalogue-controls";
 import { ItemArtifactFact } from "@/components/item-artifact-fact";
 import { ItemArt } from "@/components/item-art";
+import { ItemTriggerEffect } from "@/components/item-trigger-effect";
 import { RecipePreview } from "@/components/recipe-preview";
 import {
   StatDefinitionLink,
@@ -43,14 +44,13 @@ import {
   createEncrustmentSummaryToolMap,
   type EncrustmentSummaryTool,
 } from "@/lib/encrustment-summary";
-import { itemIconUrl, uiIconUrl } from "@/lib/presented-assets";
+import { itemIconUrl, spellIconUrl, uiIconUrl } from "@/lib/presented-assets";
 import {
   createRecipeSummaryData,
   createRecipeSummaryToolMap,
   type RecipeSummaryTool,
 } from "@/lib/recipe-summary";
 import { sourceMarker } from "@/lib/source-markers";
-import { spellTriggerLabels } from "@/lib/spell-triggers";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 interface ItemCataloguePageProps {
@@ -494,28 +494,28 @@ function ItemSummaryCard({
         {item.triggers.length > 0 ? (
           <section className="item-summary-relationship">
             <h4>Effects</h4>
-            <ul className="catalogue-text-links">
-              {item.triggers.slice(0, 2).map((trigger, index) => {
+            <ExpandableCatalogueList
+              className="catalogue-text-links"
+              initialCount={2}
+              items={item.triggers.map((trigger, index) => {
                 const spell = trigger.spellId
                   ? spellsById.get(trigger.spellId)
                   : undefined;
                 return (
-                  <li key={`${trigger.kind}:${trigger.spellKey}:${index}`}>
-                    <span>{spellTriggerLabels[trigger.kind]}: </span>
-                    {spell ? (
-                      <Link
-                        className="entity-link"
-                        href={`/spells/${spell.slug}`}
-                      >
-                        {spell.name}
-                      </Link>
-                    ) : (
-                      trigger.spellName
-                    )}
-                  </li>
+                  <ItemTriggerEffect
+                    iconUrl={
+                      spell
+                        ? spellIconUrl(spell.id, artifact, artifactSha256)
+                        : null
+                    }
+                    key={`${trigger.kind}:${trigger.spellKey}:${index}`}
+                    spell={spell}
+                    trigger={trigger}
+                  />
                 );
               })}
-            </ul>
+              noun="effect"
+            />
           </section>
         ) : null}
 
@@ -601,7 +601,6 @@ export function ItemCataloguePage({
         iconUrl: representative
           ? itemIconUrl(representative.id, artifact, artifactSha256)
           : null,
-        representativeName: representative?.name ?? candidate.label,
       };
     },
   );

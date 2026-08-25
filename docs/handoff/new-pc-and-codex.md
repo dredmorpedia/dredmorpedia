@@ -156,7 +156,9 @@ Continue toward local parity without assuming permission to publish official con
    toolkits, defaults to a complete game-order tool group, offers persisted
    compact/detailed and optional static ordering/page-size views, and exposes
    ingredient art, exact applicability labels with verified blue schematic
-   icons, direct outcomes, and declared instability without inferred formulas.
+   icons, Craft-consistent source-level requirements, direct outcomes, and the
+   exact signed instability value with its native 16-by-16 interface icon,
+   without inferred formulas.
    Item catalogue and detail cards expose direct artifact declarations as
    **Artifact / Quality x**, separately from ordinary item quality and without
    inferring Archaeology or Museum behavior.
@@ -166,8 +168,13 @@ Continue toward local parity without assuming permission to publish official con
    unit quantities, and native disclosure
    reveals every overflow relationship in place. Multiple applicability slots
    render as a complete compact icon stack rather than an arbitrary single
-   icon. The preserved orphaned output `x` is not reproduced. Image-led Skills
-   and Abilities are next.
+   icon. Item effect cards preserve explicit chance, verified spell icon,
+   linked spell, and natural trigger context in one sentence, plus available qualifiers across weapon and non-weapon
+   families; later effects use native disclosure. The Value/Quality row is
+   centered against its imagery. Finish the reviewed catalogue gaps for wand
+   charges, random-stat markers, direct floor targeting without recoverability
+   inference, and long stat-block disclosure next. The preserved orphaned
+   output `x` is not reproduced. Image-led Skills and Abilities follow.
    Hidden/expansion iconography and bounded build planning are postponed. See
    `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 3. Extend the local asset importer only when another implemented page needs

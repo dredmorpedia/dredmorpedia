@@ -24,7 +24,6 @@ import {
 export interface ItemCatalogueNavigationEntry extends ItemCatalogueCategory {
   href: string;
   iconUrl: string | null;
-  representativeName: string;
 }
 
 interface StoredCataloguePreferences extends ItemCatalogueView {
@@ -108,20 +107,23 @@ function CategoryNavigationItem({
         title={
           floatingActive
             ? `Back to item categories — ${candidate.label}`
-            : `${candidate.label} — represented by ${candidate.representativeName}`
+            : `${candidate.label} — ${candidate.count} ${
+                candidate.count === 1 ? "item" : "items"
+              }`
         }
       >
         <span aria-hidden="true" className="catalogue-floating-arrow">
           <ArrowUp size={16} strokeWidth={2.2} />
         </span>
         {candidate.iconUrl ? (
-          // The title identifies which representative game item supplies the category art.
+          // The image represents the category in this context, even though a game item
+          // supplies its artwork.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             alt=""
             height={40}
             src={candidate.iconUrl}
-            title={candidate.representativeName}
+            title={candidate.label}
             width={40}
           />
         ) : (

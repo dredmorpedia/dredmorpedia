@@ -546,8 +546,9 @@ catalogue. The owner-reviewed Items polish plus the Craft and Encrust catalogue
 foundations are complete, including progressively floating selected
 category/tool tabs, accessible recipe and encrustment previews from item
 relationships, complete in-place relationship disclosure, and toolkit-grouped
-encrustment summaries. Continue with image-led Skills and Abilities before
-returning to new Phase 5 features. Evidence and order are in
+encrustment summaries. Finish the reopened item-card findings below, then
+continue with image-led Skills and Abilities before returning to new Phase 5
+features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The completed Items polish provides compact category icons by default with the
@@ -555,7 +556,12 @@ grouped counter view as a toggle; preserved source/XML “game order” plus
 optional alphabetical/quality/value orders; game-order representative icons;
 locally persisted display settings; measured 24/36/All page-size choices;
 small expansion markers with no base-game badge; and manifest-declared gold
-and quality-star imagery. Catalogue and detail cards also expose the distinct
+and quality-star imagery. The Value/Quality row now aligns text with its
+icon-bearing facts. Player-facing effect summaries preserve explicit chance,
+verified spell icon, linked spell, and trigger context as one sentence, plus available
+duration/delay/taxonomy/resistance
+qualifiers for every item family; native disclosure exposes uncommon later
+effects instead of silently dropping them. Catalogue and detail cards also expose the distinct
 source-declared **Artifact / Quality x** property without inferring Archaeology
 or other engine behavior. The verified 62-selector stat-icon mapping now gives
 catalogue modifiers compact image-plus-value links and detail modifiers
@@ -581,6 +587,13 @@ names. Toolkit art sits between ingredients and outputs as the recipe
 transformation; Hidden and expansion iconography remain a later card-polish
 decision.
 
+The remaining reviewed Items work precedes Skills/Abilities: expose the 21
+wand charge ranges, three non-zero armour random-stat markers, and 20 direct
+floor-target flags on catalogue cards, while continuing to omit the preserved
+site's unsupported recoverability inference; then add native disclosure for
+the 35 official items whose combined stat/modifier block exceeds the current
+six-entry card cap.
+
 Encrust parity now groups all 57 canonical records under the five toolkits used
 by the active dataset in preserved familiar order. It reuses verified toolkit
 and item art, compact/detailed navigation, the progressive selected-tab return
@@ -589,8 +602,10 @@ default; optional 12/24/All static views support game, name, required source-
 level, and declared-instability ordering. Summary cards expose ingredients,
 applicable slots with the exact 11 verified blue schematic icons and visible
 text fallbacks, exact source level, direct modifiers and power hooks without
-inferring risk or final item formulas. Required levels use the same preserved
-crafting-stat presentation, and direct modifiers retain their names beside the
+inferring risk or final item formulas. Required levels use the same compact
+preserved crafting-stat icon/number presentation as Craft outputs, while the
+signed instability value uses the native 16-by-16 Encrusting interface icon.
+Direct modifiers retain their names beside the
 verified stat icons. Item **Used to encrust** relationships
 reuse this summary card and show every applicable slot in a compact icon stack,
 including all three Fireproof Coating slots. The preserved orphaned output `x`

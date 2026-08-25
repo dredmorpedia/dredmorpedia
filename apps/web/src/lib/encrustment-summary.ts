@@ -12,7 +12,7 @@ import { createEncrustCatalogueTools } from "./encrust-catalogue";
 import { aggregateEncrustmentInputs } from "./encrustment-inputs";
 import { encrustmentSlotPresentation } from "./encrustment-slot-icons";
 import { craftingSourceStatPresentations } from "./crafting-source-stats";
-import { itemIconUrl } from "./presented-assets";
+import { itemIconUrl, uiIconUrl } from "./presented-assets";
 import {
   signedStatModifierValue,
   statDefinitionForModifier,
@@ -107,6 +107,11 @@ export function createEncrustmentSummaryData({
       summaryReference(reference, itemsById, artifact, artifactSha256),
     ),
     instability: signedStatModifierValue(encrustment.instability),
+    instabilityIconUrl: uiIconUrl(
+      "encrust-instability",
+      artifact,
+      artifactSha256,
+    ),
     modifiers: encrustment.modifiers.map((modifier, index) => {
       const definition = statDefinitionForModifier(
         modifier,

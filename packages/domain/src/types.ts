@@ -1074,6 +1074,7 @@ export const presentedUiAssetIds = [
   "encrust-slot-ring",
   "encrust-slot-shield",
   "encrust-slot-weapon",
+  "encrust-instability",
   ...presentedStatIconIds,
 ] as const;
 

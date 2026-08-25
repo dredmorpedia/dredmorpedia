@@ -6,6 +6,7 @@ import {
 } from "@/components/catalogue-item-reference-list";
 import { CatalogueToolMarker } from "@/components/catalogue-tool-marker";
 import { CraftingSourceLevel } from "@/components/crafting-source-level";
+import { EncrustmentInstability } from "@/components/encrustment-instability";
 import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
 import { StatPresentationLink } from "@/components/stat-presentation-link";
 import type { EncrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
@@ -31,6 +32,7 @@ export interface EncrustmentSummaryData {
   id: string;
   inputs: CatalogueItemReference[];
   instability: string;
+  instabilityIconUrl: string | null;
   modifiers: EncrustmentSummaryModifier[];
   name: string;
   powers: EncrustmentSummaryPower[];
@@ -87,18 +89,25 @@ export function EncrustmentSummaryCard({
       ) : null}
 
       <dl className="encrustment-summary-facts">
+        {summary.skillLevel > 0 ? (
+          <div>
+            <dt>Requires</dt>
+            <dd>
+              <CraftingSourceLevel
+                level={summary.skillLevel}
+                stats={summary.sourceStats}
+              />
+            </dd>
+          </div>
+        ) : null}
         <div>
-          <dt>Required source level</dt>
+          <dt>Instability</dt>
           <dd>
-            <CraftingSourceLevel
-              level={summary.skillLevel}
-              stats={summary.sourceStats}
+            <EncrustmentInstability
+              iconUrl={summary.instabilityIconUrl}
+              value={summary.instability}
             />
           </dd>
-        </div>
-        <div>
-          <dt>Declared instability</dt>
-          <dd>{summary.instability}</dd>
         </div>
       </dl>
 

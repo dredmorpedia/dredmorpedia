@@ -12,6 +12,7 @@ import {
 
 import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
 import { CraftingSourceLevel } from "@/components/crafting-source-level";
+import { EncrustmentInstability } from "@/components/encrustment-instability";
 import { ProvenanceCard } from "@/components/provenance-card";
 import { StatModifierLink } from "@/components/stat-modifier-link";
 import {
@@ -23,6 +24,7 @@ import { titleCase } from "@/lib/display-labels";
 import { encrustCatalogueToolPathForTag } from "@/lib/encrust-catalogue";
 import { encrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
 import { craftingSourceStatPresentations } from "@/lib/crafting-source-stats";
+import { uiIconUrl } from "@/lib/presented-assets";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 export const dynamicParams = false;
@@ -189,15 +191,17 @@ export default async function EncrustmentPage({
                 : tool}
             </dd>
           </div>
-          <div>
-            <dt>Required source level</dt>
-            <dd>
-              <CraftingSourceLevel
-                level={encrustment.skillLevel}
-                stats={sourceStats}
-              />
-            </dd>
-          </div>
+          {encrustment.skillLevel > 0 ? (
+            <div>
+              <dt>Requires</dt>
+              <dd>
+                <CraftingSourceLevel
+                  level={encrustment.skillLevel}
+                  stats={sourceStats}
+                />
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt>Discovery</dt>
             <dd>
@@ -209,9 +213,14 @@ export default async function EncrustmentPage({
           <div>
             <dt>Instability</dt>
             <dd>
-              {encrustment.instability > 0
-                ? `+${encrustment.instability}`
-                : encrustment.instability}
+              <EncrustmentInstability
+                iconUrl={uiIconUrl(
+                  "encrust-instability",
+                  artifact,
+                  artifactSha256,
+                )}
+                value={signedStatModifierValue(encrustment.instability)}
+              />
             </dd>
           </div>
         </dl>

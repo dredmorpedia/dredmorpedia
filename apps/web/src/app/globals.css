@@ -1162,7 +1162,7 @@ select {
 .item-summary-facts div,
 .item-summary-modifiers div {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.35rem;
 }
 
@@ -1320,6 +1320,36 @@ select {
   font-size: 0.8rem;
 }
 
+.item-trigger-effect {
+  display: grid;
+  min-width: min(100%, 11rem);
+  align-content: start;
+  gap: 0.08rem;
+  line-height: 1.35;
+}
+
+.item-trigger-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.item-trigger-icon {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.item-trigger-effect-with-icon > :not(.item-trigger-primary) {
+  margin-inline-start: 2.4rem;
+}
+
+.item-trigger-spell {
+  font-weight: 800;
+}
+
 .catalogue-overflow-details {
   display: grid;
   gap: 0.5rem;
@@ -1356,8 +1386,15 @@ select {
 
 .catalogue-overflow-show,
 .catalogue-overflow-hide {
+  display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.catalogue-overflow-show svg,
+.catalogue-overflow-hide svg {
+  flex: 0 0 auto;
 }
 
 .catalogue-overflow-hide,
@@ -1713,7 +1750,7 @@ select {
 
 .encrustment-summary-facts div {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.35rem;
   border: 1px solid var(--border);
   border-radius: 0.45rem;
@@ -1734,6 +1771,21 @@ select {
   font-size: 0.76rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+}
+
+.encrustment-instability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.encrustment-instability img {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
 .recipe-summary-flow {

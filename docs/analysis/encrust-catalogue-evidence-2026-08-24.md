@@ -75,9 +75,13 @@ The modern catalogue deliberately does not reproduce this rendering defect.
   separately styled lookalikes. Craft behavior remains covered by its existing
   regression tests.
 - Summary cards show exact ingredient quantities and art, applicable slots,
-  required source level, declared instability, direct stat modifiers, power
-  hooks, Hidden state, and source marker. Required levels use the preserved
-  tool-to-stat icon association, and modifier names retain their readable text
+  nonzero required source levels, instability, direct stat modifiers, power
+  hooks, Hidden state, and source marker. A zero level is omitted instead of
+  repeating the redundant `Requires / No requirement` pair. Required levels use the same compact
+  tool-to-stat icon and number treatment as Craft outputs. Instability uses the
+  native 16-by-16 Encrusting interface icon with the exact signed source value;
+  neither the concise wording nor icon implies a probability or complete risk
+  formula. Modifier names retain their readable text
   beside the verified stat icons. Repeated
   ingredient declarations are aggregated only for catalogue presentation;
   unit quantities remain visually omitted and detail records are unchanged.

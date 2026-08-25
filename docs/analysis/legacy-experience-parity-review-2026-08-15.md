@@ -90,12 +90,50 @@ The correction is implemented:
 8. Category representative images use native titles for supplementary item
    identification. Adjacent visible names remain the accessible source of
    truth; recipe previews use the maintained popover described below.
+9. The Value/Quality fact row aligns its labels with the centre of the game
+   icon presentation rather than mixing text baselines with padded imagery.
+10. Item effect summaries retain the preserved player-facing structure:
+    explicit source chance, verified spell icon, linked spell, and trigger
+    context flow as one readable sentence. The same
+    presenter applies to weapons, armour, tomes, traps, wands, potions,
+    mushrooms, food, and booze. Available duration, delay, taxonomy, and
+    resistance qualifiers remain visible. A native disclosure exposes the
+    uncommon third and later effects instead of silently truncating them.
 
 The preserved order is evidenced directly in `legacy/js/item.js` and
 `legacy/js/helper.js`: categories sort by type ID, items use `SortBySource`
 (source ID followed by generated object ID), and each category icon is the
 first item's icon. It is therefore source/XML order—not alphabetical, price, or
 quality order.
+
+### Remaining item-card parity findings
+
+A 2026-08-25 comparison of every branch in `legacy/js/item.js` against the
+official normalized dataset found that the modern detail routes already retain
+the source facts used by the preserved item table. The remaining card-level
+presentation gaps are narrower:
+
+- the 21 wand records keep their exact minimum/maximum charge range on detail
+  pages, but catalogue cards do not yet show the preserved player-facing
+  `x–y charges` summary;
+- three armour records retain a non-zero direct random-stat declaration on
+  detail pages, but catalogue cards do not yet reproduce the preserved
+  **Random Stats** marker;
+- 20 weapon declarations retain a direct `canTargetFloor` source flag on
+  detail pages, but catalogue cards do not yet show **Can target the floor**.
+  The preserved application's accompanying **Cannot be recovered** text is an
+  inference from that flag and remains intentionally excluded until separate
+  engine evidence supports it; and
+- 35 official items have more than six combined named stats and direct
+  modifiers. Catalogue cards currently cap that block without an explicit
+  disclosure, unlike the preserved table's complete stat block. Add a compact
+  native disclosure rather than making every default card permanently taller.
+
+Price, quality, Artifact quality, health/mana recovery, trap quality and cast
+spell, item/spell triggers, direct stats, craft inputs/outputs, description,
+category context, icon, and source identity are otherwise represented on the
+catalogue or its maintained relationship previews. The modern **Used to
+encrust** relationship is an intentional addition.
 
 ## Craft catalogue foundation
 
@@ -232,11 +270,13 @@ this work as advanced and completeness-oriented fallbacks.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
-- `pnpm test:e2e` passes all 78 desktop/mobile cases, including the
+- `pnpm test:e2e` passes all 80 desktop/mobile cases, including the
   JavaScript-disabled category flow, keyboard navigation, responsive overflow,
   the display drawer, local preference restoration, whole-relationship hover,
   icon-only focus/tap recipe controls, Escape focus restoration, and
-  representative axe scans.
+  representative axe scans. The item-effect coverage includes explicit chance
+  and trigger context on a non-weapon card plus keyboard/touch disclosure of
+  its later effects.
 - Browser inspection against the ignored official dataset confirms 31 visible
   item categories with verified art; Sword begins with Crude Iron Sword, Rough
   Iron Sword, Iron Sword, and Fine Iron Sword in game order. Its opt-in value

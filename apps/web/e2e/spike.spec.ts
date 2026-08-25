@@ -179,8 +179,10 @@ test.describe("static browse without JavaScript", () => {
       card.getByText("Missing Polish", { exact: true }),
     ).toBeVisible();
     await expect(card.getByText("Unresolved item")).toBeVisible();
-    await expect(card.getByText("Required source level")).toBeVisible();
-    await expect(card.getByText("Declared instability")).toBeVisible();
+    await expect(card.getByText("Requires", { exact: true })).toBeVisible();
+    await expect(card.getByText("Instability", { exact: true })).toBeVisible();
+    await expect(card.getByText("Required source level")).toHaveCount(0);
+    await expect(card.getByText("Declared instability")).toHaveCount(0);
     await expect(card.getByText("+5", { exact: true })).toBeVisible();
     await expect(card.getByText("Weapon", { exact: true })).toBeVisible();
     await expect(card.getByText("Ranged", { exact: true })).toBeVisible();
@@ -265,9 +267,10 @@ test("configures and persists the item catalogue display accessibly", async ({
   await expect(categories).toHaveAttribute("data-layout", "compact");
   await expect(categories.locator(":scope > section")).toHaveCount(0);
   await expect(categories.locator(":scope > ul")).toHaveCount(1);
-  await expect(
-    categories.getByRole("link", { name: /Sword weapon, 1 item/ }),
-  ).toHaveAttribute("title", /represented by Clockwork Blade/);
+  const swordCategory = categories.getByRole("link", {
+    name: /Sword weapon, 1 item/,
+  });
+  await expect(swordCategory).toHaveAttribute("title", "Sword weapon — 1 item");
   await expect(page.getByLabel("Source: Synthetic Override")).toHaveText("SO");
   await expect(page.getByLabel("Quality 3 out of 10")).toBeVisible();
   const catalogueFacts = page.locator(".item-summary-facts");
@@ -286,6 +289,12 @@ test("configures and persists the item catalogue display accessibly", async ({
   const valueIcon = page.locator(".item-price-icon").first();
   await expect(valueIcon).toBeVisible();
   expect((await valueIcon.boundingBox())?.width).toBeGreaterThanOrEqual(20);
+  expect(
+    await catalogueFacts
+      .locator(":scope > div")
+      .first()
+      .evaluate((element) => getComputedStyle(element).alignItems),
+  ).toBe("center");
   expect(
     await page
       .locator(".item-quality-stars")
@@ -325,6 +334,42 @@ test("configures and persists the item catalogue display accessibly", async ({
     .include("main")
     .analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test("presents complete item-trigger context in non-weapon catalogue cards", async ({
+  page,
+}) => {
+  await page.goto("/items/category/armour-chest/1/");
+  const card = page
+    .locator(".item-summary-card")
+    .filter({ has: page.getByRole("heading", { name: "Training Cuirass" }) });
+  const effects = card
+    .locator(".item-summary-relationship")
+    .filter({ has: page.getByRole("heading", { name: "Effects" }) });
+
+  await expect(effects.getByText(/25% chance of/)).toBeVisible();
+  const primaryEffect = effects.locator(".item-trigger-primary").first();
+  await expect(primaryEffect).toContainText(
+    "25% chance of Clockwork Echo when you hit in melee",
+  );
+  await expect(
+    effects.getByRole("link", { name: "Clockwork Echo" }).first(),
+  ).toBeVisible();
+  await expect(effects.getByText("Only affects Animal")).toBeVisible();
+
+  const more = effects.getByText("Show 2 more effects", { exact: true });
+  await expect(more).toBeVisible();
+  expect(
+    await more.evaluate((element) => getComputedStyle(element).display),
+  ).toMatch(/flex$/);
+  expect(
+    await more.evaluate((element) => getComputedStyle(element).whiteSpace),
+  ).toBe("nowrap");
+  await more.click();
+  await expect(effects.getByText("30%", { exact: true })).toBeVisible();
+  await expect(effects.getByText("50%", { exact: true })).toBeVisible();
+  await expect(effects.getByText("For 3 turns", { exact: true })).toBeVisible();
+  await expect(effects.getByText("Cannot be resisted")).toBeVisible();
 });
 
 test("previews item crafting relationships without replacing direct navigation", async ({

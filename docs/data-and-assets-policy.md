@@ -109,7 +109,7 @@ The implemented icon slices follow this boundary for item, skill, ability,
 spell, monster, item-catalogue, Encrust-slot, and stat presentation. They copy
 referenced PNG item, skill, ability, and root spell icons, derive only the
 selected first monster idle frame, and copy only the manifest-declared gold,
-quality-star, Encrust applicability, and reviewed stat icons from the
+quality-star, Encrust applicability and instability, and reviewed stat icons from the
 importer's first-registration byte snapshots into the managed, gitignored web
 asset directory. The schema-2 generated catalog uses typed entity and UI icon
 mappings, content-addressed filenames, complete bounded PNG validation, exact

@@ -206,6 +206,14 @@ Read these files before making a substantial change:
   identities: item summaries use compact icon/value links, item details retain
   icon/name/value presentation, and stat headers reuse the same art with text
   fallbacks. Encrustment modifiers now reuse the icon/name/value treatment.
+  Item catalogue effects now preserve explicit source chance, verified spell
+  icon, linked spell, and trigger context in one readable sentence across
+  weapon, armour, tome, trap, wand, consumable, and
+  food/booze families; duration, delay, taxonomy, and resistance qualifiers
+  remain visible when declared, and native disclosure exposes later effects.
+  The remaining reviewed item-card gaps are wand charge ranges, random-stat
+  markers, direct floor-target flags without the legacy recoverability
+  inference, and disclosure for the 35 long stat/modifier blocks.
   Recipe output tiers and encrustment requirements use the preserved
   tool-to-stat icon mapping beside each exact source level; dual-stat tools
   show both identities without an inferred AND/OR or eligibility rule. The Craft catalogue
@@ -231,7 +239,9 @@ Read these files before making a substantial change:
   level/instability ordering. Complete tool groups are the default, with
   optional 12/24/All static views. Its cards expose exact ingredients,
   applicability through the 11 exact manifest-declared schematic icons plus
-  visible text fallbacks, declared instability, direct modifiers, and powers
+  visible text fallbacks, compact Craft-consistent source-level requirements,
+  instability through the exact native 16-by-16 interface icon and signed
+  source value, direct modifiers, and powers
   without inferring risk or final item formulas. Exact `<encrustwith>` values
   remain detail-only under **Encrusted with** rather than cluttering generic
   cards. Item catalogue/detail Encrust relationships reuse the same accessible

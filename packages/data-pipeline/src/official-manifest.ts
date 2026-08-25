@@ -62,6 +62,10 @@ const officialCorePresentedAssets = [
     id: "encrust-slot-weapon",
     path: "expansion3/ui/encrusting/encrust_weapon.png",
   },
+  {
+    id: "encrust-instability",
+    path: "expansion3/ui/encrusting/encrustment_instability.png",
+  },
 ] as const;
 
 const officialDamageIconFiles = [

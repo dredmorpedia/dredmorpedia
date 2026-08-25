@@ -258,7 +258,9 @@ cards from item relationships while preserving direct links and Escape focus
 restoration. Encrusts groups all 57 canonical records under five used toolkit
 routes, defaults to complete game-order groups, and exposes exact ingredient,
 applicability with verified schematic icons and visible text fallbacks,
-instability, modifier, and power facts without inferring formulas. The
+instability, modifier, and power facts without inferring formulas. Source-level
+requirements reuse Craft's compact stat-icon/number presentation, and signed
+instability uses the native 16-by-16 Encrusting interface icon. The
 item catalogue and detail header now expose direct artifact declarations with
 the legacy-facing **Artifact / Quality x** wording, kept distinct from ordinary
 quality and from unproven Archaeology or Museum behavior. The
@@ -268,8 +270,16 @@ ingredient group plus one adjacent eye control preview its recipe without a
 recipe-name row or redundant unit quantities; shows
 every Encrust applicability icon; and replaces passive `+N more` text with
 native in-place disclosure and direct links for every overflow relationship.
+Item effect cards now preserve explicit chance, verified spell icon, linked
+spell, and natural trigger context in one sentence for weapon and non-weapon families, including available
+duration, delay, taxonomy, and resistance qualifiers. Their Value/Quality row
+uses centered icon alignment, and uncommon later effects use native disclosure
+rather than silent truncation. Finish the reviewed remaining item-card gaps
+(wand charges, random-stat markers, direct floor targeting without inferring
+recoverability, and long stat-block disclosure) before moving to image-led
+Skills and Abilities.
 The preserved orphaned output `x` is omitted as a template defect. Image-led
-Skills and Abilities are next; Hidden and expansion
+Skills and Abilities follow; Hidden and expansion
 iconography remain later card polish. Keep `legacy/` until complete parity
 evidence and a separate archival decision. Current tool evidence is in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`,
