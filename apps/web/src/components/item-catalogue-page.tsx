@@ -230,9 +230,6 @@ function ItemSummaryCard({
     artifact.entities.encrustments,
     item.id,
   );
-  const randomStatCounts = item.armourDeclarations.flatMap(({ randoms }) =>
-    randoms !== null && randoms > 0 ? [randoms] : [],
-  );
   const canTargetFloor = item.weaponDeclarations.some(
     ({ canTargetFloor: declaration }) => declaration === true,
   );
@@ -318,12 +315,6 @@ function ItemSummaryCard({
               </dd>
             </div>
           ))}
-          {randomStatCounts.length > 0 ? (
-            <div>
-              <dt>Random Stats</dt>
-              <dd>{randomStatCounts.join(", ")}</dd>
-            </div>
-          ) : null}
           {canTargetFloor ? (
             <div>
               <dt>Targeting</dt>

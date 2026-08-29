@@ -115,16 +115,18 @@ review found four narrower gaps.
 
 Three are now closed:
 
-- the three non-zero direct armour random-stat declarations render as
-  **Random Stats** with their exact source values;
+- catalogue modifiers reproduce the preserved semantic row order—damage,
+  resistance, primary, then secondary—while retaining natural overflow wrapping
+  within each row. The three non-zero direct armour random-stat declarations
+  render afterward in their own row inside the same block as **Random Stats**
+  with their exact source values;
 - the 20 positive direct `canTargetFloor` declarations render as **Can target
   the floor**, while the preserved application's accompanying **Cannot be
   recovered** text remains intentionally excluded as an unsupported inference;
   and
 - all 35 official items with more than six combined named stats and direct
-  modifiers retain a six-entry default while exposing every later entry through
-  a keyboard-operable native disclosure. The expanded entries precede the Hide
-  control visually and remain available without JavaScript.
+  modifiers show their complete stat block by default. An owner review rejected
+  the bounded disclosure because these values are important comparison data.
 
 One reviewed gap remains:
 

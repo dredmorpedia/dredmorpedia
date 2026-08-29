@@ -566,12 +566,12 @@ source-declared **Artifact / Quality x** property without inferring Archaeology
 or other engine behavior. The verified 62-selector stat-icon mapping now gives
 catalogue modifiers compact image-plus-value links and detail modifiers
 image-plus-name links, with native titles and text fallbacks. Encrustment
-modifier rows reuse the image-plus-name treatment. The three non-zero armour
-random-stat declarations and 20 positive floor-target flags now appear as
-source-exact catalogue facts without the preserved site's unsupported
-recoverability inference. Native disclosure preserves a six-entry default for
-the 35 long stat/modifier blocks while making every later entry available in
-place. Craft parity now
+modifier rows reuse the image-plus-name treatment and follow the preserved
+damage, resistance, primary, then secondary row order. The three non-zero armour
+random-stat declarations appear in their own final row in the same block. The
+20 positive floor-target flags appear without the preserved site's unsupported
+recoverability inference. All modifiers remain visible by default, including
+the 35 official items with more than six stat/modifier entries. Craft parity now
 provides complete tool-group routes in
 familiar order, verified toolkit art, compact/detailed navigation, persisted
 display settings, a bounded 36-recipe default plus 24/All options, source/name/

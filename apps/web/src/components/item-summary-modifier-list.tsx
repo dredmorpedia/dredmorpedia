@@ -1,7 +1,10 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ReactNode } from "react";
 
-import type { DatasetArtifact, Item } from "@dredmorpedia/domain";
+import type {
+  DatasetArtifact,
+  Item,
+  StatModifierKind,
+} from "@dredmorpedia/domain";
 
 import {
   StatDefinitionLink,
@@ -10,10 +13,28 @@ import {
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 
 interface ItemSummaryModifierEntry {
+  group: StatModifierKind | "other";
   key: string;
   term: ReactNode;
   value: string;
 }
+
+const modifierGroupOrder = [
+  "damage",
+  "resistance",
+  "primary",
+  "secondary",
+  "other",
+] as const;
+
+const modifierGroupLabels: Record<(typeof modifierGroupOrder)[number], string> =
+  {
+    damage: "Damage modifiers",
+    resistance: "Resistance modifiers",
+    primary: "Primary stat modifiers",
+    secondary: "Secondary stat modifiers",
+    other: "Other item stats",
+  };
 
 function ModifierEntries({
   entries,
@@ -31,21 +52,20 @@ function ModifierEntries({
 export function ItemSummaryModifierList({
   artifact,
   artifactSha256,
-  initialCount = 6,
   item,
 }: {
   artifact: DatasetArtifact;
   artifactSha256: string;
-  initialCount?: number;
   item: Item;
 }) {
   const statsById = new Map(
     artifact.entities.stats.map((stat) => [stat.id, stat]),
   );
   const entries: ItemSummaryModifierEntry[] = [
-    ...item.stats.map((stat, index) => {
+    ...item.stats.map<ItemSummaryModifierEntry>((stat, index) => {
       const definition = stat.statId ? statsById.get(stat.statId) : undefined;
       return {
+        group: definition?.modifier?.kind ?? "other",
         key: `stat:${stat.statKey}:${index}`,
         term: definition ? (
           <StatDefinitionLink
@@ -61,7 +81,8 @@ export function ItemSummaryModifierList({
         value: signedStatModifierValue(stat.amount),
       };
     }),
-    ...item.modifiers.map((modifier, index) => ({
+    ...item.modifiers.map<ItemSummaryModifierEntry>((modifier, index) => ({
+      group: modifier.kind,
       key: `modifier:${modifier.kind}:${modifier.sourceKey}:${index}`,
       term: (
         <StatModifierLink
@@ -75,39 +96,54 @@ export function ItemSummaryModifierList({
       value: signedStatModifierValue(modifier.amount),
     })),
   ];
+  const rows = modifierGroupOrder.flatMap((group) => {
+    const groupedEntries = entries.filter((entry) => entry.group === group);
+    return groupedEntries.length > 0
+      ? [{ entries: groupedEntries, group }]
+      : [];
+  });
+  const randomStatEntries: ItemSummaryModifierEntry[] =
+    item.armourDeclarations.flatMap(({ randoms }, index) =>
+      randoms !== null && randoms > 0
+        ? [
+            {
+              group: "other",
+              key: `random-stats:${index}`,
+              term: "Random Stats",
+              value: String(randoms),
+            },
+          ]
+        : [],
+    );
 
-  if (entries.length === 0) {
+  if (rows.length === 0 && randomStatEntries.length === 0) {
     return null;
   }
 
-  const visibleEntries = entries.slice(0, initialCount);
-  const additionalEntries = entries.slice(initialCount);
-
   return (
-    <div className="item-summary-modifier-block">
-      <dl className="item-summary-modifiers" aria-label="Item modifiers">
-        <ModifierEntries entries={visibleEntries} />
-      </dl>
-      {additionalEntries.length > 0 ? (
-        <details className="catalogue-overflow-details item-summary-modifier-overflow">
-          <summary>
-            <span className="catalogue-overflow-show">
-              <ChevronDown aria-hidden="true" size={14} />
-              Show {additionalEntries.length} more stat
-              {additionalEntries.length === 1 ? "" : "s"}
-            </span>
-            <span className="catalogue-overflow-hide">
-              <ChevronUp aria-hidden="true" size={14} />
-              Hide additional stats
-            </span>
-          </summary>
-          <dl
-            aria-label="Additional item modifiers"
-            className="item-summary-modifiers item-summary-modifiers-additional"
-          >
-            <ModifierEntries entries={additionalEntries} />
-          </dl>
-        </details>
+    <div
+      aria-label="Item modifiers"
+      className="item-summary-modifier-block"
+      role="group"
+    >
+      {rows.map(({ entries: rowEntries, group }) => (
+        <dl
+          aria-label={modifierGroupLabels[group]}
+          className="item-summary-modifiers"
+          data-stat-group={group}
+          key={group}
+        >
+          <ModifierEntries entries={rowEntries} />
+        </dl>
+      ))}
+      {randomStatEntries.length > 0 ? (
+        <dl
+          aria-label="Random stats"
+          className="item-summary-modifiers item-summary-modifiers-random"
+          data-stat-group="random"
+        >
+          <ModifierEntries entries={randomStatEntries} />
+        </dl>
       ) : null}
     </div>
   );

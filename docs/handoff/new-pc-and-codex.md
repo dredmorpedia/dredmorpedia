@@ -171,11 +171,12 @@ Continue toward local parity without assuming permission to publish official con
    icon. Item effect cards preserve explicit chance, verified spell icon,
    linked spell, and natural trigger context in one sentence, plus available qualifiers across weapon and non-weapon
    families; later effects use native disclosure. The Value/Quality row is
-   centered against its imagery. The three non-zero armour random-stat
-   declarations and 20 positive floor-target flags now appear on catalogue
-   cards without the unsupported recoverability inference. The 35 long
-   stat/modifier blocks retain a six-entry default and expose every later entry
-   through native disclosure. Finish the remaining reviewed wand-charge summary
+   centered against its imagery. Catalogue modifiers use preserved semantic
+   rows for damage, resistance, primary, then secondary. The three non-zero
+   armour random-stat declarations use their own final row. The 20 positive
+   floor-target flags appear without the unsupported recoverability inference.
+   All stat/modifier entries remain visible by default, including the 35
+   official items with more than six entries. Finish the remaining reviewed wand-charge summary
    gap next. The preserved orphaned
    output `x` is not reproduced. Image-led Skills and Abilities follow.
    Hidden/expansion iconography and bounded build planning are postponed. See

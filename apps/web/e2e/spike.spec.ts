@@ -285,36 +285,30 @@ test("configures and persists the item catalogue display accessibly", async ({
   ).toBeVisible();
   await expect(page.getByText("Cannot be recovered")).toHaveCount(0);
 
-  const visibleModifiers = page.locator('dl[aria-label="Item modifiers"]');
-  await expect(visibleModifiers.locator(":scope > div")).toHaveCount(6);
-  const modifierDisclosure = page.locator(".item-summary-modifier-overflow");
-  const modifierDisclosureTrigger = modifierDisclosure.locator("summary");
-  await expect(
-    modifierDisclosure.getByText("Show 1 more stat", { exact: true }),
-  ).toBeVisible();
-  await modifierDisclosureTrigger.focus();
-  await modifierDisclosureTrigger.press("Enter");
-  const additionalModifiers = modifierDisclosure.locator(
-    'dl[aria-label="Additional item modifiers"]',
+  const modifiers = page.getByRole("group", { name: "Item modifiers" });
+  const modifierRows = modifiers.locator("dl");
+  await expect(modifierRows).toHaveCount(4);
+  await expect(modifierRows.nth(0)).toHaveAttribute(
+    "data-stat-group",
+    "damage",
   );
-  await expect(additionalModifiers).toBeVisible();
-  await expect(additionalModifiers.locator(":scope > div")).toHaveCount(1);
-  await expect(
-    modifierDisclosure.getByText("Hide additional stats", { exact: true }),
-  ).toBeVisible();
-  await expect
-    .poll(async () => {
-      const additionalBox = await additionalModifiers.boundingBox();
-      const disclosureBox = await modifierDisclosureTrigger.boundingBox();
-      return Boolean(
-        additionalBox &&
-        disclosureBox &&
-        additionalBox.y + additionalBox.height <= disclosureBox.y,
-      );
-    })
-    .toBe(true);
-  await modifierDisclosureTrigger.press("Enter");
-  await expect(additionalModifiers).toBeHidden();
+  await expect(modifierRows.nth(0).locator(":scope > div")).toHaveCount(2);
+  await expect(modifierRows.nth(1)).toHaveAttribute(
+    "data-stat-group",
+    "resistance",
+  );
+  await expect(modifierRows.nth(1).locator(":scope > div")).toHaveCount(1);
+  await expect(modifierRows.nth(2)).toHaveAttribute(
+    "data-stat-group",
+    "primary",
+  );
+  await expect(modifierRows.nth(2).locator(":scope > div")).toHaveCount(1);
+  await expect(modifierRows.nth(3)).toHaveAttribute(
+    "data-stat-group",
+    "secondary",
+  );
+  await expect(modifierRows.nth(3).locator(":scope > div")).toHaveCount(3);
+  await expect(page.getByText(/Show \d+ more stats?/)).toHaveCount(0);
 
   await page.getByRole("button", { name: "Detailed" }).click();
   await expect(categories).toHaveAttribute("data-layout", "expanded");
@@ -381,10 +375,22 @@ test("presents complete item-trigger context in non-weapon catalogue cards", asy
   const effects = card
     .locator(".item-summary-relationship")
     .filter({ has: page.getByRole("heading", { name: "Effects" }) });
-  const facts = card.locator(".item-summary-facts");
+  const modifiers = card.getByRole("group", { name: "Item modifiers" });
+  const modifierRows = modifiers.locator("dl");
 
-  await expect(facts.getByText("Random Stats", { exact: true })).toBeVisible();
-  await expect(facts.getByText("1", { exact: true })).toBeVisible();
+  await expect(
+    modifiers.getByText("Random Stats", { exact: true }),
+  ).toBeVisible();
+  await expect(modifiers.getByText("1", { exact: true })).toBeVisible();
+  await expect(modifierRows).toHaveCount(2);
+  await expect(modifierRows.nth(0)).toHaveAttribute(
+    "data-stat-group",
+    "resistance",
+  );
+  await expect(modifierRows.nth(1)).toHaveAttribute(
+    "data-stat-group",
+    "random",
+  );
 
   await expect(effects.getByText(/25% chance of/)).toBeVisible();
   const primaryEffect = effects.locator(".item-trigger-primary").first();

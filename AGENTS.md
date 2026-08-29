@@ -211,10 +211,13 @@ Read these files before making a substantial change:
   weapon, armour, tome, trap, wand, consumable, and
   food/booze families; duration, delay, taxonomy, and resistance qualifiers
   remain visible when declared, and native disclosure exposes later effects.
-  The three non-zero armour random-stat declarations and 20 positive direct
-  floor-target flags now appear on catalogue cards without the legacy
-  recoverability inference. The 35 long stat/modifier blocks retain a six-entry
-  default and expose every later entry through native disclosure. Wand charge
+  Catalogue modifiers follow the preserved semantic row order: damage,
+  resistance, primary, then secondary, with natural overflow wrapping inside
+  each row. The three non-zero armour random-stat declarations appear in their
+  own final row inside the same catalogue stat block. The 20 positive direct
+  floor-target flags appear without the legacy recoverability inference. All
+  stat/modifier entries remain visible by default, including the 35 official
+  items with more than six entries; do not restore a card-level stat cap. Wand charge
   ranges are the remaining reviewed item-card gap.
   Recipe output tiers and encrustment requirements use the preserved
   tool-to-stat icon mapping beside each exact source level; dual-stat tools

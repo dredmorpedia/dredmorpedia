@@ -274,11 +274,12 @@ Item effect cards now preserve explicit chance, verified spell icon, linked
 spell, and natural trigger context in one sentence for weapon and non-weapon families, including available
 duration, delay, taxonomy, and resistance qualifiers. Their Value/Quality row
 uses centered icon alignment, and uncommon later effects use native disclosure
-rather than silent truncation. The three non-zero random-stat declarations and
-20 positive floor-target flags now appear as source-exact catalogue facts
-without the preserved recoverability inference. All 35 long stat/modifier
-blocks retain a six-entry default and expose their remaining entries through
-native disclosure. Finish the remaining wand-charge summary gap before moving
+rather than silent truncation. Catalogue modifiers use preserved semantic rows
+for damage, resistance, primary, then secondary; the three non-zero random-stat
+declarations use their own final row. The 20 positive floor-target
+flags appear without the preserved recoverability inference. All stat/modifier
+entries remain visible by default, including the 35 official items with more
+than six entries. Finish the remaining wand-charge summary gap before moving
 to image-led Skills and Abilities.
 The preserved orphaned output `x` is omitted as a template defect. Image-led
 Skills and Abilities follow; Hidden and expansion
