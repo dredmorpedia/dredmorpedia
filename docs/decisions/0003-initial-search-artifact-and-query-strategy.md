@@ -11,8 +11,9 @@ The first approved local measurement produced 2,710 search documents and a
 2,829 canonical `1.1.5 public_beta` documents, pretty-printed serialization
 reached 1,477,801 bytes and left only 22,199 bytes below the accepted raw
 ceiling. Deterministic compact serialization reduced the same schema and
-documents to 1,180,204 bytes; the later recipe-tool and cross-list source-skill
-extensions bring the current compact artifact to 1,263,752 bytes. This remains
+documents to 1,180,204 bytes; the later recipe-tool, cross-list source-skill,
+and same-name-declaration extensions bring the current 2,892-document compact
+artifact to 1,376,792 bytes. This remains
 small enough for a project-owned client query path without accepting the bundle
 cost, worker complexity, and query semantics of a third-party search engine.
 
@@ -63,8 +64,10 @@ met in deployment.
 Dataset artifact version 3 and search artifact version 3 now implement this
 split. Search schema 3 retains ordered route aliases and adds one nullable,
 exact `craftingSkillLevel` field for recipes and encrustments. The search route
-loads the search payload, applies project-owned text/facet/numeric-bound and
-spelling logic, preserves filters in the URL, and renders at most 50 results.
+loads the build-verified payload from the static `/search-data.json` endpoint
+after its small interactive shell hydrates, applies project-owned
+text/facet/numeric-bound and spelling logic, preserves filters in the URL, and
+renders at most 50 results.
 Reusable project-authored views remain ordinary search URLs rather than stored
 user state. This implementation is not permission to publish official content.
 
@@ -82,8 +85,9 @@ This avoids an early dependency and keeps domain filtering explicit. It also mea
 
 Initial read-only measurements over 2,710 documents recorded a 0.452 ms p95
 for query execution across 1,000 representative calls. The current compact
-2,829-document artifact measures 1,263,752 bytes uncompressed, 199,369 bytes
-with gzip, and 145,019 bytes with Brotli. Its parse, query, suggestion, and
+2,892-document artifact measures 1,376,792 bytes uncompressed, 217,066 bytes
+with gzip, and 158,074 bytes with Brotli. Loading the verified JSON separately
+keeps that payload out of React hydration. Its parse, query, suggestion, and
 desktop/4x-CPU-mobile browser paths remain inside every accepted budget, so
 MiniSearch and a worker remain unjustified. Initial query evidence is recorded
 in [`../analysis/first-parity-foundation-2026-07-19.md`](../analysis/first-parity-foundation-2026-07-19.md),
@@ -99,6 +103,8 @@ in
 [`../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`](../analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md).
 Search-schema-3 and cross-list filtering evidence is in
 [`../analysis/cross-list-crafting-filter-evidence-2026-08-14.md`](../analysis/cross-list-crafting-filter-evidence-2026-08-14.md).
+Repeated-declaration search and current response measurements are in
+[`../analysis/repeated-crafting-declaration-parity-2026-08-30.md`](../analysis/repeated-crafting-declaration-parity-2026-08-30.md).
 
 ## Acceptance checklist
 

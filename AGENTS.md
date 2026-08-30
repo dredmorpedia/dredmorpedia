@@ -32,6 +32,10 @@ Read these files before making a substantial change:
   generated JSON transferred to interactive routes. Keep its stable key and
   document ordering, final newline, manifest byte/checksum coverage, and exact
   schema/query derivation; do not restore presentation whitespace by accident.
+  The search page fetches the build-verified payload from the static
+  `/search-data.json` route after its small client shell hydrates. Preserve the
+  explicit loading/failure state and do not embed the full payload back into
+  React hydration.
 - The incremental local-asset slices copy normalized item, skill, ability, and
   root spell PNG icons plus the selected first monster idle frame used by their
   implemented detail pages, plus the manifest-declared gold and filled/empty
@@ -189,7 +193,9 @@ Read these files before making a substantial change:
   ADR 0004's inherited reservations, tombstones, stable-identity reappearance,
   and publication enforcement are implemented. ADR 0005's separately versioned
   project stat reference is accepted and implemented. ADR 0006's narrowly
-  scoped engine-item reference is accepted and implemented. Evidence is
+  scoped engine-item reference is accepted and implemented. ADR 0007's
+  deterministic independent identity for differing same-name Craft and
+  Encrust declarations is accepted and implemented. Evidence is
   recorded under `docs/analysis/`.
 - The first parity slice is complete from implementation and validation
   evidence as an engineering/content milestone without a separate owner
@@ -222,7 +228,8 @@ Read these files before making a substantial change:
   Recipe output tiers and encrustment requirements use the preserved
   tool-to-stat icon mapping beside each exact source level; dual-stat tools
   show both identities without an inferred AND/OR or eligibility rule. The Craft catalogue
-  foundation is implemented with all 374 canonical recipes grouped under seven
+  foundation is implemented with all 435 canonical recipe declarations under
+  374 displayed names, grouped under seven
   familiar tool routes, existing verified toolkit art, compact/detailed tool
   navigation, persisted source/name/lowest-output-level ordering, a bounded
   36-recipe default plus 24/All views, and reusable ingredient/output summary
@@ -237,8 +244,8 @@ Read these files before making a substantial change:
   places verified toolkit art in the transformation between ingredients and
   outputs when available,
   has no internal scrollbar, restores focus on Escape, and remains bounded to
-  four references per side. The Encrust catalogue foundation groups all 57
-  canonical encrustments under the five used toolkits in preserved familiar
+  four references per side. The Encrust catalogue foundation groups all 58
+  canonical encrustment declarations under 57 displayed names and the five used toolkits in preserved familiar
   order. It reuses verified toolkit/item art, compact/detailed navigation, the
   progressive selected-tab return control, and persisted game/name/source-
   level/instability ordering. Complete tool groups are the default, with
@@ -257,6 +264,11 @@ Read these files before making a substantial change:
   relationships with the same preview controls and direct links. Its Hide
   control is visually placed after the revealed rows.
   The preserved bare output `x` is a legacy template defect and is not reproduced.
+  ADR 0007 preserves differing same-name Craft and Encrust declarations as
+  independent entities while keeping the former winner on its clean route.
+  Complete item backlinks, search documents, static routes, catalogue cards,
+  and planner choices cover all declarations; otherwise-identical planner
+  labels add ingredient context.
   Continue with image-led Skills and Abilities next. Keep Hidden and expansion
   iconography for later card polish. The
   preserved Meta view's
@@ -265,7 +277,7 @@ Read these files before making a substantial change:
   from archetype levels plus crushing, slashing, and blasting modifiers. Do not
   treat it as independently verified engine truth; formula verification remains
   a documented possible improvement.
-- The navigation/tooltip mechanics checkpoint restores all 374 canonical recipes
+- The navigation/tooltip mechanics checkpoint restores all 435 canonical recipe declarations
   to seven normalized tool categories in shareable search and explicitly
   supersedes the preserved runtime hashes, cloned-row hover tooltips, and
   tab-only partitions with stable routes, visible labels, and native history.

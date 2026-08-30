@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-08-14
+Updated: 2026-08-30
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -18,13 +18,18 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
 - Node is pinned by `.node-version` to `24.18.0`; the workspace uses pnpm through Corepack. On Windows, use `pnpm.cmd` when needed.
 - Development runs on `http://localhost:3001/`.
+- The latest validation checkpoint passes 328 unit/artifact tests, all 80
+  desktop/mobile browser cases, deterministic official generation, the
+  3,731-page official static export, and every accepted search budget. The
+  2,892-document verified search artifact loads separately from
+  `/search-data.json` so it is not embedded in React hydration.
 
 ## Owner decisions recorded on 2026-07-29
 
 - The current target is a locally complete product based on `1.1.5 public_beta`, including only the official assets needed by entities and features the product actually presents. Public deployment and a dataset-version switcher are postponed.
 - Official XML, generated official datasets, and copied official assets stay ignored and non-public. Selected screenshots may be prepared when requesting permission, but a screenshot does not establish permission to publish the underlying material.
 - New modern-project material is intended to use MIT terms. `legacy/`, official content and derivatives, bundled mods, and inherited assets are outside that intended scope. Scoped license files remain pending until the copyright-holder wording is supplied.
-- ADR 0001 through ADR 0006 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented. ADR 0005 supplies an independently authored, separately versioned 62-selector stat reference without legacy prose or formulas; its 1.1.0 amendment adds closed stat-icon identities while official paths/bytes remain ignored local assets. ADR 0006 supplies one explicitly labelled Lockpick engine-item reference from active relationship evidence, with no legacy price or other inferred item facts, and gives direct Macguffin records their semantic catalogue category.
+- ADR 0001 through ADR 0007 are Accepted within this local-only boundary. ADR 0003 retains project-owned search, at most five user-selected name/route-alias-only zero-result suggestions, concrete relevance examples, and reproducible artifact/query plus desktop/4x-CPU-mobile browser budgets. ADR 0004's checksum-bound inherited route registry, tombstones, stable-identity reappearance, complete publication coverage, and failure gate are implemented. ADR 0005 supplies an independently authored, separately versioned 62-selector stat reference without legacy prose or formulas; its 1.1.0 amendment adds closed stat-icon identities while official paths/bytes remain ignored local assets. ADR 0006 supplies one explicitly labelled Lockpick engine-item reference from active relationship evidence, with no legacy price or other inferred item facts, and gives direct Macguffin records their semantic catalogue category. ADR 0007 preserves differing same-name Craft and Encrust declarations as independent deterministic identities while leaving the former winner on its clean route.
 - Engine mechanics absent from XML must be evaluated individually immediately before their implementation. Legacy formulas are evidence to test, not automatically authoritative or automatically excluded.
 - The first Phase 5 crafting and separately modeled encrustment dependency and
   shopping-list slices are complete. The first rich cross-list filter combines
@@ -53,7 +58,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
   hides redundant card-level tool identity and the derived maximum-level footer. Whole-item
   mouse hover plus an icon-only focus/tap control now expose those cards while
   keeping direct links visible; toolkit art sits between ingredients and
-  outputs. The Encrust catalogue foundation groups all 57 canonical records
+  outputs. The Encrust catalogue foundation groups all 58 canonical declarations under 57 displayed names
   under five used toolkits with verified art, compact/detailed navigation,
   persisted game/name/source-level/instability ordering, complete tool groups
   by default, optional 12/24/All static views, and exact ingredient,
@@ -232,8 +237,8 @@ ability, spell, and encrustment records through 61 active facets. The ignored
 canonical artifact has 45 affected records and 71 override steps. The measured
 root spell compatibility audit is complete. The preserved Meta view's
 **Required Armour by Monster** compatibility calculation is owner-approved and
-implemented. The final navigation/tooltip checkpoint restores all 374
-canonical recipes to seven normalized tool categories in shareable search. The
+implemented. The final navigation/tooltip checkpoint restores all 435
+canonical recipe declarations under 374 displayed names to seven normalized tool categories in shareable search. The
 monster-art decision is implemented for all 183 canonical detail pages, and
 the deferred search-page filtering rework is complete.
 
@@ -248,14 +253,14 @@ to three ordered canonical items in a shareable URL and compares exact
 normalized fields without inferring formulas.
 
 Active work has returned to player-experience parity: the corrected Items,
-Craft, and Encrust catalogue foundations are complete. Craft groups all 374
-canonical recipes into seven familiar tool routes with verified toolkit art,
+Craft, and Encrust catalogue foundations are complete. Craft groups all 435
+canonical recipe declarations under 374 displayed names into seven familiar tool routes with verified toolkit art,
 compact/detailed navigation, persisted source/name/lowest-output-level
 ordering, a bounded 36-recipe default plus 24/All views, and reusable recipe
 cards. The selected-tool catalogue hides redundant tool identity and the
 derived maximum-level footer. Accessible hover/focus/tap previews reuse those
 cards from item relationships while preserving direct links and Escape focus
-restoration. Encrusts groups all 57 canonical records under five used toolkit
+restoration. Encrusts groups all 58 canonical declarations under 57 displayed names and five used toolkit
 routes, defaults to complete game-order groups, and exposes exact ingredient,
 applicability with verified schematic icons and visible text fallbacks,
 instability, modifier, and power facts without inferring formulas. Source-level
@@ -348,8 +353,8 @@ relationship recipe/encrustment previews and complete native overflow
 disclosure are complete; image-led Skills and Abilities are next. Evidence is in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
-The first rich cross-list filtering slice combines all 374 canonical recipes
-and 57 encrustments under one search scope and applies an inclusive maximum
+The first rich cross-list filtering slice combines all 435 canonical recipe declarations
+and 58 encrustment declarations under one search scope and applies an inclusive maximum
 exact source-skill bound. Project-authored Browse/Search starting views remain
 ordinary shareable URLs with invalid and incompatible state cleanup.
 `pnpm.cmd check` passes 298 unit/artifact tests and the 48-page synthetic export; all 52

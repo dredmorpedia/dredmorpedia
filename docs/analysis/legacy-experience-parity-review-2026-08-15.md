@@ -196,7 +196,7 @@ that redundant identity because its selected tab provides scrolling context.
 The Encrust catalogue is implemented at `/encrusts/` and
 `/encrusts/tool/<tool>/`:
 
-- all 57 canonical encrustments are grouped under their five used toolkits in
+- all 58 canonical encrustment declarations under 57 displayed names are grouped under their five used toolkits in
   the preserved familiar order: Lathe, Alchemy, Ingot Press, Smithing Kit, and
   Tinkerer Parts;
 - the compact/detailed chooser, toolkit art, counts, floating selected tab,
@@ -325,3 +325,10 @@ this work as advanced and completeness-oriented fallbacks.
   official HTML contains titled slot imagery while the synthetic export keeps
   readable label fallbacks. Detailed evidence is in
   `encrust-catalogue-evidence-2026-08-24.md`.
+- The 2026-08-30 repeated-declaration correction supersedes the earlier active
+  counts without rewriting their dated checkpoints. The official artifact now
+  exposes all 435 Craft declarations under 374 names and all 58 Encrust
+  declarations under 57 names. Clean route ownership is preserved, every
+  declaration reaches catalogues, relationships, search, and planners, and
+  otherwise-identical planner labels add ingredient context. Evidence is in
+  `repeated-crafting-declaration-parity-2026-08-30.md`.

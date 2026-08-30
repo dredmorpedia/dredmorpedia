@@ -12,6 +12,7 @@ import {
   resolveRelationshipWithReviewedCorrection,
   resolveRelationshipExactly,
   resolveEntityCandidates,
+  separateRepeatedNamedDeclarations,
   skillAbilityRelationships,
   type Ability,
   type DatasetArtifact,
@@ -1219,10 +1220,36 @@ function resolveCollections(
   sourceVersions: ReadonlyMap<string, string>,
   diagnostics: DiagnosticDraft[],
 ): ResolvedCollectionsResult {
+  const separatedRecipes = separateRepeatedNamedDeclarations(
+    candidates.recipes,
+  );
+  const separatedEncrustments = separateRepeatedNamedDeclarations(
+    candidates.encrustments,
+  );
+  const independentDeclarations = [
+    ...separatedRecipes.independentDeclarations,
+    ...separatedEncrustments.independentDeclarations,
+  ];
+  const independentDeclarationIds = new Set(
+    independentDeclarations.map((declaration) => declaration.entityId),
+  );
+  for (const declaration of independentDeclarations) {
+    diagnostics.push({
+      severity: "info",
+      code: "independent_named_declaration",
+      message: `Preserved a distinct same-name ${declaration.kind} declaration for ${declaration.name}.`,
+      source: sourceLocation(declaration.provenance),
+      entityId: declaration.entityId,
+      details: {
+        baseCanonicalKey: declaration.baseCanonicalKey,
+      },
+    });
+  }
+
   const resolutions = {
     items: resolveEntityCandidates(candidates.items),
-    recipes: resolveEntityCandidates(candidates.recipes),
-    encrustments: resolveEntityCandidates(candidates.encrustments),
+    recipes: resolveEntityCandidates(separatedRecipes.candidates),
+    encrustments: resolveEntityCandidates(separatedEncrustments.candidates),
     skills: resolveEntityCandidates(candidates.skills),
     abilities: resolveEntityCandidates(candidates.abilities),
     spells: resolveEntityCandidates(candidates.spells),
@@ -1436,6 +1463,9 @@ function resolveCollections(
 
   for (const allocation of Object.values(routed)) {
     for (const collision of allocation.slugCollisions) {
+      if (independentDeclarationIds.has(collision.entityId)) {
+        continue;
+      }
       diagnostics.push({
         severity: "warning",
         code: "slug_collision",

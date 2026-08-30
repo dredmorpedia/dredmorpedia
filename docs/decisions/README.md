@@ -18,5 +18,6 @@ ADRs record decisions that are expensive to rediscover or reverse. They compleme
 - [`0004-published-route-registry-lifecycle.md`](0004-published-route-registry-lifecycle.md) — Accepted and implemented: checksum-bound inherited route reservations, tombstones, stable-identity reappearance, and publication enforcement.
 - [`0005-project-authored-stat-reference.md`](0005-project-authored-stat-reference.md) — Accepted and amended: a separately versioned project reference maps verified modifier selectors and closed stat-icon identities without copying legacy prose, official paths/bytes, or formulas.
 - [`0006-project-authored-engine-item-reference.md`](0006-project-authored-engine-item-reference.md) — Accepted: a narrowly scoped project reference exposes source-backed engine items without inventing ordinary item records or facts.
+- [`0007-repeated-crafting-declaration-identity.md`](0007-repeated-crafting-declaration-identity.md) — Accepted: differing same-name Craft and Encrust declarations remain independent active entities with deterministic identities while the existing clean route retains its previous owner.
 
 Copy [`template.md`](template.md) for a new decision. Keep records short enough to review, link evidence, and describe migration consequences.

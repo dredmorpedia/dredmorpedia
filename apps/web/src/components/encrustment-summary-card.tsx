@@ -45,6 +45,16 @@ export interface EncrustmentSummaryData {
   toolLabel: string;
 }
 
+export function encrustmentSummaryAccessibleName(
+  summary: EncrustmentSummaryData,
+): string {
+  const inputs = summary.inputs
+    .map((reference) => reference.itemName)
+    .join(", ");
+  const slots = summary.slots.map((slot) => slot.label).join(", ");
+  return `${summary.name}: ${inputs || "no declared ingredients"}; applies to ${slots || "no declared slots"}`;
+}
+
 export function EncrustmentSummaryCard({
   showTool = true,
   summary,
@@ -58,7 +68,7 @@ export function EncrustmentSummaryCard({
 
   return (
     <article
-      aria-label={`${summary.name} summary`}
+      aria-label={`${encrustmentSummaryAccessibleName(summary)} summary`}
       className="recipe-summary-card encrustment-summary-card"
       data-variant={variant}
     >
@@ -112,13 +122,13 @@ export function EncrustmentSummaryCard({
       </dl>
 
       <div className="recipe-summary-flow">
-        <section aria-label="Ingredients">
+        <div>
           <h4>Ingredients</h4>
           <CatalogueItemReferenceList
             overflowNoun="ingredient"
             references={summary.inputs}
           />
-        </section>
+        </div>
         <div className="recipe-summary-method">
           <span aria-hidden="true" className="recipe-summary-arrow">
             →
@@ -136,7 +146,7 @@ export function EncrustmentSummaryCard({
             </span>
           ) : null}
         </div>
-        <section aria-label="Applicability and outcomes">
+        <div>
           <h4>Applies to</h4>
           {summary.slots.length > 0 ? (
             <EncrustmentSlotList slots={summary.slots} variant="compact" />
@@ -174,7 +184,7 @@ export function EncrustmentSummaryCard({
               No direct outcomes declared
             </p>
           )}
-        </section>
+        </div>
       </div>
 
       <footer className="recipe-summary-footer">

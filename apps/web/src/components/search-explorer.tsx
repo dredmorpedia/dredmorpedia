@@ -5,6 +5,7 @@ import {
   querySearchDocuments,
   suggestSearchDocuments,
   type EntityKind,
+  type SearchArtifact,
   type SearchDocument,
   type SearchQuery,
 } from "@dredmorpedia/domain";
@@ -38,7 +39,8 @@ interface FilterOption {
 }
 
 interface SearchExplorerProps {
-  documents: SearchDocument[];
+  datasetId: string;
+  searchUrl: string;
   sources: FilterOption[];
   stats: FilterOption[];
 }
@@ -141,7 +143,8 @@ function FilterSelect({
 }
 
 export function SearchExplorer({
-  documents,
+  datasetId,
+  searchUrl,
   sources,
   stats,
 }: SearchExplorerProps) {
@@ -152,9 +155,38 @@ export function SearchExplorer({
   const latestSearchParams = useRef(serializedSearchParams);
   const queryParam = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(queryParam);
+  const [documents, setDocuments] = useState<SearchDocument[] | null>(null);
+  const [searchLoadError, setSearchLoadError] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const latestQuery = useRef(query);
   const submittedQuery = useRef<string | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadDocuments() {
+      try {
+        const response = await fetch(searchUrl, { signal: controller.signal });
+        if (!response.ok) {
+          throw new Error(
+            `Search data request failed with ${response.status}.`,
+          );
+        }
+        const payload = (await response.json()) as Partial<SearchArtifact>;
+        if (
+          payload.datasetId !== datasetId ||
+          !Array.isArray(payload.documents)
+        ) {
+          throw new Error("Search data does not match the active dataset.");
+        }
+        setDocuments(payload.documents);
+      } catch {
+        if (!controller.signal.aborted) {
+          setSearchLoadError(true);
+        }
+      }
+    }
+    void loadDocuments();
+    return () => controller.abort();
+  }, [datasetId, searchUrl]);
   useEffect(() => {
     latestSearchParams.current = serializedSearchParams;
   }, [serializedSearchParams]);
@@ -198,7 +230,7 @@ export function SearchExplorer({
       : "all"
   ) as SearchScope;
   const categoryGroups = useMemo(
-    () => createSearchCategoryGroups(documents, kind),
+    () => createSearchCategoryGroups(documents ?? [], kind),
     [documents, kind],
   );
   const compatibleCategoryValues = useMemo(
@@ -217,7 +249,7 @@ export function SearchExplorer({
   const craftingSkillOptions = useMemo(() => {
     const levels = [
       ...new Set(
-        documents.flatMap((document) =>
+        (documents ?? []).flatMap((document) =>
           document.craftingSkillLevel === null
             ? []
             : [document.craftingSkillLevel],
@@ -269,12 +301,13 @@ export function SearchExplorer({
       ? {}
       : { maximumCraftingSkillLevel: Number(maximumCraftingSkill) }),
   };
-  const allResults = querySearchDocuments(documents, searchQuery);
+  const allResults = querySearchDocuments(documents ?? [], searchQuery);
   const visibleResults = allResults.slice(0, 50);
-  const suggestions = suggestSearchDocuments(documents, searchQuery);
+  const suggestions = suggestSearchDocuments(documents ?? [], searchQuery);
 
   useEffect(() => {
     if (
+      documents === null ||
       requestedCategory === "all" ||
       compatibleCategoryValues.has(requestedCategory)
     ) {
@@ -291,10 +324,17 @@ export function SearchExplorer({
     startTransition(() =>
       router.replace(`${pathname}${suffix}`, { scroll: false }),
     );
-  }, [compatibleCategoryValues, pathname, requestedCategory, router]);
+  }, [
+    compatibleCategoryValues,
+    documents,
+    pathname,
+    requestedCategory,
+    router,
+  ]);
 
   useEffect(() => {
     if (
+      documents === null ||
       requestedMaximumCraftingSkill === "all" ||
       (supportsCraftingSkill(kind) &&
         craftingSkillOptions.some(
@@ -316,6 +356,7 @@ export function SearchExplorer({
     );
   }, [
     craftingSkillOptions,
+    documents,
     kind,
     pathname,
     requestedMaximumCraftingSkill,
@@ -335,7 +376,7 @@ export function SearchExplorer({
       ) as SearchScope;
       const nextCategory = next.get("category");
       const nextCategoryValues = searchCategoryValues(
-        createSearchCategoryGroups(documents, nextKind),
+        createSearchCategoryGroups(documents ?? [], nextKind),
       );
       if (nextCategory !== null && !nextCategoryValues.has(nextCategory)) {
         next.delete("category");
@@ -462,14 +503,22 @@ export function SearchExplorer({
         </Button>
       </div>
 
-      <p className="result-count" aria-live="polite">
-        {allResults.length === 1
-          ? "1 matching record"
-          : `${allResults.length} matching records`}
-        {allResults.length > visibleResults.length
-          ? `; showing the first ${visibleResults.length}`
-          : ""}
-      </p>
+      {documents === null ? (
+        <p className="result-count" role="status">
+          {searchLoadError
+            ? "Search data could not be loaded. Reload the page to try again."
+            : "Loading search data…"}
+        </p>
+      ) : (
+        <p className="result-count" aria-live="polite">
+          {allResults.length === 1
+            ? "1 matching record"
+            : `${allResults.length} matching records`}
+          {allResults.length > visibleResults.length
+            ? `; showing the first ${visibleResults.length}`
+            : ""}
+        </p>
+      )}
 
       {suggestions.length > 0 ? (
         <section
@@ -504,7 +553,7 @@ export function SearchExplorer({
         </section>
       ) : null}
 
-      {visibleResults.length > 0 ? (
+      {documents === null ? null : visibleResults.length > 0 ? (
         <ul className="search-result-list">
           {visibleResults.map(({ document }) => (
             <li key={document.id} className="search-result-card">

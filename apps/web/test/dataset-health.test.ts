@@ -13,7 +13,7 @@ describe("dataset health summaries", () => {
     const artifact = loadArtifact();
     const decisions = collectEntitySourceDecisions(artifact);
 
-    expect(allDatasetEntities(artifact)).toHaveLength(27);
+    expect(allDatasetEntities(artifact)).toHaveLength(29);
     expect(decisions).toHaveLength(1);
     expect(decisions[0]).toMatchObject({
       id: "item:clockwork blade",
@@ -48,5 +48,12 @@ describe("dataset health summaries", () => {
       (group) => group.severity === "info" && group.code === "duplicate_entity",
     );
     expect(duplicate?.diagnostics).toHaveLength(2);
+
+    const independentDeclarations = groups.find(
+      (group) =>
+        group.severity === "info" &&
+        group.code === "independent_named_declaration",
+    );
+    expect(independentDeclarations?.diagnostics).toHaveLength(2);
   });
 });

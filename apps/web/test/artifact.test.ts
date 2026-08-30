@@ -81,8 +81,8 @@ describe("generated artifact loading", () => {
       await import("../src/lib/artifact");
 
     expect(loadArtifact().entities.items).toHaveLength(14);
-    expect(loadSearchArtifact().documents).toHaveLength(27);
-    expect(loadDiagnostics()).toHaveLength(24);
+    expect(loadSearchArtifact().documents).toHaveLength(29);
+    expect(loadDiagnostics()).toHaveLength(26);
     expect(
       loadArtifact().entities.spells.find(
         (spell) => spell.name === "Clockwork Echo",

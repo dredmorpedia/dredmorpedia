@@ -53,12 +53,27 @@ function searchRecipe(): Recipe {
     slug: "clockwork-blade-recipe",
     slugAliases: [],
     name: "Clockwork Blade Recipe",
-    description: "A synthetic smithing recipe.",
+    description: "",
     tool: "smithing",
     hidden: false,
     skillLevel: 2,
-    inputs: [],
-    outputs: [],
+    inputs: [
+      {
+        itemKey: "training gem",
+        itemName: "Training Gem",
+        itemId: "item:training gem",
+        amount: 1,
+      },
+    ],
+    outputs: [
+      {
+        itemKey: "clockwork blade",
+        itemName: "Clockwork Blade",
+        itemId: "item:clockwork blade",
+        amount: 1,
+        skillLevel: 2,
+      },
+    ],
     provenance,
     variants: [provenance],
     appliedOverrides: [],
@@ -159,11 +174,18 @@ describe("search queries", () => {
       kind: "recipe",
       category: "smithing",
       craftingSkillLevel: 2,
+      summary: "Training Gem → Clockwork Blade",
     });
     expect(
       querySearchDocuments(generated, {
         kinds: ["recipe"],
         category: "smithing",
+      }).map((result) => result.document.id),
+    ).toEqual(["recipe:clockwork blade recipe"]);
+    expect(
+      querySearchDocuments(generated, {
+        query: "training gem",
+        kinds: ["recipe"],
       }).map((result) => result.document.id),
     ).toEqual(["recipe:clockwork blade recipe"]);
   });

@@ -6390,10 +6390,24 @@ describe("synthetic dataset import", () => {
     const itemByName = new Map(
       result.artifact.entities.items.map((item) => [item.name, item]),
     );
-    const recipe = result.artifact.entities.recipes.find(
+    const clockworkBladeRecipes = result.artifact.entities.recipes.filter(
       (entry) => entry.name === "Clockwork Blade Recipe",
     );
-    const encrustment = result.artifact.entities.encrustments[0];
+    const recipe = clockworkBladeRecipes.find(
+      (entry) => entry.id === "recipe:clockwork blade recipe",
+    );
+    const alternateRecipe = clockworkBladeRecipes.find(
+      (entry) => entry.id !== "recipe:clockwork blade recipe",
+    );
+    const syntheticGearPolishes = result.artifact.entities.encrustments.filter(
+      (entry) => entry.name === "Synthetic Gear Polish",
+    );
+    const encrustment = syntheticGearPolishes.find(
+      (entry) => entry.id === "encrustment:synthetic gear polish",
+    );
+    const alternateEncrustment = syntheticGearPolishes.find(
+      (entry) => entry.id !== "encrustment:synthetic gear polish",
+    );
     const skill = result.artifact.entities.skills.find(
       (entry) => entry.name === "Clockwork Combat",
     );
@@ -6421,8 +6435,8 @@ describe("synthetic dataset import", () => {
     );
 
     expect(result.artifact.entities.items).toHaveLength(14);
-    expect(result.artifact.entities.recipes).toHaveLength(2);
-    expect(result.artifact.entities.encrustments).toHaveLength(1);
+    expect(result.artifact.entities.recipes).toHaveLength(3);
+    expect(result.artifact.entities.encrustments).toHaveLength(2);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(2);
     expect(result.artifact.entities.spells).toHaveLength(2);
@@ -6674,7 +6688,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(27);
+    expect(result.search.documents).toHaveLength(29);
     expect(result.search).toMatchObject({
       schemaVersion: 3,
       datasetSchemaVersion: 3,
@@ -6707,6 +6721,31 @@ describe("synthetic dataset import", () => {
         "modifier:secondary:6",
       ],
     });
+    expect(
+      result.search.documents.find(
+        (document) => document.id === alternateEncrustment?.id,
+      ),
+    ).toMatchObject({
+      craftingSkillLevel: 1,
+      statKeys: ["modifier:damage:crushing"],
+    });
+    expect(
+      result.search.documents.find(
+        (document) => document.id === alternateEncrustment?.id,
+      )?.text,
+    ).toContain("hands");
+    expect(
+      result.search.documents.find(
+        (document) => document.id === alternateRecipe?.id,
+      ),
+    ).toMatchObject({
+      craftingSkillLevel: 1,
+    });
+    expect(
+      result.search.documents.find(
+        (document) => document.id === alternateRecipe?.id,
+      )?.text,
+    ).toContain("training gem");
     expect(
       result.search.documents.find(
         (document) => document.id === "ability:measured strike",
@@ -7028,6 +7067,26 @@ describe("synthetic dataset import", () => {
         }),
       ],
     });
+    expect(syntheticGearPolishes).toHaveLength(2);
+    expect(alternateEncrustment).toMatchObject({
+      name: "Synthetic Gear Polish",
+      description: "A stable synthetic coating for training gloves.",
+      tool: "smithing",
+      skillLevel: 1,
+      slots: ["hands"],
+      instability: 3,
+      modifiers: [{ kind: "damage", sourceKey: "crushing", amount: 3 }],
+      inputs: [
+        expect.objectContaining({
+          itemName: "Brass Ingot",
+          amount: 1,
+          itemId: "item:brass ingot",
+        }),
+      ],
+    });
+    expect(alternateEncrustment?.id).toMatch(
+      /^encrustment:synthetic gear polish~/,
+    );
     expect(result.artifact.encrustmentInstabilityEffects).toEqual([
       expect.objectContaining({
         name: "Broken Mishap",
@@ -7147,6 +7206,7 @@ describe("synthetic dataset import", () => {
       spellIds: ["spell:clockwork echo"],
     });
     expect(encrustment?.inputs[1]?.itemId).toBeUndefined();
+    expect(clockworkBladeRecipes).toHaveLength(2);
     expect(recipe?.outputs[0]?.itemId).toBe(blade?.id);
     expect(recipe?.outputs).toEqual([
       expect.objectContaining({
@@ -7163,6 +7223,31 @@ describe("synthetic dataset import", () => {
     expect(
       recipe?.inputs.find((input) => input.itemName === "Missing Cog")?.itemId,
     ).toBe(undefined);
+    expect(alternateRecipe).toMatchObject({
+      name: "Clockwork Blade Recipe",
+      tool: "smithing",
+      inputs: [
+        expect.objectContaining({
+          itemName: "Training Gem",
+          amount: 1,
+          itemId: "item:training gem",
+        }),
+      ],
+      outputs: [
+        expect.objectContaining({
+          itemName: "Clockwork Blade",
+          amount: 1,
+          skillLevel: 1,
+          itemId: "item:clockwork blade",
+        }),
+      ],
+    });
+    expect(alternateRecipe?.id).toMatch(/^recipe:clockwork blade recipe~/);
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "independent_named_declaration",
+      ),
+    ).toHaveLength(2);
     expect(inheritedMonster).toMatchObject({
       taxonomy: "Animal",
       depth: 2,

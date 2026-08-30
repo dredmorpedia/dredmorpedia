@@ -115,6 +115,7 @@ export function RelationshipPreview({
       open={open}
     >
       <div
+        aria-label={previewName}
         className="recipe-relationship-primary recipe-preview-target"
         onPointerEnter={(event) => {
           if (event.pointerType === "mouse") {
@@ -126,6 +127,7 @@ export function RelationshipPreview({
             endMousePreview();
           }
         }}
+        role="group"
       >
         {children}
         <PopoverTrigger

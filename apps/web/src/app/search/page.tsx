@@ -39,7 +39,8 @@ export default function SearchPage() {
       }
     >
       <SearchExplorer
-        documents={search.documents}
+        datasetId={search.datasetId}
+        searchUrl="/search-data.json"
         sources={sources}
         stats={stats}
       />

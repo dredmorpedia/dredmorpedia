@@ -50,6 +50,26 @@ function craftingSkillLevelFor(entity: NormalizedEntity): number | null {
     : null;
 }
 
+function searchSummary(entity: NormalizedEntity): string {
+  if (entity.description.trim().length > 0) {
+    return entity.description;
+  }
+
+  if (entity.kind === "recipe") {
+    const inputs = entity.inputs.map((input) => input.itemName).join(" + ");
+    const outputs = [
+      ...new Set(entity.outputs.map((output) => output.itemName)),
+    ].join(" + ");
+    return inputs && outputs ? `${inputs} → ${outputs}` : "";
+  }
+
+  if (entity.kind === "encrustment" && entity.slots.length > 0) {
+    return `Applies to ${entity.slots.join(", ")}`;
+  }
+
+  return "";
+}
+
 export function statModifierSearchKey(
   modifier: Pick<StatModifier, "kind" | "sourceKey">,
 ): string {
@@ -223,6 +243,34 @@ export function createSearchDocument(
           buff.descriptions.map((description) => description.text ?? ""),
         )
       : []),
+    ...(entity.kind === "recipe"
+      ? [
+          entity.tool,
+          ...entity.inputs.flatMap((input) => [
+            input.itemName,
+            input.itemKey,
+            String(input.amount),
+          ]),
+          ...entity.outputs.flatMap((output) => [
+            output.itemName,
+            output.itemKey,
+            String(output.amount),
+            String(output.skillLevel),
+          ]),
+        ]
+      : []),
+    ...(entity.kind === "encrustment"
+      ? [
+          entity.tool,
+          ...entity.slots,
+          ...entity.inputs.flatMap((input) => [
+            input.itemName,
+            input.itemKey,
+            String(input.amount),
+          ]),
+          ...entity.powers.map((power) => power.name),
+        ]
+      : []),
     ...statText,
   ];
 
@@ -231,7 +279,7 @@ export function createSearchDocument(
     kind: entity.kind,
     name: entity.name,
     aliases,
-    summary: entity.description,
+    summary: searchSummary(entity),
     sourceId: entity.provenance.sourceId,
     category,
     statKeys,

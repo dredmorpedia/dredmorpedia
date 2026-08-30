@@ -19,6 +19,13 @@ Source manifest schema version `2` requires:
 
 Lower source precedence is processed first. A higher precedence replaces a lower candidate with the same entity kind and canonical key. Equal precedence is resolved by source ID, source file, and source location so the result never depends on input enumeration or asynchronous timing.
 
+Craft and Encrust declarations refine that rule under ADR 0007 because their
+source-visible names are not unique record identities. Differing normalized
+facts under one name receive deterministic semantic declaration identities
+before ordinary precedence resolution; fact-identical declarations continue to
+coalesce through this precedence contract. The declaration selected by the
+former name-keyed resolver retains the unsuffixed identity and route.
+
 Source kind `reference` identifies independently maintained project reference
 data rather than official game content, a mod, or a test fixture. It follows
 the same version, checksum, precedence, containment, provenance, and closed

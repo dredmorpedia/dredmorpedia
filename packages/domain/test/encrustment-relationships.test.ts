@@ -59,4 +59,22 @@ describe("item encrustment relationships", () => {
       { encrustment: { name: "Bright Polish" }, inputAmount: 1 },
     ]);
   });
+
+  it("keeps independent same-name declarations in item backlinks", () => {
+    const first = encrustment("Rocket Thrusters", ["item:iron ingot"]);
+    const second = {
+      ...first,
+      id: "encrustment:rocket thrusters~hands",
+      canonicalKey: "rocket thrusters~hands",
+      slug: "rocket-thrusters-hands",
+      slots: ["hands"],
+    };
+
+    expect(
+      itemEncrustmentRelationships([second, first], "item:iron ingot"),
+    ).toEqual([
+      { encrustment: first, inputAmount: 1 },
+      { encrustment: second, inputAmount: 1 },
+    ]);
+  });
 });

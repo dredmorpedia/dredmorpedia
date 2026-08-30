@@ -1,13 +1,13 @@
 # New PC and Codex handoff
 
-Updated: 2026-08-14
+Updated: 2026-08-30
 
 This is the durable handoff for moving Dredmorpedia to another computer or opening it in a new Codex task with no chat history. Canonical product and architecture documents remain authoritative; this guide summarizes the state needed to resume safely.
 
 ## Resume checklist for Codex
 
 1. Read `AGENTS.md` completely and follow it.
-2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0006.
+2. Read `PROJECT.md`, the dated repository audit, modernization proposal, roadmap, data/asset policy, and ADRs 0001–0007.
 3. Run `git status -sb`, `git log --oneline --decorate -5`, and `git remote -v` before changing anything.
 4. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit-legacy.ps1` to confirm the preserved baseline.
 5. Install the pinned workspace and run `pnpm generate:check` plus `pnpm check`. Run `pnpm test:e2e` when Chromium is installed.
@@ -27,21 +27,21 @@ A useful first prompt on the new machine is:
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
 - Dataset schema 3 separates normalized records from search schema 3; search documents carry ordered route aliases for project-owned zero-result spelling suggestions plus exact nullable recipe/encrustment source skill for the shared crafting filter. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and optional current/predecessor route registries. Route-registry schema 2 implements checksum-bound lineage, stable source-identity ownership, tombstones, reappearance, complete publication coverage, and atomic release failure. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, canonical stat facets for direct item/ability/spell/encrustment declarations, a combined recipe/encrustment scope with inclusive maximum source-skill filtering, reusable project-owned URL views, bounded user-selected typo recovery, and shareable up-to-three-item comparison, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana, root radius/wand/self/item-consumption, non-mana requirement, and buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/wall-sensing/payback/zorkmid-absorption/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling/Midas/created-object/dig-regeneration/buff-tag metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit and dodge buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
-- The current validation checkpoint passes 321 unit/artifact tests, all 80
+- The current validation checkpoint passes 328 unit/artifact tests, all 80
   desktop/mobile browser cases, deterministic official dataset and
-  presented-asset generation, and the complete 3,658-page local official
+  presented-asset generation, and the complete 3,731-page local official
   export. The ignored asset set covers item, skill, ability, root spell, and
   selected first-frame monster art plus three item-catalogue, 11 Encrust
   applicability, one Encrust instability, and 62 reviewed stat-icon identities;
   its schema-3 manifest binds the complete schema-2 catalog and declared UI ID
   set to the exact active artifact checksum. The canonical set contains 1,868
   mappings backed by 1,556 files with zero fallbacks. The official artifact
-  contains 2,830 searchable entities, including 62 project-authored stat
+  contains 2,892 searchable entities, including 62 project-authored stat
   definitions, and all 4,309 modifier declarations link to those definitions
   by exact selector. Search offers 61 used stat facets across 1,350 item,
   ability, spell, and encrustment records plus seven crafting-tool categories
-  across all 374 recipes. Search schema 3 also preserves exact source skill
-  across all 374 recipes and 57 encrustments; the shared crafting level-2 view
+  across all 435 recipe declarations under 374 displayed names. Search schema 3 also preserves exact source skill
+  across those declarations and all 58 encrustment declarations under 57 displayed names; the shared crafting level-2 view
   matches 165 records. Direct core navigation, `/tools/`, and the corrected
   31-category `/items/` catalogue provide preserved game order, compact and
   detailed category modes, static sort/page-size views, and verified imagery.
@@ -49,6 +49,9 @@ A useful first prompt on the new machine is:
   recipe output declarations into dependency steps and combined shopping lists
   at `/tools/crafting-graph/` and `/tools/encrusting-plan/`; all quantities and
   editable yield choices are stored as dataset-local, shareable URL state.
+  The verified search artifact is served separately at `/search-data.json`
+  after the small interactive shell hydrates; its loading failure is explicit,
+  and every accepted desktop/4x-CPU-mobile ADR 0003 budget passes.
   `/tools/item-compare/` preserves up to three ordered canonical items in URL
   state and keeps exact source fields, named stats, direct modifiers, and
   missing declarations distinct. The measured root spell audit is complete,
@@ -79,7 +82,7 @@ The local commits do not need to be pushed before transfer. A Git bundle include
 | Rebuild | Build the replacement from scratch; use legacy behavior and data rules as evidence, not as the target architecture. |
 | Coverage | Complete useful legacy functional/content coverage before the project becomes primarily an improvement effort. Vertical slices are delivery steps, not a reduction of the parity target. |
 | Official sources | Use `1.1.5 public_beta` with the base game and all three official expansions for the MVP. Keep mod support architecturally possible, but broad mod support is the lowest initial priority. Postpone a dataset-version switcher until a second complete, verified dataset exists. |
-| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001–0006 are Accepted within the local-only product boundary. |
+| Platform | Continue with the implemented pnpm/strict TypeScript spike, deterministic Node data pipeline, framework-independent domain layer, and Next.js App Router/React web app. ADRs 0001–0007 are Accepted within the local-only product boundary. |
 | Rendering/hosting | Start with static export and validate GitHub Pages as the leading free-hosting candidate without hard-coupling the project to it. |
 | Styling/components | Use Tailwind CSS plus project-owned design tokens and selectively copied shadcn/ui components backed by Base UI. Create a modern interface rather than copying the legacy design, while retaining enough game-inspired character that approved official icons/images do not look out of place. Add only components required by a product slice and treat their source as maintained web-layer code. |
 | Local assets | The first incremental, read-only slice copies referenced item PNG icons from captured source snapshots into an ignored, checksummed, managed output and renders them with a safe fallback. Extend it only for assets an implemented page presents; do not bulk-copy unrelated resources. |
@@ -124,8 +127,8 @@ Continue toward local parity without assuming permission to publish official con
    calculation is owner-approved and implemented under the exact legacy-facing
    name. Its evidence limits and possible future formula-verification work are
    in `docs/analysis/legacy-meta-required-armour-evidence-2026-08-11.md`.
-   The navigation/tooltip mechanics inventory is also complete: all 374 canonical
-   recipes expose one of seven normalized tool categories in shareable search,
+   The navigation/tooltip mechanics inventory is also complete: all 435 canonical
+   recipe declarations under 374 displayed names expose one of seven normalized tool categories in shareable search,
    and obsolete cloned-row hover/hash behavior is intentionally superseded.
    The navigation checkpoint, non-item art inventory, item/skill/ability/spell
    icons, first-frame monster art, and search filtering rework are complete.
@@ -142,7 +145,7 @@ Continue toward local parity without assuming permission to publish official con
    markers, manifest-declared gold/quality imagery, and verified stat icon/value
    links. Item details retain visible stat names beside the same icons, and stat
    headers reuse them with text fallback. The Craft catalogue
-   foundation has all 374 canonical recipes across seven familiar tool routes,
+   foundation has all 435 canonical recipe declarations under 374 displayed names across seven familiar tool routes,
    verified toolkit art, compact/detailed navigation, persisted display
    settings, a 36-recipe default plus 24/All views, and reusable summary cards.
    In Items and selected-tool Craft routes, the actual selected tab
@@ -152,7 +155,7 @@ Continue toward local parity without assuming permission to publish official con
    level footer. Whole-relationship mouse hover plus an icon-only
    focus/tap control now expose those cards while keeping direct links visible;
    toolkit art sits between ingredients and outputs in the preview. The
-   Encrust catalogue now groups all 57 canonical entries under five used
+   Encrust catalogue now groups all 58 canonical declarations under 57 displayed names and five used
    toolkits, defaults to a complete game-order tool group, offers persisted
    compact/detailed and optional static ordering/page-size views, and exposes
    ingredient art, exact applicability labels with verified blue schematic

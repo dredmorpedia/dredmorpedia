@@ -99,4 +99,32 @@ describe("item recipe relationships", () => {
       itemRecipeRelationships([unrelated], "item:clockwork blade"),
     ).toEqual([]);
   });
+
+  it("keeps independent same-name declarations in item backlinks", () => {
+    const itemId = "item:aqua vitae";
+    const first = recipe(
+      "Aqua Vitae Recipe",
+      [],
+      [
+        {
+          itemKey: "aqua vitae",
+          itemName: "Aqua Vitae",
+          amount: 1,
+          itemId,
+          skillLevel: 1,
+        },
+      ],
+    );
+    const second = {
+      ...first,
+      id: "recipe:aqua vitae recipe~alternative",
+      canonicalKey: "aqua vitae recipe~alternative",
+      slug: "aqua-vitae-recipe-alternative",
+    };
+
+    expect(itemRecipeRelationships([second, first], itemId)).toEqual([
+      { recipe: first, inputAmount: 0, outputs: first.outputs },
+      { recipe: second, inputAmount: 0, outputs: second.outputs },
+    ]);
+  });
 });

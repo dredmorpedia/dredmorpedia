@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <encrustDB>
+  <encrust id="synthetic-gear-polish-hands" name="Synthetic Gear Polish" hidden="0">
+    <description text="A stable synthetic coating for training gloves." />
+    <tool tag="smithing" />
+    <input name="Brass Ingot" />
+    <skill level="1" />
+    <slot type="hands" />
+    <instability amount="3" />
+    <damagebuff crushing="3" />
+    <encrustwith name="polished brass" />
+  </encrust>
   <encrust id="synthetic-gear-polish" name="Synthetic Gear Polish" hidden="0">
     <description text="A stable synthetic coating for training weapons." />
     <tool tag="smithing" />

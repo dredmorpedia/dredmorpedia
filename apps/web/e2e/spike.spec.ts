@@ -72,9 +72,18 @@ test.describe("static browse without JavaScript", () => {
     await expect(
       brassIngot.getByRole("heading", { level: 4, name: "Used to encrust" }),
     ).toBeVisible();
-    await expect(
-      brassIngot.getByRole("link", { name: "Synthetic Gear Polish" }),
-    ).toBeVisible();
+    const polishLinks = brassIngot.getByRole("link", {
+      name: "Synthetic Gear Polish",
+    });
+    await expect(polishLinks).toHaveCount(2);
+    await expect(polishLinks.nth(0)).toHaveAttribute(
+      "href",
+      "/encrustments/synthetic-gear-polish/",
+    );
+    await expect(polishLinks.nth(1)).toHaveAttribute(
+      "href",
+      "/encrustments/synthetic-gear-polish-0awvk27/",
+    );
     expect(
       await page.evaluate(
         () =>
@@ -105,7 +114,7 @@ test.describe("static browse without JavaScript", () => {
     ).toBeVisible();
 
     const smithing = tools.getByRole("link", {
-      name: "Training Smithing Kit, 1 recipe",
+      name: "Training Smithing Kit, 2 recipes",
     });
     await smithing.focus();
     await expect(smithing).toBeFocused();
@@ -119,7 +128,13 @@ test.describe("static browse without JavaScript", () => {
       }),
     ).toBeVisible();
     await expect(smithing).not.toHaveAttribute("data-floating", "");
-    const recipe = page.locator(".recipe-summary-card");
+    await expect(
+      page.getByText("Showing 1–2 of 2 recipes for Training Smithing Kit"),
+    ).toBeVisible();
+    await expect(page.locator(".recipe-summary-card")).toHaveCount(2);
+    const recipe = page.locator(".recipe-summary-card").filter({
+      has: page.locator('a[href="/recipes/clockwork-blade-recipe/"]'),
+    });
     await expect(
       recipe.getByRole("heading", {
         level: 3,
@@ -141,6 +156,15 @@ test.describe("static browse without JavaScript", () => {
       }),
     ).toHaveCount(0);
     await expect(recipe.getByText("Highest source skill")).toHaveCount(0);
+    const alternateRecipe = page.locator(".recipe-summary-card").filter({
+      has: page.locator('a[href="/recipes/clockwork-blade-recipe-1lr3vsc/"]'),
+    });
+    await expect(
+      alternateRecipe.getByText("Training Gem", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      alternateRecipe.getByText("Source level 1", { exact: true }),
+    ).toBeVisible();
     expect(
       await page.evaluate(
         () =>
@@ -160,16 +184,18 @@ test.describe("static browse without JavaScript", () => {
 
     const tools = page.getByRole("navigation", { name: "Encrusting tools" });
     const smithing = tools.getByRole("link", {
-      name: "Training Smithing Kit, 1 encrustment",
+      name: "Training Smithing Kit, 2 encrustments",
     });
     await expect(smithing).toHaveAttribute("aria-current", "page");
     await expect(smithing).toHaveAttribute("href", "/encrusts/tool/smithing/");
     await expect(
-      page.getByText("Showing 1–1 of 1 encrustment for Training Smithing Kit"),
+      page.getByText("Showing 1–2 of 2 encrustments for Training Smithing Kit"),
     ).toBeVisible();
 
-    const card = page.locator(".encrustment-summary-card");
-    await expect(card).toHaveCount(1);
+    await expect(page.locator(".encrustment-summary-card")).toHaveCount(2);
+    const card = page.locator(".encrustment-summary-card").filter({
+      has: page.locator('a[href="/encrustments/synthetic-gear-polish/"]'),
+    });
     await expect(
       card.getByRole("heading", { level: 3, name: "Synthetic Gear Polish" }),
     ).toBeVisible();
@@ -192,6 +218,14 @@ test.describe("static browse without JavaScript", () => {
     await expect(card.getByText("25%", { exact: true })).toBeVisible();
     await expect(card.getByText("polished brass")).toHaveCount(0);
     await expect(card.getByText("Training Smithing Kit")).toHaveCount(0);
+    const alternateCard = page.locator(".encrustment-summary-card").filter({
+      has: page.locator(
+        'a[href="/encrustments/synthetic-gear-polish-0awvk27/"]',
+      ),
+    });
+    await expect(
+      alternateCard.getByText("Hands", { exact: true }),
+    ).toBeVisible();
     expect(
       await page.evaluate(
         () =>
@@ -437,10 +471,10 @@ test("previews item crafting relationships without replacing direct navigation",
     }),
   ).toHaveCount(0);
   const craftedFromTrigger = itemCard.getByRole("button", {
-    name: "Preview Brass Ingot Recipe",
+    name: /^Preview Brass Ingot Recipe:/,
   });
   const craftedFromPreview = page.getByRole("dialog", {
-    name: "Recipe preview: Brass Ingot Recipe",
+    name: /^Recipe preview: Brass Ingot Recipe:/,
   });
   await expect(craftedFromTrigger).toBeVisible();
   await craftedFrom.locator(".recipe-preview-target").hover();
@@ -456,17 +490,20 @@ test("previews item crafting relationships without replacing direct navigation",
     itemCard.getByRole("link", { name: "Clockwork Blade", exact: true }),
   ).toHaveAttribute("href", "/items/clockwork-blade/");
 
-  const trigger = itemCard.getByRole("button", {
-    name: "Preview Clockwork Blade Recipe",
+  const clockworkRelationship = itemCard.getByRole("group", {
+    name: /^Clockwork Blade Recipe: 2 × Brass Ingot/,
+  });
+  const trigger = clockworkRelationship.getByRole("button", {
+    name: /^Preview Clockwork Blade Recipe: 2 × Brass Ingot/,
   });
   const hoverTarget = trigger.locator("..");
   const preview = page.getByRole("dialog", {
-    name: "Recipe preview: Clockwork Blade Recipe",
+    name: /^Recipe preview: Clockwork Blade Recipe: 2 × Brass Ingot/,
   });
   await expect(trigger).toHaveText("");
   await expect(trigger).toHaveAttribute(
     "title",
-    "Preview Clockwork Blade Recipe",
+    /Preview Clockwork Blade Recipe: 2 × Brass Ingot/,
   );
 
   await trigger.focus();
@@ -484,10 +521,14 @@ test("previews item crafting relationships without replacing direct navigation",
   await expect(tool).toHaveAttribute("title", "Training Smithing Kit");
   await expect(preview.getByText("Training Smithing Kit")).toHaveCount(0);
   await expect(preview.locator(".recipe-summary-method > *")).toHaveCount(3);
-  await expect(preview.getByText("2 × Brass Ingot")).toBeVisible();
+  await expect(
+    preview.getByText("2 × Brass Ingot", { exact: true }),
+  ).toBeVisible();
   await expect(preview.getByText("Missing Cog", { exact: true })).toBeVisible();
   await expect(preview.getByText("1 × Missing Cog")).toHaveCount(0);
-  await expect(preview.getByText("Source level 4")).toBeVisible();
+  await expect(
+    preview.getByText("Source level 4", { exact: true }),
+  ).toBeVisible();
   await expect(
     preview.getByRole("link", { name: "Full recipe details" }),
   ).toHaveAttribute("href", "/recipes/clockwork-blade-recipe/");
@@ -521,17 +562,20 @@ test("previews an item encrusting relationship with accessible focus", async ({
 }) => {
   await page.goto("/items/category/material/1/");
   const itemCard = page.locator(".item-summary-card");
+  const polishRelationship = itemCard.locator(
+    '.recipe-preview-target:has(a[href="/encrustments/synthetic-gear-polish/"])',
+  );
   await expect(
-    itemCard.getByRole("link", {
+    polishRelationship.getByRole("link", {
       name: "Synthetic Gear Polish",
       exact: true,
     }),
   ).toHaveAttribute("href", "/encrustments/synthetic-gear-polish/");
-  const encrustmentTrigger = itemCard.getByRole("button", {
-    name: "Preview Synthetic Gear Polish",
+  const encrustmentTrigger = polishRelationship.getByRole("button", {
+    name: /^Preview Synthetic Gear Polish: Brass Ingot, Missing Polish/,
   });
   const encrustmentPreview = page.getByRole("dialog", {
-    name: "Encrustment preview: Synthetic Gear Polish",
+    name: /^Encrustment preview: Synthetic Gear Polish: Brass Ingot, Missing Polish/,
   });
   await encrustmentTrigger.focus();
   await expect(encrustmentPreview).toBeVisible();
@@ -1055,6 +1099,8 @@ test("searches reference entities with shareable structured filters", async ({
   await page
     .getByRole("option", { name: "Recipes", exact: true })
     .press("Enter");
+  await expect(page).toHaveURL(/kind=recipe/);
+  await expect(type).toHaveAttribute("aria-expanded", "false");
   await category.focus();
   await category.press("Enter");
   await page
@@ -1062,10 +1108,10 @@ test("searches reference entities with shareable structured filters", async ({
     .press("Enter");
   await expect(page).toHaveURL(/kind=recipe/);
   await expect(page).toHaveURL(/category=smithing/);
-  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(page.getByText("2 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Clockwork Blade Recipe" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
@@ -1077,13 +1123,13 @@ test("searches reference entities with shareable structured filters", async ({
     .getByRole("option", { name: "Crushing damage", exact: true })
     .press("Enter");
   await expect(page).toHaveURL(/stat=modifier%3Adamage%3Acrushing/);
-  await expect(page.getByText("4 matching records")).toBeVisible();
+  await expect(page.getByText("5 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Clockwork Blade" }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Synthetic Gear Polish" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
   await expect(
     page.getByRole("link", { name: "Measured Strike" }),
   ).toBeVisible();
@@ -1179,16 +1225,16 @@ test("reuses a cross-list crafting view and filters maximum source skill", async
 
   await expect(page).toHaveURL(/kind=crafting/);
   await expect(page).toHaveURL(/maxSkill=2/);
-  await expect(page.getByText("2 matching records")).toBeVisible();
+  await expect(page.getByText("4 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Brass Ingot Recipe" }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Synthetic Gear Polish" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
   await expect(
     page.getByRole("link", { name: "Clockwork Blade Recipe" }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
 
   const skill = page.getByRole("combobox", {
     name: "Maximum source skill",
@@ -1200,10 +1246,16 @@ test("reuses a cross-list crafting view and filters maximum source skill", async
     .getByRole("option", { name: "Level 1 or lower", exact: true })
     .press("Enter");
   await expect(page).toHaveURL(/maxSkill=1/);
-  await expect(page.getByText("1 matching record")).toBeVisible();
+  await expect(page.getByText("3 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Brass Ingot Recipe" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Synthetic Gear Polish" }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("link", { name: "Clockwork Blade Recipe" }),
+  ).toHaveCount(1);
 
   const type = page.getByRole("combobox", { name: "Entity type" });
   await type.focus();
@@ -1364,7 +1416,7 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 3, name: "Used to encrust" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Synthetic Gear Polish" }).click();
+  await page.locator('a[href="/encrustments/synthetic-gear-polish/"]').click();
   await expect(page).toHaveURL(/\/encrustments\/synthetic-gear-polish\/$/);
   await expect(
     page.getByRole("heading", { level: 1, name: "Synthetic Gear Polish" }),
@@ -1414,7 +1466,7 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   await expect(page.getByText("Unresolved item")).toBeVisible();
   await page.getByRole("link", { name: "Brass Ingot" }).click();
   await expect(page).toHaveURL(/\/items\/brass-ingot\/$/);
-  await page.getByRole("link", { name: "Clockwork Blade Recipe" }).click();
+  await page.locator('a[href="/recipes/clockwork-blade-recipe/"]').click();
   await expect(page).toHaveURL(/\/recipes\/clockwork-blade-recipe\/$/);
   await expect(
     page.getByRole("heading", { level: 1, name: "Clockwork Blade Recipe" }),
@@ -1439,7 +1491,7 @@ test("follows item, recipe, and encrustment backlinks", async ({ page }) => {
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Clockwork Blade Recipe" }),
-  ).toBeVisible();
+  ).toHaveCount(2);
 });
 
 test("builds and restores a shareable recursive crafting plan", async ({
@@ -2061,9 +2113,9 @@ test("shows toolkit metadata and navigates crafting tool relationships", async (
       name: "Crafted with this toolkit",
     }),
   ).toBeVisible();
-  const recipeLink = craftingRelationships.getByRole("link", {
-    name: "Clockwork Blade Recipe",
-  });
+  const recipeLink = craftingRelationships.locator(
+    'a[href="/recipes/clockwork-blade-recipe/"]',
+  );
   await recipeLink.focus();
   await expect(recipeLink).toBeFocused();
   await recipeLink.press("Enter");
@@ -2077,7 +2129,7 @@ test("shows toolkit metadata and navigates crafting tool relationships", async (
   await page.goto("/items/training-smithing-kit/");
   const encrustmentLink = page
     .getByRole("region", { name: "Encrusting relationships" })
-    .getByRole("link", { name: "Synthetic Gear Polish" });
+    .locator('a[href="/encrustments/synthetic-gear-polish/"]');
   await expect(encrustmentLink).toBeVisible();
   await encrustmentLink.click();
   await expect(page).toHaveURL(/\/encrustments\/synthetic-gear-polish\/$/);

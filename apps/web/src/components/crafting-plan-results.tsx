@@ -7,11 +7,7 @@ import {
   type CraftingRequirementsPlan,
 } from "@dredmorpedia/domain";
 
-function choiceLabel(
-  option: CraftingRequirementsPlan["choices"][number]["options"][number],
-): string {
-  return `${option.output.amount} per craft at source skill ${option.output.skillLevel} — ${option.recipe.name}`;
-}
+import { craftingChoiceLabel } from "@/lib/crafting-choice-label";
 
 export function CraftingPlanResults({
   plan,
@@ -83,7 +79,7 @@ export function CraftingPlanResults({
                   <option value="">Choose a source yield</option>
                   {choice.options.map((option) => (
                     <option key={option.key} value={option.key}>
-                      {choiceLabel(option)}
+                      {craftingChoiceLabel(option, choice.options)}
                     </option>
                   ))}
                 </select>

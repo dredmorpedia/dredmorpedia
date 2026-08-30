@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import {
+  encrustmentSummaryAccessibleName,
   EncrustmentSummaryCard,
   type EncrustmentSummaryData,
 } from "@/components/encrustment-summary-card";
@@ -15,11 +16,12 @@ export function EncrustmentPreview({
   children: ReactNode;
   summary: EncrustmentSummaryData;
 }) {
+  const accessibleName = encrustmentSummaryAccessibleName(summary);
   return (
     <RelationshipPreview
       preview={<EncrustmentSummaryCard summary={summary} variant="preview" />}
-      previewName={summary.name}
-      previewTitle={`Encrustment preview: ${summary.name}`}
+      previewName={accessibleName}
+      previewTitle={`Encrustment preview: ${accessibleName}`}
     >
       {children}
     </RelationshipPreview>

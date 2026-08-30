@@ -127,6 +127,45 @@ describe("crafting dependency plans", () => {
     expect(selected.baseRequirements).toEqual([{ item: ore, amount: 2 }]);
   });
 
+  it("keeps independent same-name recipe declarations as source choices", () => {
+    const target = item("Aqua Vitae");
+    const brandy = item("Brandy");
+    const nightCap = item("Night Cap");
+    const fromBrandy = recipe(
+      "Aqua Vitae Recipe",
+      [input(brandy, 1)],
+      [output(target, 1, 1)],
+    );
+    const fromNightCap = {
+      ...recipe(
+        "Aqua Vitae Recipe",
+        [input(nightCap, 1)],
+        [output(target, 1, 1)],
+      ),
+      id: "recipe:aqua vitae recipe~night-cap",
+      canonicalKey: "aqua vitae recipe~night-cap",
+      slug: "aqua-vitae-recipe-night-cap",
+    };
+
+    const options = craftingOutputOptions(
+      [fromNightCap, fromBrandy],
+      target.id,
+    );
+    expect(options).toHaveLength(2);
+    expect(options.map((option) => option.recipe.inputs[0]?.itemName)).toEqual([
+      "Brandy",
+      "Night Cap",
+    ]);
+
+    const plan = createCraftingPlan(
+      [target, brandy, nightCap],
+      [fromNightCap, fromBrandy],
+      target.id,
+      1,
+    );
+    expect(plan.choices[0]?.options).toHaveLength(2);
+  });
+
   it("retains and totals unresolved source ingredients", () => {
     const target = item("Target");
     const targetRecipe = recipe(

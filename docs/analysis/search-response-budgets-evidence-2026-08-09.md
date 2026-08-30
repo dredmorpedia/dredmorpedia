@@ -2,7 +2,7 @@
 
 Date: 2026-08-09
 
-Updated: 2026-08-11 (search serialization and recipe-tool navigation)
+Updated: 2026-08-30 (separate static search delivery)
 
 ## Decision scope
 
@@ -135,6 +135,38 @@ and 0.05 ms filtered queries; and 2.38 ms for the suggestion path.
 
 The change and the full preserved-navigation classification are recorded in
 `docs/analysis/legacy-navigation-and-tooltip-parity-2026-08-11.md`.
+
+## 2026-08-30 separate static delivery
+
+Complete same-name Craft and Encrust declarations plus their distinguishing
+search facts grew the canonical payload to 2,892 documents and 1,376,792
+bytes. The transfer, parse, domain-query, and suggestion budgets still passed,
+but embedding the full payload as a React client-component prop made the 4x-CPU
+mobile exact-interaction p95 reproduce at 260–269 ms against the accepted
+200 ms ceiling.
+
+The verified artifact is now emitted as the static `/search-data.json` route
+and fetched after the small search shell hydrates. The build still parses it,
+proves exact derivation from the normalized artifact, verifies its manifest
+checksum, and fails on a dataset mismatch. The client exposes a loading state
+and a visible failure state. This changes delivery only; query behavior,
+ranking, filters, URL state, and the accepted budgets are unchanged.
+
+| Artifact measurement | Current result |
+| -------------------- | -------------: |
+| Documents            |          2,892 |
+| Uncompressed         |    1,376,792 B |
+| Gzip level 9         |      217,066 B |
+| Brotli quality 11    |      158,074 B |
+| JSON parse           |    1.92 ms p95 |
+
+| Browser profile                  | Navigation to first result | Exact interaction | Suggestion interaction |
+| -------------------------------- | -------------------------: | ----------------: | ---------------------: |
+| Desktop Chromium                 |              132.65 ms p95 |      17.20 ms p95 |           18.40 ms p95 |
+| Pixel 7 profile, 4x CPU slowdown |              827.45 ms p95 |     167.40 ms p95 |          145.40 ms p95 |
+
+All accepted ceilings pass without weakening a budget or adding a search
+library/worker.
 
 ## Relevance examples
 

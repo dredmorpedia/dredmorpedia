@@ -24,6 +24,23 @@ export interface RecipeSummaryData {
   toolLabel: string;
 }
 
+function recipeReferenceLabel(reference: RecipeSummaryReference): string {
+  const amount = reference.amount === 1 ? "" : `${reference.amount} × `;
+  const level =
+    reference.skillLevel !== null && reference.skillLevel > 0
+      ? ` at source level ${reference.skillLevel}`
+      : "";
+  return `${amount}${reference.itemName}${level}`;
+}
+
+export function recipeSummaryAccessibleName(
+  summary: RecipeSummaryData,
+): string {
+  const inputs = summary.inputs.map(recipeReferenceLabel).join(", ");
+  const outputs = summary.outputs.map(recipeReferenceLabel).join(", ");
+  return `${summary.name}: ${inputs || "no declared ingredients"} to ${outputs || "no declared outputs"}`;
+}
+
 export function RecipeSummaryCard({
   showTool = true,
   summary,
@@ -36,7 +53,7 @@ export function RecipeSummaryCard({
   const referenceLimit = variant === "preview" ? 4 : undefined;
   return (
     <article
-      aria-label={`${summary.name} summary`}
+      aria-label={`${recipeSummaryAccessibleName(summary)} summary`}
       className="recipe-summary-card"
       data-variant={variant}
     >
@@ -69,14 +86,14 @@ export function RecipeSummaryCard({
       ) : null}
 
       <div className="recipe-summary-flow">
-        <section aria-label="Ingredients">
+        <div>
           <h4>Ingredients</h4>
           <CatalogueItemReferenceList
             limit={referenceLimit}
             overflowNoun="ingredient"
             references={summary.inputs}
           />
-        </section>
+        </div>
         <div className="recipe-summary-method">
           <span aria-hidden="true" className="recipe-summary-arrow">
             →
@@ -94,7 +111,7 @@ export function RecipeSummaryCard({
             </span>
           ) : null}
         </div>
-        <section aria-label="Outputs by source level">
+        <div>
           <h4>Outputs by source level</h4>
           <CatalogueItemReferenceList
             limit={referenceLimit}
@@ -103,7 +120,7 @@ export function RecipeSummaryCard({
             references={summary.outputs}
             sourceStats={summary.sourceStats}
           />
-        </section>
+        </div>
       </div>
 
       <footer className="recipe-summary-footer">
