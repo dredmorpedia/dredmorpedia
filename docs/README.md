@@ -4,6 +4,7 @@ This directory is the durable memory for the Dredmorpedia rebuild.
 
 ## Orientation
 
+- [`analysis/item-wand-charge-catalogue-evidence-2026-08-30.md`](analysis/item-wand-charge-catalogue-evidence-2026-08-30.md) — complete player-facing catalogue summaries for all 21 exact wand charge ranges without inferred charge behavior.
 - [`analysis/repeated-crafting-declaration-parity-2026-08-30.md`](analysis/repeated-crafting-declaration-parity-2026-08-30.md) — restoration of all 435 Craft and 58 Encrust declarations, deterministic same-name identities, complete relationships/search/planner coverage, and preserved clean routes.
 - [`analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md`](analysis/dataset-health-and-source-decisions-evidence-2026-08-09.md) — active-dataset sources, grouped diagnostics, linked override/patch decisions, canonical measurements, and the sanitized local-only boundary.
 - [`analysis/stat-reference-catalog-evidence-2026-08-09.md`](analysis/stat-reference-catalog-evidence-2026-08-09.md) — project-authored stat names/categories, exact modifier-selector linking, versioned provenance, canonical coverage, and the explicit no-formula boundary.

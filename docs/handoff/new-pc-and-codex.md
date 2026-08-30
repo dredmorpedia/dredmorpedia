@@ -27,7 +27,7 @@ A useful first prompt on the new machine is:
 - The transfer-handoff commit containing this document follows those commits. Use `git log` rather than relying on this document for its own hash.
 - The modern workspace contains `apps/web`, `packages/domain`, `packages/data-pipeline`, and `fixtures/synthetic`. Tracked tests and public preview content use only independently authored fixtures.
 - Dataset schema 3 separates normalized records from search schema 3; search documents carry ordered route aliases for project-owned zero-result spelling suggestions plus exact nullable recipe/encrustment source skill for the shared crafting filter. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and optional current/predecessor route registries. Route-registry schema 2 implements checksum-bound lineage, stable source-identity ownership, tombstones, reappearance, complete publication coverage, and atomic release failure. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, canonical stat facets for direct item/ability/spell/encrustment declarations, a combined recipe/encrustment scope with inclusive maximum source-skill filtering, reusable project-owned URL views, bounded user-selected typo recovery, and shareable up-to-three-item comparison, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana, root radius/wand/self/item-consumption, non-mana requirement, and buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/wall-sensing/payback/zorkmid-absorption/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling/Midas/created-object/dig-regeneration/buff-tag metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit and dodge buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
-- The current validation checkpoint passes 328 unit/artifact tests, all 80
+- The current validation checkpoint passes 330 unit/artifact tests, all 80
   desktop/mobile browser cases, deterministic official dataset and
   presented-asset generation, and the complete 3,731-page local official
   export. The ignored asset set covers item, skill, ability, root spell, and
@@ -179,8 +179,9 @@ Continue toward local parity without assuming permission to publish official con
    armour random-stat declarations use their own final row. The 20 positive
    floor-target flags appear without the unsupported recoverability inference.
    All stat/modifier entries remain visible by default, including the 35
-   official items with more than six entries. Finish the remaining reviewed wand-charge summary
-   gap next. The preserved orphaned
+   official items with more than six entries. All 21 exact wand charge ranges
+   now appear directly on catalogue cards without inferred consumption or
+   recharge behavior. The preserved orphaned
    output `x` is not reproduced. Image-led Skills and Abilities follow.
    Hidden/expansion iconography and bounded build planning are postponed. See
    `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
@@ -598,8 +599,8 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
   to direct, image-led parity catalogues. The completed Items slice has its
   owner-reviewed display polish, and the Craft and Encrust catalogue
   foundations now group all canonical records by familiar tool. Accessible
-  item-relationship recipe previews are complete; image-led Skills and
-  Abilities are next. A bounded build-planning model is
+  item-relationship recipe previews and exact wand-charge summaries are
+  complete; image-led Skills and Abilities are next. A bounded build-planning model is
   postponed. Extra
   technical-detail presentation remains a page-specific polish decision.
 - Technical feasibility of live progress tracking, deliberately deferred.

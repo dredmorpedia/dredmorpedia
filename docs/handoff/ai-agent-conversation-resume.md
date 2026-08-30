@@ -18,7 +18,7 @@ Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conve
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
 - Node is pinned by `.node-version` to `24.18.0`; the workspace uses pnpm through Corepack. On Windows, use `pnpm.cmd` when needed.
 - Development runs on `http://localhost:3001/`.
-- The latest validation checkpoint passes 328 unit/artifact tests, all 80
+- The latest validation checkpoint passes 330 unit/artifact tests, all 80
   desktop/mobile browser cases, deterministic official generation, the
   3,731-page official static export, and every accepted search budget. The
   2,892-document verified search artifact loads separately from
@@ -284,13 +284,14 @@ for damage, resistance, primary, then secondary; the three non-zero random-stat
 declarations use their own final row. The 20 positive floor-target
 flags appear without the preserved recoverability inference. All stat/modifier
 entries remain visible by default, including the 35 official items with more
-than six entries. Finish the remaining wand-charge summary gap before moving
-to image-led Skills and Abilities.
+than six entries. All 21 exact wand charge ranges now appear directly on
+catalogue cards without inferring consumption or recharge behavior.
 The preserved orphaned output `x` is omitted as a template defect. Image-led
 Skills and Abilities follow; Hidden and expansion
 iconography remain later card polish. Keep `legacy/` until complete parity
 evidence and a separate archival decision. Current tool evidence is in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`,
+`docs/analysis/item-wand-charge-catalogue-evidence-2026-08-30.md`,
 `docs/analysis/encrust-catalogue-evidence-2026-08-24.md`,
 `docs/analysis/crafting-dependency-planner-evidence-2026-08-14.md`,
 `docs/analysis/encrustment-dependency-planner-evidence-2026-08-14.md`,
@@ -350,8 +351,10 @@ The bounded 36-item canonical pages
 remain fully server rendered, while the largest 54-item category can opt into
 All. The Craft and Encrust catalogue foundations plus accessible item-
 relationship recipe/encrustment previews and complete native overflow
-disclosure are complete; image-led Skills and Abilities are next. Evidence is in
-`docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
+disclosure plus the 21 exact wand-charge catalogue summaries are complete;
+image-led Skills and Abilities are next. Evidence is in
+`docs/analysis/legacy-experience-parity-review-2026-08-15.md` and
+`docs/analysis/item-wand-charge-catalogue-evidence-2026-08-30.md`.
 
 The first rich cross-list filtering slice combines all 435 canonical recipe declarations
 and 58 encrustment declarations under one search scope and applies an inclusive maximum

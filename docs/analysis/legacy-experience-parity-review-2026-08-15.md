@@ -111,9 +111,7 @@ quality order.
 A 2026-08-25 comparison of every branch in `legacy/js/item.js` against the
 official normalized dataset found that the modern detail routes already retain
 the source facts used by the preserved item table. The card-level presentation
-review found four narrower gaps.
-
-Three are now closed:
+review found four narrower gaps. All four are now closed:
 
 - catalogue modifiers reproduce the preserved semantic row order—damage,
   resistance, primary, then secondary—while retaining natural overflow wrapping
@@ -126,19 +124,20 @@ Three are now closed:
   and
 - all 35 official items with more than six combined named stats and direct
   modifiers show their complete stat block by default. An owner review rejected
-  the bounded disclosure because these values are important comparison data.
-
-One reviewed gap remains:
-
-- the 21 wand records keep their exact minimum/maximum charge range on detail
-  pages, but catalogue cards do not yet show the preserved player-facing
-  `x–y charges` summary.
+  the bounded disclosure because these values are important comparison data;
+  and
+- all 21 wand charge declarations retain their exact minimum/maximum values on
+  detail pages and now add the concise player-facing `x–y charges` summary to
+  catalogue cards without inferring charge-use behavior.
 
 Price, quality, Artifact quality, health/mana recovery, trap quality and cast
 spell, item/spell triggers, direct stats, craft inputs/outputs, description,
 category context, icon, and source identity are otherwise represented on the
 catalogue or its maintained relationship previews. The modern **Used to
 encrust** relationship is an intentional addition.
+
+The item-card parity checkpoint is complete. Detailed wand-summary evidence is
+in `item-wand-charge-catalogue-evidence-2026-08-30.md`.
 
 ## Craft catalogue foundation
 
@@ -270,8 +269,8 @@ this work as advanced and completeness-oriented fallbacks.
 
 ## Validation
 
-- `pnpm check` passes formatting, lint, type checking, all 321 workspace tests,
-  deterministic generation, and the 240-page synthetic static export.
+- `pnpm check` passes formatting, lint, type checking, all 330 workspace tests,
+  deterministic generation, and the 245-page synthetic static export.
 - Focused domain, pipeline, and web tests cover deterministic game order,
   alternative orders, static view paths, source markers, preference controls,
   and schema-bound interface icons.
@@ -296,7 +295,7 @@ this work as advanced and completeness-oriented fallbacks.
   resolve to verified local icon assets; catalogue modifiers retain accessible
   names and titles while using the compact image-led presentation.
 - `pnpm build:official` passes deterministic zero-error generation and the
-  complete 3,658-page local static export with all canonical and optional
+  complete 3,731-page local static export with all canonical and optional
   catalogue view routes.
 - The Craft foundation's focused unit tests cover familiar/fallback tool order,
   toolkit names and representatives, route collisions, and source/XML recipe
@@ -332,3 +331,7 @@ this work as advanced and completeness-oriented fallbacks.
   declaration reaches catalogues, relationships, search, and planners, and
   otherwise-identical planner labels add ingredient context. Evidence is in
   `repeated-crafting-declaration-parity-2026-08-30.md`.
+- The final item-card correction renders all 21 exact official wand charge
+  ranges, while the undeclared synthetic counterpart proves that no row is
+  fabricated. Evidence is in
+  `item-wand-charge-catalogue-evidence-2026-08-30.md`.

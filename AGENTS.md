@@ -223,8 +223,9 @@ Read these files before making a substantial change:
   own final row inside the same catalogue stat block. The 20 positive direct
   floor-target flags appear without the legacy recoverability inference. All
   stat/modifier entries remain visible by default, including the 35 official
-  items with more than six entries; do not restore a card-level stat cap. Wand charge
-  ranges are the remaining reviewed item-card gap.
+  items with more than six entries; do not restore a card-level stat cap. All
+  21 exact wand charge ranges now appear on catalogue cards without inferring
+  consumption or recharge behavior.
   Recipe output tiers and encrustment requirements use the preserved
   tool-to-stat icon mapping beside each exact source level; dual-stat tools
   show both identities without an inferred AND/OR or eligibility rule. The Craft catalogue

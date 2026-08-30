@@ -1946,6 +1946,26 @@ test("shows item recovery and wand charge source values", async ({ page }) => {
   await expect(grogUse.getByText("Mana", { exact: true })).toBeVisible();
   await expect(grogUse.getByText("8", { exact: true })).toBeVisible();
 
+  await page.goto("/items/category/wand/1/");
+  const chargedWandCard = page
+    .locator(".item-summary-card")
+    .filter({ hasText: "Training Wand +1" });
+  const chargedWandFacts = chargedWandCard.locator(".item-summary-facts");
+  await expect(
+    chargedWandFacts.getByText("Wand", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    chargedWandFacts.getByText("2–4 charges", { exact: true }),
+  ).toBeVisible();
+  const undeclaredWandCard = page
+    .locator(".item-summary-card")
+    .filter({ hasText: "Training Wand 1" });
+  await expect(
+    undeclaredWandCard
+      .locator(".item-summary-facts")
+      .getByText("Wand", { exact: true }),
+  ).toHaveCount(0);
+
   await page.goto("/items/training-wand-1/");
   const wandUse = page.getByRole("region", { name: "Use metadata" });
   await expect(

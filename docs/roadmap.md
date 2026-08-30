@@ -543,11 +543,11 @@ grouping are part of useful parity, while advanced Search and differentiating
 tools remain additions. The first corrected slice implements direct core
 navigation, a separate Tools directory, and the category-first Items
 catalogue. The owner-reviewed Items polish plus the Craft and Encrust catalogue
-foundations are complete, including progressively floating selected
+foundations and the final reviewed item-card gap are complete, including progressively floating selected
 category/tool tabs, accessible recipe and encrustment previews from item
 relationships, complete in-place relationship disclosure, and toolkit-grouped
-encrustment summaries. Finish the remaining reopened item-card finding below, then
-continue with image-led Skills and Abilities before returning to new Phase 5
+encrustment summaries plus exact wand-charge summaries. Continue with image-led
+Skills and Abilities before returning to new Phase 5
 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
@@ -592,8 +592,10 @@ names. Toolkit art sits between ingredients and outputs as the recipe
 transformation; Hidden and expansion iconography remain a later card-polish
 decision.
 
-The remaining reviewed Items work before Skills/Abilities is the player-facing
-summary of all 21 exact wand charge ranges on catalogue cards.
+The final reviewed Items gap is closed: all 21 exact wand charge ranges now
+appear on catalogue cards with no inferred consumption or recharge behavior.
+Evidence is in
+`docs/analysis/item-wand-charge-catalogue-evidence-2026-08-30.md`.
 
 Encrust parity now groups all 58 canonical declarations under 57 displayed names and the five toolkits used
 by the active dataset in preserved familiar order. It reuses verified toolkit

@@ -49,6 +49,7 @@ import {
 } from "@/lib/recipe-summary";
 import { sourceMarker } from "@/lib/source-markers";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
+import { wandChargeRangesSummary } from "@/lib/wand-charge-summary";
 
 interface ItemCataloguePageProps {
   categorySegment?: string;
@@ -315,6 +316,12 @@ function ItemSummaryCard({
               </dd>
             </div>
           ))}
+          {item.chargeRanges.length > 0 ? (
+            <div>
+              <dt>Wand</dt>
+              <dd>{wandChargeRangesSummary(item.chargeRanges)}</dd>
+            </div>
+          ) : null}
           {canTargetFloor ? (
             <div>
               <dt>Targeting</dt>
