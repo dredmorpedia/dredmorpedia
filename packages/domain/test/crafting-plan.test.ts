@@ -212,4 +212,66 @@ describe("crafting dependency plans", () => {
       /positive integer/,
     );
   });
+
+  it("retains nested selected cycle choices without calculated amounts and can recover", () => {
+    const first = item("First");
+    const second = item("Second");
+    const ore = item("Ore");
+    const recipes = [
+      recipe("First Loop", [input(second, 1)], [output(first, 1, 0)]),
+      recipe("First Base", [input(ore, 3)], [output(first, 1, 0)]),
+      recipe("Second Loop", [input(first, 1)], [output(second, 1, 0)]),
+      recipe("Second Base", [input(ore, 2)], [output(second, 1, 0)]),
+    ];
+    const selections = new Map([
+      [first.id, `${recipes[0]!.id}#0`],
+      [second.id, `${recipes[2]!.id}#0`],
+    ]);
+    const plan = createCraftingPlan(
+      [first, second, ore],
+      recipes,
+      first.id,
+      3,
+      selections,
+    );
+
+    expect(plan.complete).toBe(false);
+    expect(plan.cycles[0]?.items).toEqual([first, second, first]);
+    expect(
+      plan.selectedChoices.map((choice) => ({
+        id: choice.item.id,
+        amount: choice.requiredAmount,
+        key: choice.selected.key,
+      })),
+    ).toEqual([
+      { id: first.id, amount: null, key: selections.get(first.id) },
+      { id: second.id, amount: null, key: selections.get(second.id) },
+    ]);
+    expect(plan.steps).toEqual([]);
+    expect(plan.baseRequirements).toEqual([]);
+    expect(plan.unresolvedRequirements).toEqual([]);
+    expect(
+      createCraftingPlan(
+        [ore, second, first],
+        [...recipes].reverse(),
+        first.id,
+        3,
+        selections,
+      ),
+    ).toEqual(plan);
+
+    const recovered = createCraftingPlan(
+      [first, second, ore],
+      recipes,
+      first.id,
+      3,
+      new Map([...selections, [second.id, `${recipes[3]!.id}#0`]]),
+    );
+    expect(recovered.complete).toBe(true);
+    expect(recovered.cycles).toEqual([]);
+    expect(
+      recovered.selectedChoices.map((choice) => choice.requiredAmount),
+    ).toEqual([3, 3]);
+    expect(recovered.baseRequirements).toEqual([{ item: ore, amount: 6 }]);
+  });
 });

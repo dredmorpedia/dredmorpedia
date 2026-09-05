@@ -6435,7 +6435,7 @@ describe("synthetic dataset import", () => {
     );
 
     expect(result.artifact.entities.items).toHaveLength(14);
-    expect(result.artifact.entities.recipes).toHaveLength(3);
+    expect(result.artifact.entities.recipes).toHaveLength(4);
     expect(result.artifact.entities.encrustments).toHaveLength(2);
     expect(result.artifact.entities.skills).toHaveLength(1);
     expect(result.artifact.entities.abilities).toHaveLength(2);
@@ -6688,7 +6688,7 @@ describe("synthetic dataset import", () => {
         }),
       ]),
     );
-    expect(result.search.documents).toHaveLength(29);
+    expect(result.search.documents).toHaveLength(30);
     expect(result.search).toMatchObject({
       schemaVersion: 3,
       datasetSchemaVersion: 3,

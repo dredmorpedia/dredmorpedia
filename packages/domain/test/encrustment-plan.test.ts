@@ -180,4 +180,88 @@ describe("encrustment dependency plans", () => {
       /positive integer/,
     );
   });
+
+  it("retains reachable selected and pending choices across cyclic application ingredients", () => {
+    const loop = item("Loop");
+    const pending = item("Pending");
+    const selected = item("Selected");
+    const unused = item("Unused");
+    const ore = item("Ore");
+    const recipes = [
+      recipe("Loop Recipe", [input(loop, 1)], [output(loop, 1)]),
+      recipe("Loop Base", [input(ore, 1)], [output(loop, 1)]),
+      recipe(
+        "Pending Recipe",
+        [input(ore, 1)],
+        [output(pending, 1), output(pending, 2)],
+      ),
+      recipe(
+        "Selected Recipe",
+        [input(ore, 1)],
+        [output(selected, 1), output(selected, 2)],
+      ),
+      recipe(
+        "Unused Recipe",
+        [input(ore, 1)],
+        [output(unused, 1), output(unused, 2)],
+      ),
+    ];
+    const items = [loop, pending, selected, unused, ore];
+    const selections = new Map([
+      [loop.id, `${recipes[0]!.id}#0`],
+      [selected.id, `${recipes[3]!.id}#1`],
+      [unused.id, `${recipes[4]!.id}#1`],
+    ]);
+    const definition = encrustment([
+      input(loop, 2),
+      input(pending, 1),
+      input(selected, 1),
+    ]);
+    const plan = createEncrustmentPlan(
+      items,
+      recipes,
+      definition,
+      3,
+      selections,
+    );
+
+    expect(plan.complete).toBe(false);
+    expect(plan.cycles[0]?.items).toEqual([loop, loop]);
+    expect(
+      plan.ingredientRequirements.map((ingredient) => ingredient.totalAmount),
+    ).toEqual([6, 3, 3]);
+    expect(
+      plan.choices.map((choice) => [choice.item.id, choice.requiredAmount]),
+    ).toEqual([[pending.id, null]]);
+    expect(
+      plan.selectedChoices.map((choice) => [
+        choice.item.id,
+        choice.requiredAmount,
+        choice.selected.key,
+      ]),
+    ).toEqual([
+      [loop.id, null, selections.get(loop.id)],
+      [selected.id, null, selections.get(selected.id)],
+    ]);
+    expect(plan.steps).toEqual([]);
+    expect(plan.baseRequirements).toEqual([]);
+
+    const recovered = createEncrustmentPlan(
+      items,
+      recipes,
+      definition,
+      3,
+      new Map([
+        ...selections,
+        [loop.id, `${recipes[1]!.id}#0`],
+        [pending.id, `${recipes[2]!.id}#0`],
+      ]),
+    );
+    expect(recovered.complete).toBe(true);
+    expect(recovered.cycles).toEqual([]);
+    expect(recovered.baseRequirements).toEqual([{ item: ore, amount: 11 }]);
+    expect(
+      recovered.selectedChoices.some((choice) => choice.item.id === unused.id),
+    ).toBe(false);
+  });
 });

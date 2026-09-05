@@ -45,7 +45,8 @@ export interface CraftingPlanStep {
 
 export interface CraftingPlanChoice {
   item: CraftingPlanItem;
-  requiredAmount: number;
+  /** Unavailable while a dependency cycle prevents demand calculation. */
+  requiredAmount: number | null;
   options: CraftingOutputOption[];
 }
 
@@ -320,11 +321,33 @@ export function createCraftingPlanFromRequirements(
   }
   const uniqueCycleList = uniqueCycles(cycles);
   if (uniqueCycleList.length > 0) {
+    // Keep reachable choices editable and URL-addressable even when the graph
+    // cannot be evaluated. Do not invent required amounts for a cyclic plan.
+    const choices: CraftingPlanChoice[] = [];
+    const selectedChoices: CraftingPlanSelectedChoice[] = [];
+    for (const node of [...nodes.values()].sort((left, right) =>
+      compareItems(left.item, right.item),
+    )) {
+      if (node.kind === "choice") {
+        choices.push({
+          item: node.item,
+          requiredAmount: null,
+          options: node.options,
+        });
+      } else if (node.kind === "recipe" && node.options.length > 1) {
+        selectedChoices.push({
+          item: node.item,
+          requiredAmount: null,
+          options: node.options,
+          selected: node.option,
+        });
+      }
+    }
     return {
       complete: false,
       steps: [],
-      choices: [],
-      selectedChoices: [],
+      choices,
+      selectedChoices,
       baseRequirements: [],
       unresolvedRequirements: [],
       cycles: uniqueCycleList,

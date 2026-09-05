@@ -39,6 +39,13 @@ export function CraftingPlanResults({
           <h2 id="cycle-heading" className="section-title-sm">
             Recipe cycles
           </h2>
+          <p className="detail-section-note">
+            These recipes form a loop. Crafting totals are unavailable until the
+            loop is resolved.
+            {yieldChoices.length > 0
+              ? " Change a recipe choice below to try another path."
+              : " Choose a different target to start another plan."}
+          </p>
           <ul className="crafting-requirement-list">
             {plan.cycles.map((cycle) => (
               <li key={cycle.items.map((item) => item.id).join(":")}>
@@ -67,7 +74,11 @@ export function CraftingPlanResults({
             {yieldChoices.map(({ choice, selectedKey }) => (
               <label key={choice.item.id} className="filter-field">
                 <span>
-                  {choice.item.name} ({choice.requiredAmount} needed)
+                  {choice.item.name} (
+                  {choice.requiredAmount === null
+                    ? "quantity unavailable"
+                    : `${choice.requiredAmount} needed`}
+                  )
                 </span>
                 <select
                   className="search-input"
@@ -155,9 +166,11 @@ export function CraftingPlanResults({
             </ol>
           ) : (
             <p className="detail-section-note">
-              {plan.choices.length > 0
-                ? "Choose the requested source yield to expand this dependency."
-                : "No calculable crafting steps are available."}
+              {plan.cycles.length > 0
+                ? "Crafting steps are unavailable while a recipe cycle remains."
+                : plan.choices.length > 0
+                  ? "Choose the requested source yield to expand this dependency."
+                  : "No calculable crafting steps are available."}
             </p>
           )}
         </section>
@@ -170,8 +183,12 @@ export function CraftingPlanResults({
           <h2 id="shopping-list-heading" className="section-title-sm">
             Base requirements
           </h2>
-          {plan.baseRequirements.length > 0 ||
-          plan.unresolvedRequirements.length > 0 ? (
+          {plan.cycles.length > 0 ? (
+            <p className="detail-section-note">
+              Base requirements are unavailable while a recipe cycle remains.
+            </p>
+          ) : plan.baseRequirements.length > 0 ||
+            plan.unresolvedRequirements.length > 0 ? (
             <ul className="crafting-requirement-list">
               {plan.baseRequirements.map((requirement) => (
                 <li key={requirement.item.id}>

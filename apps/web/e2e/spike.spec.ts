@@ -102,13 +102,13 @@ test.describe("static browse without JavaScript", () => {
     ).toBeVisible();
 
     const tools = page.getByRole("navigation", { name: "Crafting tools" });
-    const ingot = tools.getByRole("link", { name: "Ingot, 1 recipe" });
+    const ingot = tools.getByRole("link", { name: "Ingot, 2 recipes" });
     await expect(ingot).toHaveAttribute("aria-current", "page");
     await expect(ingot).toHaveAttribute("href", "/crafts/tool/ingot/");
     await expect(
-      page.getByText("Showing 1–1 of 1 recipe for Ingot"),
+      page.getByText("Showing 1–2 of 2 recipes for Ingot"),
     ).toBeVisible();
-    await expect(page.locator(".recipe-summary-card")).toHaveCount(1);
+    await expect(page.locator(".recipe-summary-card")).toHaveCount(2);
     await expect(
       page.getByRole("link", { name: "Brass Ingot Recipe", exact: true }),
     ).toBeVisible();
@@ -306,7 +306,7 @@ test("configures and persists the item catalogue display accessibly", async ({
   });
   await expect(swordCategory).toHaveAttribute("title", "Sword weapon — 1 item");
   await expect(page.getByLabel("Source: Synthetic Override")).toHaveText("SO");
-  await expect(page.getByLabel("Quality 3 out of 10")).toBeVisible();
+  await expect(page.getByLabel("Quality 3")).toBeVisible();
   const catalogueFacts = page.locator(".item-summary-facts");
   await expect(
     catalogueFacts.getByText("Artifact", { exact: true }),
@@ -454,7 +454,14 @@ test("presents complete item-trigger context in non-weapon catalogue cards", asy
 test("previews item crafting relationships without replacing direct navigation", async ({
   page,
 }, testInfo) => {
+  let previewDataRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().endsWith("/catalogue-previews.json")) {
+      previewDataRequests += 1;
+    }
+  });
   await page.goto("/items/category/material/1/");
+  expect(previewDataRequests).toBe(0);
   const itemCard = page.locator(".item-summary-card");
   await expect(
     itemCard.getByText("Training Gem", { exact: true }),
@@ -463,7 +470,7 @@ test("previews item crafting relationships without replacing direct navigation",
   const craftedFrom = itemCard
     .locator(".item-summary-relationship")
     .filter({ has: page.getByRole("heading", { name: "Crafted from" }) });
-  await expect(craftedFrom.locator(".catalogue-reference-list")).toHaveCount(1);
+  await expect(craftedFrom.locator(".catalogue-reference-list")).toHaveCount(2);
   await expect(
     craftedFrom.getByRole("link", {
       name: "Brass Ingot Recipe",
@@ -477,8 +484,11 @@ test("previews item crafting relationships without replacing direct navigation",
     name: /^Recipe preview: Brass Ingot Recipe:/,
   });
   await expect(craftedFromTrigger).toBeVisible();
-  await craftedFrom.locator(".recipe-preview-target").hover();
+  await craftedFrom
+    .getByRole("group", { name: /^Brass Ingot Recipe:/ })
+    .hover();
   await expect(craftedFromPreview).toBeVisible();
+  expect(previewDataRequests).toBe(1);
   await page.mouse.move(0, 0);
   await expect(craftedFromPreview).toBeHidden();
   await craftedFromTrigger.focus();
@@ -508,6 +518,7 @@ test("previews item crafting relationships without replacing direct navigation",
 
   await trigger.focus();
   await expect(preview).toBeVisible();
+  expect(previewDataRequests).toBe(1);
   await expect(
     preview.getByRole("link", {
       name: "Clockwork Blade Recipe",
@@ -544,18 +555,96 @@ test("previews item crafting relationships without replacing direct navigation",
 
   if (testInfo.project.name === "mobile-chromium") {
     await trigger.tap();
+    await expect(
+      preview.getByRole("link", {
+        name: "Clockwork Blade Recipe",
+        exact: true,
+      }),
+    ).toBeFocused();
   } else {
     await hoverTarget.hover();
   }
   await expect(preview).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(preview).toBeHidden();
+  await expect(trigger).toBeFocused();
 
   await page.keyboard.press("Tab");
-  await trigger.focus();
+  await expect(
+    itemCard
+      .getByRole("link", { name: "Synthetic Gear Polish", exact: true })
+      .first(),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
   await expect(preview).toBeVisible();
   await page.keyboard.press("Escape");
 });
+
+test("keeps full recipe navigation when preview data is unavailable", async ({
+  page,
+}) => {
+  await page.route("**/catalogue-previews.json", (route) => route.abort());
+  await page.goto("/items/category/material/1/");
+  const trigger = page.getByRole("button", {
+    name: /^Preview Clockwork Blade Recipe:/,
+  });
+
+  await trigger.focus();
+  const alert = page.locator('.recipe-preview-status[role="alert"]');
+  await expect(alert).toContainText("Recipe preview is unavailable.");
+  await expect(
+    alert.getByRole("link", { name: "Open full recipe details" }),
+  ).toHaveAttribute("href", "/recipes/clockwork-blade-recipe/");
+});
+
+for (const kind of ["recipe", "encrustment"] as const) {
+  test(`recovers from malformed ${kind} preview data with keyboard navigation`, async ({
+    page,
+  }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    let requests = 0;
+    await page.route("**/catalogue-previews.json", async (route) => {
+      requests += 1;
+      if (requests > 1) {
+        await route.continue();
+        return;
+      }
+      const response = await route.fetch();
+      const payload = await response.json();
+      const summaries =
+        kind === "recipe" ? payload.recipes : payload.encrustments;
+      for (const id of Object.keys(summaries)) {
+        summaries[id].inputs = [null];
+      }
+      await route.fulfill({ json: payload });
+    });
+    await page.goto("/items/category/material/1/");
+    const name =
+      kind === "recipe"
+        ? /^Preview Clockwork Blade Recipe:/
+        : /^Preview Synthetic Gear Polish: Brass Ingot, Missing Polish/;
+    const trigger = page.getByRole("button", { name });
+    await trigger.focus();
+    const alert = page.locator('.recipe-preview-status[role="alert"]');
+    await expect(alert).toContainText("preview is unavailable.");
+    const fallback = alert.getByRole("link");
+    await expect(fallback).toBeFocused();
+    await expect(fallback).toHaveAttribute(
+      "href",
+      kind === "recipe"
+        ? "/recipes/clockwork-blade-recipe/"
+        : "/encrustments/synthetic-gear-polish/",
+    );
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toBeHidden();
+    await expect(trigger).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog").locator("article")).toBeVisible();
+    expect(requests).toBe(2);
+    expect(pageErrors).toEqual([]);
+  });
+}
 
 test("previews an item encrusting relationship with accessible focus", async ({
   page,
@@ -1225,7 +1314,10 @@ test("reuses a cross-list crafting view and filters maximum source skill", async
 
   await expect(page).toHaveURL(/kind=crafting/);
   await expect(page).toHaveURL(/maxSkill=2/);
-  await expect(page.getByText("4 matching records")).toBeVisible();
+  await expect(page.getByText("5 matching records")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Brass Loop Recipe" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Brass Ingot Recipe" }),
   ).toBeVisible();
@@ -1246,7 +1338,7 @@ test("reuses a cross-list crafting view and filters maximum source skill", async
     .getByRole("option", { name: "Level 1 or lower", exact: true })
     .press("Enter");
   await expect(page).toHaveURL(/maxSkill=1/);
-  await expect(page.getByText("3 matching records")).toBeVisible();
+  await expect(page.getByText("4 matching records")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Brass Ingot Recipe" }),
   ).toBeVisible();

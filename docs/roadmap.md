@@ -557,7 +557,9 @@ optional alphabetical/quality/value orders; game-order representative icons;
 locally persisted display settings; measured 24/36/All page-size choices;
 small expansion markers with no base-game badge; and manifest-declared gold
 and quality-star imagery. The Value/Quality row now aligns text with its
-icon-bearing facts. Player-facing effect summaries preserve explicit chance,
+icon-bearing facts. The native ten-star quality band remains unchanged for
+game parity, while its accessible label states the exact source quality without
+claiming that values above ten are “out of 10.” Player-facing effect summaries preserve explicit chance,
 verified spell icon, linked spell, and trigger context as one sentence, plus available
 duration/delay/taxonomy/resistance
 qualifiers for every item family; native disclosure exposes uncommon later
@@ -584,7 +586,12 @@ tool-to-stat icon order directly beside each tier; dual-stat tools show both
 without an inferred eligibility rule. Item catalogue and detail relationships
 reuse that card through whole-relationship mouse hover and an icon-only
 focus/tap control while preserving visible primary links and Escape focus
-restoration. **Crafted from** now uses each complete ingredient group plus one
+restoration. Complete preview summaries are fetched from the static
+`/catalogue-previews.json` payload only after the first interaction, cached for
+later previews, and retain loading plus direct-detail failure fallbacks instead
+of being embedded repeatedly in every catalogue page. Distinct recipes remain
+separate previewable relationships even when they use the same ingredient and
+produce the same displayed item. **Crafted from** now uses each complete ingredient group plus one
 adjacent eye control to preview its recipe, without redundant unit quantities
 or recipe-name rows; native disclosure exposes every overflow relationship in place
 instead of sending users to a detail page merely to discover the remaining
@@ -734,7 +741,10 @@ up to three canonical items into ordered shareable URL state and presents
 exact source facts without combining missing values or inferring formulas. The
 next differentiating slice remains a bounded build-planning model, but it is
 not the current task while direct legacy-facing browsing surfaces are being
-restored.
+restored. The
+[planner cycle-recovery correction](analysis/planner-cycle-recovery-evidence-2026-09-05.md)
+keeps reachable choices editable and shareable while withholding cyclic
+calculations in both planners.
 
 Recommended sequence after the search-filter foundation:
 

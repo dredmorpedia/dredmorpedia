@@ -15,6 +15,8 @@ The fixture set deliberately includes:
 - one unsupported element;
 - one normalized encrustment with resolved and unresolved ingredients, signed direct modifiers, a probabilistic named power hook, an appearance descriptor, and a shared instability pool containing resolved and unresolved spell references; and
 - recursive crafting declarations with exact per-output source skill/yield tiers,
-  a shared resolved ingredient, and a deliberately unresolved source ingredient.
+  a shared resolved ingredient, a deliberately unresolved source ingredient,
+  and an alternative self-referencing recipe that exercises cycle selection,
+  URL persistence, and recovery in both planners.
 
 The explicit manifest controls source order and file discovery so output never depends on filesystem enumeration order.

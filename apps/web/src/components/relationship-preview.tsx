@@ -12,11 +12,13 @@ import {
 
 export function RelationshipPreview({
   children,
+  onPreviewRequest,
   preview,
   previewName,
   previewTitle,
 }: {
   children: ReactNode;
+  onPreviewRequest?: () => void;
   preview: ReactNode;
   previewName: string;
   previewTitle: string;
@@ -79,6 +81,12 @@ export function RelationshipPreview({
   );
 
   useEffect(() => {
+    if (open) {
+      onPreviewRequest?.();
+    }
+  }, [onPreviewRequest, open]);
+
+  useEffect(() => {
     if (!open || openSource.current === "hover") {
       return;
     }
@@ -92,7 +100,7 @@ export function RelationshipPreview({
       }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [open]);
+  }, [open, preview]);
 
   return (
     <Popover

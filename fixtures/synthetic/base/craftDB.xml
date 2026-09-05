@@ -18,4 +18,9 @@
     <output name="Brass Ingot" amount="1" skill="0" />
     <output name="Brass Ingot" amount="2" skill="1" />
   </craft>
+  <craft id="brass-loop-recipe" name="Brass Loop Recipe" hidden="0">
+    <tool tag="ingot" />
+    <input name="Brass Ingot" amount="1" />
+    <output name="Brass Ingot" amount="1" skill="0" />
+  </craft>
 </crafts>

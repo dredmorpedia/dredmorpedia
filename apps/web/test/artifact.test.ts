@@ -81,7 +81,7 @@ describe("generated artifact loading", () => {
       await import("../src/lib/artifact");
 
     expect(loadArtifact().entities.items).toHaveLength(14);
-    expect(loadSearchArtifact().documents).toHaveLength(29);
+    expect(loadSearchArtifact().documents).toHaveLength(30);
     expect(loadDiagnostics()).toHaveLength(26);
     expect(
       loadArtifact().entities.spells.find(

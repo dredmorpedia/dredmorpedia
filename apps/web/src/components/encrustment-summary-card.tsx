@@ -9,6 +9,7 @@ import { CraftingSourceLevel } from "@/components/crafting-source-level";
 import { EncrustmentInstability } from "@/components/encrustment-instability";
 import { EncrustmentSlotList } from "@/components/encrustment-slot-list";
 import { StatPresentationLink } from "@/components/stat-presentation-link";
+import { catalogueReferenceAccessibleLabel } from "@/lib/catalogue-reference-labels";
 import type { EncrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
 import type { SourceMarker } from "@/lib/source-markers";
 import type { StatLinkPresentation } from "@/lib/stat-presentation-types";
@@ -49,7 +50,7 @@ export function encrustmentSummaryAccessibleName(
   summary: EncrustmentSummaryData,
 ): string {
   const inputs = summary.inputs
-    .map((reference) => reference.itemName)
+    .map(catalogueReferenceAccessibleLabel)
     .join(", ");
   const slots = summary.slots.map((slot) => slot.label).join(", ");
   return `${summary.name}: ${inputs || "no declared ingredients"}; applies to ${slots || "no declared slots"}`;

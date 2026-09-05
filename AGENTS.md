@@ -245,7 +245,15 @@ Read these files before making a substantial change:
   places verified toolkit art in the transformation between ingredients and
   outputs when available,
   has no internal scrollbar, restores focus on Escape, and remains bounded to
-  four references per side. The Encrust catalogue foundation groups all 58
+  four references per side. Preview summaries are fetched only after the first
+  interaction from the static `/catalogue-previews.json` payload, cached across
+  later previews, and retain an explicit loading state plus a failure fallback
+  to the full detail route. Do not embed the complete preview summaries back
+  into every catalogue-page client boundary. Distinct recipes that use the same
+  ingredient and produce the same displayed item remain separate previewable
+  relationships. The native ten-star quality band remains game-authentic even
+  when the exact source quality exceeds ten; its accessible label must state the
+  exact quality without inventing an “out of 10” maximum. The Encrust catalogue foundation groups all 58
   canonical encrustment declarations under 57 displayed names and the five used toolkits in preserved familiar
   order. It reuses verified toolkit/item art, compact/detailed navigation, the
   progressive selected-tab return control, and persisted game/name/source-

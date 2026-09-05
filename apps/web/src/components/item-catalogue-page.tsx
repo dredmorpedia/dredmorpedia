@@ -3,13 +3,12 @@ import { notFound } from "next/navigation";
 import { Coins, Star } from "lucide-react";
 
 import {
-  canonicalKey,
-  itemEncrustmentRelationships,
-  itemRecipeRelationships,
   type DatasetArtifact,
+  type ItemEncrustmentRelationship,
   type Item,
   type ItemReference,
-  type Recipe,
+  type ItemRecipeRelationship,
+  type Spell,
   type SourceSummary,
 } from "@dredmorpedia/domain";
 
@@ -27,6 +26,11 @@ import { ItemTriggerEffect } from "@/components/item-trigger-effect";
 import { RecipePreview } from "@/components/recipe-preview";
 import { loadArtifact, loadArtifactSha256 } from "@/lib/artifact";
 import {
+  encrustmentPreviewAccessibleName,
+  recipePreviewAccessibleName,
+} from "@/lib/catalogue-preview-names";
+import { encrustmentSlotPresentation } from "@/lib/encrustment-slot-icons";
+import {
   createItemCatalogueCategories,
   defaultItemCatalogueCategory,
   defaultItemCatalogueView,
@@ -37,16 +41,11 @@ import {
   type ItemCatalogueSort,
 } from "@/lib/item-catalogue";
 import {
-  createEncrustmentSummaryData,
-  createEncrustmentSummaryToolMap,
-  type EncrustmentSummaryTool,
-} from "@/lib/encrustment-summary";
+  createItemCatalogueRelationshipIndex,
+  type ItemCatalogueRelationships,
+  usedToCraftCatalogueRelations,
+} from "@/lib/item-catalogue-relationships";
 import { itemIconUrl, spellIconUrl, uiIconUrl } from "@/lib/presented-assets";
-import {
-  createRecipeSummaryData,
-  createRecipeSummaryToolMap,
-  type RecipeSummaryTool,
-} from "@/lib/recipe-summary";
 import { sourceMarker } from "@/lib/source-markers";
 import { signedStatModifierValue } from "@/lib/stat-modifiers";
 import { wandChargeRangesSummary } from "@/lib/wand-charge-summary";
@@ -107,10 +106,10 @@ function QualityDisplay({
   }
   return (
     <span
-      aria-label={`Quality ${quality} out of 10`}
+      aria-label={`Quality ${quality}`}
       className="item-quality-stars"
       role="img"
-      title={`Quality ${quality} out of 10`}
+      title={`Quality ${quality}`}
     >
       {Array.from({ length: 10 }, (_, index) => {
         const filled = index < quality;
@@ -190,9 +189,8 @@ function ItemSummaryCard({
   goldIconUrl,
   qualityEmptyIconUrl,
   qualityFullIconUrl,
-  recipeSummaryTools,
-  encrustmentSummaryTools,
-  sourcesById,
+  relationships,
+  spellsById,
 }: {
   item: Item;
   artifact: DatasetArtifact;
@@ -202,42 +200,22 @@ function ItemSummaryCard({
   goldIconUrl: string | null;
   qualityEmptyIconUrl: string | null;
   qualityFullIconUrl: string | null;
-  recipeSummaryTools: ReadonlyMap<string, RecipeSummaryTool>;
-  encrustmentSummaryTools: ReadonlyMap<string, EncrustmentSummaryTool>;
-  sourcesById: ReadonlyMap<string, SourceSummary>;
+  relationships: ItemCatalogueRelationships;
+  spellsById: ReadonlyMap<string, Spell>;
 }) {
-  const recipeRelationships = itemRecipeRelationships(
-    artifact.entities.recipes,
-    item.id,
-  );
+  const recipeRelationships = relationships.recipes;
   const craftedBy = recipeRelationships.filter(
     (relationship) => relationship.outputs.length > 0,
   );
-  const usedToCraft = recipeRelationships.filter(
-    (relationship) => relationship.inputAmount > 0,
-  );
-  const usedToCraftItems = new Map<string, { item: Item; recipe: Recipe }>();
-  for (const { recipe } of usedToCraft) {
-    for (const output of recipe.outputs) {
-      if (output.itemId && output.itemId !== item.id) {
-        const outputItem = itemById.get(output.itemId);
-        if (outputItem && !usedToCraftItems.has(outputItem.id)) {
-          usedToCraftItems.set(outputItem.id, { item: outputItem, recipe });
-        }
-      }
-    }
-  }
-  const encrustments = itemEncrustmentRelationships(
-    artifact.entities.encrustments,
-    item.id,
-  );
+  const encrustments = relationships.encrustments;
   const canTargetFloor = item.weaponDeclarations.some(
     ({ canTargetFloor: declaration }) => declaration === true,
   );
-  const craftedItems = [...usedToCraftItems.values()];
-  const spellsById = new Map(
-    artifact.entities.spells.map((spell) => [spell.id, spell]),
-  );
+  const craftedItems = usedToCraftCatalogueRelations({
+    itemById,
+    itemId: item.id,
+    relationships: recipeRelationships,
+  });
   const marker = sourceMarker(source);
   const isEngineReference = source?.kind === "reference";
 
@@ -341,19 +319,12 @@ function ItemSummaryCard({
             <h4>Crafted from</h4>
             <div className="crafted-from-options">
               {craftedBy.map(({ recipe }) => {
-                const tool = recipeSummaryTools.get(recipe.tool);
                 return (
                   <RecipePreview
                     key={recipe.id}
-                    summary={createRecipeSummaryData({
-                      artifact,
-                      artifactSha256,
-                      itemsById: itemById,
-                      recipe,
-                      source: sourcesById.get(recipe.provenance.sourceId),
-                      toolIconUrl: tool?.iconUrl ?? null,
-                      toolLabel: tool?.label ?? recipe.tool,
-                    })}
+                    previewName={recipePreviewAccessibleName(recipe, itemById)}
+                    recipeId={recipe.id}
+                    recipeSlug={recipe.slug}
                   >
                     <ul className="catalogue-reference-list">
                       {recipe.inputs.map((reference, index) => (
@@ -379,8 +350,7 @@ function ItemSummaryCard({
             <ExpandableCatalogueList
               className="catalogue-chip-list"
               initialCount={4}
-              items={craftedItems.map(({ item: craftedItem, recipe }) => {
-                const tool = recipeSummaryTools.get(recipe.tool);
+              items={craftedItems.map(({ item: craftedItem, key, recipe }) => {
                 const relationship = (
                   <>
                     <ItemArt
@@ -398,17 +368,14 @@ function ItemSummaryCard({
                   </>
                 );
                 return (
-                  <li key={craftedItem.id}>
+                  <li key={key}>
                     <RecipePreview
-                      summary={createRecipeSummaryData({
-                        artifact,
-                        artifactSha256,
-                        itemsById: itemById,
+                      previewName={recipePreviewAccessibleName(
                         recipe,
-                        source: sourcesById.get(recipe.provenance.sourceId),
-                        toolIconUrl: tool?.iconUrl ?? null,
-                        toolLabel: tool?.label ?? recipe.tool,
-                      })}
+                        itemById,
+                      )}
+                      recipeId={recipe.id}
+                      recipeSlug={recipe.slug}
                     >
                       {relationship}
                     </RecipePreview>
@@ -427,21 +394,12 @@ function ItemSummaryCard({
               className="catalogue-chip-list"
               initialCount={3}
               items={encrustments.map(({ encrustment }) => {
-                const tool = encrustmentSummaryTools.get(
-                  canonicalKey(encrustment.tool),
+                const slots = encrustment.slots.map((slot) =>
+                  encrustmentSlotPresentation(slot, artifact, artifactSha256),
                 );
-                const summary = createEncrustmentSummaryData({
-                  artifact,
-                  artifactSha256,
-                  encrustment,
-                  itemsById: itemById,
-                  source: sourcesById.get(encrustment.provenance.sourceId),
-                  toolIconUrl: tool?.iconUrl ?? null,
-                  toolLabel: tool?.label ?? encrustment.tool,
-                });
                 const relationship = (
                   <>
-                    <EncrustmentSlotIconStack slots={summary.slots} />
+                    <EncrustmentSlotIconStack slots={slots} />
                     <Link
                       className="entity-link"
                       href={`/encrustments/${encrustment.slug}`}
@@ -452,7 +410,14 @@ function ItemSummaryCard({
                 );
                 return (
                   <li key={encrustment.id}>
-                    <EncrustmentPreview summary={summary}>
+                    <EncrustmentPreview
+                      encrustmentId={encrustment.id}
+                      encrustmentSlug={encrustment.slug}
+                      previewName={encrustmentPreviewAccessibleName(
+                        encrustment,
+                        itemById,
+                      )}
+                    >
                       {relationship}
                     </EncrustmentPreview>
                   </li>
@@ -543,16 +508,13 @@ export function ItemCataloguePage({
   const sourcesById = new Map(
     artifact.sources.map((source) => [source.id, source]),
   );
-  const recipeSummaryTools = createRecipeSummaryToolMap({
-    artifact,
-    artifactSha256,
-    itemsById: itemById,
+  const relationshipIndex = createItemCatalogueRelationshipIndex({
+    encrustments: artifact.entities.encrustments,
+    recipes: artifact.entities.recipes,
   });
-  const encrustmentSummaryTools = createEncrustmentSummaryToolMap({
-    artifact,
-    artifactSha256,
-    itemsById: itemById,
-  });
+  const spellsById = new Map(
+    artifact.entities.spells.map((spell) => [spell.id, spell]),
+  );
   const goldIconUrl = uiIconUrl("gold", artifact, artifactSha256);
   const qualityEmptyIconUrl = uiIconUrl(
     "quality-empty",
@@ -637,13 +599,17 @@ export function ItemCataloguePage({
               artifactSha256={artifactSha256}
               item={item}
               itemById={itemById}
-              encrustmentSummaryTools={encrustmentSummaryTools}
               goldIconUrl={goldIconUrl}
               qualityEmptyIconUrl={qualityEmptyIconUrl}
               qualityFullIconUrl={qualityFullIconUrl}
-              recipeSummaryTools={recipeSummaryTools}
+              relationships={
+                relationshipIndex.get(item.id) ?? {
+                  encrustments: [] satisfies ItemEncrustmentRelationship[],
+                  recipes: [] satisfies ItemRecipeRelationship[],
+                }
+              }
               source={sourcesById.get(item.provenance.sourceId)}
-              sourcesById={sourcesById}
+              spellsById={spellsById}
             />
           ))}
         </ul>

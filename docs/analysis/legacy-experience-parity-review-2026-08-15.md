@@ -92,6 +92,9 @@ The correction is implemented:
    truth; recipe previews use the maintained popover described below.
 9. The Value/Quality fact row aligns its labels with the centre of the game
    icon presentation rather than mixing text baselines with padded imagery.
+   The native ten-star quality band remains unchanged even when source quality
+   exceeds ten; the accessible label reports the exact value without calling
+   it “out of 10.”
 10. Item effect summaries retain the preserved player-facing structure:
     explicit source chance, verified spell icon, linked spell, and trigger
     context flow as one readable sentence. The same
@@ -189,6 +192,11 @@ with an explicit overflow message. Cross-context cards place the verified
 toolkit icon between their ingredient and output lists when the active asset
 set provides it; cards on an already selected tool page continue to suppress
 that redundant identity because its selected tab provides scrolling context.
+Distinct recipes remain separate relationships when the same ingredient can
+produce the same displayed item through multiple declarations. The complete
+summary payload is fetched from static `/catalogue-previews.json` only after the
+first preview interaction and cached afterward. Loading is explicit, and a
+failed fetch retains a direct link to the full recipe or encrustment route.
 
 ## Encrust catalogue foundation
 
@@ -286,16 +294,19 @@ this work as advanced and completeness-oriented fallbacks.
   Iron Sword, Iron Sword, and Fine Iron Sword in game order. Its opt-in value
   view renders all 44 swords at `/items/category/weapon-sword/view/price/all/1/`
   and Reset returns to the canonical route.
-- The relationship-heavy Reagent category now measures about 1.77 MB for its
-  default 36-item page and 2.05 MB for its explicit All view. The increase pays
-  for every disclosed recipe/encrustment relationship retaining its complete
-  preview behavior as well as its direct detail link.
+- On the current official dataset, the relationship-heavy Reagent category
+  measures about 1.41 MB uncompressed (about 152 KB with gzip) for its default
+  36-item static HTML, down from about 2.36 MB before preview summaries
+  were deferred. The shared 765 KB uncompressed preview payload (about 99 KB
+  with gzip) is requested only after the first preview interaction and cached
+  across later previews;
+  every disclosed relationship still retains its direct detail link.
 - The deterministic official asset set now contains 1,868 mappings to 1,556
   content-addressed files, with no fallbacks. All 62 reviewed stat identities
   resolve to verified local icon assets; catalogue modifiers retain accessible
   names and titles while using the compact image-led presentation.
 - `pnpm build:official` passes deterministic zero-error generation and the
-  complete 3,731-page local static export with all canonical and optional
+  complete 3,732-page local static export with all canonical and optional
   catalogue view routes.
 - The Craft foundation's focused unit tests cover familiar/fallback tool order,
   toolkit names and representatives, route collisions, and source/XML recipe

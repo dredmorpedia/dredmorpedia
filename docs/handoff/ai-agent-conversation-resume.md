@@ -4,6 +4,14 @@ Updated: 2026-08-30
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
+Fresh code/app review: see
+[`independent-review-2026-09-05.md`](../analysis/independent-review-2026-09-05.md)
+for the preview-response validation fix and independently reproduced findings.
+The planner cycle-choice follow-up is recorded in
+[`planner-cycle-recovery-evidence-2026-09-05.md`](../analysis/planner-cycle-recovery-evidence-2026-09-05.md).
+Search response validation and hosting-subpath JSON requests remain open.
+The older checkpoint counts below are historical rather than live status.
+
 ## Suggested opening instruction
 
 > Read `AGENTS.md` and `docs/handoff/ai-agent-conversation-resume.md` completely, then inspect Git status and the current roadmap/handoff state. Continue with the next smallest coherent parity slice. Treat the local game installation as read-only, never expose its path, do not publish generated official data, include automated coverage and exact manual test steps, and do not commit or push until I ask.

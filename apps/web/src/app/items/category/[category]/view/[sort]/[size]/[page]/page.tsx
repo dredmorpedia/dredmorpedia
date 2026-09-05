@@ -98,7 +98,7 @@ export async function generateMetadata({
     return {};
   }
   return {
-    title: `${category.label} items – ${view.sort} order`,
+    title: `${category.label} items – ${view.sort} order, page ${view.page}`,
     description: `Browse ${category.label.toLocaleLowerCase("en")} items using the selected local catalogue view.`,
   };
 }
