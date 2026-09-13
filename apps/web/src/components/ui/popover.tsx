@@ -15,24 +15,25 @@ export function PopoverContent({
   align = "start",
   children,
   className,
+  collisionAvoidance = {
+    align: "shift",
+    fallbackAxisSide: "end",
+    side: "flip",
+  },
   side = "bottom",
   sideOffset = 8,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Popup> &
   Pick<
     React.ComponentProps<typeof PopoverPrimitive.Positioner>,
-    "align" | "side" | "sideOffset"
+    "align" | "collisionAvoidance" | "side" | "sideOffset"
   >) {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Positioner
         align={align}
         className="z-[70] outline-none"
-        collisionAvoidance={{
-          align: "shift",
-          fallbackAxisSide: "end",
-          side: "flip",
-        }}
+        collisionAvoidance={collisionAvoidance}
         collisionPadding={12}
         side={side}
         sideOffset={sideOffset}

@@ -127,6 +127,7 @@ export function EncrustmentSummaryCard({
           <h4>Ingredients</h4>
           <CatalogueItemReferenceList
             overflowNoun="ingredient"
+            previewItems={variant === "full"}
             references={summary.inputs}
           />
         </div>

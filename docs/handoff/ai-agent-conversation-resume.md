@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-08-30
+Updated: 2026-09-10
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -11,6 +11,15 @@ The planner cycle-choice follow-up is recorded in
 [`planner-cycle-recovery-evidence-2026-09-05.md`](../analysis/planner-cycle-recovery-evidence-2026-09-05.md).
 Search response validation and hosting-subpath JSON requests remain open.
 The older checkpoint counts below are historical rather than live status.
+
+The independent Items/Craft/Encrust comparison is recorded in
+[`items-craft-encrust-parity-review-2026-09-08.md`](../analysis/items-craft-encrust-parity-review-2026-09-08.md).
+Audited declaration coverage matches legacy. The first follow-up adds lazy item
+previews to full Craft/Encrust references and makes reference artwork clickable;
+see [`item-reference-previews-evidence-2026-09-08.md`](../analysis/item-reference-previews-evidence-2026-09-08.md).
+Catalogue density, section return context, and item-effect spell previews remain
+open. Finish these bounded experience follow-ups before the older Skills and
+Abilities recommendation below.
 
 ## Suggested opening instruction
 

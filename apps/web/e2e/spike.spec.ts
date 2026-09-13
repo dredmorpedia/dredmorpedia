@@ -141,7 +141,12 @@ test.describe("static browse without JavaScript", () => {
         name: "Clockwork Blade Recipe",
       }),
     ).toBeVisible();
-    await expect(recipe.getByText("2 × Brass Ingot")).toBeVisible();
+    const brassInput = recipe
+      .locator(".recipe-summary-reference-with-amount")
+      .filter({
+        has: page.getByRole("link", { name: "Brass Ingot", exact: true }),
+      });
+    await expect(brassInput.locator("strong")).toHaveText("2 ×");
     await expect(
       recipe.getByText("Missing Cog", { exact: true }),
     ).toBeVisible();
@@ -532,9 +537,15 @@ test("previews item crafting relationships without replacing direct navigation",
   await expect(tool).toHaveAttribute("title", "Training Smithing Kit");
   await expect(preview.getByText("Training Smithing Kit")).toHaveCount(0);
   await expect(preview.locator(".recipe-summary-method > *")).toHaveCount(3);
+  const brassInput = preview
+    .locator(".recipe-summary-reference-with-amount")
+    .filter({
+      has: page.getByRole("link", { name: "Brass Ingot", exact: true }),
+    });
+  await expect(brassInput.locator("strong")).toHaveText("2 ×");
   await expect(
-    preview.getByText("2 × Brass Ingot", { exact: true }),
-  ).toBeVisible();
+    preview.getByRole("button", { name: "Preview Brass Ingot", exact: true }),
+  ).toHaveCount(0);
   await expect(preview.getByText("Missing Cog", { exact: true })).toBeVisible();
   await expect(preview.getByText("1 × Missing Cog")).toHaveCount(0);
   await expect(
@@ -1167,6 +1178,7 @@ test("searches reference entities with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+  await expect(page.getByText("30 matching records")).toBeVisible();
 
   const category = page.getByRole("combobox", { name: "Category" });
   await category.focus();
@@ -1182,6 +1194,7 @@ test("searches reference entities with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+  await expect(page.getByText("30 matching records")).toBeVisible();
 
   await type.focus();
   await type.press("Enter");
@@ -1204,6 +1217,7 @@ test("searches reference entities with shareable structured filters", async ({
 
   await page.getByRole("button", { name: "Reset filters" }).click();
   await expect(page).toHaveURL(/\/search\/?$/);
+  await expect(page.getByText("30 matching records")).toBeVisible();
 
   const stat = page.getByRole("combobox", { name: "Stat" });
   await stat.focus();
@@ -1232,6 +1246,8 @@ test("groups, bounds, and contextualizes search category filters", async ({
 }) => {
   await page.goto("/search/");
   const category = page.getByRole("combobox", { name: "Category" });
+  // The categories become available after the lazy search data has loaded.
+  await expect(category).toBeEnabled();
   await category.focus();
   await category.press("Enter");
 

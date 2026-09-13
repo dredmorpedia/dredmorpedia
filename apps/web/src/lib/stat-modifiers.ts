@@ -1,6 +1,6 @@
 import type { Stat, StatModifier } from "@dredmorpedia/domain";
 
-import { titleCase } from "@/lib/display-labels";
+import { titleCase } from "./display-labels";
 
 export function statDefinitionForModifier(
   modifier: StatModifier,

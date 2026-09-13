@@ -4,6 +4,17 @@ import type { ItemTrigger, Spell } from "@dredmorpedia/domain";
 
 import { spellTriggerLabels } from "@/lib/spell-triggers";
 
+export type ItemTriggerPresentation = Pick<
+  ItemTrigger,
+  | "chance"
+  | "delay"
+  | "duration"
+  | "kind"
+  | "monsterTaxonomy"
+  | "spellName"
+  | "unresistable"
+>;
+
 function sentenceContinuation(label: string): string {
   return `${label.slice(0, 1).toLowerCase()}${label.slice(1)}`;
 }
@@ -14,8 +25,8 @@ export function ItemTriggerEffect({
   trigger,
 }: {
   iconUrl: string | null;
-  spell: Spell | undefined;
-  trigger: ItemTrigger;
+  spell: Pick<Spell, "name" | "slug"> | undefined;
+  trigger: ItemTriggerPresentation;
 }) {
   return (
     <li

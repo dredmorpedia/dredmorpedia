@@ -156,9 +156,17 @@ export function RelationshipPreview({
             clearHoverOpen();
             openSource.current = "press";
             pointerFocus.current = true;
-            window.setTimeout(() => {
-              pointerFocus.current = false;
-            });
+          }}
+          onClick={() => {
+            // Touch focuses the trigger after pointerup. Keep focus from
+            // opening it before this same press toggles the popover.
+            pointerFocus.current = false;
+          }}
+          onPointerCancel={() => {
+            pointerFocus.current = false;
+          }}
+          onBlur={() => {
+            pointerFocus.current = false;
           }}
           title={`Preview ${previewName}`}
         >
@@ -167,6 +175,7 @@ export function RelationshipPreview({
       </div>
       <PopoverContent
         className="recipe-preview-popup relationship-preview-popup"
+        collisionAvoidance={{ align: "shift", side: "shift" }}
         finalFocus={() => openSource.current !== "hover"}
         initialFocus={() => {
           if (openSource.current === "hover") {

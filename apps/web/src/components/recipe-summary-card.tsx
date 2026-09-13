@@ -91,6 +91,7 @@ export function RecipeSummaryCard({
           <CatalogueItemReferenceList
             limit={referenceLimit}
             overflowNoun="ingredient"
+            previewItems={variant === "full"}
             references={summary.inputs}
           />
         </div>
@@ -117,6 +118,7 @@ export function RecipeSummaryCard({
             limit={referenceLimit}
             output
             overflowNoun="output tier"
+            previewItems={variant === "full"}
             references={summary.outputs}
             sourceStats={summary.sourceStats}
           />

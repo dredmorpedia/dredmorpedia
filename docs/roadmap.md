@@ -551,6 +551,15 @@ Skills and Abilities before returning to new Phase 5
 features. Evidence and order are in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
+The independent 2026-09-08 Items/Craft/Encrust review confirmed declaration
+coverage and identified further experience gaps. Its first follow-up adds
+validated, per-item lazy previews on full Craft and Encrust references, with
+clickable reference artwork and keyboard/touch controls. Evidence is in
+`docs/analysis/item-reference-previews-evidence-2026-09-08.md`. Catalogue framing
+and item density, section return context, and separately bounded spell previews
+remain next, ahead of the earlier Skills/Abilities recommendation. The review is
+recorded in `docs/analysis/items-craft-encrust-parity-review-2026-09-08.md`.
+
 The completed Items polish provides compact category icons by default with the
 grouped counter view as a toggle; preserved source/XML “game order” plus
 optional alphabetical/quality/value orders; game-order representative icons;
