@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ItemPreviewData } from "../src/lib/item-preview-types";
 
+const originalBasePath = process.env.NEXT_PUBLIC_BASE_PATH;
+
 const iconUrl = `/generated-assets/current/files/${"a".repeat(64)}.png`;
 const summary: ItemPreviewData = {
   category: "Wand",
@@ -39,9 +41,27 @@ const summary: ItemPreviewData = {
 };
 const payload = (item = summary) => ({ schemaVersion: 1, item });
 beforeEach(() => vi.resetModules());
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  if (originalBasePath === undefined) {
+    delete process.env.NEXT_PUBLIC_BASE_PATH;
+  } else {
+    process.env.NEXT_PUBLIC_BASE_PATH = originalBasePath;
+  }
+});
 
 describe("item preview loading", () => {
+  it("requests one item below the configured hosting subpath", async () => {
+    process.env.NEXT_PUBLIC_BASE_PATH = "/dredmorpedia";
+    const fetch = vi.fn(async () => Response.json(payload()));
+    vi.stubGlobal("fetch", fetch);
+    const { loadItemPreview } = await import("../src/lib/item-preview-data");
+    await loadItemPreview(summary.slug);
+    expect(fetch).toHaveBeenCalledExactlyOnceWith(
+      "/dredmorpedia/item-previews/test-wand/summary.json",
+    );
+  });
+
   it("fetches only the requested item and shares concurrent and subsequent results", async () => {
     const fetch = vi.fn(async () => Response.json(payload()));
     vi.stubGlobal("fetch", fetch);

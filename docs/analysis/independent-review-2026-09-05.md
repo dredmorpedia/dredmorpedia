@@ -10,6 +10,12 @@ claims were treated as context rather than proof. The official installation
 remained read-only; official data, assets, and temporary review measurements
 remain ignored and local.
 
+The 2026-09-28 follow-up closes the search-response and detached-JSON subpath
+findings below. See
+[`search-response-and-subpath-data-evidence-2026-09-28.md`](search-response-and-subpath-data-evidence-2026-09-28.md)
+for the current implementation and verification; this review retains its
+original reproduction and priority notes.
+
 ## Completed fix: validate preview responses before rendering
 
 `catalogue-preview-data.ts` previously checked only the outer JSON container

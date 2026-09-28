@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const testBasePath = process.env.DREDMORPEDIA_E2E_BASE_PATH ?? "";
+
 export default defineConfig({
   testDir: "./e2e",
   globalTeardown: "./e2e/global-teardown.ts",
@@ -13,7 +15,7 @@ export default defineConfig({
   },
   webServer: {
     command: "node e2e/static-server.mjs",
-    url: "http://127.0.0.1:3100",
+    url: `http://127.0.0.1:3100${testBasePath}/`,
     reuseExistingServer: false,
     timeout: 120_000,
   },

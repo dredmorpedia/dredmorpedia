@@ -6,7 +6,6 @@ import { isDeepStrictEqual } from "node:util";
 import {
   createSearchDocuments,
   damageSourceKeys,
-  entityKinds,
   isValidTemplateRows,
   itemRecoveryResources,
   itemTrapActivationModes,
@@ -23,6 +22,11 @@ import {
 } from "@dredmorpedia/domain";
 import { z } from "zod";
 
+import {
+  entitySlugSchema,
+  searchArtifactSchema,
+} from "./search-artifact-schema";
+
 const nonnegativeInteger = z.number().int().nonnegative();
 const positiveInteger = z.number().int().positive();
 const percentageInteger = nonnegativeInteger.max(100);
@@ -35,18 +39,6 @@ const optionalString = z.string().optional();
 const nonblankString = z
   .string()
   .refine((value) => value.trim().length > 0, "must be non-blank");
-const entitySlugSchema = z
-  .string()
-  .regex(
-    /^[a-z0-9-]+$/,
-    "must contain only lowercase ASCII letters, digits, and hyphens",
-  );
-const entityUrlSchema = z
-  .string()
-  .regex(
-    /^\/[a-z]+\/[a-z0-9-]+$/,
-    "must be an absolute entity path with a lowercase route and slug",
-  );
 const safeRelativeAssetPathSchema = z
   .string()
   .min(1)
@@ -1209,32 +1201,6 @@ const datasetArtifactSchema = z
         error: nonnegativeInteger,
       })
       .strict(),
-  })
-  .strict();
-
-const searchArtifactSchema = z
-  .object({
-    schemaVersion: z.literal(3),
-    datasetSchemaVersion: z.literal(3),
-    datasetId: z.string(),
-    language: z.literal("en"),
-    documents: z.array(
-      z
-        .object({
-          id: z.string(),
-          kind: z.enum(entityKinds),
-          name: z.string(),
-          aliases: z.array(entitySlugSchema),
-          summary: z.string(),
-          sourceId: z.string(),
-          category: z.string().nullable(),
-          statKeys: z.array(z.string()),
-          craftingSkillLevel: nonnegativeInteger.nullable(),
-          url: entityUrlSchema,
-          text: z.string(),
-        })
-        .strict(),
-    ),
   })
   .strict();
 

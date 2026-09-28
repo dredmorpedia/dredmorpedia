@@ -1159,6 +1159,30 @@ test("renders a strictly validated gem classification marker", async ({
   ).toHaveCount(0);
 });
 
+for (const invalidField of ["document", "schema version"] as const) {
+  test(`rejects search data with an invalid ${invalidField}`, async ({
+    page,
+  }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
+    await page.route("**/search-data.json", async (route) => {
+      const response = await route.fetch();
+      const payload = await response.json();
+      if (invalidField === "document") {
+        payload.documents = [{}];
+      } else {
+        payload.schemaVersion = 999;
+      }
+      await route.fulfill({ json: payload });
+    });
+    await page.goto("/search/?q=clockwork");
+    await expect(page.getByRole("status")).toHaveText(
+      "Search data could not be loaded. Reload the page to try again.",
+    );
+    expect(pageErrors).toEqual([]);
+  });
+}
+
 test("searches reference entities with shareable structured filters", async ({
   page,
 }) => {

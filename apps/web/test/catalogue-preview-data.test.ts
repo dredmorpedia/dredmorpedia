@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EncrustmentSummaryData } from "../src/components/encrustment-summary-card";
 import type { RecipeSummaryData } from "../src/components/recipe-summary-card";
 
+const originalBasePath = process.env.NEXT_PUBLIC_BASE_PATH;
+
 const iconUrl = `/generated-assets/current/files/${"a".repeat(64)}.png`;
 const stat = { iconUrl, label: "Test Stat", slug: "test-stat" };
 const reference = {
@@ -54,9 +56,28 @@ function payload() {
 }
 
 beforeEach(() => vi.resetModules());
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  if (originalBasePath === undefined) {
+    delete process.env.NEXT_PUBLIC_BASE_PATH;
+  } else {
+    process.env.NEXT_PUBLIC_BASE_PATH = originalBasePath;
+  }
+});
 
 describe("catalogue preview loading", () => {
+  it("requests previews below the configured hosting subpath", async () => {
+    process.env.NEXT_PUBLIC_BASE_PATH = "/dredmorpedia";
+    const fetch = vi.fn(async () => Response.json(payload()));
+    vi.stubGlobal("fetch", fetch);
+    const { loadRecipePreview } =
+      await import("../src/lib/catalogue-preview-data");
+    await loadRecipePreview(recipe.id);
+    expect(fetch).toHaveBeenCalledExactlyOnceWith(
+      "/dredmorpedia/catalogue-previews.json",
+    );
+  });
+
   it("shares one validated request across concurrent and later previews", async () => {
     const fetch = vi.fn(async () => Response.json(payload()));
     vi.stubGlobal("fetch", fetch);

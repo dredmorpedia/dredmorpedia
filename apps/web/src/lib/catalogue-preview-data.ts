@@ -1,6 +1,8 @@
 import type { EncrustmentSummaryData } from "@/components/encrustment-summary-card";
 import type { RecipeSummaryData } from "@/components/recipe-summary-card";
 
+import { staticDataUrl } from "./static-data-url";
+
 interface CataloguePreviewPayload {
   encrustments: Record<string, EncrustmentSummaryData>;
   recipes: Record<string, RecipeSummaryData>;
@@ -10,7 +12,7 @@ interface CataloguePreviewPayload {
 let payloadPromise: Promise<CataloguePreviewPayload> | null = null;
 
 async function fetchCataloguePreviewPayload(): Promise<CataloguePreviewPayload> {
-  const response = await fetch("/catalogue-previews.json");
+  const response = await fetch(staticDataUrl("/catalogue-previews.json"));
   if (!response.ok) {
     throw new Error(`Catalogue previews returned HTTP ${response.status}.`);
   }

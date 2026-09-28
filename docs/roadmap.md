@@ -1,6 +1,6 @@
 # Modernization roadmap
 
-Updated: 2026-08-20
+Updated: 2026-09-28
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
@@ -559,6 +559,13 @@ clickable reference artwork and keyboard/touch controls. Evidence is in
 and item density, section return context, and separately bounded spell previews
 remain next, ahead of the earlier Skills/Abilities recommendation. The review is
 recorded in `docs/analysis/items-craft-encrust-parity-review-2026-09-08.md`.
+
+The 2026-09-28 detached-data hardening validates every fetched search document
+with the build-time schema and makes search, recipe/encrustment, and item-preview
+JSON requests work below the configured hosting subpath. A prefixed static
+export and browser smoke test cover all three requests; optional desktop/mobile
+checks also cover them against the ignored official dataset. See
+`docs/analysis/search-response-and-subpath-data-evidence-2026-09-28.md`.
 
 The completed Items polish provides compact category icons by default with the
 grouped counter view as a toggle; preserved source/XML “game order” plus

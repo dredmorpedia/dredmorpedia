@@ -5,7 +5,6 @@ import {
   querySearchDocuments,
   suggestSearchDocuments,
   type EntityKind,
-  type SearchArtifact,
   type SearchDocument,
   type SearchQuery,
 } from "@dredmorpedia/domain";
@@ -170,14 +169,16 @@ export function SearchExplorer({
             `Search data request failed with ${response.status}.`,
           );
         }
-        const payload = (await response.json()) as Partial<SearchArtifact>;
-        if (
-          payload.datasetId !== datasetId ||
-          !Array.isArray(payload.documents)
-        ) {
+        const payload: unknown = await response.json();
+        const { searchArtifactSchema } =
+          await import("@/lib/search-artifact-schema");
+        const parsed = searchArtifactSchema.safeParse(payload);
+        if (!parsed.success || parsed.data.datasetId !== datasetId) {
           throw new Error("Search data does not match the active dataset.");
         }
-        setDocuments(payload.documents);
+        if (!controller.signal.aborted) {
+          setDocuments(parsed.data.documents);
+        }
       } catch {
         if (!controller.signal.aborted) {
           setSearchLoadError(true);

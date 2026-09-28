@@ -1,9 +1,12 @@
 import type { ItemPreviewData } from "./item-preview-types";
+import { staticDataUrl } from "./static-data-url";
 
 const requests = new Map<string, Promise<ItemPreviewData>>();
 
 async function fetchItemPreview(slug: string): Promise<ItemPreviewData> {
-  const response = await fetch(`/item-previews/${slug}/summary.json`);
+  const response = await fetch(
+    staticDataUrl(`/item-previews/${slug}/summary.json`),
+  );
   if (!response.ok) {
     throw new Error(`Item preview returned HTTP ${response.status}.`);
   }

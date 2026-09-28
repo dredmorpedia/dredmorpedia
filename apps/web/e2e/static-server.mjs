@@ -6,6 +6,10 @@ import { fileURLToPath } from "node:url";
 const host = "127.0.0.1";
 const port = 3100;
 const shutdownPath = "/__dredmorpedia-e2e-shutdown__";
+const basePath = (process.env.DREDMORPEDIA_E2E_BASE_PATH ?? "").replace(
+  /\/+$/,
+  "",
+);
 const outputRoot = realpathSync(
   path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../out"),
 );
@@ -40,6 +44,12 @@ function fileForRequest(requestUrl) {
     );
   } catch {
     return undefined;
+  }
+  if (basePath) {
+    if (pathname !== basePath && !pathname.startsWith(`${basePath}/`)) {
+      return undefined;
+    }
+    pathname = pathname.slice(basePath.length) || "/";
   }
   const relative =
     pathname === "/"

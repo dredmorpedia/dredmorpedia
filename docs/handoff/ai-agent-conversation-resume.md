@@ -1,6 +1,6 @@
 # AI agent conversation resume
 
-Updated: 2026-09-10
+Updated: 2026-09-28
 
 Use this document to resume the ongoing Dredmorpedia rebuild in a fresh AI conversation. It is a practical workflow/checkpoint summary, not a replacement for `AGENTS.md`, the project brief, architecture records, data policy, roadmap, or the detailed machine handoff.
 
@@ -9,8 +9,12 @@ Fresh code/app review: see
 for the preview-response validation fix and independently reproduced findings.
 The planner cycle-choice follow-up is recorded in
 [`planner-cycle-recovery-evidence-2026-09-05.md`](../analysis/planner-cycle-recovery-evidence-2026-09-05.md).
-Search response validation and hosting-subpath JSON requests remain open.
-The older checkpoint counts below are historical rather than live status.
+The search response and hosting-subpath JSON findings are closed by
+[`search-response-and-subpath-data-evidence-2026-09-28.md`](../analysis/search-response-and-subpath-data-evidence-2026-09-28.md).
+All fetched search documents now pass the shared strict artifact schema, and
+search, Craft/Encrust, and item-preview data requests work below a configured
+hosting subpath. The newest validation counts are recorded below; older
+measurements throughout this long handoff remain historical.
 
 The independent Items/Craft/Encrust comparison is recorded in
 [`items-craft-encrust-parity-review-2026-09-08.md`](../analysis/items-craft-encrust-parity-review-2026-09-08.md).
@@ -35,11 +39,15 @@ Abilities recommendation below.
 - Generated official artifacts remain ignored under `data/generated/official-local/` and are not approved for publication.
 - Node is pinned by `.node-version` to `24.18.0`; the workspace uses pnpm through Corepack. On Windows, use `pnpm.cmd` when needed.
 - Development runs on `http://localhost:3001/`.
-- The latest validation checkpoint passes 330 unit/artifact tests, all 80
-  desktop/mobile browser cases, deterministic official generation, the
-  3,731-page official static export, and every accepted search budget. The
+- The latest validation checkpoint passes 372 unit/artifact tests, 105
+  desktop/mobile browser cases (seven intentional skips), a separate
+  synthetic hosting-subpath smoke test, and four optional real-data browser
+  cases against a prefixed official export. Deterministic official generation,
+  the 4,496-entry official static export, and every accepted search budget
+  pass. The
   2,892-document verified search artifact loads separately from
-  `/search-data.json` so it is not embedded in React hydration.
+  `/search-data.json` below the configured hosting path, so it is not embedded
+  in React hydration.
 
 ## Owner decisions recorded on 2026-07-29
 

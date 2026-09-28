@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { SearchExplorer } from "@/components/search-explorer";
 import { loadArtifact, loadSearchArtifact } from "@/lib/artifact";
 import { createSearchStatFilterOptions } from "@/lib/search-stat-facets";
+import { staticDataUrl } from "@/lib/static-data-url";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -40,7 +41,7 @@ export default function SearchPage() {
     >
       <SearchExplorer
         datasetId={search.datasetId}
-        searchUrl="/search-data.json"
+        searchUrl={staticDataUrl("/search-data.json")}
         sources={sources}
         stats={stats}
       />
