@@ -567,6 +567,15 @@ export and browser smoke test cover all three requests; optional desktop/mobile
 checks also cover them against the ignored official dataset. See
 `docs/analysis/search-response-and-subpath-data-evidence-2026-09-28.md`.
 
+The catalogue-density slice shortens Items/Craft/Encrust framing and uses
+wide-screen columns inside item cards while preserving their complete facts
+and relationships. The compact item chooser becomes one horizontally
+scrollable row on narrow screens. First records now begin in the initial
+desktop and mobile viewports on the checked local official routes. Section
+return context and item-effect spell previews remain next, followed by
+image-led Skills and Abilities. See
+`docs/analysis/catalogue-density-evidence-2026-09-28.md`.
+
 The completed Items polish provides compact category icons by default with the
 grouped counter view as a toggle; preserved source/XML “game order” plus
 optional alphabetical/quality/value orders; game-order representative icons;

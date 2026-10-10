@@ -217,3 +217,7 @@ for current behavior, validation, and manual steps. The findings and reproductio
 steps above describe the reviewed `caef089` baseline. Density, section return
 context, and item-effect spell previews remain open; nested popovers inside
 recipe/encrustment previews are intentionally excluded from this first slice.
+
+The 2026-09-28 catalogue framing and item-density follow-up is recorded in
+[`catalogue-density-evidence-2026-09-28.md`](catalogue-density-evidence-2026-09-28.md).
+Section return context and item-effect spell previews remain open.

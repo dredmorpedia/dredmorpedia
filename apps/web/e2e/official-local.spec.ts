@@ -4,6 +4,75 @@ import { expect, test } from "@playwright/test";
 const enabled = process.env.DREDMORPEDIA_E2E_OFFICIAL === "1";
 const basePath = process.env.DREDMORPEDIA_E2E_BASE_PATH ?? "";
 
+test("shows the first catalogue record promptly with complete item facts", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!enabled, "Requires the local official static export.");
+  const viewport = isMobile
+    ? { width: 390, height: 844 }
+    : { width: 1280, height: 720 };
+  await page.setViewportSize(viewport);
+
+  for (const [path, cardSelector] of [
+    ["/items/", ".item-summary-card"],
+    ["/crafts/", ".recipe-summary-card"],
+    ["/encrusts/", ".encrustment-summary-card"],
+  ] as const) {
+    await page.goto(`${basePath}${path}`);
+    const firstCard = page.locator(cardSelector).first();
+    await expect(firstCard).toBeVisible();
+    const bounds = await firstCard.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.y).toBeLessThan(viewport.height - 60);
+    const documentWidth = await page.evaluate(
+      () => document.documentElement.scrollWidth,
+    );
+    expect(documentWidth).toBeLessThanOrEqual(viewport.width);
+
+    if (path === "/items/") {
+      await expect(
+        firstCard.getByRole("link", { name: "Crude Iron Sword" }),
+      ).toBeVisible();
+      const modifiers = firstCard.getByRole("group", {
+        name: "Item modifiers",
+      });
+      await expect(modifiers).toContainText("+1");
+      await expect(modifiers).toContainText("+2");
+      await expect(modifiers).toContainText("-2");
+      await expect(
+        firstCard.getByRole("heading", { name: "Crafted from" }),
+      ).toBeVisible();
+      if (isMobile) {
+        const categoryStrip = page.locator(".item-category-compact-list");
+        const scrollable = await categoryStrip.evaluate(
+          (element) => element.scrollWidth > element.clientWidth,
+        );
+        expect(scrollable).toBe(true);
+        await page
+          .getByRole("navigation", { name: "Item categories" })
+          .getByRole("link")
+          .last()
+          .focus();
+        expect(
+          await categoryStrip.evaluate((element) => element.scrollLeft),
+        ).toBeGreaterThan(0);
+      } else {
+        expect(bounds!.height).toBeLessThan(350);
+      }
+    }
+  }
+
+  if (isMobile) {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(`${basePath}/items/`);
+    await expect(page.locator(".item-summary-card").first()).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(320);
+  }
+});
+
 test("loads official search, recipe, and item previews", async ({
   page,
   isMobile,

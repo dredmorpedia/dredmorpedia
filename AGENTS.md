@@ -278,8 +278,9 @@ Read these files before making a substantial change:
   Complete item backlinks, search documents, static routes, catalogue cards,
   and planner choices cover all declarations; otherwise-identical planner
   labels add ingredient context.
-  Finish catalogue framing and density, section return context, and item-effect
-  spell previews, then continue with image-led Skills and Abilities. Keep Hidden and expansion
+  Catalogue framing and density work is complete; finish section return context
+  and item-effect spell previews, then continue with image-led Skills and
+  Abilities. Keep Hidden and expansion
   iconography for later card polish. The
   preserved Meta view's
   **Required Armour by Monster** compatibility calculation is owner-approved and

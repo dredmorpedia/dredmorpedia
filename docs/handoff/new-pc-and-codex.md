@@ -29,7 +29,7 @@ A useful first prompt on the new machine is:
 - Dataset schema 3 separates normalized records from search schema 3; search documents carry ordered route aliases for project-owned zero-result spelling suggestions plus exact nullable recipe/encrustment source skill for the shared crafting filter. Output-manifest schema 2 checksums normalized, search, and diagnostic outputs and is published last as the output-set commit marker. The web consumer verifies checksums, complete schemas, safe route/asset-reference shapes, unique same-kind canonical/alias ownership, search derivation, and diagnostic counts before rendering. Source-manifest schema 2 declares dataset/source versions, guarded patch overlays, and optional current/predecessor route registries. Route-registry schema 2 implements checksum-bound lineage, stable source-identity ownership, tombstones, reappearance, complete publication coverage, and atomic release failure. The web application has deterministic collision-safe item/stat/recipe/encrustment/skill/ability/spell/monster routes, bounded static browse catalogues for every kind, registered historical aliases, source-ID aliases, versioned patch provenance, shareable project-owned search across every generated entity kind with resilient debounced query URLs, canonical stat facets for direct item/ability/spell/encrustment declarations, a combined recipe/encrustment scope with inclusive maximum source-skill filtering, reusable project-owned URL views, bounded user-selected typo recovery, and shareable up-to-three-item comparison, item/stat/crafting/encrusting/loadout/spell/monster-family/drop backlinks, signed item damage/resistance/primary/secondary modifiers, loss-aware spell mana, root radius/wand/self/item-consumption, non-mana requirement, and buff parameters, buff-local descriptions/halos/invisibility/casting-prevention/wall-sensing/payback/zorkmid-absorption/polymorph declarations/AI hints, typed effect-list options, direct effect damage/scaling/Midas/created-object/dig-regeneration/buff-tag metadata, controls, and linked buff conditions, signed spell-buff direct and sight-radius modifiers, linked target/player hit and dodge buff event hooks, normalized item/ability/monster spell triggers, monster core profiles with local AI/sight/dig/dash/charge and sound/sprite presentation metadata plus direct drops, direct encrustment outcomes, a separately modeled shared instability-effect pool, and explicit missing-definition/reference/cycle states.
 - The 2026-09-28 validation checkpoint passes 372 unit/artifact tests, 105
   desktop/mobile browser cases plus one synthetic hosting-subpath smoke case
-  and four optional real-data browser cases against a prefixed official export,
+  and six optional real-data browser cases against a prefixed official export,
   deterministic official dataset and presented-asset generation, the complete
   4,496-entry local official export, and the accepted search budgets. The
   ignored asset set covers item, skill, ability, root spell, and
@@ -120,11 +120,11 @@ The invalid Wind Magic XML and missing official databases are baseline evidence,
 ## Immediate next milestone
 
 Continue toward local parity without assuming permission to publish official
-content. The current small experience follow-ups are catalogue framing/item
-density, section return context, and item-effect spell previews, followed by
-image-led Skills and Abilities. The search-response and hosting-subpath JSON
-hardening is complete; see
-`docs/analysis/search-response-and-subpath-data-evidence-2026-09-28.md`.
+content. Catalogue framing/item density is complete; section return context
+and item-effect spell previews follow, then image-led Skills and Abilities.
+The search-response and hosting-subpath JSON hardening is complete; see
+`docs/analysis/search-response-and-subpath-data-evidence-2026-09-28.md` and
+`docs/analysis/catalogue-density-evidence-2026-09-28.md`.
 The chronology below records earlier completed milestones:
 
 1. The first parity slice is complete from implementation and validation
@@ -608,8 +608,9 @@ The server-rendered `/browse/` directory exposes all nine entity kinds and links
   owner-reviewed display polish, and the Craft and Encrust catalogue
   foundations now group all canonical records by familiar tool. Accessible
   item-relationship recipe previews and exact wand-charge summaries are
-  complete; catalogue framing/item density, section return context, and
-  item-effect spell previews are next, then image-led Skills and Abilities. A bounded build-planning model is
+  complete. Catalogue framing/item density is also complete. Section return
+  context and item-effect spell previews follow, then image-led Skills and
+  Abilities. A bounded build-planning model is
   postponed. Extra
   technical-detail presentation remains a page-specific polish decision.
 - Technical feasibility of live progress tracking, deliberately deferred.

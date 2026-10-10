@@ -21,9 +21,10 @@ The independent Items/Craft/Encrust comparison is recorded in
 Audited declaration coverage matches legacy. The first follow-up adds lazy item
 previews to full Craft/Encrust references and makes reference artwork clickable;
 see [`item-reference-previews-evidence-2026-09-08.md`](../analysis/item-reference-previews-evidence-2026-09-08.md).
-Catalogue density, section return context, and item-effect spell previews remain
-open. Finish these bounded experience follow-ups before the older Skills and
-Abilities recommendation below.
+Catalogue density is now implemented; see
+[`catalogue-density-evidence-2026-09-28.md`](../analysis/catalogue-density-evidence-2026-09-28.md).
+Section return context and item-effect spell previews remain open before the
+older Skills and Abilities recommendation below.
 
 ## Suggested opening instruction
 
@@ -40,8 +41,8 @@ Abilities recommendation below.
 - Node is pinned by `.node-version` to `24.18.0`; the workspace uses pnpm through Corepack. On Windows, use `pnpm.cmd` when needed.
 - Development runs on `http://localhost:3001/`.
 - The latest validation checkpoint passes 372 unit/artifact tests, 105
-  desktop/mobile browser cases (seven intentional skips), a separate
-  synthetic hosting-subpath smoke test, and four optional real-data browser
+  desktop/mobile browser cases (nine intentional skips), a separate
+  synthetic hosting-subpath smoke test, and six optional real-data browser
   cases against a prefixed official export. Deterministic official generation,
   the 4,496-entry official static export, and every accepted search budget
   pass. The

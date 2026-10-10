@@ -230,146 +230,102 @@ function ItemSummaryCard({
         />
       </div>
       <div className="item-summary-main">
-        <div>
-          <div className="item-summary-heading">
-            <h3 className="item-summary-title">
-              <Link className="entity-link" href={`/items/${item.slug}`}>
-                {item.name}
-              </Link>
-            </h3>
-            {marker ? (
-              <span
-                aria-label={`Source: ${marker.fullLabel}`}
-                className="item-source-marker"
-                title={marker.fullLabel}
-              >
-                {marker.shortLabel}
-              </span>
-            ) : null}
-            {isEngineReference ? (
-              <span
-                className="item-reference-marker"
-                title="Project-authored reference for an engine item absent from the active item database"
-              >
-                Engine reference
-              </span>
-            ) : null}
+        <div className="item-summary-primary">
+          <div>
+            <div className="item-summary-heading">
+              <h3 className="item-summary-title">
+                <Link className="entity-link" href={`/items/${item.slug}`}>
+                  {item.name}
+                </Link>
+              </h3>
+              {marker ? (
+                <span
+                  aria-label={`Source: ${marker.fullLabel}`}
+                  className="item-source-marker"
+                  title={marker.fullLabel}
+                >
+                  {marker.shortLabel}
+                </span>
+              ) : null}
+              {isEngineReference ? (
+                <span
+                  className="item-reference-marker"
+                  title="Project-authored reference for an engine item absent from the active item database"
+                >
+                  Engine reference
+                </span>
+              ) : null}
+            </div>
+            <p className="item-summary-description">
+              {item.description ||
+                "No description is supplied by this dataset."}
+            </p>
           </div>
-          <p className="item-summary-description">
-            {item.description || "No description is supplied by this dataset."}
-          </p>
-        </div>
 
-        <dl className="item-summary-facts">
-          <div>
-            <dt>Value</dt>
-            <dd>
-              <PriceDisplay
-                iconUrl={goldIconUrl}
-                price={item.price}
-                unavailableLabel={
-                  isEngineReference ? "Not declared" : "Unknown"
-                }
-              />
-            </dd>
-          </div>
-          <div>
-            <dt>Quality</dt>
-            <dd>
-              <QualityDisplay
-                emptyIconUrl={qualityEmptyIconUrl}
-                fullIconUrl={qualityFullIconUrl}
-                quality={isEngineReference ? null : item.quality}
-              />
-            </dd>
-          </div>
-          <ItemArtifactFact artifacts={item.artifacts} />
-          {item.recoveries.map((recovery, index) => (
-            <div key={`${recovery.resource}:${index}`}>
-              <dt>{recovery.resource === "life" ? "Health" : "Mana"}</dt>
+          <dl className="item-summary-facts">
+            <div>
+              <dt>Value</dt>
               <dd>
-                {recovery.amount === null
-                  ? "Declared"
-                  : signedStatModifierValue(recovery.amount)}
+                <PriceDisplay
+                  iconUrl={goldIconUrl}
+                  price={item.price}
+                  unavailableLabel={
+                    isEngineReference ? "Not declared" : "Unknown"
+                  }
+                />
               </dd>
             </div>
-          ))}
-          {item.chargeRanges.length > 0 ? (
             <div>
-              <dt>Wand</dt>
-              <dd>{wandChargeRangesSummary(item.chargeRanges)}</dd>
+              <dt>Quality</dt>
+              <dd>
+                <QualityDisplay
+                  emptyIconUrl={qualityEmptyIconUrl}
+                  fullIconUrl={qualityFullIconUrl}
+                  quality={isEngineReference ? null : item.quality}
+                />
+              </dd>
             </div>
-          ) : null}
-          {canTargetFloor ? (
-            <div>
-              <dt>Targeting</dt>
-              <dd>Can target the floor</dd>
-            </div>
-          ) : null}
-        </dl>
+            <ItemArtifactFact artifacts={item.artifacts} />
+            {item.recoveries.map((recovery, index) => (
+              <div key={`${recovery.resource}:${index}`}>
+                <dt>{recovery.resource === "life" ? "Health" : "Mana"}</dt>
+                <dd>
+                  {recovery.amount === null
+                    ? "Declared"
+                    : signedStatModifierValue(recovery.amount)}
+                </dd>
+              </div>
+            ))}
+            {item.chargeRanges.length > 0 ? (
+              <div>
+                <dt>Wand</dt>
+                <dd>{wandChargeRangesSummary(item.chargeRanges)}</dd>
+              </div>
+            ) : null}
+            {canTargetFloor ? (
+              <div>
+                <dt>Targeting</dt>
+                <dd>Can target the floor</dd>
+              </div>
+            ) : null}
+          </dl>
 
-        <ItemSummaryModifierList
-          artifact={artifact}
-          artifactSha256={artifactSha256}
-          item={item}
-        />
+          <ItemSummaryModifierList
+            artifact={artifact}
+            artifactSha256={artifactSha256}
+            item={item}
+          />
+        </div>
 
-        {craftedBy.length > 0 ? (
-          <section className="item-summary-relationship">
-            <h4>Crafted from</h4>
-            <div className="crafted-from-options">
-              {craftedBy.map(({ recipe }) => {
-                return (
-                  <RecipePreview
-                    key={recipe.id}
-                    previewName={recipePreviewAccessibleName(recipe, itemById)}
-                    recipeId={recipe.id}
-                    recipeSlug={recipe.slug}
-                  >
-                    <ul className="catalogue-reference-list">
-                      {recipe.inputs.map((reference, index) => (
-                        <ItemReferenceRow
-                          key={`${reference.itemKey}:${index}`}
-                          artifact={artifact}
-                          artifactSha256={artifactSha256}
-                          itemById={itemById}
-                          reference={reference}
-                        />
-                      ))}
-                    </ul>
-                  </RecipePreview>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
-
-        {craftedItems.length > 0 ? (
-          <section className="item-summary-relationship">
-            <h4>Used to craft</h4>
-            <ExpandableCatalogueList
-              className="catalogue-chip-list"
-              initialCount={4}
-              items={craftedItems.map(({ item: craftedItem, key, recipe }) => {
-                const relationship = (
-                  <>
-                    <ItemArt
-                      artifact={artifact}
-                      artifactSha256={artifactSha256}
-                      item={craftedItem}
-                      size={32}
-                    />
-                    <Link
-                      className="entity-link"
-                      href={`/items/${craftedItem.slug}`}
-                    >
-                      {craftedItem.name}
-                    </Link>
-                  </>
-                );
-                return (
-                  <li key={key}>
+        <div className="item-summary-related">
+          {craftedBy.length > 0 ? (
+            <section className="item-summary-relationship">
+              <h4>Crafted from</h4>
+              <div className="crafted-from-options">
+                {craftedBy.map(({ recipe }) => {
+                  return (
                     <RecipePreview
+                      key={recipe.id}
                       previewName={recipePreviewAccessibleName(
                         recipe,
                         itemById,
@@ -377,84 +333,138 @@ function ItemSummaryCard({
                       recipeId={recipe.id}
                       recipeSlug={recipe.slug}
                     >
-                      {relationship}
+                      <ul className="catalogue-reference-list">
+                        {recipe.inputs.map((reference, index) => (
+                          <ItemReferenceRow
+                            key={`${reference.itemKey}:${index}`}
+                            artifact={artifact}
+                            artifactSha256={artifactSha256}
+                            itemById={itemById}
+                            reference={reference}
+                          />
+                        ))}
+                      </ul>
                     </RecipePreview>
-                  </li>
-                );
-              })}
-              noun="crafted item"
-            />
-          </section>
-        ) : null}
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
-        {encrustments.length > 0 ? (
-          <section className="item-summary-relationship">
-            <h4>Used to encrust</h4>
-            <ExpandableCatalogueList
-              className="catalogue-chip-list"
-              initialCount={3}
-              items={encrustments.map(({ encrustment }) => {
-                const slots = encrustment.slots.map((slot) =>
-                  encrustmentSlotPresentation(slot, artifact, artifactSha256),
-                );
-                const relationship = (
-                  <>
-                    <EncrustmentSlotIconStack slots={slots} />
-                    <Link
-                      className="entity-link"
-                      href={`/encrustments/${encrustment.slug}`}
-                    >
-                      {encrustment.name}
-                    </Link>
-                  </>
-                );
-                return (
-                  <li key={encrustment.id}>
-                    <EncrustmentPreview
-                      encrustmentId={encrustment.id}
-                      encrustmentSlug={encrustment.slug}
-                      previewName={encrustmentPreviewAccessibleName(
-                        encrustment,
-                        itemById,
-                      )}
-                    >
-                      {relationship}
-                    </EncrustmentPreview>
-                  </li>
-                );
-              })}
-              noun="encrustment"
-            />
-          </section>
-        ) : null}
+          {craftedItems.length > 0 ? (
+            <section className="item-summary-relationship">
+              <h4>Used to craft</h4>
+              <ExpandableCatalogueList
+                className="catalogue-chip-list"
+                initialCount={4}
+                items={craftedItems.map(
+                  ({ item: craftedItem, key, recipe }) => {
+                    const relationship = (
+                      <>
+                        <ItemArt
+                          artifact={artifact}
+                          artifactSha256={artifactSha256}
+                          item={craftedItem}
+                          size={32}
+                        />
+                        <Link
+                          className="entity-link"
+                          href={`/items/${craftedItem.slug}`}
+                        >
+                          {craftedItem.name}
+                        </Link>
+                      </>
+                    );
+                    return (
+                      <li key={key}>
+                        <RecipePreview
+                          previewName={recipePreviewAccessibleName(
+                            recipe,
+                            itemById,
+                          )}
+                          recipeId={recipe.id}
+                          recipeSlug={recipe.slug}
+                        >
+                          {relationship}
+                        </RecipePreview>
+                      </li>
+                    );
+                  },
+                )}
+                noun="crafted item"
+              />
+            </section>
+          ) : null}
 
-        {item.triggers.length > 0 ? (
-          <section className="item-summary-relationship">
-            <h4>Effects</h4>
-            <ExpandableCatalogueList
-              className="catalogue-text-links"
-              initialCount={2}
-              items={item.triggers.map((trigger, index) => {
-                const spell = trigger.spellId
-                  ? spellsById.get(trigger.spellId)
-                  : undefined;
-                return (
-                  <ItemTriggerEffect
-                    iconUrl={
-                      spell
-                        ? spellIconUrl(spell.id, artifact, artifactSha256)
-                        : null
-                    }
-                    key={`${trigger.kind}:${trigger.spellKey}:${index}`}
-                    spell={spell}
-                    trigger={trigger}
-                  />
-                );
-              })}
-              noun="effect"
-            />
-          </section>
-        ) : null}
+          {encrustments.length > 0 ? (
+            <section className="item-summary-relationship">
+              <h4>Used to encrust</h4>
+              <ExpandableCatalogueList
+                className="catalogue-chip-list"
+                initialCount={3}
+                items={encrustments.map(({ encrustment }) => {
+                  const slots = encrustment.slots.map((slot) =>
+                    encrustmentSlotPresentation(slot, artifact, artifactSha256),
+                  );
+                  const relationship = (
+                    <>
+                      <EncrustmentSlotIconStack slots={slots} />
+                      <Link
+                        className="entity-link"
+                        href={`/encrustments/${encrustment.slug}`}
+                      >
+                        {encrustment.name}
+                      </Link>
+                    </>
+                  );
+                  return (
+                    <li key={encrustment.id}>
+                      <EncrustmentPreview
+                        encrustmentId={encrustment.id}
+                        encrustmentSlug={encrustment.slug}
+                        previewName={encrustmentPreviewAccessibleName(
+                          encrustment,
+                          itemById,
+                        )}
+                      >
+                        {relationship}
+                      </EncrustmentPreview>
+                    </li>
+                  );
+                })}
+                noun="encrustment"
+              />
+            </section>
+          ) : null}
+
+          {item.triggers.length > 0 ? (
+            <section className="item-summary-relationship">
+              <h4>Effects</h4>
+              <ExpandableCatalogueList
+                className="catalogue-text-links"
+                initialCount={2}
+                items={item.triggers.map((trigger, index) => {
+                  const spell = trigger.spellId
+                    ? spellsById.get(trigger.spellId)
+                    : undefined;
+                  return (
+                    <ItemTriggerEffect
+                      iconUrl={
+                        spell
+                          ? spellIconUrl(spell.id, artifact, artifactSha256)
+                          : null
+                      }
+                      key={`${trigger.kind}:${trigger.spellKey}:${index}`}
+                      spell={spell}
+                      trigger={trigger}
+                    />
+                  );
+                })}
+                noun="effect"
+              />
+            </section>
+          ) : null}
+        </div>
 
         <p className="item-summary-more">
           <Link
@@ -556,11 +566,9 @@ export function ItemCataloguePage({
 
       <header className="browse-header">
         <div>
-          <p className="eyebrow">Encyclopedia</p>
           <h1 className="section-title">Items</h1>
           <p className="hero-copy">
-            Browse by familiar item type, then follow the visible crafting,
-            encrusting, effect, and stat relationships.
+            Browse item types, stats, effects, and crafting links.
           </p>
         </div>
         <p className="result-count" aria-live="polite">
@@ -579,7 +587,6 @@ export function ItemCataloguePage({
       <section aria-labelledby="item-category-heading">
         <div className="item-category-heading">
           <div>
-            <p className="eyebrow">Selected category</p>
             <h2 id="item-category-heading" className="section-title">
               {category.label}
             </h2>

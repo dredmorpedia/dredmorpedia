@@ -103,12 +103,11 @@ export function EncrustCataloguePage({
 
       <header className="browse-header">
         <div>
-          <p className="eyebrow">Encyclopedia</p>
           <h1 className="section-title">Encrusts</h1>
           <p className="hero-copy">
-            Browse encrustments by their familiar toolkit, with ingredients,
-            applicability, direct outcomes, and declared instability visible
-            together. These source facts do not imply a complete risk formula.
+            Browse encrustments by tool, with ingredients, applicability, and
+            declared outcomes. Instability is a source value, not a risk
+            formula.
           </p>
         </div>
         {activeTool && result ? (
@@ -133,7 +132,6 @@ export function EncrustCataloguePage({
         <section aria-labelledby="encrust-tool-heading">
           <div className="craft-tool-heading">
             <div>
-              <p className="eyebrow">Selected tool</p>
               <h2 id="encrust-tool-heading" className="section-title">
                 {activeTool.label}
               </h2>

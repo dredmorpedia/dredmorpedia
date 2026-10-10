@@ -101,12 +101,10 @@ export function CraftCataloguePage({
 
       <header className="browse-header">
         <div>
-          <p className="eyebrow">Encyclopedia</p>
           <h1 className="section-title">Crafts</h1>
           <p className="hero-copy">
-            Browse complete recipes by their familiar crafting tool, with
-            ingredients, output art, source levels, and hidden-recipe status
-            visible together.
+            Browse recipes by tool, with ingredients, outputs, and source
+            levels.
           </p>
         </div>
         {activeTool && result ? (
@@ -130,7 +128,6 @@ export function CraftCataloguePage({
         <section aria-labelledby="craft-tool-heading">
           <div className="craft-tool-heading">
             <div>
-              <p className="eyebrow">Selected tool</p>
               <h2 id="craft-tool-heading" className="section-title">
                 {activeTool.label}
               </h2>
