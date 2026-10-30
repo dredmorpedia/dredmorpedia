@@ -36,20 +36,27 @@ test("inspects Craft outputs lazily with keyboard or touch and shares item resul
   expect(requests[0]).toMatch(
     /\/item-previews\/clockwork-blade\/summary.json$/,
   );
-  const popup = await preview.boundingBox();
-  expect(popup!.width).toBeLessThanOrEqual(page.viewportSize()!.width - 20);
-  expect(popup!.height).toBeLessThan(page.viewportSize()!.height);
-  const contentWidth = await page.evaluate(
-    () => document.documentElement.clientWidth,
-  );
-  // Allow subpixel rounding during the popup's short scale transition.
-  expect(popup!.x).toBeGreaterThanOrEqual(11);
-  expect(popup!.x + popup!.width).toBeLessThanOrEqual(contentWidth - 11);
-  const contentHeight = await page.evaluate(
-    () => document.documentElement.clientHeight,
-  );
-  expect(popup!.y).toBeGreaterThanOrEqual(11);
-  expect(popup!.y + popup!.height).toBeLessThanOrEqual(contentHeight - 11);
+  // Loaded content can resize the popup before collision positioning catches up.
+  // Retry one rendered geometry snapshot until all viewport bounds hold together.
+  await expect(async () => {
+    const { popup, contentWidth, contentHeight } = await preview.evaluate(
+      (element) => {
+        const { x, y, width, height } = element.getBoundingClientRect();
+        return {
+          popup: { x, y, width, height },
+          contentWidth: document.documentElement.clientWidth,
+          contentHeight: document.documentElement.clientHeight,
+        };
+      },
+    );
+    expect(popup.width).toBeLessThanOrEqual(page.viewportSize()!.width - 20);
+    expect(popup.height).toBeLessThan(page.viewportSize()!.height);
+    // Allow subpixel rounding during the popup's short scale transition.
+    expect(popup.x).toBeGreaterThanOrEqual(11);
+    expect(popup.x + popup.width).toBeLessThanOrEqual(contentWidth - 11);
+    expect(popup.y).toBeGreaterThanOrEqual(11);
+    expect(popup.y + popup.height).toBeLessThanOrEqual(contentHeight - 11);
+  }).toPass({ timeout: 5_000 });
   expect(
     (
       await new AxeBuilder({ page })

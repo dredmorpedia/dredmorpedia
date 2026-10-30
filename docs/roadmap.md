@@ -1,10 +1,14 @@
 # Modernization roadmap
 
-Updated: 2026-09-28
+Updated: 2026-10-30
 
 This roadmap optimizes for a trustworthy vertical slice and a reusable data
 foundation. The local-first policy is decided; public-release estimates remain
 premature until content permissions are documented.
+
+The 2026-10-30 dependency maintenance, remaining development-only advisory,
+and preview-test stability work are recorded in
+[`dependency-maintenance-evidence-2026-10-30.md`](analysis/dependency-maintenance-evidence-2026-10-30.md).
 
 ## Phase 0 — Inception and constraints (local policy complete)
 
@@ -536,6 +540,11 @@ Evidence is in
 
 Status: engineering/content coverage complete; player-experience parity active
 
+Current parity order: section return context and item-effect spell previews,
+then image-led Skills and Abilities. Catalogue framing and density are complete.
+The dated checkpoint recommendations below are historical where later evidence
+supersedes them.
+
 The 2026-08-11 completion checkpoint proved the normalized content, route,
 relationship, and validation scope. The 2026-08-15 side-by-side product review
 reopened the presentation layer: direct, image-led browsing and familiar
@@ -546,18 +555,19 @@ catalogue. The owner-reviewed Items polish plus the Craft and Encrust catalogue
 foundations and the final reviewed item-card gap are complete, including progressively floating selected
 category/tool tabs, accessible recipe and encrustment previews from item
 relationships, complete in-place relationship disclosure, and toolkit-grouped
-encrustment summaries plus exact wand-charge summaries. Continue with image-led
-Skills and Abilities before returning to new Phase 5
-features. Evidence and order are in
+encrustment summaries plus exact wand-charge summaries. That review recommended
+image-led Skills and Abilities next; the current order above includes subsequent
+Items/Craft/Encrust follow-ups before new Phase 5 features. Evidence is in
 `docs/analysis/legacy-experience-parity-review-2026-08-15.md`.
 
 The independent 2026-09-08 Items/Craft/Encrust review confirmed declaration
 coverage and identified further experience gaps. Its first follow-up adds
 validated, per-item lazy previews on full Craft and Encrust references, with
 clickable reference artwork and keyboard/touch controls. Evidence is in
-`docs/analysis/item-reference-previews-evidence-2026-09-08.md`. Catalogue framing
-and item density, section return context, and separately bounded spell previews
-remain next, ahead of the earlier Skills/Abilities recommendation. The review is
+`docs/analysis/item-reference-previews-evidence-2026-09-08.md`. That review queued
+catalogue framing and item density, section return context, and separately
+bounded spell previews ahead of Skills/Abilities. The density slice below
+completes the first of those follow-ups. The review is
 recorded in `docs/analysis/items-craft-encrust-parity-review-2026-09-08.md`.
 
 The 2026-09-28 detached-data hardening validates every fetched search document
